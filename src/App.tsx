@@ -2544,6 +2544,17 @@ function SimulationStage({
     );
   }
 
+  if (simulation.key === "algorithm:queue") {
+    return (
+      <QueueFifoStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   const visibleSteps = simulation.steps.slice(0, completedSteps);
   const activeStep = simulation.steps[activeStepIndex];
   const flowActors = simulation.actors.filter((actorItem) => actorItem.id !== "wire");
@@ -3355,6 +3366,210 @@ function StackLifoStage({
           )}
         </svg>
         <div className="wire-caption stack-caption">
+          <span>{readLocalizedText(activeStep.title, locale)}</span>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QueueFifoStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const capacity = 5;
+  const states = completedSteps >= 5
+    ? [
+        { slot: 0, value: 33, order: 6 },
+        { slot: 2, value: 18, order: 3 },
+        { slot: 3, value: 24, order: 4 },
+        { slot: 4, value: 27, order: 5 },
+      ]
+    : completedSteps >= 4
+      ? [{ slot: 2, value: 18, order: 3 }]
+      : completedSteps >= 2
+        ? [
+            { slot: 0, value: 7, order: 1 },
+            { slot: 1, value: 12, order: 2 },
+            { slot: 2, value: 18, order: 3 },
+          ]
+        : [];
+  const headIndex = completedSteps >= 4 ? 2 : 0;
+  const tailIndex = completedSteps >= 5 ? 1 : completedSteps >= 2 ? 3 : 0;
+  const size = states.length;
+  const showEnqueue = completedSteps >= 2;
+  const showPeek = completedSteps >= 3;
+  const showDequeue = completedSteps >= 4;
+  const showWrap = completedSteps >= 5;
+  const slotWidth = 138;
+  const slotHeight = 92;
+  const slotGap = 12;
+  const startX = 110;
+  const slotY = 274;
+  const headX = startX + headIndex * (slotWidth + slotGap) + slotWidth / 2;
+  const tailX = startX + tailIndex * (slotWidth + slotGap) + slotWidth / 2;
+  const arrowId = (tone: string) => `url(#queue-arrow-${tone})`;
+  const valueBySlot = new Map(states.map((item) => [item.slot, item]));
+  const orderedValues = [...states].sort((a, b) => a.order - b.order);
+
+  return (
+    <div className="visual-stage queue-stage">
+      <div className="queue-card">
+        <svg
+          className="queue-diagram"
+          viewBox="0 0 980 650"
+          preserveAspectRatio="xMidYMid meet"
+          aria-label={readLocalizedText(simulation.title, locale)}
+          role="img"
+        >
+          <defs>
+            <filter id="queue-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="9" floodOpacity="0.12" />
+            </filter>
+            {[
+              ["brand", "var(--brand)"],
+              ["teal", "var(--tertiary)"],
+              ["warning", "#f59e0b"],
+              ["success", "var(--success)"],
+              ["danger", "var(--danger)"],
+              ["muted", "color-mix(in srgb, var(--muted) 54%, transparent)"],
+            ].map(([tone, fill]) => (
+              <marker
+                key={tone}
+                id={`queue-arrow-${tone}`}
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+          </defs>
+
+          <rect className="queue-bg" x="26" y="24" width="928" height="586" rx="24" />
+          <text className="queue-title" x="490" y="76">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="queue-subtitle" x="490" y="108">
+            {locale === "zh" ? "head 出队，tail 入队，数组下标按 capacity 取模" : "head dequeues, tail enqueues, indices wrap by capacity"}
+          </text>
+
+          <g className="queue-formula">
+            <rect x="244" y="134" width="492" height="54" rx="16" />
+            <text x="490" y="168">tail = (head + size) % capacity</text>
+          </g>
+
+          <g className="queue-slots">
+            {Array.from({ length: capacity }).map((_, slot) => {
+              const x = startX + slot * (slotWidth + slotGap);
+              const item = valueBySlot.get(slot);
+              const isHead = slot === headIndex && size > 0;
+              const isTail = slot === tailIndex;
+              const isWrapped = showWrap && slot === 0;
+              const slotClass = [
+                "queue-slot",
+                item ? "filled" : "",
+                isHead ? "head" : "",
+                isTail ? "tail" : "",
+                isWrapped ? "wrapped" : "",
+              ].filter(Boolean).join(" ");
+
+              return (
+                <g key={slot} className={slotClass}>
+                  <rect x={x} y={slotY} width={slotWidth} height={slotHeight} rx="12" />
+                  <text className="queue-slot-value" x={x + slotWidth / 2} y={slotY + 42}>
+                    {item?.value ?? ""}
+                  </text>
+                  <text className="queue-slot-index" x={x + slotWidth / 2} y={slotY + 72}>
+                    {`slot ${slot}`}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+
+          <g className="queue-head-pointer">
+            <rect x={headX - 72} y="208" width="144" height="48" rx="14" />
+            <text x={headX} y="238">{`head = ${headIndex}`}</text>
+            <path d={`M ${headX} 256 L ${headX} ${slotY - 10}`} markerEnd={arrowId(size > 0 ? "teal" : "muted")} />
+          </g>
+
+          <g className="queue-tail-pointer">
+            <rect x={tailX - 72} y="398" width="144" height="48" rx="14" />
+            <text x={tailX} y="428">{`tail = ${tailIndex}`}</text>
+            <path d={`M ${tailX} 398 L ${tailX} ${slotY + slotHeight + 10}`} markerEnd={arrowId(showWrap ? "danger" : "brand")} />
+          </g>
+
+          <g className="queue-order">
+            <rect x="104" y="500" width="392" height="72" rx="16" />
+            <text x="300" y="528">{locale === "zh" ? "逻辑顺序（队首 -> 队尾）" : "Logical order (head -> tail)"}</text>
+            <text x="300" y="554">
+              {orderedValues.length ? orderedValues.map((item) => item.value).join(" -> ") : "empty"}
+            </text>
+          </g>
+
+          <g className="queue-size-panel">
+            <rect x="606" y="500" width="270" height="72" rx="16" />
+            <text x="741" y="528">{`size = ${size}, capacity = ${capacity}`}</text>
+            <text x="741" y="554">
+              {showWrap
+                ? locale === "zh" ? "入队前检查 size < capacity" : "check size < capacity before enqueue"
+                : locale === "zh" ? "普通入队/出队 O(1)" : "normal enqueue/dequeue O(1)"}
+            </text>
+          </g>
+
+          {showEnqueue && (
+            <g className="queue-enqueue-note">
+              <path d={`M 490 196 C 570 220, 640 228, ${startX + 2.5 * (slotWidth + slotGap)} ${slotY - 16}`} markerEnd={arrowId("teal")} />
+              <rect x="598" y="196" width="236" height="56" rx="16" />
+              <text x="716" y="220">enqueue(7, 12, 18)</text>
+              <text x="716" y="240">{locale === "zh" ? "写入 tail 后移动" : "write tail, then move"}</text>
+            </g>
+          )}
+
+          {showPeek && (
+            <g className="queue-peek-note">
+              <rect x="84" y="138" width="214" height="58" rx="16" />
+              <text x="191" y="162">peek() = 7</text>
+              <text x="191" y="182">{locale === "zh" ? "指针保持" : "pointers unchanged"}</text>
+              <path d={`M 298 168 C 340 168, 352 218, ${headX} ${slotY - 16}`} markerEnd={arrowId("warning")} />
+            </g>
+          )}
+
+          {showDequeue && (
+            <g className="queue-dequeue-note">
+              <path d={`M ${headX} ${slotY + slotHeight + 14} C ${headX} 430, 430 454, 558 454`} markerEnd={arrowId("success")} />
+              <rect x="500" y="416" width="212" height="74" rx="16" />
+              <text x="606" y="442">{locale === "zh" ? "出队顺序" : "dequeue order"}</text>
+              <text x="606" y="466">{"7 -> 12"}</text>
+            </g>
+          )}
+
+          {showWrap && (
+            <g className="queue-wrap-note">
+              <path
+                d={`M ${startX + 4 * (slotWidth + slotGap) + slotWidth / 2} ${slotY + 118} C 842 474, 108 474, ${startX + slotWidth / 2} ${slotY + 118}`}
+                markerEnd={arrowId("danger")}
+              />
+              <rect x="342" y="392" width="230" height="54" rx="16" />
+              <text x="457" y="416">tail wraps to slot 0</text>
+              <text x="457" y="436">{locale === "zh" ? "取模保持连续顺序" : "modulo keeps order"}</text>
+            </g>
+          )}
+        </svg>
+        <div className="wire-caption queue-caption">
           <span>{readLocalizedText(activeStep.title, locale)}</span>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

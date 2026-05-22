@@ -2081,6 +2081,35 @@ function buildAlgorithmSpecific(point: GraphKnowledgePoint) {
     );
   }
 
+  if (point.id === "queue") {
+    return flow(
+      "algorithm",
+      point,
+      ["FIFO 队首队尾演算", "FIFO head/tail trace"],
+      ["用 head、tail、size 和取模下标解释入队、出队、查看队首和容量边界。", "Use head, tail, size, and modulo indexing to explain enqueue, dequeue, peek, and capacity boundaries."],
+      [
+        ["head", "队首指针", "Head pointer", "下一次出队位置", "Next dequeue slot", "cpu"],
+        ["queue", "循环数组", "Circular array", "按到达顺序保存元素", "Stores values in arrival order", "data"],
+        ["tail", "队尾指针", "Tail pointer", "下一次入队位置", "Next enqueue slot", "tool"],
+        ["result", "返回与边界", "Result and boundary", "返回值或满队列", "Value or full queue", "server"],
+      ],
+      {
+        head: tx("head = 0", "head = 0"),
+        queue: tx("[]", "[]"),
+        tail: tx("tail = 0", "tail = 0"),
+        result: tx("等待操作", "Awaiting operation"),
+      },
+      [
+        ["建立空队列", "Start empty queue", "初始化", "Initialize", "head", "queue", "size=0", "size=0", "空队列时 head 与 tail 可以落在同一槽位，size 区分空和满。", "In an empty queue, head and tail can point at the same slot; size separates empty from full.", "队列边界从 size 与容量关系开始。", "Queue boundaries start with the relation between size and capacity.", { head: tx("head=0", "head=0"), tail: tx("tail=0", "tail=0"), queue: tx("空队列", "Empty queue") }],
+        ["enqueue 7、12、18", "enqueue 7, 12, 18", "写入 tail", "Write tail", "tail", "queue", "tail = (tail + 1) % cap", "tail = (tail + 1) % cap", "入队把元素写入 tail 槽位，再按取模推进 tail，同时增加 size。", "Enqueue writes into the tail slot, advances tail by modulo, and increments size.", "新元素进入队尾，旧元素仍在队首。", "New values enter the tail while older values remain at the head.", { tail: tx("tail=3", "tail=3"), queue: tx("[7, 12, 18]", "[7, 12, 18]"), result: tx("入队完成", "Enqueued") }, "teal"],
+        ["peek 队首", "Peek head", "读取 head", "Read head", "head", "result", "peek()", "peek()", "查看队首只读取 head 槽位，head、tail 和 size 保持不变。", "Peek reads the head slot while head, tail, and size stay unchanged.", "查看操作验证下一次出队对象。", "Peek verifies the next dequeue value.", { result: tx("返回 7", "Returns 7"), head: tx("head=0", "head=0") }, "warning"],
+        ["dequeue 两次", "dequeue twice", "移出队首", "Remove head", "queue", "head", "dequeue(), dequeue()", "dequeue(), dequeue()", "出队先返回 head 元素，再按取模推进 head 并减少 size。连续两次出队会先得到 7，再得到 12。", "Dequeue returns the head value, advances head by modulo, and decrements size. Two dequeues return 7 then 12.", "FIFO 由 head 和 tail 的相对移动保证。", "FIFO follows from relative head/tail movement.", { queue: tx("[18]", "[18]"), head: tx("head=2", "head=2"), result: tx("7, 12", "7, 12") }, "success"],
+        ["回绕并检查容量", "Wrap and check capacity", "继续入队", "Continue enqueue", "tail", "result", "(tail + 1) % cap", "(tail + 1) % cap", "tail 到达数组末尾后用取模回到开头；入队前检查 size < capacity。", "When tail reaches the array end, modulo wraps it to the front; enqueue first checks size < capacity.", "循环队列题的关键是空满判定和顺序保持。", "Circular-queue problems hinge on empty/full checks and order preservation.", { tail: tx("tail=1", "tail=1"), queue: tx("[33, _, 18, 24, 27]", "[33, _, 18, 24, 27]"), result: tx("容量已检查", "Capacity checked") }, "danger"],
+      ],
+      [["FIFO", "FIFO"], ["enqueue/dequeue O(1)", "enqueue/dequeue O(1)"], ["head/tail 取模", "head/tail modulo"]],
+    );
+  }
+
   if (area === "tree" || area === "heap") {
     return flow(
       "algorithm",

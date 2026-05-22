@@ -1679,6 +1679,12 @@ td {
   padding: clamp(12px, 2.4vw, 28px);
 }
 
+.queue-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
 .array-card {
   position: relative;
   width: min(100%, 1080px);
@@ -1709,6 +1715,16 @@ td {
   overflow: hidden;
 }
 
+.queue-card {
+  position: relative;
+  width: min(100%, 1080px);
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: hidden;
+}
+
 .array-diagram {
   display: block;
   width: 100%;
@@ -1724,6 +1740,13 @@ td {
 }
 
 .stack-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+.queue-diagram {
   display: block;
   width: 100%;
   height: auto;
@@ -1773,6 +1796,11 @@ td {
   stroke: color-mix(in srgb, var(--secondary) 20%, transparent);
 }
 
+.queue-bg {
+  fill: color-mix(in srgb, var(--tertiary-soft) 30%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 20%, transparent);
+}
+
 .array-title {
   fill: var(--text);
   font-size: 28px;
@@ -1788,6 +1816,13 @@ td {
 }
 
 .stack-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.queue-title {
   fill: var(--text);
   font-size: 28px;
   font-weight: 950;
@@ -1826,6 +1861,23 @@ td {
 .stack-pop-note text,
 .stack-boundary-note text,
 .stack-bottom-label {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.queue-subtitle,
+.queue-formula text,
+.queue-head-pointer text,
+.queue-tail-pointer text,
+.queue-order text,
+.queue-size-panel text,
+.queue-enqueue-note text,
+.queue-peek-note text,
+.queue-dequeue-note text,
+.queue-wrap-note text {
   fill: var(--muted);
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 14px;
@@ -2188,6 +2240,128 @@ td {
 }
 
 .stack-caption {
+  bottom: 14px;
+}
+
+.queue-formula rect,
+.queue-head-pointer rect,
+.queue-tail-pointer rect,
+.queue-order rect,
+.queue-size-panel rect,
+.queue-enqueue-note rect,
+.queue-peek-note rect,
+.queue-dequeue-note rect,
+.queue-wrap-note rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 24%, var(--border));
+  stroke-width: 1.2;
+}
+
+.queue-formula text,
+.queue-head-pointer text,
+.queue-tail-pointer text,
+.queue-order text,
+.queue-size-panel text,
+.queue-enqueue-note text,
+.queue-peek-note text,
+.queue-dequeue-note text,
+.queue-wrap-note text {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.queue-order text:nth-of-type(1),
+.queue-size-panel text:nth-of-type(1) {
+  fill: var(--muted);
+  font-size: 13px;
+}
+
+.queue-slot rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 24%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#queue-soft-shadow);
+}
+
+.queue-slot.filled rect {
+  fill: color-mix(in srgb, var(--brand) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.queue-slot.head rect {
+  fill: color-mix(in srgb, var(--tertiary) 16%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+  stroke-width: 2.6;
+}
+
+.queue-slot.tail rect {
+  stroke: color-mix(in srgb, #f59e0b 56%, var(--border));
+}
+
+.queue-slot.wrapped rect {
+  fill: color-mix(in srgb, var(--success) 16%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 48%, var(--border));
+}
+
+.queue-slot-value,
+.queue-slot-index {
+  text-anchor: middle;
+}
+
+.queue-slot-value {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 25px;
+  font-weight: 950;
+}
+
+.queue-slot-index {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.queue-head-pointer path,
+.queue-tail-pointer path,
+.queue-enqueue-note path,
+.queue-peek-note path,
+.queue-dequeue-note path,
+.queue-wrap-note path {
+  fill: none;
+  stroke: var(--tertiary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3.2;
+}
+
+.queue-tail-pointer path {
+  stroke: var(--brand);
+}
+
+.queue-peek-note path {
+  stroke: #f59e0b;
+}
+
+.queue-dequeue-note path {
+  stroke: var(--success);
+}
+
+.queue-wrap-note path {
+  stroke: var(--danger);
+}
+
+.queue-wrap-note rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.queue-wrap-note text {
+  fill: var(--danger);
+  font-size: 13px;
+}
+
+.queue-caption {
   bottom: 14px;
 }
 
@@ -3709,6 +3883,11 @@ td {
     justify-content: start;
   }
 
+  .queue-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .array-card {
     width: 860px;
     max-width: none;
@@ -3727,11 +3906,25 @@ td {
     justify-self: start;
   }
 
+  .queue-card {
+    width: 880px;
+    max-width: none;
+    justify-self: start;
+  }
+
   .array-diagram {
     height: 544px;
   }
 
   .linked-list-diagram {
+    height: 592px;
+  }
+
+  .stack-diagram {
+    height: 592px;
+  }
+
+  .queue-diagram {
     height: 592px;
   }
 
