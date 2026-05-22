@@ -2522,6 +2522,17 @@ function SimulationStage({
     );
   }
 
+  if (simulation.key === "algorithm:linked-list") {
+    return (
+      <LinkedListPointerStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   const visibleSteps = simulation.steps.slice(0, completedSteps);
   const activeStep = simulation.steps[activeStepIndex];
   const flowActors = simulation.actors.filter((actorItem) => actorItem.id !== "wire");
@@ -2948,6 +2959,205 @@ function ArrayIndexStage({
           </g>
         </svg>
         <div className="wire-caption array-caption">
+          <span>{readLocalizedText(activeStep.title, locale)}</span>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LinkedListPointerStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const baseNodes = [
+    { id: "A", value: 7, x: 128, y: 238 },
+    { id: "B", value: 12, x: 328, y: 238 },
+    { id: "C", value: 18, x: 528, y: 238 },
+    { id: "D", value: 24, x: 728, y: 238 },
+  ];
+  const insertedNode = { id: "X", value: 99, x: 528, y: 370 };
+  const nodes = completedSteps >= 3
+    ? [baseNodes[0], baseNodes[1], insertedNode, baseNodes[2], baseNodes[3]]
+    : baseNodes;
+  const showTraversal = completedSteps >= 2;
+  const showInsert = completedSteps >= 3;
+  const showReverse = completedSteps >= 4;
+  const headTarget = showReverse ? insertedNode : baseNodes[0];
+  const arrowId = (tone: string) => `url(#linked-list-arrow-${tone})`;
+
+  function pointerPath(from: { x: number; y: number }, to: { x: number; y: number }) {
+    const startX = from.x + 126;
+    const startY = from.y + 42;
+    const endX = to.x - 14;
+    const endY = to.y + 42;
+    const curve = Math.abs(endY - startY) > 80
+      ? `C ${startX + 44} ${startY}, ${endX - 44} ${endY}, ${endX} ${endY}`
+      : `L ${endX} ${endY}`;
+
+    return `M ${startX} ${startY} ${curve}`;
+  }
+
+  function renderNode(node: { id: string; value: number; x: number; y: number }) {
+    const inserted = node.id === "X";
+    const reversedHead = showReverse && node.id === "X";
+    const active = showTraversal && ["B", "C"].includes(node.id);
+
+    return (
+      <g
+        key={node.id}
+        className={[
+          "linked-node",
+          inserted ? "inserted" : "",
+          reversedHead ? "reversed-head" : "",
+          active ? "active" : "",
+        ].filter(Boolean).join(" ")}
+      >
+        <rect x={node.x} y={node.y} width="146" height="86" rx="12" />
+        <line x1={node.x + 88} y1={node.y} x2={node.x + 88} y2={node.y + 86} />
+        <text className="linked-node-id" x={node.x + 44} y={node.y + 34}>
+          {node.id}
+        </text>
+        <text className="linked-node-value" x={node.x + 44} y={node.y + 62}>
+          {node.value}
+        </text>
+        <text className="linked-node-next" x={node.x + 117} y={node.y + 51}>
+          next
+        </text>
+      </g>
+    );
+  }
+
+  return (
+    <div className="visual-stage linked-list-stage">
+      <div className="linked-list-card">
+        <svg
+          className="linked-list-diagram"
+          viewBox="0 0 980 650"
+          preserveAspectRatio="xMidYMid meet"
+          aria-label={readLocalizedText(simulation.title, locale)}
+          role="img"
+        >
+          <defs>
+            <filter id="linked-list-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="9" floodOpacity="0.13" />
+            </filter>
+            {[
+              ["brand", "var(--brand)"],
+              ["teal", "var(--tertiary)"],
+              ["warning", "#f59e0b"],
+              ["success", "var(--success)"],
+              ["muted", "color-mix(in srgb, var(--muted) 54%, transparent)"],
+            ].map(([tone, fill]) => (
+              <marker
+                key={tone}
+                id={`linked-list-arrow-${tone}`}
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+          </defs>
+
+          <rect className="linked-list-bg" x="26" y="24" width="928" height="586" rx="24" />
+          <text className="linked-list-title" x="490" y="76">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="linked-list-subtitle" x="490" y="108">
+            {locale === "zh" ? "node = value + next, head 是唯一入口" : "node = value + next, head is the entry"}
+          </text>
+
+          <g className="linked-head-pointer">
+            <rect x="58" y="146" width="156" height="54" rx="14" />
+            <text x="136" y="180">{showReverse ? "head -> X" : "head -> A"}</text>
+            <path
+              d={`M 214 173 C 250 173, ${headTarget.x - 48} ${headTarget.y + 12}, ${headTarget.x + 16} ${headTarget.y + 22}`}
+              markerEnd={arrowId(showReverse ? "success" : "brand")}
+            />
+          </g>
+
+          <g className="linked-nodes">
+            {nodes.map(renderNode)}
+          </g>
+
+          <g className="linked-next-links">
+            {!showReverse && (
+              <>
+                <path d={pointerPath(baseNodes[0], baseNodes[1])} markerEnd={arrowId("brand")} />
+                {showInsert ? (
+                  <>
+                    <path d={pointerPath(baseNodes[1], insertedNode)} markerEnd={arrowId("warning")} />
+                    <path d={pointerPath(insertedNode, baseNodes[2])} markerEnd={arrowId("warning")} />
+                  </>
+                ) : (
+                  <path d={pointerPath(baseNodes[1], baseNodes[2])} markerEnd={arrowId("brand")} />
+                )}
+                <path d={pointerPath(baseNodes[2], baseNodes[3])} markerEnd={arrowId("brand")} />
+              </>
+            )}
+            {showReverse && (
+              <>
+                <path d={pointerPath(insertedNode, baseNodes[1])} markerEnd={arrowId("success")} />
+                <path d={pointerPath(baseNodes[1], baseNodes[0])} markerEnd={arrowId("success")} />
+                <path d={pointerPath(baseNodes[2], baseNodes[3])} markerEnd={arrowId("brand")} />
+                <path
+                  className="linked-remainder-link"
+                  d={`M ${baseNodes[0].x + 52} ${baseNodes[0].y + 96} C 360 560, 474 552, ${baseNodes[2].x + 36} ${baseNodes[2].y + 96}`}
+                  markerEnd={arrowId("teal")}
+                />
+              </>
+            )}
+          </g>
+
+          {showTraversal && (
+            <g className="linked-traversal">
+              <path d="M 174 210 L 374 210 L 574 210" markerEnd={arrowId("teal")} />
+              <rect x="426" y="136" width="182" height="52" rx="14" />
+              <text x="517" y="158">curr = C</text>
+              <text x="517" y="178">{"A -> B -> C"}</text>
+            </g>
+          )}
+
+          {showInsert && (
+            <g className="linked-insert-note">
+              <rect x="622" y="394" width="242" height="76" rx="14" />
+              <text x="743" y="420">X.next = C</text>
+              <text x="743" y="444">B.next = X</text>
+              <text x="743" y="464">O(1)</text>
+            </g>
+          )}
+
+          {showReverse && (
+            <g className="linked-reverse-note">
+              <rect x="94" y="494" width="360" height="68" rx="16" />
+              <text x="274" y="521">{locale === "zh" ? "保存 next，再执行 curr.next = prev" : "save next, then curr.next = prev"}</text>
+              <text x="274" y="544">prev = X, curr = C</text>
+            </g>
+          )}
+
+          <g className="linked-null-tail">
+            <path
+              d={`M ${baseNodes[3].x + 126} ${baseNodes[3].y + 42} L 910 ${baseNodes[3].y + 42}`}
+              markerEnd={arrowId("muted")}
+            />
+            <text x="928" y={baseNodes[3].y + 48}>null</text>
+          </g>
+        </svg>
+        <div className="wire-caption linked-list-caption">
           <span>{readLocalizedText(activeStep.title, locale)}</span>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

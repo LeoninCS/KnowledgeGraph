@@ -2024,6 +2024,34 @@ function buildAlgorithmSpecific(point: GraphKnowledgePoint) {
     );
   }
 
+  if (point.id === "linked-list") {
+    return flow(
+      "algorithm",
+      point,
+      ["节点与指针重连", "Nodes and pointer rewiring"],
+      ["用 head、next、prev/curr 游标和引用重连解释链表访问、插入和反转成本。", "Use head, next, prev/curr cursors, and reference rewiring to explain linked-list access, insertion, and reversal cost."],
+      [
+        ["head", "头指针", "Head pointer", "链表入口", "List entry", "tool"],
+        ["nodes", "节点链", "Node chain", "value + next", "value + next", "data"],
+        ["cursor", "游标", "Cursor", "prev / curr / next", "prev / curr / next", "cpu"],
+        ["cost", "成本结论", "Cost result", "遍历或重连成本", "Traversal or rewiring cost", "server"],
+      ],
+      {
+        head: tx("head -> A", "head -> A"),
+        nodes: tx("A -> B -> C -> D", "A -> B -> C -> D"),
+        cursor: tx("等待遍历", "Awaiting traversal"),
+        cost: tx("等待分析", "Awaiting analysis"),
+      },
+      [
+        ["建立节点链", "Build node chain", "载入链表", "Load list", "head", "nodes", "head + next", "head + next", "链表从 head 进入，每个节点用 next 指向后继节点。", "The list enters from head; each node points to its successor through next.", "结构顺序由引用决定，节点在内存中可以分散。", "Reference links define order; nodes can live apart in memory.", { head: tx("入口确定", "Entry fixed"), nodes: tx("next 链就绪", "next chain ready") }],
+        ["顺序访问 C", "Sequential access to C", "沿 next 前进", "Follow next", "nodes", "cursor", "A -> B -> C", "A -> B -> C", "访问目标节点需要从 head 沿 next 逐个移动游标。", "Accessing a target node moves the cursor from head through next links.", "链表随机访问依赖遍历步数，所以按 O(n) 分析。", "Random access depends on traversal steps, so it is analyzed as O(n).", { cursor: tx("curr = C", "curr = C"), cost: tx("访问 O(n)", "Access O(n)") }, "teal"],
+        ["在 B 后插入 X", "Insert X after B", "重连两条引用", "Rewrite two links", "cursor", "nodes", "X.next = C; B.next = X", "X.next = C; B.next = X", "已知前驱 B 时，先让新节点指向 C，再让 B 指向新节点。", "When predecessor B is known, point the new node to C, then point B to the new node.", "已定位位置附近的插入主要成本是常数次引用更新。", "Insertion near a known position mainly costs constant reference updates.", { nodes: tx("A -> B -> X -> C -> D", "A -> B -> X -> C -> D"), cost: tx("重连 O(1)", "Rewire O(1)") }, "warning"],
+        ["反转前三个节点", "Reverse first three nodes", "prev/curr/next 推进", "Advance prev/curr/next", "nodes", "cost", "A <- B <- X", "A <- B <- X", "反转时先保存 next，再把 curr.next 指向 prev，最后同步移动 prev 与 curr。", "Reversal saves next, points curr.next to prev, then advances prev and curr.", "指针题的关键是不丢失剩余链和正确更新 head。", "Pointer problems hinge on preserving the remaining chain and updating head.", { head: tx("head -> X", "head -> X"), cursor: tx("prev=X curr=C", "prev=X curr=C"), cost: tx("反转 O(n)", "Reverse O(n)") }, "success"],
+      ],
+      [["访问 O(n)", "Access O(n)"], ["已定位插入 O(1)", "Known-position insert O(1)"], ["head/tail 边界", "head/tail boundaries"]],
+    );
+  }
+
   if (area === "tree" || area === "heap") {
     return flow(
       "algorithm",
