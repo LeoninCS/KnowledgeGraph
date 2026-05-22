@@ -1,4 +1,9 @@
-node_modules/
+node_modules
 dist/
 *.tsbuildinfo
 .DS_Store
+.visualization-progress.json
+.visualization-claims.json
+.visualization-research/
+.visualization-lock/
+.visualization-implementation-lock/

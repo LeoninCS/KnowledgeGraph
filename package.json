@@ -6,7 +6,26 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "visual:status": "node scripts/visualization-queue.mjs status",
+    "visual:start": "node scripts/visualization-queue.mjs start",
+    "visual:update": "node scripts/visualization-queue.mjs update",
+    "visual:handoff": "node scripts/visualization-queue.mjs handoff",
+    "visual:validate": "node scripts/visualization-queue.mjs validate",
+    "visual:research:claim": "node scripts/visualization-queue.mjs research-claim",
+    "visual:research:save": "node scripts/visualization-queue.mjs research-save",
+    "visual:research:list": "node scripts/visualization-queue.mjs research-list",
+    "visual:implementation:claim": "node scripts/visualization-queue.mjs implementation-claim",
+    "visual:implementation:release": "node scripts/visualization-queue.mjs implementation-release",
+    "visual:lanes:setup": "node scripts/visualization-lanes.mjs setup",
+    "visual:lanes:status": "node scripts/visualization-lanes.mjs status",
+    "visual:lanes:dashboard": "node scripts/visualization-lanes.mjs dashboard",
+    "visual:lanes:board": "node scripts/visualization-lanes.mjs board",
+    "visual:lanes:ignite": "node scripts/visualization-lanes.mjs ignite",
+    "visual:lanes:sync": "node scripts/visualization-lanes.mjs sync",
+    "visual:lanes:clean": "node scripts/visualization-lanes.mjs clean",
+    "visual:complete": "node scripts/visualization-queue.mjs complete",
+    "visual:fail": "node scripts/visualization-queue.mjs fail"
   },
   "dependencies": {
     "@dagrejs/dagre": "^3.0.0",

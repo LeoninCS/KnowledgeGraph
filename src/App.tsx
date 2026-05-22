@@ -73,6 +73,41 @@ type Step = number;
 type GraphMode = "core" | "all";
 type GraphBoard = "knowledge" | "visual";
 type PointPriority = "primary" | "secondary";
+const defaultCategory: CategoryId = "network";
+const defaultKnowledgeId = "tcp-handshake";
+
+function readInitialRoute(): {
+  category: CategoryId;
+  knowledgeId: string;
+  page: Page;
+} {
+  if (typeof window === "undefined") {
+    return {
+      category: defaultCategory,
+      knowledgeId: defaultKnowledgeId,
+      page: "home" as Page,
+    };
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const categoryParam = params.get("category") as CategoryId | null;
+  const pointParam = params.get("point");
+  const pageParam = params.get("page") as Page | null;
+  const category =
+    categoryParam && knowledgePointsByCategory[categoryParam]
+      ? categoryParam
+      : defaultCategory;
+  const knowledgeId =
+    pointParam && knowledgePointsByCategory[category].some((point) => point.id === pointParam)
+      ? pointParam
+      : defaultKnowledgeId;
+  const page =
+    pageParam === "detail" || pageParam === "simulator" || pageParam === "about"
+      ? pageParam
+      : "home";
+
+  return { category, knowledgeId, page };
+}
 
 const copy = {
   zh: {
@@ -1623,11 +1658,12 @@ function buildGraphItems(
 }
 
 function App() {
-  const [page, setPage] = useState<Page>("home");
+  const [initialRoute] = useState(readInitialRoute);
+  const [page, setPage] = useState<Page>(initialRoute.page);
   const [theme, setTheme] = useState<Theme>("light");
   const [locale, setLocale] = useState<Locale>("zh");
-  const [selectedCategory, setSelectedCategory] = useState<CategoryId>("network");
-  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState("tcp-handshake");
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId>(initialRoute.category);
+  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState(initialRoute.knowledgeId);
   const [graphBoard, setGraphBoard] = useState<GraphBoard>("knowledge");
   const [searchQuery, setSearchQuery] = useState("");
   const t = copy[locale];

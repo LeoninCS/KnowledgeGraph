@@ -180,12 +180,15 @@ const visualAreas: Record<CategoryId, string[]> = {
   ],
 };
 
-const visualPointIds: Partial<Record<CategoryId, string[]>> = {
+export const visualPointIds: Partial<Record<CategoryId, string[]>> = {
   network: [
     "network-overview",
     "osi-model",
     "tcp-ip-model",
     "signal",
+    "ethernet-physical",
+    "mac-address",
+    "ethernet-frame",
     "arp",
     "switch",
     "vlan",
@@ -382,8 +385,8 @@ function getAreaKey(point: GraphKnowledgePoint) {
   return point.area ?? point.layer ?? "foundation";
 }
 
-export function isPointVisualizable(_categoryId: CategoryId, point: GraphKnowledgePoint) {
-  return Boolean(point.id);
+export function isPointVisualizable(categoryId: CategoryId, point: GraphKnowledgePoint) {
+  return visualPointIds[categoryId]?.includes(point.id) ?? false;
 }
 
 function actor(
@@ -2633,6 +2636,40 @@ function buildKubernetesSpecific(point: GraphKnowledgePoint) {
   );
 }
 
+function k8sCluster(point: GraphKnowledgePoint) {
+  return flow(
+    "kubernetes",
+    point,
+    ["集群控制闭环", "Cluster control loop"],
+    ["把一次应用部署拆成 API 入口、状态存储、调谐调度、节点执行、服务发现五段。", "Break one deployment into API entry, state storage, reconciliation and scheduling, node execution, and service discovery."],
+    [
+      ["kubectl", "kubectl/YAML", "kubectl / YAML", "提交期望状态", "Submits desired state", "data"],
+      ["api", "API Server", "API Server", "统一认证、准入和资源读写入口", "Unified auth, admission, and resource API", "server"],
+      ["etcd", "etcd", "etcd", "保存集群对象和状态", "Stores cluster objects and state", "database"],
+      ["control", "Controller/Scheduler", "Controller / scheduler", "监听变化并计算动作", "Watches changes and computes actions", "cluster"],
+      ["node", "Node/kubelet/runtime", "Node / kubelet / runtime", "启动容器并回写状态", "Starts containers and reports status", "container"],
+      ["service", "Service/DNS", "Service / DNS", "稳定访问入口和名称解析", "Stable access and name resolution", "network"],
+    ],
+    {
+      kubectl: tx("清单待提交", "Manifest ready"),
+      api: tx("等待请求", "Awaiting request"),
+      etcd: tx("状态未写入", "State pending"),
+      control: tx("Watch 中", "Watching"),
+      node: tx("等待 PodSpec", "Awaiting PodSpec"),
+      service: tx("等待后端", "Awaiting backends"),
+    },
+    [
+      ["提交声明", "Submit desired state", "kubectl apply", "kubectl apply", "kubectl", "api", "manifest", "manifest", "用户提交 Deployment、Service 或其他资源清单，API Server 完成认证、鉴权、准入和对象校验。", "The user submits Deployment, Service, or other manifests; API Server handles authentication, authorization, admission, and object validation.", "集群入口排查先看 API 请求、权限、准入和对象 schema。", "Start entry debugging from API request, permissions, admission, and object schema.", { kubectl: tx("已提交", "Submitted"), api: tx("对象已校验", "Object validated") }],
+      ["写入状态", "Persist state", "写入 etcd", "Write etcd", "api", "etcd", "resourceVersion", "resourceVersion", "API Server 把对象和 resourceVersion 持久化到 etcd，形成控制面一致的观察来源。", "API Server persists the object and resourceVersion in etcd, creating the consistent source observed by the control plane.", "etcd 健康、容量和备份决定控制面恢复能力。", "etcd health, capacity, and backups decide control-plane recovery.", { api: tx("资源已保存", "Resource stored"), etcd: tx("版本已更新", "Version updated") }, "teal"],
+      ["调谐调度", "Reconcile and schedule", "Watch 事件", "Watch event", "etcd", "control", "controller + bind", "controller + bind", "控制器监听资源变化并创建下游对象，Scheduler 为未绑定 Pod 选择节点并写回绑定结果。", "Controllers watch resource changes and create downstream objects; Scheduler chooses a node for an unbound Pod and writes the binding.", "Pending Pod 重点看调度事件、资源请求、亲和性和污点容忍。", "For a Pending Pod, inspect scheduling events, resource requests, affinity, and taints or tolerations.", { etcd: tx("变更可观察", "Change observable"), control: tx("调谐/绑定中", "Reconciling / binding") }, "warning"],
+      ["节点执行", "Node execution", "下发 PodSpec", "Send PodSpec", "control", "node", "PodSpec -> runtime", "PodSpec -> runtime", "kubelet 在目标节点读取 PodSpec，调用容器运行时拉镜像、创建 sandbox、启动容器并执行探针。", "kubelet reads the PodSpec on the target node, asks the runtime to pull images, create the sandbox, start containers, and run probes.", "ImagePullBackOff、CrashLoopBackOff、探针失败和资源压力都落在节点执行段。", "ImagePullBackOff, CrashLoopBackOff, probe failures, and resource pressure sit in node execution.", { control: tx("动作已下发", "Action dispatched"), node: tx("Pod 运行/检查中", "Pod running / probing") }, "brand"],
+      ["回写状态", "Report status", "PodStatus/Events", "PodStatus / events", "node", "api", "condition + event", "condition + event", "kubelet 把 PodStatus、Condition 和事件回写 API Server，控制器继续比较期望状态与实际状态。", "kubelet reports PodStatus, conditions, and events to API Server; controllers keep comparing desired and actual state.", "describe 的 Conditions 与 Events 是理解控制闭环的主线。", "describe conditions and events are the main path for reading the control loop.", { node: tx("状态已回报", "Status reported"), api: tx("状态已更新", "Status updated") }, "success"],
+      ["接入服务", "Attach service", "EndpointSlice + DNS", "EndpointSlice + DNS", "api", "service", "stable name", "stable name", "Service 根据 selector 关联 Pod，EndpointSlice 表示后端端点，集群 DNS 为 Service 发布稳定名称。", "Service selects Pods, EndpointSlice represents backends, and cluster DNS publishes a stable name for the Service.", "访问故障从 selector、EndpointSlice、DNS、网络插件和代理规则逐段检查。", "For access failures, inspect selector, EndpointSlice, DNS, network plugin, and proxy rules segment by segment.", { api: tx("端点已发布", "Endpoints published"), service: tx("名称可解析", "Name resolvable") }, "success"],
+    ],
+    [["API 入口", "API entry"], ["etcd 状态", "etcd state"], ["调谐/调度", "Reconcile / schedule"], ["节点执行", "Node execution"], ["Service/DNS", "Service / DNS"]],
+  );
+}
+
 function buildAgentSpecific(point: GraphKnowledgePoint) {
   const area = getAreaKey(point);
 
@@ -3136,6 +3173,7 @@ const customBuilders: Record<string, Builder> = {
   "network:https": tls,
   "network:http-cache": httpCache,
   "network:load-balancing": loadBalancing,
+  "kubernetes:cluster": k8sCluster,
   "mysql:b-plus-tree": bPlusTree,
   "kubernetes:deployment": k8sDeployment,
   "kubernetes:rolling-update": k8sDeployment,
