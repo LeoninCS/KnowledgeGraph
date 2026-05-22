@@ -180,12 +180,15 @@ const visualAreas: Record<CategoryId, string[]> = {
   ],
 };
 
-const visualPointIds: Partial<Record<CategoryId, string[]>> = {
+export const visualPointIds: Partial<Record<CategoryId, string[]>> = {
   network: [
     "network-overview",
     "osi-model",
     "tcp-ip-model",
     "signal",
+    "ethernet-physical",
+    "mac-address",
+    "ethernet-frame",
     "arp",
     "switch",
     "vlan",
@@ -382,8 +385,8 @@ function getAreaKey(point: GraphKnowledgePoint) {
   return point.area ?? point.layer ?? "foundation";
 }
 
-export function isPointVisualizable(_categoryId: CategoryId, point: GraphKnowledgePoint) {
-  return Boolean(point.id);
+export function isPointVisualizable(categoryId: CategoryId, point: GraphKnowledgePoint) {
+  return visualPointIds[categoryId]?.includes(point.id) ?? false;
 }
 
 function actor(
@@ -1992,6 +1995,34 @@ function buildOsSpecific(point: GraphKnowledgePoint) {
 
 function buildAlgorithmSpecific(point: GraphKnowledgePoint) {
   const area = getAreaKey(point);
+
+  if (point.id === "array") {
+    return flow(
+      "algorithm",
+      point,
+      ["索引与搬移", "Index and shift"],
+      ["用连续单元、下标寻址和插入搬移解释数组的访问与更新成本。", "Use contiguous cells, indexed addressing, and insertion shifts to explain array access and update cost."],
+      [
+        ["address", "地址公式", "Address formula", "base + i * size", "base + i * size", "cpu"],
+        ["array", "连续单元", "Contiguous cells", "a[0] 到 a[n-1]", "a[0] through a[n-1]", "data"],
+        ["cursor", "目标下标", "Target index", "访问或插入位置", "Access or insertion index", "tool"],
+        ["cost", "成本结论", "Cost result", "随机访问或搬移成本", "Random access or shift cost", "server"],
+      ],
+      {
+        address: tx("base=1000, size=4", "base=1000, size=4"),
+        array: tx("[4, 8, 15, 16, 23]", "[4, 8, 15, 16, 23]"),
+        cursor: tx("等待下标", "Awaiting index"),
+        cost: tx("等待分析", "Awaiting analysis"),
+      },
+      [
+        ["建立连续存储", "Build contiguous storage", "载入数组", "Load array", "address", "array", "连续地址", "contiguous addresses", "元素按下标顺序放入连续单元，长度和元素大小决定可访问范围。", "Elements occupy contiguous cells by index; length and element size define valid access range.", "数组的核心模型是下标映射到固定宽度单元。", "The core model maps an index to a fixed-width cell.", { address: tx("公式就绪", "Formula ready"), array: tx("单元已编号", "Cells indexed") }],
+        ["随机访问 a[2]", "Random access a[2]", "计算地址", "Compute address", "array", "cursor", "base + 2 * size", "base + 2 * size", "访问 a[2] 时直接用下标计算目标地址并读取该单元。", "Accessing a[2] computes the target address directly and reads that cell.", "下标访问只依赖公式和下标，所以按 O(1) 分析。", "Index access depends on formula and index only, so it is analyzed as O(1).", { cursor: tx("命中 a[2]=15", "Hit a[2]=15"), cost: tx("随机访问 O(1)", "Random access O(1)") }, "teal"],
+        ["插入 99 到 i=2", "Insert 99 at i=2", "右移尾部", "Shift suffix right", "cursor", "array", "shift a[2..4]", "shift a[2..4]", "在中间插入时，后缀元素从右向左移动一格，为新元素腾出位置。", "Middle insertion shifts suffix elements one slot right from the end to make room.", "移动元素数量随后缀长度增长，所以中间插入按 O(n) 分析。", "Moved elements grow with suffix length, so middle insertion is analyzed as O(n).", { array: tx("[4, 8, 99, 15, 16, 23]", "[4, 8, 99, 15, 16, 23]"), cost: tx("插入搬移 O(n)", "Insertion shift O(n)") }, "warning"],
+        ["检查边界与容量", "Check bounds and capacity", "验证结果", "Verify result", "array", "cost", "0 <= i < length", "0 <= i < length", "完成操作后检查下标范围、长度变化和容量是否足够。", "After the operation, check index range, length change, and capacity.", "数组题的正确性通常来自明确边界和循环不变量。", "Array correctness usually comes from explicit bounds and loop invariants.", { cursor: tx("边界已检查", "Bounds checked"), cost: tx("模型稳定", "Model stable") }, "success"],
+      ],
+      [["随机访问 O(1)", "Random access O(1)"], ["插入删除 O(n)", "Insert/delete O(n)"], ["边界与容量", "Bounds and capacity"]],
+    );
+  }
 
   if (area === "tree" || area === "heap") {
     return flow(
