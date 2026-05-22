@@ -2996,6 +2996,172 @@ function TcpIpModelStage({
   );
 }
 
+function ArrayIndexStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const values = [4, 8, 15, 16, 23];
+  const insertedValues = [4, 8, 99, 15, 16, 23];
+  const showAddress = completedSteps >= 1;
+  const showRead = completedSteps >= 2;
+  const showInsert = completedSteps >= 3;
+  const showCheck = completedSteps >= 4;
+  const cells = showInsert ? insertedValues : values;
+  const cellWidth = showInsert ? 118 : 128;
+  const startX = showInsert ? 108 : 140;
+  const gap = 10;
+  const cellsY = 230;
+  const addressY = 354;
+  const targetIndex = 2;
+  const highlightIndex = targetIndex;
+  const suffixStart = showInsert ? 3 : 2;
+  const selectedX = startX + highlightIndex * (cellWidth + gap) + cellWidth / 2;
+  const insertX = startX + targetIndex * (cellWidth + gap) + cellWidth / 2;
+
+  return (
+    <div className="visual-stage array-stage">
+      <div className="array-card">
+        <svg
+          className="array-diagram"
+          viewBox="0 0 980 620"
+          preserveAspectRatio="xMidYMid meet"
+          aria-label={readLocalizedText(simulation.title, locale)}
+          role="img"
+        >
+          <defs>
+            <filter id="array-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="9" floodOpacity="0.14" />
+            </filter>
+            <marker
+              id="array-arrow-brand"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="8"
+              markerHeight="8"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" />
+            </marker>
+            <marker
+              id="array-arrow-warning"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="8"
+              markerHeight="8"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" />
+            </marker>
+          </defs>
+          <rect className="array-bg" x="26" y="24" width="928" height="572" rx="24" />
+          <text className="array-title" x="490" y="76">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="array-subtitle" x="490" y="108">
+            {locale === "zh" ? "base=1000, elementSize=4, index i=2" : "base=1000, elementSize=4, index i=2"}
+          </text>
+
+          <g className={`array-formula ${showAddress ? "visible" : ""}`}>
+            <rect x="116" y="138" width="748" height="58" rx="16" />
+            <text x="490" y="174">
+              {locale === "zh" ? "address(a[i]) = base + i * elementSize" : "address(a[i]) = base + i * elementSize"}
+            </text>
+          </g>
+
+          <g className="array-cells">
+            {cells.map((value, index) => {
+              const x = startX + index * (cellWidth + gap);
+              const isInserted = showInsert && value === 99;
+              const isTarget = index === highlightIndex && showRead;
+              const isSuffix = showInsert && index >= suffixStart;
+              const cellClass = [
+                "array-cell",
+                isTarget ? "target" : "",
+                isInserted ? "inserted" : "",
+                isSuffix ? "shifted" : "",
+              ].filter(Boolean).join(" ");
+
+              return (
+                <g key={`${value}-${index}`} className={cellClass}>
+                  <rect x={x} y={cellsY} width={cellWidth} height="86" rx="10" />
+                  <text className="array-cell-value" x={x + cellWidth / 2} y={cellsY + 38}>
+                    {value}
+                  </text>
+                  <text className="array-cell-index" x={x + cellWidth / 2} y={cellsY + 66}>
+                    a[{index}]
+                  </text>
+                  <text className="array-cell-address" x={x + cellWidth / 2} y={addressY}>
+                    {1000 + index * 4}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+
+          {showRead && (
+            <g className="array-read-pointer">
+              <path d={`M 490 196 L ${selectedX} 224`} markerEnd="url(#array-arrow-brand)" />
+              <rect x={selectedX - 106} y="404" width="212" height="58" rx="14" />
+              <text x={selectedX} y="428">a[2] = 15</text>
+              <text x={selectedX} y="448">O(1)</text>
+            </g>
+          )}
+
+          {showInsert && (
+            <>
+              <g className="array-insert-marker">
+                <path d={`M ${insertX} 214 L ${insertX} 142`} markerEnd="url(#array-arrow-warning)" />
+                <rect x={insertX - 84} y="122" width="168" height="44" rx="12" />
+                <text x={insertX} y="150">
+                  {locale === "zh" ? "插入 99" : "insert 99"}
+                </text>
+              </g>
+              <g className="array-shift-arrows">
+                {[3, 4, 5].map((index) => {
+                  const x = startX + index * (cellWidth + gap) + cellWidth / 2;
+                  return (
+                    <path
+                      key={index}
+                      d={`M ${x - 56} ${cellsY - 22} L ${x + 48} ${cellsY - 22}`}
+                      markerEnd="url(#array-arrow-warning)"
+                    />
+                  );
+                })}
+                <rect x="590" y="404" width="250" height="58" rx="14" />
+                <text x="715" y="428">{locale === "zh" ? "后缀右移" : "suffix shifts right"}</text>
+                <text x="715" y="448">O(n)</text>
+              </g>
+            </>
+          )}
+
+          <g className={`array-boundary ${showCheck ? "visible" : ""}`}>
+            <rect x="122" y="502" width="736" height="54" rx="16" />
+            <text x="490" y="535">
+              {locale === "zh"
+                ? "边界：0 <= i < length，插入时还要检查容量"
+                : "Bounds: 0 <= i < length; insertion also checks capacity"}
+            </text>
+          </g>
+        </svg>
+        <div className="wire-caption array-caption">
+          <span>{readLocalizedText(activeStep.title, locale)}</span>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SwitchForwardingStage({
   simulation,
   locale,

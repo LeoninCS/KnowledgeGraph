@@ -1661,6 +1661,29 @@ td {
   padding: clamp(12px, 2.4vw, 28px);
 }
 
+.array-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.array-card {
+  position: relative;
+  width: min(100%, 1080px);
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: hidden;
+}
+
+.array-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
 .switch-card {
   width: min(100%, 1040px);
   overflow: visible;
@@ -1687,6 +1710,153 @@ td {
 .switch-bg {
   fill: color-mix(in srgb, var(--brand-soft) 34%, var(--surface));
   stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.array-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 30%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.array-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.array-subtitle,
+.array-cell-address {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.array-formula {
+  opacity: 0.35;
+  transition: opacity 180ms ease;
+}
+
+.array-formula.visible,
+.array-boundary.visible {
+  opacity: 1;
+}
+
+.array-formula rect,
+.array-boundary rect,
+.array-read-pointer rect,
+.array-shift-arrows rect,
+.array-insert-marker rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 20%, var(--border));
+  stroke-width: 1.2;
+}
+
+.array-formula text,
+.array-boundary text,
+.array-read-pointer text,
+.array-shift-arrows text,
+.array-insert-marker text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 15px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.array-cell rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 24%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#array-soft-shadow);
+}
+
+.array-cell.target rect {
+  fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 45%, var(--border));
+  stroke-width: 2.4;
+}
+
+.array-cell.inserted rect {
+  fill: color-mix(in srgb, #f59e0b 18%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 48%, var(--border));
+  stroke-width: 2.4;
+}
+
+.array-cell.shifted rect {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.array-cell-value,
+.array-cell-index {
+  text-anchor: middle;
+}
+
+.array-cell-value {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 24px;
+  font-weight: 950;
+}
+
+.array-cell-index {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.array-cell-address {
+  font-size: 12px;
+}
+
+.array-read-pointer path,
+.array-insert-marker path,
+.array-shift-arrows path {
+  fill: none;
+  stroke: var(--tertiary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3.2;
+}
+
+.array-shift-arrows path,
+.array-insert-marker path {
+  stroke: #f59e0b;
+}
+
+#array-arrow-brand path {
+  fill: var(--tertiary);
+}
+
+#array-arrow-warning path {
+  fill: #f59e0b;
+}
+
+.array-read-pointer text:nth-of-type(2),
+.array-shift-arrows text:nth-of-type(2) {
+  fill: var(--brand);
+  font-size: 14px;
+}
+
+.array-boundary {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.array-boundary rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.array-boundary text {
+  fill: var(--success);
+  font-size: 14px;
+}
+
+.array-caption {
+  bottom: 14px;
 }
 
 .switch-title {
@@ -3397,6 +3567,21 @@ td {
   .switch-stage {
     overflow-x: auto;
     justify-content: start;
+  }
+
+  .array-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
+  .array-card {
+    width: 860px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .array-diagram {
+    height: 544px;
   }
 
   .switch-card {
