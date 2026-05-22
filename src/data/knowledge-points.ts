@@ -13,6 +13,186 @@ export const knowledgeSources = {
     title: "小林 coding 图解网络与操作系统",
     url: "https://xiaolincoding.com/",
   },
+  "rfc1122-internet-layers": {
+    title: "RFC 1122 Requirements for Internet Hosts: Communication Layers",
+    url: "https://www.rfc-editor.org/rfc/rfc1122#page-8",
+  },
+  "cloudflare-how-internet-works": {
+    title: "Cloudflare Learning Center: How does the Internet work?",
+    url: "https://www.cloudflare.com/learning/network-layer/how-does-the-internet-work/",
+  },
+  "mdn-how-internet-works": {
+    title: "MDN Web Docs: How does the Internet work?",
+    url: "https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/How_does_the_Internet_work",
+  },
+  "cisco-network-basics": {
+    title: "Cisco: Networking Basics",
+    url: "https://www.cisco.com/site/us/en/learn/topics/small-business/networking-basics.html",
+  },
+  "microsoft-tcpip-networking": {
+    title: "Microsoft Learn: Introduction to TCP/IP networking",
+    url: "https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/tcpip-addressing-and-subnetting",
+  },
+  "oracle-packet-encapsulation": {
+    title: "Oracle Solaris: Data Encapsulation and the TCP/IP Protocol Stack",
+    url: "https://docs.oracle.com/pls/topic/lookup?ctx=E23823&id=SYSADV3ipov-32",
+  },
+  "itu-x200-osi": {
+    title: "ITU-T X.200: Open Systems Interconnection Basic Reference Model",
+    url: "https://www.itu.int/rec/T-REC-X.200-199407-I/en",
+  },
+  "iso-7498-1-osi": {
+    title: "ISO/IEC 7498-1:1994 OSI Basic Reference Model",
+    url: "https://www.iso.org/standard/20269.html",
+  },
+  "cloudflare-osi-model": {
+    title: "Cloudflare Learning Center: What is the OSI Model?",
+    url: "https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/",
+  },
+  "aws-osi-model": {
+    title: "AWS: What is the OSI Model?",
+    url: "https://aws.amazon.com/what-is/osi-model/",
+  },
+  "cloudflare-network-layer": {
+    title: "Cloudflare Learning Center: What is the network layer?",
+    url: "https://www.cloudflare.com/learning/network-layer/what-is-the-network-layer/",
+  },
+  "cloudflare-internet-protocol": {
+    title: "Cloudflare Learning Center: What is the Internet Protocol?",
+    url: "https://www.cloudflare.com/learning/network-layer/internet-protocol/",
+  },
+  "khan-bandwidth-latency": {
+    title: "Khan Academy: Bit rate, bandwidth, and latency",
+    url: "https://www.khanacademy.org/a/bit-rate-bandwidth-and-latency",
+  },
+  "cloudflare-latency": {
+    title: "Cloudflare Learning Center: What is latency?",
+    url: "https://www.cloudflare.com/learning/performance/glossary/what-is-latency/",
+  },
+  "ibm-latency": {
+    title: "IBM Think: What is latency?",
+    url: "https://www.ibm.com/think/topics/latency",
+  },
+  "microsoft-latency-throughput": {
+    title: "Microsoft Learn: Network Latency and Throughput",
+    url: "https://learn.microsoft.com/en-us/windows/win32/rpc/network-latency-and-throughput",
+  },
+  "bitag-latency-explained": {
+    title: "BITAG: Latency Explained",
+    url: "https://www.bitag.org/documents/BITAG_latency_explained.pdf",
+  },
+  "ieee-8023-ethernet": {
+    title: "IEEE 802.3 Ethernet Working Group",
+    url: "https://www.ieee802.org/3/",
+  },
+  "cisco-ethernet-autonegotiation": {
+    title: "Cisco: Troubleshooting Ethernet Autonegotiation",
+    url: "https://www.cisco.com/c/en/us/support/docs/lan-switching/ethernet/10561-3.html",
+  },
+  "intel-ethernet-speed-duplex": {
+    title: "Intel Ethernet Products: Speed and Duplex Configuration",
+    url: "https://www.intel.com/content/www/us/en/support/articles/000006967/ethernet-products.html",
+  },
+  "ibm-network-crc-errors": {
+    title: "IBM Support: Network CRC Errors and Link Issues",
+    url: "https://www.ibm.com/support/pages/ethernet-crc-errors-and-troubleshooting",
+  },
+  "networkacademy-switching-logic": {
+    title: "NetworkAcademy.IO: Overview of Switching Logic",
+    url: "https://www.networkacademy.io/ccna/ethernet/switching-logic",
+  },
+  "cisco-mac-address-table": {
+    title: "Cisco Catalyst 3560: Managing the MAC Address Table",
+    url: "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3560/software/release/15-0_2_se/configuration/guide/scg3560/swadmin.html",
+  },
+  "cisco-network-switching-operation": {
+    title: "Cisco Community: Network Switching Operation",
+    url: "https://community.cisco.com/t5/networking-knowledge-base/network-switching-operation/ta-p/4193160",
+  },
+  "gfg-switch-functions-layer2": {
+    title: "GeeksForGeeks: Switch functions at layer 2",
+    url: "https://www.geeksforgeeks.org/computer-networks/switch-functions-at-layer-2/",
+  },
+  "networklessons-arp": {
+    title: "NetworkLessons: ARP explained",
+    url: "https://networklessons.com/ip-services/arp-address-resolution-protocol-explained",
+  },
+  "geeksforgeeks-ethernet-frame": {
+    title: "GeeksForGeeks: Ethernet Frame Format",
+    url: "https://www.geeksforgeeks.org/computer-networks/ethernet-frame-format/",
+  },
+  "ibm-ethernet-frame-format": {
+    title: "IBM i: Ethernet frame format",
+    url: "https://www.ibm.com/docs/en/i/7.6.0?topic=support-ethernet-frame-format",
+  },
+  "cisco-8021q-frame-format": {
+    title: "Cisco: Inter-Switch Link and IEEE 802.1Q Frame Format",
+    url: "https://www.cisco.com/c/en/us/support/docs/lan-switching/8021q/17056-741-4.html",
+  },
+  "cisco-access-trunk-interfaces": {
+    title: "Cisco Nexus 3000: Configuring Access and Trunk Interfaces",
+    url: "https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus3000/sw/layer2/503_U3_1/b_Cisco_n3k_Layer_2_Switching_Config_503_U31_chapter_0111.html",
+  },
+  "networkacademy-vlan-trunking": {
+    title: "NetworkAcademy.IO: VLAN Trunking",
+    url: "https://www.networkacademy.io/ccna/ethernet/vlan-trunking",
+  },
+  "omnisecu-8021q-tagging": {
+    title: "OmniSecu: IEEE 802.1Q VLAN Tagging",
+    url: "https://www.omnisecu.com/cisco-certified-network-associate-ccna/ieee-802.1q-vlan-tagging.php",
+  },
+  "computernetworkingnotes-ethernet-frame": {
+    title: "ComputerNetworkingNotes: Ethernet Frame Format Explained",
+    url: "https://www.computernetworkingnotes.com/ccna-study-guide/ethernet-frame-format-explained.html",
+  },
+  "fortinet-osi-model": {
+    title: "Fortinet: What Is the OSI Model?",
+    url: "https://www.fortinet.com/resources/cyberglossary/osi-model",
+  },
+  "cloudmylab-tcp-handshake": {
+    title: "CloudMyLab TCP 3-Way Handshake: SYN, SYN-ACK, ACK Explained",
+    url: "https://blog.cloudmylab.com/tcp-ip-3-way-handshake",
+  },
+  "guru99-tcp-handshake": {
+    title: "Guru99 TCP 3-Way Handshake",
+    url: "https://www.guru99.com/tcp-3-way-handshake.html",
+  },
+  "geeksforgeeks-tcp-handshake": {
+    title: "GeeksForGeeks TCP 3-Way Handshake Process",
+    url: "https://www.geeksforgeeks.org/computer-networks/tcp-3-way-handshake-process/",
+  },
+  "geeksforgeeks-tcp-termination": {
+    title: "GeeksForGeeks TCP Connection Termination",
+    url: "https://www.geeksforgeeks.org/computer-networks/tcp-connection-termination/",
+  },
+  "ipwithease-tcp-termination": {
+    title: "IP With Ease TCP Connection Termination",
+    url: "https://ipwithease.com/tcp-connection-termination/",
+  },
+  "tcpipguide-tcp-termination": {
+    title: "The TCP/IP Guide TCP Connection Termination",
+    url: "http://www.tcpipguide.com/free/t_TCPConnectionTermination-2.htm",
+  },
+  "tcpipguide-time-wait": {
+    title: "The TCP/IP Guide The TIME-WAIT State",
+    url: "http://www.tcpipguide.com/free/t_TCPConnectionTermination-3.htm",
+  },
+  "rfc9293-tcp-state-machine": {
+    title: "RFC 9293 State Machine Overview",
+    url: "https://www.rfc-editor.org/info/rfc9293/#section-3.3.2",
+  },
+  "tcpipguide-tcp-fsm": {
+    title: "The TCP/IP Guide TCP Finite State Machine",
+    url: "http://www.tcpipguide.com/free/t_TCPOperationalOverviewandtheTCPFiniteStateMachineF-2.htm",
+  },
+  "ibm-tcp-connection-status": {
+    title: "IBM TCP Connection Status",
+    url: "https://www.ibm.com/docs/en/zos/2.1.0?topic=SSLTBW_2.1.0/com.ibm.zos.v2r1.halu101/constatus.html",
+  },
+  "krownet-tcp-states": {
+    title: "TCP State Transition Diagram",
+    url: "https://srg-ics-uplb.github.io/krownet/modules/tcp-states/index.html",
+  },
   "xiaolin-mysql": {
     title: "小林 coding 图解 MySQL",
     url: "https://www.xiaolincoding.com/mysql/",
@@ -47,6 +227,7 @@ export type KnowledgeSourceId = keyof typeof knowledgeSources;
 
 export interface GraphKnowledgePoint {
   sourceRefs?: KnowledgeSourceId[];
+  internalTags?: string[];
   id: string;
   zh: string;
   en: string;
@@ -97,15 +278,24 @@ export const categorySourceRefs: Record<CategoryId, KnowledgeSourceId[]> = {
 };
 
 export const networkKnowledgePoints = [
-  { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "network-overview", zh: "网络基础概览", en: "Network Overview", layer: "foundation", difficulty: "easy", summary: "理解主机、链路、协议、分层和端到端通信。", typicalProblems: ["输入 URL 到页面展示经历哪些网络步骤","如何按网络分层定位线上访问失败","ping 通但 HTTP 访问失败怎么排查"], prerequisites: [], related: ["osi-model", "tcp-ip-model"], order: 1 },
-  { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "osi-model", zh: "OSI 七层模型", en: "OSI Model", layer: "foundation", difficulty: "easy", summary: "用七层结构理解网络通信职责划分。", typicalProblems: ["OSI 七层分别解决什么问题","交换机、路由器、网关分别属于哪一层","如何用七层模型排查网络故障"], prerequisites: ["network-overview"], related: ["tcp-ip-model"], order: 2 },
-  { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "tcp-ip-model", zh: "TCP/IP 四层模型", en: "TCP/IP Model", layer: "foundation", difficulty: "easy", summary: "互联网常用分层模型，覆盖链路、网络、传输和应用层。", typicalProblems: ["TCP/IP 四层和 OSI 七层如何对应","一次 HTTP 请求如何逐层封装","抓包时如何识别以太网、IP、TCP、HTTP"], prerequisites: ["osi-model"], related: ["ip", "tcp", "http"], order: 3 },
-  { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "signal", zh: "信号与带宽", en: "Signal and Bandwidth", layer: "physical", difficulty: "easy", summary: "理解比特如何通过电信号、光信号或无线信号传输。", typicalProblems: ["带宽和延迟分别影响什么","高带宽低吞吐可能是什么原因","物理链路丢包如何排查"], prerequisites: ["network-overview"], related: ["latency-bandwidth"], order: 4 },
-  { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "ethernet-physical", zh: "以太网物理介质", en: "Ethernet Physical Media", layer: "physical", difficulty: "easy", summary: "了解双绞线、光纤、网卡和物理链路。", typicalProblems: ["网卡协商速率异常如何定位","光纤和双绞线适用场景有什么区别","链路频繁 up/down 怎么排查"], prerequisites: ["signal"], related: ["ethernet-frame"], order: 5 },
-  { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "mac-address", zh: "MAC 地址", en: "MAC Address", layer: "data-link", difficulty: "easy", summary: "数据链路层的设备标识，用于局域网内转发。", typicalProblems: ["MAC 地址和 IP 地址有什么区别","访问外网时目的 MAC 是谁","交换机如何学习 MAC 地址表"], prerequisites: ["ethernet-physical"], related: ["ethernet-frame", "arp"], order: 6 },
-  { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "ethernet-frame", zh: "以太网帧", en: "Ethernet Frame", layer: "data-link", difficulty: "medium", summary: "理解帧头、载荷、校验和局域网传输格式。", typicalProblems: ["以太网帧里有哪些关键字段","MTU 超限会带来什么问题","VLAN Tag 在帧里起什么作用"], prerequisites: ["mac-address"], related: ["switch", "vlan"], order: 7 },
-  { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "switch", zh: "交换机", en: "Switch", layer: "data-link", difficulty: "easy", summary: "根据 MAC 地址表在局域网内转发数据帧。", typicalProblems: ["交换机和路由器的核心区别","未知单播帧会怎么转发","广播风暴如何产生和治理"], prerequisites: ["ethernet-frame"], related: ["vlan"], order: 8 },
-  { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "vlan", zh: "VLAN", en: "VLAN", layer: "data-link", difficulty: "medium", summary: "通过逻辑隔离把一个物理网络划分为多个广播域。", typicalProblems: ["VLAN 解决什么问题","Access 口和 Trunk 口有什么区别","跨 VLAN 通信需要什么条件"], prerequisites: ["switch"], related: ["subnet"], order: 9 },
+  /* ai-redone: 2026-05-22; sources=rfc1122-internet-layers,cloudflare-how-internet-works,mdn-how-internet-works,cisco-network-basics,microsoft-tcpip-networking,oracle-packet-encapsulation; diagram=network:network-overview */
+  { sourceRefs: ["rfc1122-internet-layers", "cloudflare-how-internet-works", "mdn-how-internet-works", "cisco-network-basics", "microsoft-tcpip-networking", "oracle-packet-encapsulation", "cs-notes", "javaguide", "xiaolin-coding"], internalTags: ["ai-visualized:2026-05-23", "visual-source:rfc1122-internet-layers", "visual-source:cloudflare-how-internet-works", "visual-source:mdn-how-internet-works"], id: "network-overview", zh: "网络基础概览", en: "Network Overview", layer: "foundation", difficulty: "easy", summary: "用主机、链路、设备、协议分层和封装过程理解一次端到端通信。", explanation: ["概念定义：计算机网络把主机、交换机、路由器、链路和协议组织成可协作的通信系统。主机产生和消费数据，链路承载比特，网络设备在局域网或跨网段转发，协议规定地址、格式、顺序、差错处理和双方如何理解同一份数据。", "分层视角：RFC 1122 把互联网主机通信划分为应用层、传输层、互联网层和链路层。应用层表达业务语义，传输层用端口、连接或数据报服务进程，互联网层用 IP 完成跨网络寻址与路由，链路层把包交付到下一跳并最终变成物理信号。", "端到端流程：一次 Web 访问通常从 DNS 查询开始，浏览器拿到目标 IP 后构造 HTTP 请求；传输层选择 TCP、UDP 或 QUIC；IP 层决定目的地址和下一跳；链路层写入下一跳 MAC 并发出帧。沿途路由器逐跳转发，目标服务器按相反方向解封装并返回响应。", "流程图读法：本页流程图采用“输入 URL -> DNS 解析 -> 应用数据 -> 传输层 -> IP 路由 -> 链路投递 -> 目标解封装 -> 响应返回”的结构。看图时先确认数据从哪一层进入，再看每层新增的头部字段，最后看接收端如何逐层拆包。", "工程排查：排障时把现象映射到层次：链路灯、CRC、网卡速率属于链路与物理；IP、掩码、网关、路由表属于互联网层；端口监听、握手、重传属于传输层；状态码、Header、证书、业务响应属于应用层。常用工具包括 ping、traceroute、dig、curl、ss/netstat 和 tcpdump。", "参考来源：分层依据采用 RFC 1122 的通信层模型；互联网的网络互连与分组路径参考 Cloudflare 与 MDN 的入门说明；网络组成参考 Cisco 的 Networking Basics；TCP/IP 配置排查参考 Microsoft Learn；封装流程参考 Oracle Solaris 的 TCP/IP protocol stack 图解。"], typicalProblems: ["输入 URL 到页面展示经历哪些网络步骤","如何按网络分层定位线上访问失败","ping 通但 HTTP 访问失败怎么排查","网络里的主机、交换机、路由器和协议各自承担什么职责","抓包时如何把以太网、IP、TCP/UDP 与应用数据对应起来"], prerequisites: [], related: ["osi-model", "tcp-ip-model"], order: 1 },
+  /* ai-redone: 2026-05-22; sources=itu-x200-osi,iso-7498-1-osi,cloudflare-osi-model,aws-osi-model,fortinet-osi-model; diagram=network:osi-model */
+  { sourceRefs: ["itu-x200-osi", "iso-7498-1-osi", "cloudflare-osi-model", "aws-osi-model", "fortinet-osi-model", "cs-notes", "javaguide", "xiaolin-coding"], internalTags: ["ai-visualized:2026-05-23", "visual-source:iso-7498-1-osi", "visual-source:cloudflare-osi-model", "visual-source:aws-osi-model"], id: "osi-model", zh: "OSI 七层模型", en: "OSI Model", layer: "foundation", difficulty: "easy", summary: "用应用、表示、会话、传输、网络、数据链路、物理七层定位通信职责和故障边界。", explanation: ["概念定义：OSI 七层模型是开放系统互连的基础参考模型，用七个抽象层描述通信系统的职责划分。它提供共同语言：每一层向上提供服务，向下使用服务，并通过同层协议与对端同层协作。", "七层职责：应用层提供应用协议能力；表示层处理编码、压缩和加密等数据表示；会话层管理会话建立、维持和恢复；传输层负责端到端进程通信、分段、可靠性和流控；网络层负责逻辑地址和路由；数据链路层负责同一链路上的帧、MAC 和差错检测；物理层负责把比特变成电、光或无线信号。", "封装流程：发送端通常从第 7 层向第 1 层逐层封装，每层补充本层需要的控制信息；接收端从第 1 层向第 7 层逐层解封装。一次 HTTP 访问可以映射为应用数据进入上三层，TCP 在传输层分段，IP 在网络层寻址，以太网在数据链路层成帧，物理层发送信号。", "流程图读法：本页流程图按应用层、表示层、会话层、传输层、网络层、数据链路层和物理层完整展开。向下看发送端逐层封装，向上看接收端逐层解封装；每一步的标签对应本层新增或解释的控制信息。", "排障用法：OSI 模型适合把问题定位到层。网线、光模块、无线信号对应物理层；MAC、ARP、VLAN 对应数据链路层；IP、路由、网关对应网络层；端口、握手、重传对应传输层；TLS、编码、会话状态、HTTP 状态码和业务响应对应高层。", "参考来源：标准定义以 ITU-T X.200 与 ISO/IEC 7498-1:1994 为准；七层职责和数据流参考 Cloudflare、AWS 与 Fortinet 的 OSI 图解资料整理。"], typicalProblems: ["OSI 七层分别解决什么问题","交换机、路由器、网关分别属于哪一层","如何用七层模型排查网络故障","OSI 七层和 TCP/IP 四层如何对应","HTTP、TLS、TCP、IP、以太网分别落在哪些层"], prerequisites: ["network-overview"], related: ["tcp-ip-model"], order: 2 },
+  /* ai-redone: 2026-05-22; sources=rfc1122-internet-layers,cloudflare-network-layer,cloudflare-internet-protocol,microsoft-tcpip-networking,oracle-packet-encapsulation; diagram=network:tcp-ip-model */
+  { sourceRefs: ["rfc1122-internet-layers", "cloudflare-network-layer", "cloudflare-internet-protocol", "aws-osi-model", "microsoft-tcpip-networking", "oracle-packet-encapsulation", "cs-notes", "javaguide", "xiaolin-coding"], id: "tcp-ip-model", zh: "TCP/IP 四层模型", en: "TCP/IP Model", layer: "foundation", difficulty: "easy", summary: "用应用层、传输层、Internet 层和链路层理解真实互联网协议栈。", explanation: ["概念定义：TCP/IP 四层模型是解释互联网协议族的实用分层框架，常按应用层、传输层、Internet 层和链路层组织。它关注真实协议如何协作：应用产生数据，传输层服务进程，Internet 层跨网络寻址，链路层把包交给下一跳。", "四层职责：应用层包含 HTTP、DNS、SMTP、SSH 等协议；传输层包含 TCP、UDP 等端到端传输协议；Internet 层以 IP 为核心，处理逻辑地址、路由、TTL、分片相关控制和 ICMP 信号；链路层覆盖以太网、Wi-Fi、ARP、MAC、帧和本地链路投递。", "封装流程：发送端应用数据交给 TCP 或 UDP，形成段或数据报；Internet 层加上源/目的 IP 与 TTL 等字段；链路层写入下一跳 MAC 并形成帧；接收端按链路、Internet、传输、应用的顺序解封装。抓包时通常能看到 Ethernet -> IP -> TCP/UDP -> HTTP/DNS 这样的层次。", "和 OSI 对照：TCP/IP 的应用层覆盖 OSI 的应用、表示、会话三层；传输层对应 OSI 传输层；Internet 层对应 OSI 网络层的核心互联网寻址与路由能力；链路层覆盖本地链路投递和物理介质相关实现。工程讨论更常用 TCP/IP，教学排障常把二者结合。", "工程排查：TCP/IP 模型适合把一次访问拆成四段检查：应用层看域名、URL、Header、状态码和业务日志；传输层看端口、握手、重传和窗口；Internet 层看 IP、路由、网关、NAT、ICMP；链路层看 MAC、ARP、VLAN、MTU、网卡与物理链路。", "参考来源：四层结构以 RFC 1122 的 link/IP/transport/application 分层为主；OSI 与 TCP/IP 对照参考 Cloudflare network layer 与 AWS OSI 页面；IP 分组和协议头参考 Cloudflare Internet Protocol；默认网关和子网判断参考 Microsoft Learn；封装图结构参考 Oracle Solaris TCP/IP protocol stack。"], typicalProblems: ["TCP/IP 四层和 OSI 七层如何对应","一次 HTTP 请求如何逐层封装","抓包时如何识别以太网、IP、TCP、HTTP","TCP/IP 模型为什么更贴近真实互联网实现","链路层、Internet 层、传输层、应用层分别排查什么"], prerequisites: ["osi-model"], related: ["ip", "tcp", "http"], order: 3 },
+  /* ai-redone: 2026-05-22; sources=khan-bandwidth-latency,cloudflare-latency,ibm-latency,microsoft-latency-throughput,bitag-latency-explained; diagram=network:signal */
+  { sourceRefs: ["khan-bandwidth-latency", "cloudflare-latency", "ibm-latency", "microsoft-latency-throughput", "bitag-latency-explained", "cs-notes", "javaguide", "xiaolin-coding"], id: "signal", zh: "信号与带宽", en: "Signal and Bandwidth", layer: "physical", difficulty: "easy", summary: "理解比特如何变成电、光或无线信号，以及带宽、延迟、吞吐和丢包如何影响体验。", explanation: ["概念定义：信号是比特在物理介质中的表现形式，可以是电信号、光信号或无线电波。带宽表示链路单位时间内可承载的数据量上限，常用 bps、Mbps、Gbps 表示；延迟表示数据从一端到另一端经历的时间；吞吐表示实际传输成功的数据速率。", "传输过程：发送端把比特编码成可在介质上传播的信号，信号经过双绞线、光纤、无线信道或运营商链路到达接收端，接收端再把信号还原成比特。介质质量、距离、干扰、排队、设备处理和协议开销共同影响最终体验。", "带宽和延迟：带宽决定单位时间能装下多少数据，延迟决定第一个比特或一个往返需要多久。大文件传输更受带宽影响，交互请求、游戏、远程桌面和多轮 API 调用更受延迟影响。高带宽链路也会受到高延迟、丢包、窗口限制和拥塞控制影响。", "吞吐和瓶颈：吞吐通常低于标称带宽，因为链路共享、协议头、重传、拥塞控制、接收窗口、设备 CPU、磁盘、代理和限速策略都会消耗有效能力。带宽、吞吐和延迟要分开观察：带宽是容量，吞吐是实际结果，延迟是时间成本。", "工程排查：物理层和链路质量问题常表现为 CRC 错误、协商速率异常、双工问题、无线信号弱、丢包、抖动和间歇性断连。排查时先看网卡速率、链路状态、错误计数、ping 延迟与丢包，再用 iperf、mtr、tcpdump、交换机端口统计和运营商链路指标定位瓶颈。", "参考来源：比特率、带宽和延迟的入门定义参考 Khan Academy；延迟、带宽、吞吐的区别参考 Cloudflare、IBM 与 Microsoft Learn；排队、缓冲、应用体验和现代网络延迟影响参考 BITAG Latency Explained。"], typicalProblems: ["带宽和延迟分别影响什么","高带宽低吞吐可能是什么原因","物理链路丢包如何排查","带宽、吞吐和延迟如何区分","为什么视频下载快但游戏或 API 调用仍然慢"], prerequisites: ["network-overview"], related: ["latency-bandwidth"], order: 4 },
+  /* ai-redone: 2026-05-22; sources=ieee-8023-ethernet,cisco-ethernet-autonegotiation,intel-ethernet-speed-duplex,ibm-network-crc-errors; diagram=network:ethernet-physical */
+  { sourceRefs: ["ieee-8023-ethernet", "cisco-ethernet-autonegotiation", "intel-ethernet-speed-duplex", "ibm-network-crc-errors", "cs-notes", "javaguide", "xiaolin-coding"], id: "ethernet-physical", zh: "以太网物理介质", en: "Ethernet Physical Media", layer: "physical", difficulty: "easy", summary: "理解双绞线、光纤、网卡、交换机端口和光模块如何共同承载以太网链路。", explanation: ["概念定义：以太网物理介质包括双绞线、光纤、网卡、交换机端口、光模块和收发器。它们负责把以太网帧转换成可在介质上传播的物理信号，是数据链路层帧投递的底座。", "介质选择：双绞线常用于办公网络、服务器接入和短距离机柜连接，成本低、部署方便；光纤适合机房互联、园区骨干、长距离和高带宽场景，抗电磁干扰能力强。铜缆和光纤都要匹配速率、距离、接口形态和设备能力。", "链路建立：两端设备插入介质后，网卡和交换机端口会协商速率、双工模式和相关能力。常见速率包括 100Mbps、1Gbps、10Gbps、25Gbps、40Gbps 和 100Gbps；自动协商异常会导致速率降级、半双工冲突、丢包和吞吐下降。", "信号传输：发送端把帧编码成电、光或无线信号，经过线缆、光模块、配线架和交换机端口到达对端。线缆质量、光功率、模块兼容性、接口污染、距离超限、弯折半径和端口错误计数都会影响链路稳定性。", "工程排查：链路灯、端口 up/down、CRC/FCS 错误、丢包、抖动、协商速率不一致、双工不匹配和间歇性断连都指向物理层或链路接入问题。排查顺序通常是看端口状态与速率、错误计数、线缆/光模块、对端端口，再做替换验证。", "参考来源：以太网物理层和链路标准参考 IEEE 802.3；速率/双工自动协商和故障现象参考 Cisco 与 Intel 资料；CRC 错误、线缆、端口和模块排查参考 IBM 支持文档整理。"], typicalProblems: ["网卡协商速率异常如何定位","光纤和双绞线适用场景有什么区别","链路频繁 up/down 怎么排查","CRC/FCS 错误通常说明什么","光模块兼容性或光功率异常如何影响链路"], prerequisites: ["signal"], related: ["ethernet-frame"], order: 5 },
+  /* ai-redone: 2026-05-22; sources=networkacademy-switching-logic,networklessons-arp; diagram=network:mac-address */
+  { sourceRefs: ["networkacademy-switching-logic", "networklessons-arp", "cs-notes", "javaguide", "xiaolin-coding"], internalTags: ["ai-visualized:2026-05-22", "visual-source:networkacademy-switching-logic", "visual-source:networklessons-arp"], id: "mac-address", zh: "MAC 地址", en: "MAC Address", layer: "data-link", difficulty: "easy", summary: "用源 MAC、目的 MAC、ARP 缓存和交换机 MAC 表理解局域网内一帧如何到达目标端口。", explanation: ["概念定义：MAC 地址是数据链路层接口标识，常见以太网 MAC 为 48 位。以太网帧头同时携带源 MAC 和目的 MAC：源 MAC 标识本帧从哪个接口发出，目的 MAC 标识本地链路或下一跳要接收这帧的接口。", "工作流程：主机发送 IP 包前先确定下一跳。目标在同一网段时，下一跳就是目标主机；目标在其他网段时，下一跳是默认网关。主机通过 ARP 缓存查找下一跳 MAC，缓存缺失时发送 ARP Request 广播，目标设备返回 ARP Reply，主机写入 ARP 缓存后再封装以太网帧。", "交换机逻辑：交换机收到帧后先学习源 MAC 与入端口的对应关系，再查看目的 MAC。目的 MAC 已在 MAC 表中时，交换机只从对应端口转发；目的 MAC 属于广播、组播或未知单播时，交换机会在同一广播域内泛洪，目标主机回复后，交换机继续学习对端 MAC，后续通信变成定向转发。", "流程图读法：本页可视化复刻 NetworkAcademy 的 Flood and Learn 图形思路，并把 NetworkLessons 的 ARP Request/Reply 过程合并进去。观察顺序是“判断下一跳 -> 广播 ARP -> 写入 ARP 缓存 -> 写入以太网帧头 -> 交换机学习与转发”。", "工程排查：同网段不通时先看本机 IP/掩码、ARP 缓存、交换机 MAC 表和 VLAN；跨网段访问时重点确认帧的目的 MAC 是网关 MAC。抓包时把 Ethernet 头里的源/目的 MAC、ARP 广播 FF:FF:FF:FF:FF:FF、ARP Reply 单播和交换机端口表对应起来。", "参考来源：交换机学习源 MAC、按目的 MAC 查表、未知单播与广播泛洪的流程参考 NetworkAcademy.IO 的 Switching Logic 图解；ARP 缓存、ARP Request 广播、ARP Reply 单播和抓包字段参考 NetworkLessons 的 ARP explained。"], typicalProblems: ["MAC 地址和 IP 地址有什么区别","访问外网时目的 MAC 是谁","交换机如何学习 MAC 地址表","ARP Request 为什么使用广播 MAC","目的 MAC 查不到时交换机会如何处理","如何用 ARP 表和交换机 MAC 表排查同网段不通"], prerequisites: ["ethernet-physical"], related: ["ethernet-frame", "arp", "switch"], order: 6 },
+  /* ai-redone: 2026-05-23; sources=geeksforgeeks-ethernet-frame,ibm-ethernet-frame-format,cisco-8021q-frame-format,computernetworkingnotes-ethernet-frame; diagram=network:ethernet-frame */
+  { sourceRefs: ["geeksforgeeks-ethernet-frame", "ibm-ethernet-frame-format", "cisco-8021q-frame-format", "computernetworkingnotes-ethernet-frame", "cs-notes", "javaguide", "xiaolin-coding"], internalTags: ["ai-visualized:2026-05-23", "visual-source:geeksforgeeks-ethernet-frame", "visual-source:ibm-ethernet-frame-format", "visual-source:cisco-8021q-frame-format", "visual-source:computernetworkingnotes-ethernet-frame"], id: "ethernet-frame", zh: "以太网帧", en: "Ethernet Frame", layer: "data-link", difficulty: "medium", summary: "用目的 MAC、源 MAC、可选 802.1Q Tag、Type/Length、Payload 和 FCS 理解局域网传输格式。", explanation: ["概念定义：以太网帧是数据链路层在本地链路上传输数据的基本格式。典型 Ethernet II 帧围绕目的 MAC、源 MAC、Type/Length、Payload 和 FCS 组织；Preamble 与 SFD帮助接收端完成物理同步和帧起始识别。", "字段结构：目的 MAC 与源 MAC 各 6 字节，决定这一跳的接收接口和发送接口；Type/Length 为 2 字节，在 Ethernet II 中常作为 EtherType，比如 0x0800 表示 IPv4、0x86DD 表示 IPv6、0x0806 表示 ARP；Payload 常见范围是 46 到 1500 字节，短载荷需要填充。", "VLAN Tag：802.1Q 在源 MAC 和 Type/Length 之间插入 4 字节 Tag。Tag 中包含 TPID 与 TCI，TCI 内有优先级、DEI 和 VLAN ID。插入 Tag 后帧内容发生变化，交换设备会重新计算 FCS。", "校验与接收：FCS 是 4 字节帧校验序列，接收网卡用它判断传输过程中帧内容是否损坏。校验通过后，接收端根据 Type/Length 把 Payload 交给 IP、ARP 或其他上层协议；校验失败的帧会被丢弃并体现在错误计数里。", "流程图读法：本页可视化复刻常见以太网帧字段图，把一条帧拆成“同步字段 -> MAC 地址 -> 可选 VLAN Tag -> Type/Length 与 Payload -> FCS 校验”五段。点击步骤时观察字段如何被写入、Tag 插入在哪里、接收端依据哪个字段分发载荷。", "工程排查：抓包和交换机排障时重点看源/目的 MAC、EtherType、VLAN ID、帧长度、MTU、FCS/CRC 错误和丢弃计数。MTU 不一致会造成大包丢弃或分片问题，VLAN Tag 缺失会让流量进入错误广播域，FCS/CRC 错误常指向链路质量。", "参考来源：字段顺序和示意图参考 GeeksForGeeks 的 Ethernet Frame Format；字段字节长度参考 IBM i Ethernet frame format；802.1Q Tag 的插入位置与 FCS 重算参考 Cisco 802.1Q Frame Format；header、data、trailer 三段讲解参考 ComputerNetworkingNotes。"], typicalProblems: ["以太网帧里有哪些关键字段","目的 MAC、源 MAC 和 EtherType 分别承担什么职责","MTU 超限会带来什么问题","VLAN Tag 在帧里插入在哪里","FCS/CRC 错误通常说明什么","抓包时如何识别 IPv4、IPv6 和 ARP 帧"], prerequisites: ["mac-address"], related: ["switch", "vlan"], order: 7 },
+  /* ai-redone: 2026-05-23; sources=networkacademy-switching-logic,cisco-mac-address-table,cisco-network-switching-operation,gfg-switch-functions-layer2; diagram=network:switch */
+  { sourceRefs: ["networkacademy-switching-logic", "cisco-mac-address-table", "cisco-network-switching-operation", "gfg-switch-functions-layer2", "cs-notes", "javaguide", "xiaolin-coding"], internalTags: ["ai-visualized:2026-05-23", "visual-source:networkacademy-switching-logic", "visual-source:cisco-mac-address-table", "visual-source:cisco-network-switching-operation", "visual-source:gfg-switch-functions-layer2"], id: "switch", zh: "交换机", en: "Switch", layer: "data-link", difficulty: "easy", summary: "根据源 MAC 学习端口，根据目的 MAC、VLAN 和 MAC 地址表决定过滤、定向转发或泛洪。", explanation: ["概念定义：交换机是二层转发设备，核心数据结构是 MAC 地址表，也常叫 CAM 表。表项通常包含 MAC 地址、VLAN ID、端口和类型；动态表项来自交换机从收到帧的源 MAC 学习，静态表项来自人工配置。", "学习过程：交换机收到一帧后，先读取源 MAC 和入端口，把源 MAC、VLAN 与端口写入 MAC 地址表或刷新已有表项。动态表项有老化时间，主机迁移端口或长时间无流量时，表项会更新或老化消失。", "转发决策：完成源 MAC 学习后，交换机查看目的 MAC。目的 MAC 对应同一个入端口时执行过滤；目的 MAC 在同一 VLAN 的其他端口有表项时定向转发；目的 MAC 属于广播、组播或未知单播时，交换机在同一 VLAN 内向其他端口泛洪。", "VLAN 边界：MAC 地址表和转发决策都带 VLAN 维度。同一个 MAC 可以在不同 VLAN 中作为不同表项存在，泛洪范围也限制在同一 VLAN。Access 口通常只承载一个 VLAN，Trunk 口通过 802.1Q Tag 承载多个 VLAN。", "流程图读法：本页复刻“收到帧 -> 学习源 MAC -> 查目的 MAC -> 命中转发/同端口过滤/未知泛洪 -> 回包学习完成双向表项”的交换机逻辑。推进步骤时观察 MAC 表如何从空表变成双向表项，以及泛洪如何收敛为定向转发。", "工程排查：二层不通时先看接口 up/down、VLAN、MAC 地址表、ARP 表和端口错误计数。大量未知单播泛洪通常来自表项老化、单向流量、VLAN 配置、环路、MAC 漂移或表容量压力；可用 show mac address-table、抓包、端口镜像和交换机日志定位。", "参考来源：交换机学习源 MAC、目的 MAC 查表、未知单播泛洪的图解参考 NetworkAcademy.IO；MAC 地址表字段、动态/静态表项和 VLAN 维度参考 Cisco Catalyst 文档；学习、泛洪和转发过程参考 Cisco Network Switching Operation 与 GeeksForGeeks 二层交换机功能说明。"], typicalProblems: ["交换机如何学习 MAC 地址表","交换机和路由器的核心职责分别是什么","未知单播帧会怎么转发","同一个 MAC 出现在多个端口通常说明什么","广播风暴如何产生和治理","如何用 show mac address-table 排查同网段不通"], prerequisites: ["ethernet-frame"], related: ["vlan"], order: 8 },
+  /* ai-redone: 2026-05-23; sources=cisco-access-trunk-interfaces,cisco-8021q-frame-format,networkacademy-vlan-trunking,omnisecu-8021q-tagging; diagram=network:vlan */
+  { sourceRefs: ["cisco-access-trunk-interfaces", "cisco-8021q-frame-format", "networkacademy-vlan-trunking", "omnisecu-8021q-tagging", "cs-notes", "javaguide", "xiaolin-coding"], internalTags: ["ai-visualized:2026-05-23", "visual-source:cisco-access-trunk-interfaces", "visual-source:cisco-8021q-frame-format", "visual-source:networkacademy-vlan-trunking", "visual-source:omnisecu-8021q-tagging"], id: "vlan", zh: "VLAN", en: "VLAN", layer: "data-link", difficulty: "medium", summary: "用逻辑广播域隔离二层流量，Access 口承载单个 VLAN，Trunk 口用 802.1Q Tag 同时承载多个 VLAN。", explanation: ["概念定义：VLAN 是虚拟局域网，用逻辑方式把同一套交换网络划分成多个二层广播域。每个 VLAN 内的广播、未知单播和二层转发相互独立，不同 VLAN 之间需要三层网关或三层交换能力才能通信。", "Access 端口：Access 口通常连接终端设备，只属于一个访问 VLAN。进入 Access 口的无标签帧会被交换机归入该端口配置的 VLAN；从 Access 口发往终端时，交换机会发送无标签帧。", "Trunk 端口：Trunk 口通常连接交换机、路由器或虚拟化主机，可以同时承载多个 VLAN。802.1Q 会在以太网帧源 MAC 与 Type/Length 之间插入 4 字节 Tag，Tag 中的 VLAN ID 标识该帧所属 VLAN。", "Native VLAN：802.1Q Trunk 可以同时承载有标签和无标签帧。Native VLAN 的帧通常在 Trunk 上以无标签方式发送；Trunk 收到无标签帧时会把它归入 Native VLAN。两端 Native VLAN 配置不一致会造成流量进入错误广播域。", "流程图读法：本页可视化按“Access 入口归类 -> Trunk 加 802.1Q Tag -> 对端按 VLAN ID 分流 -> 出 Access 口去标签 -> 跨 VLAN 交给网关”展开。推进步骤时重点看 VLAN ID 如何跟着帧穿过 Trunk，以及广播域如何被边界限制。", "工程排查：VLAN 问题常表现为同网段不通、广播范围异常、跨交换机只通部分主机、Trunk 未放行 VLAN 或 Native VLAN 不匹配。排查顺序通常是端口模式、Access VLAN、Trunk allowed VLAN、Native VLAN、MAC 表和网关配置。", "参考来源：Access 与 Trunk 行为参考 Cisco Nexus 3000 Layer 2 配置文档；802.1Q Tag 插入位置与 Native VLAN 语义参考 Cisco 802.1Q Frame Format；Trunk 添加与移除 VLAN Tag 的图解参考 NetworkAcademy.IO；802.1Q 字段结构与无标签 Native VLAN 行为参考 OmniSecu。"], typicalProblems: ["VLAN 解决什么问题","Access 口和 Trunk 口有什么区别","802.1Q Tag 插入在帧的哪个位置","Native VLAN 不一致会出现什么现象","跨 VLAN 通信需要什么条件","Trunk 放行 VLAN 配错如何排查"], prerequisites: ["switch"], related: ["subnet"], order: 9 },
   { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "arp", zh: "ARP", en: "Address Resolution Protocol", layer: "data-link", difficulty: "medium", summary: "把 IP 地址解析为局域网内可用的 MAC 地址。", typicalProblems: ["ARP 的完整解析过程","访问外网时 ARP 解析哪个 MAC","ARP 缓存异常或 ARP 欺骗怎么排查"], prerequisites: ["mac-address", "ip"], related: ["gateway"], order: 10 },
   { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "ip", zh: "IP 协议", en: "Internet Protocol", layer: "network", difficulty: "easy", summary: "负责跨网络寻址和分组转发。", typicalProblems: ["IP 为什么是不可靠交付","TTL 的作用是什么","IP 层如何选择下一跳"], prerequisites: ["tcp-ip-model"], related: ["ipv4", "ipv6", "routing"], order: 11 },
   { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "ipv4", zh: "IPv4 地址", en: "IPv4 Address", layer: "network", difficulty: "easy", summary: "理解 IPv4 地址、子网掩码和地址分类。", typicalProblems: ["私有地址段有哪些","网络地址和广播地址如何计算","同网段判断依赖哪些配置"], prerequisites: ["ip"], related: ["subnet", "nat"], order: 12 },
@@ -119,9 +309,9 @@ export const networkKnowledgePoints = [
   { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "port", zh: "端口", en: "Port", layer: "transport", difficulty: "easy", summary: "用端口把网络流量分发到具体进程。", typicalProblems: ["IP 和端口分别定位什么","五元组如何唯一标识连接","端口监听正常但访问失败怎么排查"], prerequisites: ["ip"], related: ["tcp", "udp"], order: 20 },
   { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "udp", zh: "UDP", en: "User Datagram Protocol", layer: "transport", difficulty: "easy", summary: "轻量、低延迟、无连接的传输层协议。", typicalProblems: ["UDP 和 TCP 的区别","UDP 如何在应用层实现可靠性","DNS 为什么常用 UDP"], prerequisites: ["port"], related: ["dns", "quic"], order: 21 },
   { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "tcp", zh: "TCP", en: "Transmission Control Protocol", layer: "transport", difficulty: "medium", summary: "可靠、有序、面向连接的传输层协议。", typicalProblems: ["TCP 如何保证可靠传输","TCP 粘包半包是什么","TCP 和 UDP 如何选择"], prerequisites: ["port", "ip"], related: ["tcp-handshake", "tcp-flow-control"], order: 22 },
-  { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "tcp-handshake", zh: "TCP 三次握手", en: "TCP Three-Way Handshake", layer: "transport", difficulty: "medium", summary: "建立连接并同步双方初始序列号。", typicalProblems: ["为什么 TCP 建连需要三次握手","SYN flood 的原理是什么","SYN-SENT 或 SYN-RCVD 堆积如何排查"], prerequisites: ["tcp"], related: ["tcp-four-way-wave"], order: 23 },
-  { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "tcp-four-way-wave", zh: "TCP 四次挥手", en: "TCP Four-Way Termination", layer: "transport", difficulty: "medium", summary: "有序释放双向连接。", typicalProblems: ["为什么 TCP 断连通常是四次挥手","TIME-WAIT 的作用是什么","CLOSE-WAIT 过多说明什么"], prerequisites: ["tcp-handshake"], related: ["tcp-state"], order: 24 },
-  { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "tcp-state", zh: "TCP 状态机", en: "TCP State Machine", layer: "transport", difficulty: "hard", summary: "理解 LISTEN、SYN-SENT、ESTABLISHED、TIME-WAIT 等状态。", typicalProblems: ["TCP 常见状态如何流转","TIME-WAIT 和 CLOSE-WAIT 的区别","如何通过 ss 观察连接状态定位问题"], prerequisites: ["tcp-handshake", "tcp-four-way-wave"], related: ["tcp-retransmission"], order: 25 },
+  { sourceRefs: ["cloudmylab-tcp-handshake", "guru99-tcp-handshake", "geeksforgeeks-tcp-handshake", "cs-notes", "javaguide", "xiaolin-coding"], id: "tcp-handshake", zh: "TCP 三次握手", en: "TCP Three-Way Handshake", layer: "transport", difficulty: "medium", summary: "通过 SYN、SYN-ACK、ACK 建立可靠连接，同步双方初始序列号并确认收发能力。", explanation: ["概念定义：TCP 三次握手是客户端和服务器在传输应用数据前建立连接的三步协商。第一步客户端发送 SYN 并携带初始序列号 x，第二步服务器返回 SYN-ACK 并携带初始序列号 y 与 ack=x+1，第三步客户端返回 ACK 并确认 ack=y+1。","工作过程：客户端从 CLOSED 进入 SYN-SENT，服务器在 LISTEN 收到 SYN 后进入 SYN-RCVD；客户端收到 SYN-ACK 后发送最终 ACK，双方进入 ESTABLISHED。流程图要同时画报文方向、seq/ack 字段和两端状态变化。","核心价值：三次交互完成两件事：同步双方 ISN，确认客户端到服务器、服务器到客户端两个方向都具备发送和接收能力。第三次 ACK 让服务器确认自己的 SYN 被客户端收到，连接可以承载应用数据。","工程排查：SYN-SENT 堆积重点看客户端到服务端链路、目标端口和防火墙；SYN-RCVD 堆积重点看半连接队列、SYN flood、backlog 和内核参数。抓包时按 SYN、SYN-ACK、ACK 三行检查方向、重传、RST 和耗时。","参考来源：本页流程图参考 CloudMyLab 的 TCP/IP 3-Way Handshake featured diagram 结构，步骤语义结合 Guru99 与 GeeksForGeeks 的三次握手说明整理。"], typicalProblems: ["为什么 TCP 建连需要三次握手","三次握手里的 seq 和 ack 如何计算","第三次 ACK 在连接建立中承担什么作用","SYN flood 的原理是什么","SYN-SENT 或 SYN-RCVD 堆积如何排查"], prerequisites: ["tcp"], related: ["tcp-four-way-wave"], order: 23 },
+  { sourceRefs: ["geeksforgeeks-tcp-termination", "ipwithease-tcp-termination", "tcpipguide-tcp-termination", "tcpipguide-time-wait", "cs-notes", "javaguide", "xiaolin-coding"], id: "tcp-four-way-wave", zh: "TCP 四次挥手", en: "TCP Four-Way Termination", layer: "transport", difficulty: "medium", summary: "通过 FIN、ACK、FIN、ACK 分别释放 TCP 双向数据流，主动关闭方进入 TIME-WAIT 后完成连接清理。", explanation: ["概念定义：TCP 四次挥手是连接释放流程。TCP 是全双工字节流协议，A 到 B 与 B 到 A 两个方向可以独立关闭；一端发送 FIN 表示本方向发送完毕，另一端返回 ACK 确认收到。", "工作过程：主动关闭方从 ESTABLISHED 发送 FIN 后进入 FIN-WAIT-1；被动关闭方确认后进入 CLOSE-WAIT，主动关闭方收到 ACK 后进入 FIN-WAIT-2；被动关闭方完成剩余数据发送后发 FIN 并进入 LAST-ACK；主动关闭方返回最终 ACK 后进入 TIME-WAIT，被动关闭方进入 CLOSED。", "核心价值：四次挥手把两个半连接逐一释放。第一次 FIN 关闭主动方发送方向，第二次 ACK 确认该方向关闭；第三次 FIN 关闭被动方发送方向，第四次 ACK 确认最终释放。流程图要同时画报文方向、FIN/ACK 字段和两端状态。", "TIME-WAIT：主动关闭方保留 TIME-WAIT，用 2MSL 时间窗口吸收迟到报文，并在最终 ACK 丢失时具备重发空间。大量 TIME-WAIT 常见于短连接和主动关闭侧，需要结合连接复用、端口范围、内核参数和业务关闭模式分析。", "工程排查：CLOSE-WAIT 堆积通常指向应用侧 close 延迟、读写协程退出异常或连接池归还逻辑问题；FIN-WAIT-2 堆积重点看对端是否发出 FIN；LAST-ACK 堆积重点看最终 ACK 是否丢失或链路是否异常。抓包时按 FIN、ACK、FIN、ACK 四行检查方向、重传和状态。", "参考来源：本页流程图参考 GeeksForGeeks 的 TCP Connection Termination 时序图结构，状态细节结合 The TCP/IP Guide 普通释放流程与 TIME-WAIT 页面、IP With Ease 状态表整理。"], typicalProblems: ["为什么 TCP 断连通常是四次挥手", "FIN 和 ACK 分别代表什么", "主动关闭方为什么进入 TIME-WAIT", "CLOSE-WAIT 过多说明什么", "FIN-WAIT-2 或 LAST-ACK 堆积如何排查"], prerequisites: ["tcp-handshake"], related: ["tcp-state"], order: 24 },
+  { sourceRefs: ["rfc9293-tcp-state-machine", "tcpipguide-tcp-fsm", "ibm-tcp-connection-status", "krownet-tcp-states", "cs-notes", "javaguide", "xiaolin-coding"], id: "tcp-state", zh: "TCP 状态机", en: "TCP State Machine", layer: "transport", difficulty: "hard", summary: "把 TCP 连接看成由 OPEN、SYN/ACK/FIN、CLOSE 和超时事件驱动的有限状态机，覆盖建连、传输和释放路径。", explanation: ["概念定义：TCP 状态机描述单条 TCP 连接在生命周期内的状态迁移。RFC 9293 列出 LISTEN、SYN-SENT、SYN-RECEIVED、ESTABLISHED、FIN-WAIT-1、FIN-WAIT-2、CLOSE-WAIT、CLOSING、LAST-ACK、TIME-WAIT 和 CLOSED；CLOSED 表示连接状态为空的起点或终点。", "事件驱动：状态迁移由应用调用和报文事件共同触发。应用侧有 OPEN、SEND、RECEIVE、CLOSE、ABORT、STATUS；报文侧重点看 SYN、ACK、FIN、RST；计时器负责 TIME-WAIT 等超时迁移。", "建连路径：服务端 passive OPEN 创建 TCB 并进入 LISTEN；客户端 active OPEN 发送 SYN 进入 SYN-SENT；服务端收到 SYN 后发送 SYN-ACK 并进入 SYN-RECEIVED；最终 ACK 到达后双方进入 ESTABLISHED。", "关闭路径：主动关闭方从 ESTABLISHED 发送 FIN 进入 FIN-WAIT-1，收到 ACK 后进入 FIN-WAIT-2，收到对端 FIN 后进入 TIME-WAIT；被动关闭方收到 FIN 进入 CLOSE-WAIT，应用调用 close 后发送 FIN 并进入 LAST-ACK，收到最终 ACK 后回到 CLOSED。", "特殊路径与排查：双方同时关闭会经过 CLOSING；TIME-WAIT 承担最终 ACK 重传与迟到报文隔离；CLOSE-WAIT 堆积通常指向本地应用关闭滞后；FIN-WAIT-2 堆积常见于等待对端 FIN。抓包时把状态、方向和标志位一起看。", "参考来源：本页状态图参考 The TCP/IP Guide 的 TCP Finite State Machine 图形布局，状态定义以 RFC 9293 3.3.2 为准，运维状态说明结合 IBM TCP connection status 与交互式 TCP State Transition Diagram 整理。"], typicalProblems: ["TCP 常见状态如何流转","LISTEN、SYN-SENT、SYN-RECEIVED 分别代表什么","ESTABLISHED 到 FIN-WAIT-1、CLOSE-WAIT 的触发条件是什么","TIME-WAIT 和 CLOSE-WAIT 分别如何排查","CLOSING 状态在什么场景出现","如何通过 ss/netstat 观察连接状态定位问题"], prerequisites: ["tcp-handshake", "tcp-four-way-wave"], related: ["tcp-retransmission"], order: 25 },
   { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "tcp-retransmission", zh: "TCP 重传", en: "TCP Retransmission", layer: "transport", difficulty: "hard", summary: "通过超时重传和快速重传提升可靠性。", typicalProblems: ["超时重传和快速重传有什么区别","重复 ACK 代表什么","抓包看到大量重传怎么分析"], prerequisites: ["tcp"], related: ["tcp-congestion-control"], order: 26 },
   { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "tcp-flow-control", zh: "TCP 流量控制", en: "TCP Flow Control", layer: "transport", difficulty: "hard", summary: "通过接收窗口控制发送速度。", typicalProblems: ["滑动窗口如何实现流量控制","零窗口代表什么","流量控制和拥塞控制有什么区别"], prerequisites: ["tcp"], related: ["tcp-congestion-control"], order: 27 },
   { sourceRefs: ["cs-notes", "javaguide", "xiaolin-coding"], id: "tcp-congestion-control", zh: "TCP 拥塞控制", en: "TCP Congestion Control", layer: "transport", difficulty: "hard", summary: "通过慢启动、拥塞避免等机制保护网络。", typicalProblems: ["慢启动和拥塞避免如何工作","丢包后拥塞窗口如何变化","跨地域链路吞吐低怎么分析"], prerequisites: ["tcp-retransmission", "tcp-flow-control"], related: ["latency-bandwidth"], order: 28 },
@@ -145,35 +335,18 @@ export const networkKnowledgePoints = [
 ] satisfies GraphKnowledgePoint[];
 
 export const networkKnowledgeExplanations: Record<string, string[]> = {
-  "network-overview": [
-    "概念定义：计算机网络的本质是把分散的主机、链路和网络设备连接起来，通过协议完成数据交换。学习时要理解三个核心对象：主机负责产生和消费数据，链路负责承载比特，协议负责约定数据格式、传输顺序、错误处理和转发规则。",
-    "工作过程：一次 Web 访问会经历应用层构造请求、传输层建立端到端通信、网络层按 IP 寻址、数据链路层按 MAC 投递、物理层发送信号。每一层只处理自己的职责，再把结果交给下一层，形成封装和解封装过程。",
-    "面试要点：常问网络分层、输入 URL 后发生什么、TCP 和 UDP 区别、HTTP 与 HTTPS 区别、DNS 解析、三次握手和四次挥手。回答时按层次组织，比散讲具体协议更清晰。",
-    "工程排查：网络问题通常按从下到上定位：链路是否通、IP 是否正确、路由是否可达、端口是否监听、协议是否握手成功、应用是否返回预期结果。常用工具包括 ping、traceroute、curl、dig、netstat/ss、tcpdump。"
-  ],
+  "network-overview": networkKnowledgePoints[0].explanation ?? [],
   "osi-model": [
-    "概念定义：OSI 七层模型把网络通信拆成物理层、数据链路层、网络层、传输层、会话层、表示层、应用层。它是一个学习和排障模型，用来说明每一层解决什么问题。",
-    "分层职责：物理层传输比特；数据链路层处理帧、MAC 和局域网投递；网络层处理 IP 寻址和路由；传输层处理端到端连接和可靠性；上三层处理会话管理、数据表示和应用协议。",
-    "面试要点：常要求说出七层名称、每层协议或设备、TCP/IP 模型和 OSI 模型的对应关系。可以用 HTTP 在应用层、TCP 在传输层、IP 在网络层、以太网在数据链路层举例。",
-    "工程排查：七层模型适合定位故障边界。网线、网卡、链路灯归物理层；ARP、MAC、VLAN 归数据链路层；IP、路由、网关归网络层；端口、握手、重传归传输层；状态码、Header、业务响应归应用层。"
+    ...(networkKnowledgePoints.find((point) => point.id === "osi-model")?.explanation ?? []),
   ],
   "tcp-ip-model": [
-    "概念定义：TCP/IP 四层模型更贴近互联网实现，通常分为网络接口层、网际层、传输层、应用层。它把 OSI 的会话层、表示层和应用层合并到应用层，把物理层和数据链路层合并到网络接口层。",
-    "封装过程：应用层产生 HTTP/DNS 等数据，传输层加 TCP 或 UDP 头，网际层加 IP 头，网络接口层加以太网帧头和帧尾。接收端按相反方向逐层解析。",
-    "面试要点：常问 TCP/IP 与 OSI 的区别、每层代表协议、一次请求经过哪些层。回答时强调 TCP/IP 是实际协议族，OSI 更偏理论分层。",
-    "工程排查：抓包时能直观看到分层封装。以太网帧里装 IP 包，IP 包里装 TCP 段，TCP 段里装 HTTP 数据。看懂这个层次，才能判断问题发生在链路、路由、连接还是应用。"
+    ...(networkKnowledgePoints.find((point) => point.id === "tcp-ip-model")?.explanation ?? []),
   ],
   "signal": [
-    "概念定义：信号是比特在物理世界中的表现形式，可以是电信号、光信号或无线电波。带宽表示链路单位时间内可承载的数据量，常用 bps、Mbps、Gbps 表示。",
-    "工作过程：发送端把数字比特编码成物理信号，经介质传播到接收端，接收端再把信号还原成比特。编码方式、信噪比、传输距离和介质质量都会影响误码率和有效速率。",
-    "面试要点：带宽决定吞吐上限，延迟决定响应快慢。高带宽链路传大文件更快，低延迟链路交互体验更好。实际速度还受协议开销、拥塞、丢包和对端处理能力影响。",
-    "工程排查：物理层问题会表现为链路抖动、丢包、协商速率异常或间歇性断连。可以检查网线、光模块、端口错误计数、网卡速率、双工模式和无线信号质量。"
+    ...(networkKnowledgePoints.find((point) => point.id === "signal")?.explanation ?? []),
   ],
   "ethernet-physical": [
-    "概念定义：以太网物理介质包括双绞线、光纤、网卡、交换机端口和光电模块。它们承载以太网帧的实际传输，是上层协议工作的基础。",
-    "工作过程：设备通过网卡把帧转换为物理信号，经网线或光纤传到交换机端口。双方会进行速率和双工模式协商，例如 100Mbps、1Gbps、10Gbps。",
-    "面试要点：物理介质决定传输距离、速率和稳定性。双绞线成本低，常用于机房和办公网络；光纤距离远、抗干扰能力强，常用于机房互联和骨干链路。",
-    "工程排查：链路灯、端口 up/down、CRC 错误、丢包、协商速率不一致都可能来自物理层。生产环境中光模块兼容性、网线质量和端口故障也很常见。"
+    ...(networkKnowledgePoints.find((point) => point.id === "ethernet-physical")?.explanation ?? []),
   ],
   "mac-address": [
     "概念定义：MAC 地址是数据链路层地址，通常是 48 位，用十六进制表示。它标识局域网中的网络接口，用于同一二层网络内的帧投递。",
@@ -182,10 +355,7 @@ export const networkKnowledgeExplanations: Record<string, string[]> = {
     "工程排查：MAC 表异常会导致局域网转发问题。可以通过 ARP 缓存、交换机 MAC 地址表、抓包中的源/目的 MAC 判断数据是否发往正确下一跳。"
   ],
   "ethernet-frame": [
-    "概念定义：以太网帧是数据链路层的传输单位，典型字段包括目的 MAC、源 MAC、类型、载荷和 FCS 校验。IP 数据报通常作为以太网帧的载荷传输。",
-    "工作过程：发送端把上层 IP 包封装进以太网帧，交换机按目的 MAC 转发。接收端校验帧完整性，确认类型字段后把载荷交给 IP 或 ARP 等上层协议。",
-    "面试要点：以太网 MTU 常见值是 1500 字节，超过 MTU 的 IP 包可能发生分片或触发路径 MTU 发现。帧头处理的是二层投递，和 TCP 端口没有直接关系。",
-    "工程排查：抓包分析时要看源 MAC、目的 MAC、EtherType、VLAN Tag 和帧长度。二层环路、VLAN 配错、MTU 不一致都可能造成异常。"
+    ...(networkKnowledgePoints.find((point) => point.id === "ethernet-frame")?.explanation ?? []),
   ],
   "switch": [
     "概念定义：交换机是二层网络设备，核心能力是根据 MAC 地址表转发以太网帧。它把多个主机连接到同一个或多个广播域中。",
