@@ -180,12 +180,15 @@ const visualAreas: Record<CategoryId, string[]> = {
   ],
 };
 
-const visualPointIds: Partial<Record<CategoryId, string[]>> = {
+export const visualPointIds: Partial<Record<CategoryId, string[]>> = {
   network: [
     "network-overview",
     "osi-model",
     "tcp-ip-model",
     "signal",
+    "ethernet-physical",
+    "mac-address",
+    "ethernet-frame",
     "arp",
     "switch",
     "vlan",
@@ -382,8 +385,8 @@ function getAreaKey(point: GraphKnowledgePoint) {
   return point.area ?? point.layer ?? "foundation";
 }
 
-export function isPointVisualizable(_categoryId: CategoryId, point: GraphKnowledgePoint) {
-  return Boolean(point.id);
+export function isPointVisualizable(categoryId: CategoryId, point: GraphKnowledgePoint) {
+  return visualPointIds[categoryId]?.includes(point.id) ?? false;
 }
 
 function actor(
@@ -2322,6 +2325,151 @@ function buildRedisSpecific(point: GraphKnowledgePoint) {
 
 function buildRabbitmqSpecific(point: GraphKnowledgePoint) {
   const area = getAreaKey(point);
+
+  if (point.id === "exchange") {
+    return flow(
+      "rabbitmq",
+      point,
+      ["交换机路由矩阵", "Exchange routing matrix"],
+      [
+        "模拟生产者把消息发布到交换机后，Direct、Fanout、Topic、Headers 和 Alternate Exchange 如何决定目标队列。",
+        "Simulate how Direct, Fanout, Topic, Headers, and Alternate Exchange decide target queues after a producer publishes to an exchange.",
+      ],
+      [
+        ["producer", "生产者", "Producer", "发送 exchange、routing key、headers 和 body", "Sends exchange, routing key, headers, and body", "client"],
+        ["exchange", "交换机", "Exchange", "按类型和绑定关系评估路由", "Evaluates routes by type and bindings", "broker"],
+        ["bindings", "绑定表", "Bindings", "保存 binding key、pattern 和 header 条件", "Stores binding keys, patterns, and header conditions", "data"],
+        ["queues", "目标队列", "Target queues", "接收匹配消息或兜底未路由消息", "Receives matched messages or unrouted fallback", "queue"],
+      ],
+      {
+        producer: tx("准备发布 order.created", "Preparing order.created"),
+        exchange: tx("等待消息", "Awaiting publish"),
+        bindings: tx("Direct/Fanout/Topic/Headers 已声明", "Direct/Fanout/Topic/Headers declared"),
+        queues: tx("等待匹配结果", "Awaiting route result"),
+      },
+      [
+        [
+          "发布到交换机",
+          "Publish to exchange",
+          "发送 exchange + routing key + headers",
+          "Send exchange + routing key + headers",
+          "producer",
+          "exchange",
+          "exchange=orders.events",
+          "exchange=orders.events",
+          "生产者发布到交换机，消息携带 routing key 和可选 headers；队列名通常留在绑定拓扑里。",
+          "Producer publishes to an exchange with a routing key and optional headers; queue names usually stay inside topology bindings.",
+          "交换机是发布入口，生产者面向路由语义发布消息。",
+          "The exchange is the publish entrypoint, and producers publish to routing semantics.",
+          {
+            producer: tx("已发布", "Published"),
+            exchange: tx("收到消息属性", "Message properties received"),
+          },
+        ],
+        [
+          "Direct 精确匹配",
+          "Direct exact match",
+          "比较 routing key 与 binding key",
+          "Compare routing key and binding key",
+          "exchange",
+          "bindings",
+          "order.created == order.created",
+          "order.created == order.created",
+          "Direct 交换机把 routing key 与 binding key 精确相等的消息投递到对应队列。",
+          "A direct exchange routes to queues whose binding key exactly equals the routing key.",
+          "Direct 适合命令、状态事件和明确业务通道。",
+          "Direct fits commands, status events, and explicit business lanes.",
+          {
+            exchange: tx("执行 exact match", "Exact match running"),
+            bindings: tx("命中 order.created", "order.created matched"),
+          },
+          "teal",
+        ],
+        [
+          "Fanout 广播",
+          "Fanout broadcast",
+          "复制给全部绑定目标",
+          "Copy to every bound target",
+          "bindings",
+          "queues",
+          "all bindings",
+          "all bindings",
+          "Fanout 交换机忽略 routing key，把消息复制到所有绑定队列，适合发布订阅。",
+          "A fanout exchange ignores the routing key and copies the message to every bound queue, fitting publish-subscribe.",
+          "每个订阅方使用独立队列，消费进度互相独立。",
+          "Each subscriber uses its own queue, so consumption progress is isolated.",
+          {
+            bindings: tx("全部绑定通过", "All bindings pass"),
+            queues: tx("审计/通知/搜索队列收到副本", "Audit/notify/search queues receive copies"),
+          },
+          "success",
+        ],
+        [
+          "Topic 模式匹配",
+          "Topic pattern match",
+          "匹配 * 和 # 通配符",
+          "Match * and # wildcards",
+          "exchange",
+          "bindings",
+          "order.* / order.#",
+          "order.* / order.#",
+          "Topic 交换机按点分词段匹配；* 匹配一个词段，# 匹配零个或多个词段。",
+          "A topic exchange matches dot-separated words; * matches one word and # matches zero or more words.",
+          "Topic 适合把事件域、动作、地区和版本写进 routing key。",
+          "Topic fits event domain, action, region, and version in routing keys.",
+          {
+            exchange: tx("解析词段 order.created", "Parsing words order.created"),
+            bindings: tx("模式匹配完成", "Pattern match complete"),
+          },
+          "warning",
+        ],
+        [
+          "Headers 条件匹配",
+          "Headers condition match",
+          "按 headers 和 x-match 判断",
+          "Evaluate headers and x-match",
+          "bindings",
+          "queues",
+          "tenant=vip,type=invoice",
+          "tenant=vip,type=invoice",
+          "Headers 交换机根据消息 headers 与绑定参数匹配，可用 all 或 any 语义组合条件。",
+          "A headers exchange matches message headers against binding arguments with all or any semantics.",
+          "Headers 适合维度多、routing key 表达吃力的路由条件。",
+          "Headers fits multi-dimensional routes that routing keys express poorly.",
+          {
+            bindings: tx("Header 条件通过", "Header conditions pass"),
+            queues: tx("VIP 发票队列收到消息", "VIP invoice queue receives message"),
+          },
+          "success",
+        ],
+        [
+          "未路由兜底",
+          "Unrouted fallback",
+          "进入 Alternate Exchange",
+          "Enter alternate exchange",
+          "exchange",
+          "queues",
+          "alternate-exchange",
+          "alternate-exchange",
+          "没有任何 binding 命中时，可以由 Alternate Exchange 承接未路由消息，也可以用 mandatory 返回让生产者感知。",
+          "When no binding matches, an alternate exchange can catch the unrouted message, and mandatory return can notify the producer.",
+          "未路由消息要被观测和兜底，避免错误 routing key 静默丢失。",
+          "Unrouted messages need observability and fallback to avoid silent routing-key mistakes.",
+          {
+            exchange: tx("未命中绑定", "No binding matched"),
+            queues: tx("unrouted.audit 收到兜底消息", "unrouted.audit receives fallback message"),
+          },
+          "danger",
+        ],
+      ],
+      [
+        ["exchange type", "exchange type"],
+        ["routing key / headers", "routing key / headers"],
+        ["binding 命中数", "Binding match count"],
+        ["unrouted fallback", "unrouted fallback"],
+      ],
+    );
+  }
 
   if (area === "dead-letter" || area === "delay-retry") {
     return flow(
