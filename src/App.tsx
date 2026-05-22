@@ -1623,11 +1623,28 @@ function buildGraphItems(
 }
 
 function App() {
-  const [page, setPage] = useState<Page>("home");
+  const debugParams = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get("category") as CategoryId | null;
+    const point = params.get("point");
+    const pageParam = params.get("page");
+    const validCategory = category && knowledgePointsByCategory[category] ? category : "network";
+    const validPoint = point && knowledgePointsByCategory[validCategory].some((item) => item.id === point)
+      ? point
+      : "tcp-handshake";
+    const validPage: Page = pageParam === "detail" || pageParam === "simulator" || pageParam === "about" ? pageParam : "home";
+
+    return {
+      page: validPage,
+      category: validCategory,
+      point: validPoint,
+    };
+  }, []);
+  const [page, setPage] = useState<Page>(debugParams.page);
   const [theme, setTheme] = useState<Theme>("light");
   const [locale, setLocale] = useState<Locale>("zh");
-  const [selectedCategory, setSelectedCategory] = useState<CategoryId>("network");
-  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState("tcp-handshake");
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId>(debugParams.category);
+  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState(debugParams.point);
   const [graphBoard, setGraphBoard] = useState<GraphBoard>("knowledge");
   const [searchQuery, setSearchQuery] = useState("");
   const t = copy[locale];
@@ -2478,6 +2495,17 @@ function SimulationStage({
     );
   }
 
+  if (simulation.key === "network:tcp-ip-model") {
+    return (
+      <TcpIpModelStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "network:switch") {
     return (
       <SwitchForwardingStage
@@ -2774,6 +2802,195 @@ function SimulationStage({
           <span>{readLocalizedText(activeStep.title, locale)}</span>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function TcpIpModelStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const layers = [
+    {
+      id: "application",
+      zh: "应用层",
+      en: "Application",
+      protocol: "HTTP / DNS",
+      fields: ["Host", "Path", "Headers", "Body"],
+      color: "#2563eb",
+    },
+    {
+      id: "transport",
+      zh: "传输层",
+      en: "Transport",
+      protocol: "TCP / UDP",
+      fields: ["src port", "dst port", "seq/ack", "window"],
+      color: "#0f8ea8",
+    },
+    {
+      id: "internet",
+      zh: "Internet 层",
+      en: "Internet",
+      protocol: "IP / ICMP",
+      fields: ["src IP", "dst IP", "TTL", "gateway"],
+      color: "#f59e0b",
+    },
+    {
+      id: "link",
+      zh: "链路层",
+      en: "Link",
+      protocol: "Ethernet / Wi-Fi",
+      fields: ["src MAC", "next-hop MAC", "VLAN", "FCS"],
+      color: "#16a34a",
+    },
+  ];
+  const path = [
+    { id: "app", x: 92, y: 392, zh: "应用载荷", en: "App payload", step: 0 },
+    { id: "segment", x: 276, y: 392, zh: "Segment", en: "Segment", step: 1 },
+    { id: "packet", x: 462, y: 392, zh: "IP Packet", en: "IP packet", step: 2 },
+    { id: "frame", x: 652, y: 392, zh: "下一跳帧", en: "Next-hop frame", step: 3 },
+    { id: "receiver", x: 860, y: 392, zh: "解封装", en: "Decapsulation", step: 4 },
+  ];
+
+  return (
+    <div className="visual-stage tcp-ip-stage">
+      <div className="tcp-ip-card">
+        <svg
+          className="tcp-ip-diagram"
+          viewBox="0 0 960 590"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["tcpip-arrow-blue", "var(--brand)"],
+              ["tcpip-arrow-teal", "var(--tertiary)"],
+              ["tcpip-arrow-yellow", "#f59e0b"],
+              ["tcpip-arrow-green", "var(--success)"],
+              ["tcpip-arrow-muted", "color-mix(in srgb, var(--muted) 54%, transparent)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="tcpip-soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.12" />
+            </filter>
+          </defs>
+
+          <rect className="tcp-ip-bg" x="24" y="24" width="912" height="528" rx="26" />
+          <text className="tcp-title tcp-ip-title" x="480" y="66">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="tcp-subtitle tcp-ip-subtitle" x="480" y="94">
+            RFC 1122 Link / IP / Transport / Application
+          </text>
+
+          <g className="tcp-ip-layer-stack">
+            {layers.map((layer, index) => {
+              const y = 130 + index * 58;
+              const active = completedSteps > index || activeStep.from === layer.id || activeStep.to === layer.id;
+
+              return (
+                <g
+                  key={layer.id}
+                  className={`tcp-ip-layer ${active ? "active" : ""}`}
+                  style={{ "--layer-color": layer.color } as CSSProperties}
+                >
+                  <rect x="56" y={y} width="352" height="46" rx="12" />
+                  <circle cx="82" cy={y + 23} r="9" />
+                  <text className="tcp-ip-layer-name" x="102" y={y + 20}>
+                    {locale === "zh" ? layer.zh : layer.en}
+                  </text>
+                  <text className="tcp-ip-layer-protocol" x="102" y={y + 36}>
+                    {layer.protocol}
+                  </text>
+                  {layer.fields.map((field, fieldIndex) => (
+                    <g key={field} className="tcp-ip-field-chip">
+                      <rect x={438 + fieldIndex * 112} y={y + 7} width="96" height="32" rx="8" />
+                      <text x={486 + fieldIndex * 112} y={y + 28}>
+                        {field}
+                      </text>
+                    </g>
+                  ))}
+                </g>
+              );
+            })}
+          </g>
+
+          <g className="tcp-ip-route">
+            <path
+              className="tcp-ip-route-line"
+              d="M 92 392 L 860 392"
+              markerEnd="url(#tcpip-arrow-muted)"
+            />
+            {path.map((item, index) => {
+              const active = completedSteps > item.step;
+              const current = completedSteps === item.step;
+
+              return (
+                <g
+                  key={item.id}
+                  className={`tcp-ip-hop ${active ? "active" : ""} ${current ? "current" : ""}`}
+                >
+                  {index > 0 && (
+                    <path
+                      className={active ? "tcp-ip-active-segment" : "tcp-ip-segment"}
+                      d={`M ${path[index - 1].x + 24} ${item.y} L ${item.x - 24} ${item.y}`}
+                      markerEnd={active ? "url(#tcpip-arrow-blue)" : undefined}
+                    />
+                  )}
+                  <circle cx={item.x} cy={item.y} r="24" />
+                  <text x={item.x} y={item.y + 52}>
+                    {locale === "zh" ? item.zh : item.en}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+
+          <g className="tcp-ip-device source">
+            <rect x="54" y="452" width="184" height="58" rx="14" />
+            <text x="146" y="476">{locale === "zh" ? "源主机协议栈" : "Source host stack"}</text>
+            <text x="146" y="496">10.0.1.10:51532</text>
+          </g>
+          <g className="tcp-ip-device gateway">
+            <rect x="374" y="452" width="212" height="58" rx="14" />
+            <text x="480" y="476">{locale === "zh" ? "默认网关 / 路由表" : "Default gateway / route table"}</text>
+            <text x="480" y="496">next hop 10.0.1.1 · TTL - 1</text>
+          </g>
+          <g className="tcp-ip-device target">
+            <rect x="718" y="452" width="184" height="58" rx="14" />
+            <text x="810" y="476">{locale === "zh" ? "目标服务协议栈" : "Target service stack"}</text>
+            <text x="810" y="496">203.0.113.8:443</text>
+          </g>
+
+          <foreignObject x="50" y="520" width="860" height="54">
+            <div className="tcp-ip-caption">
+              <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+              <span>{readLocalizedText(activeStep.label, locale)}</span>
+              <small>{completedSteps}/{simulation.steps.length}</small>
+            </div>
+          </foreignObject>
+        </svg>
       </div>
     </div>
   );

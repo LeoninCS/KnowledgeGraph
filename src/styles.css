@@ -2609,6 +2609,199 @@ td {
   filter: drop-shadow(0 8px 12px rgb(23 32 51 / 0.14));
 }
 
+.tcp-ip-stage {
+  grid-template-columns: minmax(0, 1fr);
+  overflow-x: auto;
+  justify-content: center;
+}
+
+.tcp-ip-card {
+  justify-self: center;
+  width: min(100%, 1060px);
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: hidden;
+}
+
+:root[data-theme="dark"] .tcp-ip-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.tcp-ip-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 530px;
+}
+
+.tcp-ip-bg {
+  fill: color-mix(in srgb, var(--surface) 94%, var(--brand-soft));
+  stroke: var(--border);
+  stroke-width: 1.2;
+}
+
+.tcp-ip-title {
+  font-size: 24px;
+}
+
+.tcp-ip-subtitle {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.tcp-ip-layer rect {
+  fill: color-mix(in srgb, var(--layer-color) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--layer-color) 42%, var(--border));
+  stroke-width: 1.3;
+}
+
+.tcp-ip-layer circle {
+  fill: var(--layer-color);
+}
+
+.tcp-ip-layer.active rect {
+  fill: color-mix(in srgb, var(--layer-color) 17%, var(--surface));
+  stroke: var(--layer-color);
+  filter: url(#tcpip-soft-shadow);
+}
+
+.tcp-ip-layer-name {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.tcp-ip-layer-protocol {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.tcp-ip-field-chip rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--layer-color) 34%, var(--border));
+  stroke-width: 1;
+}
+
+.tcp-ip-field-chip text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.tcp-ip-route-line {
+  stroke: color-mix(in srgb, var(--muted) 36%, transparent);
+  stroke-width: 3;
+  stroke-dasharray: 9 9;
+  fill: none;
+}
+
+.tcp-ip-segment,
+.tcp-ip-active-segment {
+  stroke-width: 5;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.tcp-ip-segment {
+  stroke: color-mix(in srgb, var(--muted) 30%, transparent);
+}
+
+.tcp-ip-active-segment {
+  stroke: var(--brand);
+}
+
+.tcp-ip-hop circle {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--muted) 44%, var(--border));
+  stroke-width: 3;
+}
+
+.tcp-ip-hop.active circle {
+  fill: var(--brand);
+  stroke: var(--brand-strong);
+  filter: url(#tcpip-soft-shadow);
+}
+
+.tcp-ip-hop.current circle {
+  stroke: #f59e0b;
+  stroke-width: 4;
+}
+
+.tcp-ip-hop text {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 4px;
+}
+
+.tcp-ip-hop.active text {
+  fill: var(--brand-strong);
+}
+
+.tcp-ip-device rect {
+  fill: color-mix(in srgb, var(--surface) 94%, var(--tertiary-soft));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+  stroke-width: 1.2;
+}
+
+.tcp-ip-device text {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.tcp-ip-device text + text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+}
+
+.tcp-ip-caption {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  padding: 0 16px;
+  color: var(--text);
+}
+
+.tcp-ip-caption strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 13.5px;
+}
+
+.tcp-ip-caption span {
+  color: var(--brand);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.tcp-ip-caption small {
+  color: var(--faint);
+  font-size: 12px;
+  font-weight: 850;
+}
+
 .data-flow-arrow,
 .data-transfer-arrow {
   stroke: #95d082;
@@ -3180,6 +3373,20 @@ td {
     align-content: start;
     min-height: auto;
     padding: 24px 18px 32px;
+  }
+
+  .tcp-ip-stage {
+    justify-content: start;
+  }
+
+  .tcp-ip-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .tcp-ip-diagram {
+    min-height: 590px;
   }
 
   .ethernet-frame-stage {
