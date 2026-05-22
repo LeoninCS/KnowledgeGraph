@@ -1,4 +1,17 @@
 import {
+  Background,
+  Controls,
+  Handle,
+  Position,
+  ReactFlow,
+  ReactFlowProvider,
+  type Edge,
+  type Node,
+  type NodeProps,
+  type NodeTypes,
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
@@ -23,20 +36,15 @@ import {
   ShieldCheck,
   Sun,
   ExternalLink,
+  GitCommitHorizontal,
   Waypoints,
   Zap,
-  ZoomIn,
-  ZoomOut,
 } from "lucide-react";
 import {
   type CSSProperties,
-  type MouseEvent as ReactMouseEvent,
-  type PointerEvent as ReactPointerEvent,
   type ReactNode,
-  type WheelEvent as ReactWheelEvent,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import {
@@ -47,13 +55,23 @@ import {
   knowledgePointsByCategory,
   type GraphKnowledgePoint,
 } from "./data/knowledge-points";
+import { getAlgorithmExampleProblems } from "./data/algorithm-example-problems";
+import {
+  buildVisualSimulation,
+  isPointVisualizable,
+  readLocalizedText,
+  type ActorKind,
+  type SimulationActor,
+  type VisualSimulation,
+} from "./data/visual-simulations";
 import type { CategoryId, Difficulty } from "./data/types";
 
 type Locale = "zh" | "en";
 type Theme = "light" | "dark";
 type Page = "home" | "detail" | "simulator" | "about";
-type Step = 0 | 1 | 2 | 3;
+type Step = number;
 type GraphMode = "core" | "all";
+type GraphBoard = "knowledge" | "visual";
 type PointPriority = "primary" | "secondary";
 
 const copy = {
@@ -70,7 +88,7 @@ const copy = {
     aboutLead: "KnowledgeGraph 是面向计算机基础学习者的可视化学习项目，用分类图谱、知识详情和交互模拟器组织抽象概念。",
     aboutSections: [
       ["项目目标", "把网络、操作系统、数据结构、数据库、后端工程和 AI Agent 等主题放进统一知识图谱，帮助学习者看到知识之间的连接。"],
-      ["当前能力", "左侧分类切换专题图谱，顶部搜索快速定位知识点，图谱节点进入详情页，TCP 三次握手提供交互式模拟。"],
+      ["当前能力", "左侧分类切换专题图谱，顶部搜索快速定位知识点，图谱节点进入详情页，流程型知识点提供交互式模拟。"],
       ["内容结构", "每个分类包含一组核心知识点，知识点带难度、关系和学习入口，后续可以继续扩展更多详情页和模拟器。"],
     ],
     themeLight: "浅色",
@@ -94,10 +112,14 @@ const copy = {
     difficulties: ["简单", "中等", "困难"],
     upgrade: "升级",
     focused: "当前聚焦",
+    graphBoard: "画板类型",
+    knowledgeBoard: "知识图谱",
+    visualBoard: "可视化图谱",
     graphMode: "图谱范围",
     coreMode: "核心",
     allMode: "全部",
-    graphHint: "滚轮缩放 · Shift + 滚轮横移 · 拖动空白处平移",
+    graphHint: "拖动画布平移 · 滚轮缩放 · 右下角重置视图",
+    visualGraphHint: "可视化知识点画板 · 点击节点进详情 · 从详情页开始模拟",
     medium: "中等",
     tcpTitle: "TCP",
     tcpSummary: "可靠连接 · 三次握手 · 有序传输",
@@ -110,6 +132,7 @@ const copy = {
     detailInfo: "知识点信息",
     explanation: "讲解",
     scenarioExamples: "典型问题",
+    exampleProblems: "例题练习",
     learningOrder: "学习顺序",
     openReference: "打开来源",
     documentation: "文档",
@@ -158,8 +181,19 @@ const copy = {
       ["Server", "SYN-RCVD", "收 ACK", "ESTABLISHED"],
     ],
     interactive: "交互式仿真",
-    interactiveBody: "手动发送 SYN、SYN-ACK、ACK。",
+    interactiveBody: "按步骤推进事件、报文或状态变化。",
     startSimulator: "开始模拟",
+    openVisualBoard: "查看可视化图谱",
+    visualTag: "可视化",
+    visualizable: "可视化",
+    visualizablePoints: "可视化知识点",
+    visualizableIntro: "以下知识点适合通过流程、状态、路径或结构模拟理解。",
+    visualPattern: "可视化类型",
+    simulationMetrics: "观察指标",
+    currentState: "当前状态",
+    stepInsight: "理解重点",
+    actorStates: "参与者状态",
+    progress: "进度",
     contents: "本章目录",
     contentItems: [
       "核心概念",
@@ -174,6 +208,7 @@ const copy = {
     backDetail: "返回详情",
     simulatorTitle: "TCP 三次握手模拟器",
     reset: "重置",
+    previousAction: "上一步",
     client: "客户端",
     server: "服务器",
     physicalLink: "物理链路",
@@ -222,7 +257,7 @@ const copy = {
     aboutLead: "KnowledgeGraph is a visual learning project for computer science fundamentals, organizing abstract concepts with category graphs, knowledge details, and interactive simulators.",
     aboutSections: [
       ["Goal", "Put networks, operating systems, data structures, databases, backend engineering, and AI Agent topics into one connected knowledge graph."],
-      ["Current Features", "Use the left sidebar to switch topic graphs, search from the top bar, open node details, and run the TCP three-way handshake simulator."],
+      ["Current Features", "Use the left sidebar to switch topic graphs, search from the top bar, open node details, and run interactive simulations for process-oriented topics."],
       ["Content Model", "Each category contains core knowledge points with difficulty, relationships, and learning entry points, ready for more detail pages and simulators."],
     ],
     themeLight: "Light",
@@ -246,10 +281,14 @@ const copy = {
     difficulties: ["Easy", "Medium", "Hard"],
     upgrade: "Upgrade",
     focused: "Focused",
+    graphBoard: "Board Type",
+    knowledgeBoard: "Knowledge Graph",
+    visualBoard: "Visual Graph",
     graphMode: "Graph Scope",
     coreMode: "Core",
     allMode: "All",
-    graphHint: "Wheel to zoom · Shift + wheel to pan horizontally · Drag blank canvas to pan",
+    graphHint: "Drag canvas to pan · wheel to zoom · reset from bottom-right controls",
+    visualGraphHint: "Visualizable topic board · open details from nodes · start simulations from detail pages",
     medium: "Medium",
     tcpTitle: "TCP",
     tcpSummary: "Reliable connection · three-step handshake · ordered delivery",
@@ -262,6 +301,7 @@ const copy = {
     detailInfo: "Knowledge Info",
     explanation: "Explanation",
     scenarioExamples: "Typical Questions",
+    exampleProblems: "Practice Problems",
     learningOrder: "Learning Order",
     openReference: "Open Reference",
     documentation: "Documentation",
@@ -310,8 +350,19 @@ const copy = {
       ["Server", "SYN-RCVD", "Receive ACK", "ESTABLISHED"],
     ],
     interactive: "Interactive Simulation",
-    interactiveBody: "Send SYN, SYN-ACK, and ACK manually.",
+    interactiveBody: "Step through events, packets, or state transitions.",
     startSimulator: "Start Simulation",
+    openVisualBoard: "Open Visual Graph",
+    visualTag: "Visual",
+    visualizable: "Visualizable",
+    visualizablePoints: "Visualizable Topics",
+    visualizableIntro: "These topics are best understood through flow, state, path, or structure simulations.",
+    visualPattern: "Visualization Type",
+    simulationMetrics: "Signals to Watch",
+    currentState: "Current State",
+    stepInsight: "Key Insight",
+    actorStates: "Actor States",
+    progress: "Progress",
     contents: "Contents",
     contentItems: [
       "Core Concept",
@@ -326,6 +377,7 @@ const copy = {
     backDetail: "Back to Detail",
     simulatorTitle: "TCP Handshake Simulator",
     reset: "Reset",
+    previousAction: "Previous",
     client: "Client",
     server: "Server",
     physicalLink: "Physical Link",
@@ -416,6 +468,40 @@ function pointMatchesSearch(
   );
 }
 
+function getPointSearchScore(
+  point: GraphKnowledgePoint,
+  categoryLabel: string,
+  query: string,
+) {
+  const normalized = normalizeSearch(query);
+
+  if (!normalized) {
+    return 0;
+  }
+
+  const values = [point.id, point.zh, point.en, categoryLabel].map((value) =>
+    value.toLowerCase(),
+  );
+
+  if (values.some((value) => value === normalized)) {
+    return 100;
+  }
+
+  if (values.some((value) => value.split(/[\s-]+/).includes(normalized))) {
+    return 82;
+  }
+
+  if (values.some((value) => value.startsWith(normalized))) {
+    return 68;
+  }
+
+  if (values.some((value) => value.includes(normalized))) {
+    return 32;
+  }
+
+  return 0;
+}
+
 function findFirstSearchMatch(t: Copy, query: string) {
   const normalized = normalizeSearch(query);
 
@@ -423,19 +509,22 @@ function findFirstSearchMatch(t: Copy, query: string) {
     return undefined;
   }
 
+  let bestMatch: { categoryId: CategoryId; score: number } | undefined;
+
   for (const [rawId] of t.categories) {
     const categoryId = rawId as CategoryId;
     const categoryLabel = getCategoryLabel(t, categoryId);
-    const match = knowledgePointsByCategory[categoryId].find((point) =>
-      pointMatchesSearch(point, categoryLabel, normalized),
-    );
 
-    if (match) {
-      return categoryId;
-    }
+    knowledgePointsByCategory[categoryId].forEach((point) => {
+      const score = getPointSearchScore(point, categoryLabel, normalized);
+
+      if (score > (bestMatch?.score ?? 0)) {
+        bestMatch = { categoryId, score };
+      }
+    });
   }
 
-  return undefined;
+  return bestMatch?.categoryId;
 }
 
 const areaLabelMap: Record<string, { zh: string; en: string }> = {
@@ -527,8 +616,11 @@ const areaLabelMap: Record<string, { zh: string; en: string }> = {
 
 const essentialKnowledgeIds: Record<CategoryId, string[]> = {
   network: [
+    "network-overview",
     "osi-model",
     "tcp-ip-model",
+    "ethernet-frame",
+    "switch",
     "arp",
     "ip",
     "subnet",
@@ -941,12 +1033,32 @@ function getPointLabelsByIds(
     .map((item) => getKnowledgeLabel(item, locale));
 }
 
+function getVisualizablePoints(categoryId: CategoryId) {
+  return knowledgePointsByCategory[categoryId].filter((point) =>
+    isPointVisualizable(categoryId, point),
+  );
+}
+
 function buildDetailedExplanationItems(
   point: GraphKnowledgePoint,
   activeCategory: CategoryId,
   locale: Locale,
   t: Copy,
 ) {
+  if (locale === "zh" && point.explanation?.length) {
+    return point.explanation.map((body, index) => {
+      const [rawTitle, ...rest] = body.split("：");
+      const hasTitlePrefix = rest.length > 0 && rawTitle.length <= 12;
+
+      return {
+        title: hasTitlePrefix
+          ? rawTitle
+          : instructorExplanationTitles[index] ?? `${t.explanation} ${index + 1}`,
+        body: hasTitlePrefix ? rest.join("：") : body,
+      };
+    });
+  }
+
   const points = knowledgePointsByCategory[activeCategory];
   const frame = categoryExplanationFrames[activeCategory];
   const categoryLabel = getCategoryLabel(t, activeCategory);
@@ -1055,6 +1167,29 @@ function getVisiblePoints(
   return allPoints.filter((point) => coreIdSet.has(point.id));
 }
 
+function getVisibleGraphPoints(
+  selectedCategory: CategoryId,
+  allPoints: GraphKnowledgePoint[],
+  matchedPoints: GraphKnowledgePoint[],
+  graphMode: GraphMode,
+  graphBoard: GraphBoard,
+  hasSearch: boolean,
+) {
+  const basePoints = getVisiblePoints(
+    selectedCategory,
+    allPoints,
+    matchedPoints,
+    graphMode,
+    hasSearch,
+  );
+
+  if (graphBoard === "knowledge") {
+    return basePoints;
+  }
+
+  return basePoints.filter((point) => isPointVisualizable(selectedCategory, point));
+}
+
 function getPointPriority(
   selectedCategory: CategoryId,
   point: GraphKnowledgePoint,
@@ -1070,52 +1205,234 @@ function getPointPriority(
   return "secondary";
 }
 
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
-}
+type KnowledgeGraphNodeKind = "category" | "group" | "knowledge";
+type KnowledgeGraphRelation = "category" | "group" | "prerequisite" | "related";
 
-const clusterRingCapacities = [6, 10, 14, 18, 22, 26, 30];
+type KnowledgeGraphNodeData = {
+  label: string;
+  categoryId: CategoryId;
+  categoryLabel: string;
+  count?: number;
+  kind: KnowledgeGraphNodeKind;
+  area?: string;
+  difficulty?: Difficulty;
+  priority?: PointPriority;
+  active: boolean;
+  matched: boolean;
+  graphMode: GraphMode;
+  hasSearch: boolean;
+  visualizable: boolean;
+  focusedLabel: string;
+  onOpenDetail?: (categoryId: CategoryId, pointId: string) => void;
+};
 
-function getClusterRingCount(pointCount: number) {
-  let remaining = pointCount;
-  let ringCount = 0;
-
-  while (remaining > 0) {
-    remaining -= clusterRingCapacities[ringCount] ?? 32;
-    ringCount += 1;
+type KnowledgeGraphNode = Node<KnowledgeGraphNodeData, "knowledgeGraph">;
+type KnowledgeGraphEdge = Edge<
+  {
+    categoryId: CategoryId;
+    relation: KnowledgeGraphRelation;
   }
+>;
 
-  return Math.max(1, ringCount);
+const knowledgeNodeDimensions: Record<KnowledgeGraphNodeKind, { width: number; height: number }> = {
+  category: { width: 96, height: 96 },
+  group: { width: 70, height: 70 },
+  knowledge: { width: 62, height: 62 },
+};
+
+const graphNodeTypes: NodeTypes = {
+  knowledgeGraph: KnowledgeGraphNodeView,
+};
+
+function KnowledgeGraphNodeView({ id, data }: NodeProps<KnowledgeGraphNode>) {
+  const classes = [
+    "graph-node",
+    data.kind,
+    data.kind === "knowledge" ? data.difficulty : "",
+    data.kind === "knowledge" ? data.priority : "",
+    data.graphMode === "core" ? "core-mode" : "all-mode",
+    data.active ? "active" : "",
+    data.kind === "knowledge" && data.hasSearch && data.matched ? "matched" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const canOpen = data.kind === "knowledge";
+
+  return (
+    <button
+      className={classes}
+      style={{ "--category-color": categoryColors[data.categoryId] } as CSSProperties}
+      title={data.categoryLabel}
+      onClick={() => canOpen && data.onOpenDetail?.(data.categoryId, id)}
+    >
+      {["top", "right", "bottom", "left"].map((handlePosition) => (
+        <Handle
+          key={`target-${handlePosition}`}
+          id={`target-${handlePosition}`}
+          type="target"
+          position={handlePositionToReactFlowPosition(handlePosition)}
+        />
+      ))}
+      {["top", "right", "bottom", "left"].map((handlePosition) => (
+        <Handle
+          key={`source-${handlePosition}`}
+          id={`source-${handlePosition}`}
+          type="source"
+          position={handlePositionToReactFlowPosition(handlePosition)}
+        />
+      ))}
+      {data.visualizable && (
+        <span className="visual-node-badge">
+          <PlayCircle size={13} fill="currentColor" />
+        </span>
+      )}
+      <span>{data.label}</span>
+      {(data.kind === "category" || data.kind === "group") && <small>{data.count}</small>}
+      {data.active && (
+        <>
+          <span className="node-badge">
+            <Zap size={16} fill="currentColor" />
+          </span>
+          <strong>{data.focusedLabel}</strong>
+        </>
+      )}
+    </button>
+  );
 }
 
-function getClusterRadius(pointCount: number) {
-  return 180 + (getClusterRingCount(pointCount) - 1) * 150 + 96;
+function handlePositionToReactFlowPosition(handlePosition: string) {
+  const positions: Record<string, Position> = {
+    top: Position.Top,
+    right: Position.Right,
+    bottom: Position.Bottom,
+    left: Position.Left,
+  };
+
+  return positions[handlePosition] ?? Position.Right;
 }
 
-function getChildPositionInCluster(
-  index: number,
-  total: number,
+function toNodeTopLeft(
+  kind: KnowledgeGraphNodeKind,
   center: { x: number; y: number },
 ) {
-  let start = 0;
-  let ring = 0;
-
-  while (index >= start + (clusterRingCapacities[ring] ?? 32)) {
-    start += clusterRingCapacities[ring] ?? 32;
-    ring += 1;
-  }
-
-  const capacity = clusterRingCapacities[ring] ?? 32;
-  const itemsInRing = Math.min(capacity, total - start);
-  const indexInRing = index - start;
-  const angleOffset = ring % 2 === 0 ? -90 : -90 + 360 / Math.max(itemsInRing * 2, 1);
-  const angle = (angleOffset + (360 / Math.max(itemsInRing, 1)) * indexInRing) * (Math.PI / 180);
-  const radius = 180 + ring * 150;
+  const dimensions = knowledgeNodeDimensions[kind];
 
   return {
-    x: center.x + Math.cos(angle) * radius,
-    y: center.y + Math.sin(angle) * radius,
+    x: center.x - dimensions.width / 2,
+    y: center.y - dimensions.height / 2,
   };
+}
+
+function layoutKnowledgeGraph(nodes: KnowledgeGraphNode[]) {
+  const categoryNode = nodes.find((node) => node.data.kind === "category");
+  const groupNodes = nodes.filter((node) => node.data.kind === "group");
+  const pointNodes = nodes.filter((node) => node.data.kind === "knowledge");
+  const pointsByArea = new Map<string, KnowledgeGraphNode[]>();
+
+  pointNodes.forEach((node) => {
+    const area = node.data.area ?? "foundation";
+    const group = pointsByArea.get(area) ?? [];
+
+    group.push(node);
+    pointsByArea.set(area, group);
+  });
+
+  const center = { x: 680, y: 480 };
+  const groupRadius = groupNodes.length > 8 ? 360 : 330;
+  const positions = new Map<string, { x: number; y: number }>();
+
+  if (categoryNode) {
+    positions.set(categoryNode.id, toNodeTopLeft("category", center));
+  }
+
+  groupNodes.forEach((groupNode, groupIndex) => {
+    const groupAngle =
+      (-92 + (360 / Math.max(groupNodes.length, 1)) * groupIndex) * (Math.PI / 180);
+    const groupCenter = {
+      x: center.x + Math.cos(groupAngle) * groupRadius,
+      y: center.y + Math.sin(groupAngle) * groupRadius,
+    };
+    const areaPoints = pointsByArea.get(groupNode.data.area ?? "foundation") ?? [];
+
+    positions.set(groupNode.id, toNodeTopLeft("group", groupCenter));
+    areaPoints.forEach((pointNode, index) => {
+      const ring = index < 4 ? 0 : 1;
+      const ringStart = ring === 0 ? 0 : 4;
+      const ringCount = Math.min(ring === 0 ? 4 : 8, areaPoints.length - ringStart);
+      const indexInRing = index - ringStart;
+      const spread = Math.min(Math.PI * 0.92, Math.PI * (0.34 + ringCount * 0.1));
+      const pointAngle =
+        ringCount <= 1
+          ? groupAngle
+          : groupAngle - spread / 2 + (spread / (ringCount - 1)) * indexInRing;
+      const pointRadius = 108 + ring * 92;
+      const pointCenter = {
+        x: groupCenter.x + Math.cos(pointAngle) * pointRadius,
+        y: groupCenter.y + Math.sin(pointAngle) * pointRadius,
+      };
+
+      positions.set(pointNode.id, toNodeTopLeft("knowledge", pointCenter));
+    });
+  });
+
+  return nodes.map((node) => ({
+    ...node,
+    position: positions.get(node.id) ?? node.position,
+  }));
+}
+
+function getNodeCenter(node: KnowledgeGraphNode) {
+  const dimensions = knowledgeNodeDimensions[node.data.kind];
+
+  return {
+    x: node.position.x + dimensions.width / 2,
+    y: node.position.y + dimensions.height / 2,
+  };
+}
+
+function getDirectionalHandle(deltaX: number, deltaY: number) {
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    return deltaX >= 0 ? "right" : "left";
+  }
+
+  return deltaY >= 0 ? "bottom" : "top";
+}
+
+function getOppositeHandle(handle: string) {
+  const opposites: Record<string, string> = {
+    top: "bottom",
+    right: "left",
+    bottom: "top",
+    left: "right",
+  };
+
+  return opposites[handle] ?? "left";
+}
+
+function attachEdgeHandles(nodes: KnowledgeGraphNode[], edges: KnowledgeGraphEdge[]) {
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+
+  return edges.map((edge) => {
+    const sourceNode = nodeById.get(edge.source);
+    const targetNode = nodeById.get(edge.target);
+
+    if (!sourceNode || !targetNode) {
+      return edge;
+    }
+
+    const sourceCenter = getNodeCenter(sourceNode);
+    const targetCenter = getNodeCenter(targetNode);
+    const sourceHandle = getDirectionalHandle(
+      targetCenter.x - sourceCenter.x,
+      targetCenter.y - sourceCenter.y,
+    );
+
+    return {
+      ...edge,
+      sourceHandle: `source-${sourceHandle}`,
+      targetHandle: `target-${getOppositeHandle(sourceHandle)}`,
+    };
+  });
 }
 
 function buildGraphItems(
@@ -1124,7 +1441,10 @@ function buildGraphItems(
   selectedCategory: CategoryId,
   selectedKnowledgeId: string,
   graphMode: GraphMode,
+  graphBoard: GraphBoard,
   searchQuery: string,
+  visualizableIdSet: Set<string>,
+  onOpenDetail: (categoryId: CategoryId, pointId: string) => void,
 ) {
   const categoryLabel = getCategoryLabel(t, selectedCategory);
   const allPoints = knowledgePointsByCategory[selectedCategory];
@@ -1132,16 +1452,17 @@ function buildGraphItems(
   const points = hasSearch
     ? allPoints.filter((point) => pointMatchesSearch(point, categoryLabel, searchQuery))
     : [];
-  const visiblePoints = getVisiblePoints(
+  const boardPoints = getVisibleGraphPoints(
     selectedCategory,
     allPoints,
     points,
     graphMode,
+    graphBoard,
     hasSearch,
   );
   const groups = new Map<string, GraphKnowledgePoint[]>();
 
-  visiblePoints.forEach((point) => {
+  boardPoints.forEach((point) => {
     const area = getAreaKey(point);
     const group = groups.get(area) ?? [];
 
@@ -1150,106 +1471,105 @@ function buildGraphItems(
   });
 
   const groupEntries = Array.from(groups.entries());
-  const groupCount = Math.max(groupEntries.length, 1);
-  const maxClusterRadius = Math.max(
-    ...groupEntries.map(([, group]) => getClusterRadius(group.length)),
-    240,
-  );
-  const branchRadius = Math.max(
-    720,
-    maxClusterRadius / Math.max(Math.sin(Math.PI / groupCount), 0.24) + 260,
-  );
-  const graphWidth = Math.ceil((branchRadius + maxClusterRadius + 380) * 2);
-  const graphHeight = Math.ceil((branchRadius + maxClusterRadius + 380) * 2);
-  const center = { x: graphWidth / 2, y: graphHeight / 2 };
-  const categoryNode = {
+  const categoryNode: KnowledgeGraphNode = {
     id: `category-${selectedCategory}`,
-    label: categoryLabel,
-    categoryId: selectedCategory,
-    categoryLabel,
-    count: hasSearch ? points.length : allPoints.length,
-    kind: "category" as const,
-    x: center.x,
-    y: center.y,
-    active: false,
-    matched: true,
-  };
-  const groupNodes = groupEntries.map(([area, group], index) => {
-    const angle = (-90 + (360 / groupCount) * index) * (Math.PI / 180);
-
-    return {
-      id: `group-${area}`,
-      label: getAreaLabel(area, locale),
+    type: "knowledgeGraph",
+    position: { x: 0, y: 0 },
+    data: {
+      label: categoryLabel,
       categoryId: selectedCategory,
       categoryLabel,
-      count: group.length,
-      kind: "group" as const,
-      area,
-      x: center.x + Math.cos(angle) * branchRadius,
-      y: center.y + Math.sin(angle) * branchRadius,
+      count: graphBoard === "visual" ? boardPoints.length : hasSearch ? points.length : allPoints.length,
+      kind: "category",
       active: false,
       matched: true,
-    };
-  });
-  const groupNodeByArea = new Map(groupNodes.map((node) => [node.area, node]));
-  const pointNodes = groupEntries.flatMap(([area, group]) => {
-    const groupNode = groupNodeByArea.get(area) ?? categoryNode;
-
-    return group.map((point, index) => {
-      const position = getChildPositionInCluster(index, group.length, groupNode);
-
-      return {
-        id: point.id,
-        label: getKnowledgeLabel(point, locale),
+      graphMode,
+      hasSearch,
+      visualizable: false,
+      focusedLabel: t.focused,
+    },
+  };
+  const groupNodes: KnowledgeGraphNode[] = groupEntries.map(([area, group]) => (
+    {
+      id: `group-${area}`,
+      type: "knowledgeGraph",
+      position: { x: 0, y: 0 },
+      data: {
+        label: getAreaLabel(area, locale),
         categoryId: selectedCategory,
         categoryLabel,
-        difficulty: point.difficulty,
-        priority: getPointPriority(selectedCategory, point, selectedKnowledgeId) as PointPriority,
-        kind: "knowledge" as const,
+        count: group.length,
+        kind: "group",
         area,
-        x: position.x,
-        y: position.y,
-        active: point.id === selectedKnowledgeId,
-        matched: hasSearch ? points.includes(point) : true,
-      };
-    });
-  });
+        active: false,
+        matched: true,
+        graphMode,
+        hasSearch,
+        visualizable: false,
+        focusedLabel: t.focused,
+      },
+    }
+  ));
+  const pointNodes: KnowledgeGraphNode[] = groupEntries.flatMap(([area, group]) =>
+    group.map((point) => (
+      {
+        id: point.id,
+        type: "knowledgeGraph",
+        position: { x: 0, y: 0 },
+        data: {
+          label: getKnowledgeLabel(point, locale),
+          categoryId: selectedCategory,
+          categoryLabel,
+          difficulty: point.difficulty,
+          priority: getPointPriority(selectedCategory, point, selectedKnowledgeId),
+          kind: "knowledge",
+          area,
+          active: point.id === selectedKnowledgeId,
+          matched: hasSearch ? points.includes(point) : true,
+          graphMode,
+          hasSearch,
+          visualizable: visualizableIdSet.has(point.id),
+          focusedLabel: t.focused,
+          onOpenDetail,
+        },
+      }
+    )),
+  );
   const nodes = [categoryNode, ...groupNodes, ...pointNodes];
+  const groupNodeByArea = new Map(groupNodes.map((node) => [node.data.area, node]));
   const nodeById = new Map(pointNodes.map((node) => [node.id, node]));
-  const lineKeys = new Set<string>();
-  const lines: Array<{
-    id: string;
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
-    categoryId: CategoryId;
-    relation: "category" | "group" | "prerequisite" | "related";
-  }> = [];
-  const addLine = (
-    source: { id: string; x: number; y: number },
-    target: { id: string; x: number; y: number },
-    relation: "category" | "group" | "prerequisite" | "related",
+  const edgeKeys = new Set<string>();
+  const edges: KnowledgeGraphEdge[] = [];
+  const addEdge = (
+    sourceId: string,
+    targetId: string,
+    relation: KnowledgeGraphRelation,
   ) => {
     const orderedKey =
       relation === "related"
-        ? [source.id, target.id].sort().join("::")
-        : `${source.id}->${target.id}`;
+        ? [sourceId, targetId].sort().join("::")
+        : `${sourceId}->${targetId}`;
     const key = `${relation}:${orderedKey}`;
 
-    if (lineKeys.has(key)) {
+    if (edgeKeys.has(key)) {
       return;
     }
 
-    lineKeys.add(key);
-    lines.push({
+    edgeKeys.add(key);
+    edges.push({
       id: key,
-      x1: source.x,
-      y1: source.y,
-      x2: target.x,
-      y2: target.y,
-      categoryId: selectedCategory,
-      relation,
+      source: sourceId,
+      target: targetId,
+      type: "straight",
+      data: {
+        categoryId: selectedCategory,
+        relation,
+      },
+      animated: false,
+      style: {
+        "--category-color": categoryColors[selectedCategory],
+      } as CSSProperties,
+      className: `graph-edge ${relation}`,
     });
   };
 
@@ -1260,17 +1580,17 @@ function buildGraphItems(
       return;
     }
 
-    addLine(categoryNode, groupNode, "category");
+    addEdge(categoryNode.id, groupNode.id, "category");
     group.forEach((point) => {
       const pointNode = nodeById.get(point.id);
 
       if (pointNode) {
-        addLine(groupNode, pointNode, "group");
+        addEdge(groupNode.id, pointNode.id, "group");
       }
     });
   });
 
-  visiblePoints.forEach((point) => {
+  boardPoints.forEach((point) => {
     const target = nodeById.get(point.id);
 
     if (!target) {
@@ -1281,7 +1601,7 @@ function buildGraphItems(
       const source = nodeById.get(sourceId);
 
       if (source) {
-        addLine(source, target, "prerequisite");
+        addEdge(source.id, target.id, "prerequisite");
       }
     });
 
@@ -1289,17 +1609,16 @@ function buildGraphItems(
       const related = nodeById.get(relatedId);
 
       if (related) {
-        addLine(target, related, "related");
+        addEdge(target.id, related.id, "related");
       }
     });
   });
 
+  const layoutedNodes = layoutKnowledgeGraph(nodes);
+
   return {
-    nodes,
-    lines,
-    groupLabels: [],
-    width: graphWidth,
-    height: graphHeight,
+    nodes: layoutedNodes,
+    edges: attachEdgeHandles(layoutedNodes, edges),
   };
 }
 
@@ -1309,6 +1628,7 @@ function App() {
   const [locale, setLocale] = useState<Locale>("zh");
   const [selectedCategory, setSelectedCategory] = useState<CategoryId>("network");
   const [selectedKnowledgeId, setSelectedKnowledgeId] = useState("tcp-handshake");
+  const [graphBoard, setGraphBoard] = useState<GraphBoard>("knowledge");
   const [searchQuery, setSearchQuery] = useState("");
   const t = copy[locale];
 
@@ -1324,6 +1644,12 @@ function App() {
     setSelectedCategory(categoryId);
     setSelectedKnowledgeId(pointId);
     setPage("detail");
+  }
+
+  function openSimulator(categoryId: CategoryId, pointId: string) {
+    setSelectedCategory(categoryId);
+    setSelectedKnowledgeId(pointId);
+    setPage("simulator");
   }
 
   function handleSearch(query: string) {
@@ -1357,12 +1683,13 @@ function App() {
       />
       {page === "home" && (
         <HomePage
-          setPage={setPage}
           t={t}
           locale={locale}
           selectedCategory={selectedCategory}
           selectedKnowledgeId={selectedKnowledgeId}
+          graphBoard={graphBoard}
           searchQuery={searchQuery}
+          onChangeGraphBoard={setGraphBoard}
           onSelectCategory={showCategoryGraph}
           onOpenDetail={openKnowledgeDetail}
         />
@@ -1375,9 +1702,19 @@ function App() {
           activeCategory={selectedCategory}
           selectedKnowledgeId={selectedKnowledgeId}
           onSelectCategory={showCategoryGraph}
+          onOpenDetail={openKnowledgeDetail}
+          onOpenSimulator={openSimulator}
         />
       )}
-      {page === "simulator" && <SimulatorPage setPage={setPage} t={t} />}
+      {page === "simulator" && (
+        <SimulatorPage
+          setPage={setPage}
+          t={t}
+          locale={locale}
+          activeCategory={selectedCategory}
+          selectedKnowledgeId={selectedKnowledgeId}
+        />
+      )}
       {page === "about" && <AboutPage setPage={setPage} t={t} />}
     </div>
   );
@@ -1447,6 +1784,8 @@ function TopNav({
           <label className="search-box">
             <Search size={16} />
             <input
+              id="knowledge-search"
+              name="knowledge-search"
               value={searchQuery}
               onInput={(event) => setSearchQuery(event.currentTarget.value)}
               placeholder={t.searchPlaceholder}
@@ -1474,181 +1813,73 @@ function TopNav({
 }
 
 function HomePage({
-  setPage,
   t,
   locale,
   selectedCategory,
   selectedKnowledgeId,
+  graphBoard,
   searchQuery,
+  onChangeGraphBoard,
   onSelectCategory,
   onOpenDetail,
 }: {
-  setPage: (page: Page) => void;
   t: Copy;
   locale: Locale;
   selectedCategory: CategoryId;
   selectedKnowledgeId: string;
+  graphBoard: GraphBoard;
   searchQuery: string;
+  onChangeGraphBoard: (graphBoard: GraphBoard) => void;
   onSelectCategory: (categoryId: CategoryId) => void;
   onOpenDetail: (categoryId: CategoryId, pointId: string) => void;
 }) {
-  const graphCanvasRef = useRef<HTMLElement | null>(null);
   const [graphMode, setGraphMode] = useState<GraphMode>("core");
-  const graph = useMemo(
-    () => buildGraphItems(t, locale, selectedCategory, selectedKnowledgeId, graphMode, searchQuery),
-    [t, locale, selectedCategory, selectedKnowledgeId, graphMode, searchQuery],
-  );
-  const [zoom, setZoom] = useState(0.82);
-  const [pan, setPan] = useState({ x: 18, y: 20 });
-  const [isSpacePressed, setIsSpacePressed] = useState(false);
-  const dragStart = useRef<{
-    pointerId: number;
-    x: number;
-    y: number;
-    panX: number;
-    panY: number;
-  } | null>(null);
   const hasSearch = normalizeSearch(searchQuery).length > 0;
-  const hasResults = graph.nodes.some(
-    (node) => node.kind === "knowledge" && node.matched,
+  const visualizablePoints = useMemo(
+    () => getVisualizablePoints(selectedCategory),
+    [selectedCategory],
   );
-  const resetView = () => {
-    const canvasBox = graphCanvasRef.current?.getBoundingClientRect();
-    const targetZoom = 0.58;
-
-    setZoom(targetZoom);
-    setPan({
-      x: canvasBox ? canvasBox.width / 2 - (graph.width * targetZoom) / 2 : 18,
-      y: canvasBox ? canvasBox.height / 2 - (graph.height * targetZoom) / 2 : 20,
-    });
-  };
-  const zoomAt = (nextZoom: number, screenX?: number, screenY?: number) => {
-    const clampedZoom = clamp(nextZoom, 0.28, 2.2);
-    const canvasBox = graphCanvasRef.current?.getBoundingClientRect();
-
-    if (!canvasBox || screenX === undefined || screenY === undefined) {
-      setZoom(clampedZoom);
-      return;
-    }
-
-    const cursorX = screenX - canvasBox.left;
-    const cursorY = screenY - canvasBox.top;
-
-    setPan((currentPan) => {
-      const graphX = (cursorX - currentPan.x) / zoom;
-      const graphY = (cursorY - currentPan.y) / zoom;
-
-      return {
-        x: cursorX - graphX * clampedZoom,
-        y: cursorY - graphY * clampedZoom,
-      };
-    });
-    setZoom(clampedZoom);
-  };
-  const updateZoom = (direction: 1 | -1) => {
-    zoomAt(zoom + direction * 0.14);
-  };
-  const handlePointerDown = (event: ReactPointerEvent<HTMLElement>) => {
-    if (event.button !== 0 && event.button !== 1) {
-      return;
-    }
-
-    if (event.button === 1) {
-      event.preventDefault();
-    }
-
-    event.currentTarget.setPointerCapture(event.pointerId);
-    dragStart.current = {
-      pointerId: event.pointerId,
-      x: event.clientX,
-      y: event.clientY,
-      panX: pan.x,
-      panY: pan.y,
-    };
-  };
-  const handlePointerMove = (event: ReactPointerEvent<HTMLElement>) => {
-    const start = dragStart.current;
-
-    if (!start || start.pointerId !== event.pointerId) {
-      return;
-    }
-
-    setPan({
-      x: start.panX + event.clientX - start.x,
-      y: start.panY + event.clientY - start.y,
-    });
-  };
-  const handlePointerUp = (event: ReactPointerEvent<HTMLElement>) => {
-    const start = dragStart.current;
-
-    if (start?.pointerId === event.pointerId) {
-      dragStart.current = null;
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-  };
-  const handleWheel = (event: ReactWheelEvent<HTMLElement>) => {
-    event.preventDefault();
-
-    if (event.ctrlKey || event.metaKey) {
-      const scale = Math.exp(-event.deltaY * 0.0014);
-      zoomAt(zoom * scale, event.clientX, event.clientY);
-      return;
-    }
-
-    if (event.shiftKey) {
-      setPan((currentPan) => ({
-        x: currentPan.x - event.deltaY - event.deltaX,
-        y: currentPan.y,
-      }));
-      return;
-    }
-
-    const scale = Math.exp(-event.deltaY * 0.0012);
-    zoomAt(zoom * scale, event.clientX, event.clientY);
-  };
-  const handleDoubleClick = (event: ReactMouseEvent<HTMLElement>) => {
-    zoomAt(zoom + 0.18, event.clientX, event.clientY);
-  };
-
-  useEffect(() => {
-    resetView();
-  }, [selectedCategory, searchQuery, graphMode, graph.width, graph.height]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === "Space") {
-        setIsSpacePressed(true);
-      }
-    };
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.code === "Space") {
-        setIsSpacePressed(false);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-  }, []);
+  const visualizableIdSet = useMemo(
+    () => new Set(visualizablePoints.map((point) => point.id)),
+    [visualizablePoints],
+  );
+  const graph = useMemo(
+    () =>
+      buildGraphItems(
+        t,
+        locale,
+        selectedCategory,
+        selectedKnowledgeId,
+        graphMode,
+        graphBoard,
+        searchQuery,
+        visualizableIdSet,
+        onOpenDetail,
+      ),
+    [
+      t,
+      locale,
+      selectedCategory,
+      selectedKnowledgeId,
+      graphMode,
+      graphBoard,
+      searchQuery,
+      visualizableIdSet,
+      onOpenDetail,
+    ],
+  );
+  const hasResults = graph.nodes.some(
+    (node) => node.data.kind === "knowledge" && node.data.matched,
+  );
 
   return (
     <main className="home-layout page-with-topbar">
-      <LearningSidebar t={t} active={selectedCategory} onSelect={onSelectCategory} />
-      <section
-        ref={graphCanvasRef}
-        className={`graph-canvas ${isSpacePressed ? "space-pan" : ""}`}
-        aria-label={t.navGraph}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-        onWheel={handleWheel}
-        onDoubleClick={handleDoubleClick}
-      >
+      <LearningSidebar
+        t={t}
+        active={selectedCategory}
+        onSelect={onSelectCategory}
+      />
+      <section className="graph-canvas" aria-label={t.navGraph}>
         {hasSearch && (
           <div className="search-status">
             <Search size={16} />
@@ -1656,99 +1887,59 @@ function HomePage({
             <strong>{searchQuery}</strong>
           </div>
         )}
-        <div className="graph-controls" onPointerDown={(event) => event.stopPropagation()}>
-          <button aria-label="Zoom in" onClick={() => updateZoom(1)}>
-            <ZoomIn size={18} />
-          </button>
-          <button aria-label="Zoom out" onClick={() => updateZoom(-1)}>
-            <ZoomOut size={18} />
-          </button>
-          <button aria-label="Center graph" onClick={resetView}>
-            <Waypoints size={18} />
-          </button>
-        </div>
-        <div
-          className="graph-mode-switch"
-          aria-label={t.graphMode}
-          onPointerDown={(event) => event.stopPropagation()}
-        >
-          <button
-            className={graphMode === "core" ? "active" : ""}
-            onClick={() => setGraphMode("core")}
-          >
-            {t.coreMode}
-          </button>
-          <button
-            className={graphMode === "all" ? "active" : ""}
-            onClick={() => setGraphMode("all")}
-          >
-            {t.allMode}
-          </button>
+        <div className="graph-toolbar">
+          <div className="graph-mode-switch" aria-label={t.graphBoard}>
+            <button
+              className={graphBoard === "knowledge" ? "active" : ""}
+              onClick={() => onChangeGraphBoard("knowledge")}
+            >
+              {t.knowledgeBoard}
+            </button>
+            <button
+              className={graphBoard === "visual" ? "active" : ""}
+              onClick={() => onChangeGraphBoard("visual")}
+            >
+              {t.visualBoard}
+            </button>
+          </div>
+          <div className="graph-mode-switch scope-switch" aria-label={t.graphMode}>
+            <button
+              className={graphMode === "core" ? "active" : ""}
+              onClick={() => setGraphMode("core")}
+            >
+              {t.coreMode}
+            </button>
+            <button
+              className={graphMode === "all" ? "active" : ""}
+              onClick={() => setGraphMode("all")}
+            >
+              {t.allMode}
+            </button>
+          </div>
         </div>
         <div className="graph-hint">
-          {t.graphHint}
+          {graphBoard === "visual" ? t.visualGraphHint : t.graphHint}
         </div>
-        <div
-          className="graph-map"
-          style={
-            {
-              width: graph.width,
-              height: graph.height,
-              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-            } as CSSProperties
-          }
-        >
-          <svg
-            className="graph-lines"
-            viewBox={`0 0 ${graph.width} ${graph.height}`}
-            preserveAspectRatio="none"
+        <ReactFlowProvider>
+          <ReactFlow
+            key={`${selectedCategory}-${graphMode}-${graphBoard}-${searchQuery}-${selectedKnowledgeId}-${locale}`}
+            nodes={graph.nodes}
+            edges={graph.edges}
+            nodeTypes={graphNodeTypes}
+            fitView
+            fitViewOptions={{ padding: 0.2, minZoom: 0.32, maxZoom: 1.24 }}
+            minZoom={0.2}
+            maxZoom={1.8}
+            nodesDraggable={false}
+            nodesConnectable={false}
+            elementsSelectable
+            selectNodesOnDrag={false}
+            proOptions={{ hideAttribution: true }}
           >
-            {graph.lines.map((line) => (
-              <line
-                key={line.id}
-                x1={line.x1}
-                y1={line.y1}
-                x2={line.x2}
-                y2={line.y2}
-                className={line.relation}
-                style={{ "--category-color": categoryColors[line.categoryId] } as CSSProperties}
-              />
-            ))}
-          </svg>
-          {graph.nodes.map((node) => (
-            <button
-              key={node.id}
-              className={`graph-node ${node.kind} ${
-                node.kind === "knowledge" ? node.difficulty : ""
-              } ${node.kind === "knowledge" ? node.priority : ""} ${
-                graphMode === "core" ? "core-mode" : "all-mode"
-              } ${node.active ? "active" : ""} ${
-                node.kind === "knowledge" && hasSearch && node.matched ? "matched" : ""
-              }`}
-              style={
-                {
-                  left: node.x,
-                  top: node.y,
-                  "--category-color": categoryColors[node.categoryId],
-                } as CSSProperties
-              }
-              onPointerDown={(event) => event.stopPropagation()}
-              onClick={() => node.kind === "knowledge" && onOpenDetail(node.categoryId, node.id)}
-              title={node.categoryLabel}
-            >
-              <span>{node.label}</span>
-              {(node.kind === "category" || node.kind === "group") && <small>{node.count}</small>}
-              {node.active && (
-                <>
-                  <span className="node-badge">
-                    <Zap size={16} fill="currentColor" />
-                  </span>
-                  <strong>{t.focused}</strong>
-                </>
-              )}
-            </button>
-          ))}
-        </div>
+            <Background color="var(--line)" gap={30} size={1} />
+            <Controls position="bottom-right" showInteractive={false} />
+          </ReactFlow>
+        </ReactFlowProvider>
       </section>
     </main>
   );
@@ -1826,6 +2017,8 @@ function DetailPage({
   activeCategory,
   selectedKnowledgeId,
   onSelectCategory,
+  onOpenDetail,
+  onOpenSimulator,
 }: {
   setPage: (page: Page) => void;
   t: Copy;
@@ -1833,6 +2026,8 @@ function DetailPage({
   activeCategory: CategoryId;
   selectedKnowledgeId: string;
   onSelectCategory: (categoryId: CategoryId) => void;
+  onOpenDetail: (categoryId: CategoryId, pointId: string) => void;
+  onOpenSimulator: (categoryId: CategoryId, pointId: string) => void;
 }) {
   const points = knowledgePointsByCategory[activeCategory];
   const point =
@@ -1851,11 +2046,18 @@ function DetailPage({
     : [];
   const relatedLabels = point ? getPointLabelsByIds(point.related, points, locale) : [];
   const scenarioItems = point ? getPointScenarioItems(point) : [];
+  const exampleProblems =
+    activeCategory === "algorithm" && point ? getAlgorithmExampleProblems(point) : [];
   const learningOrder = point?.order ?? point?.learningPathPosition;
+  const simulation = point ? buildVisualSimulation(activeCategory, point) : undefined;
 
   return (
     <main className="detail-shell page-with-topbar">
-      <LearningSidebar t={t} active={activeCategory} onSelect={onSelectCategory} />
+      <LearningSidebar
+        t={t}
+        active={activeCategory}
+        onSelect={onSelectCategory}
+      />
       <div className="detail-content">
         <nav className="breadcrumbs">
           <button onClick={() => setPage("home")}>{t.breadcrumbGraph}</button>
@@ -1925,17 +2127,56 @@ function DetailPage({
                 </div>
               </InfoSection>
             )}
+            {exampleProblems.length > 0 && (
+              <InfoSection title={t.exampleProblems}>
+                <div className="example-problem-list">
+                  {exampleProblems.map((problem) => (
+                    <a
+                      key={problem.id}
+                      className="example-problem-card"
+                      href={problem.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <span>
+                        <strong>{problem.title[locale]}</strong>
+                        <p>{problem.reason[locale]}</p>
+                      </span>
+                      <small>
+                        {problem.source}
+                        <ExternalLink size={14} />
+                      </small>
+                    </a>
+                  ))}
+                </div>
+              </InfoSection>
+            )}
           </article>
           <aside className="detail-aside">
-            {point?.id === "tcp-handshake" && (
+            {point && simulation && (
               <div className="cta-panel">
                 <PlayCircle size={34} />
-                <h2>{t.interactive}</h2>
-                <p>{t.interactiveBody}</p>
-                <button onClick={() => setPage("simulator")}>
-                  {t.startSimulator}
+                <h2>{readLocalizedText(simulation.title, locale)}</h2>
+                <p>{readLocalizedText(simulation.subtitle, locale)}</p>
+                <div className="simulation-meta-list">
+                  <span>{t.visualPattern}</span>
+                  <strong>{readLocalizedText(simulation.pattern, locale)}</strong>
+                </div>
+                <button onClick={() => onOpenSimulator(activeCategory, point.id)}>
+                  {readLocalizedText(simulation.entryLabel, locale)}
                   <ArrowRight size={17} />
                 </button>
+              </div>
+            )}
+            {simulation && (
+              <div className="contents-panel simulation-signals">
+                <h3>{t.simulationMetrics}</h3>
+                {simulation.metrics.map((metric) => (
+                  <span key={readLocalizedText(metric, locale)}>
+                    <GitCommitHorizontal size={14} />
+                    {readLocalizedText(metric, locale)}
+                  </span>
+                ))}
               </div>
             )}
             <div className="contents-panel">
@@ -1981,156 +2222,99 @@ function InfoSection({
   );
 }
 
-function SimulatorPage({ setPage, t }: { setPage: (page: Page) => void; t: Copy }) {
+function SimulatorPage({
+  setPage,
+  t,
+  locale,
+  activeCategory,
+  selectedKnowledgeId,
+}: {
+  setPage: (page: Page) => void;
+  t: Copy;
+  locale: Locale;
+  activeCategory: CategoryId;
+  selectedKnowledgeId: string;
+}) {
+  const points = knowledgePointsByCategory[activeCategory];
+  const point = points.find((item) => item.id === selectedKnowledgeId) ?? points[0];
+  const simulation = buildVisualSimulation(activeCategory, point);
   const [step, setStep] = useState<Step>(0);
   const [error, setError] = useState(false);
-  const history = useMemo(() => t.historyItems.slice(0, step), [step, t.historyItems]);
-  const packets = [
-    {
-      label: "SYN=1, seq=x",
-      className: "syn",
-      marker: "packet-arrow-brand",
-      visible: step >= 1,
-      active: step === 1,
-      x1: 58,
-      y1: 62,
-      x2: 422,
-      y2: 118,
-      labelX: 240,
-      labelY: 78,
-      rotate: 9,
-    },
-    {
-      label: "SYN=1, ACK=1, seq=y, ack=x+1",
-      className: "synAck",
-      marker: "packet-arrow-teal",
-      visible: step >= 2,
-      active: step === 2,
-      x1: 422,
-      y1: 134,
-      x2: 58,
-      y2: 176,
-      labelX: 240,
-      labelY: 136,
-      rotate: -9,
-    },
-    {
-      label: "ACK=1, seq=x+1, ack=y+1",
-      className: "ack",
-      marker: "packet-arrow-success",
-      visible: step >= 3,
-      active: step === 3,
-      x1: 58,
-      y1: 190,
-      x2: 422,
-      y2: 236,
-      labelX: 240,
-      labelY: 197,
-      rotate: 7,
-    },
-  ];
+
+  useEffect(() => {
+    setStep(0);
+    setError(false);
+  }, [simulation?.key]);
+
+  if (!simulation) {
+    return (
+      <main className="simulator-empty page-with-topbar">
+        <button className="secondary-button" onClick={() => setPage("detail")}>
+          <ArrowLeft size={16} />
+          {t.backDetail}
+        </button>
+        <h1>{t.visualizablePoints}</h1>
+        <p>{t.visualizableIntro}</p>
+      </main>
+    );
+  }
+
+  const completedSteps = Math.min(step, simulation.steps.length);
+  const activeStep = simulation.steps[Math.min(step, simulation.steps.length - 1)];
+  const activeStepIndex = Math.min(step, simulation.steps.length - 1);
+  const isComplete = step >= simulation.steps.length;
+  const history = simulation.steps.slice(0, completedSteps);
+  const actorStates = getSimulationActorStates(simulation, completedSteps);
+  const progress = Math.round((completedSteps / simulation.steps.length) * 100);
 
   function reset() {
     setStep(0);
     setError(false);
   }
 
+  function goBack() {
+    setStep((currentStep) => Math.max(currentStep - 1, 0));
+    setError(false);
+  }
+
   function handleAction(actionIndex: number) {
-    if (actionIndex !== step || step === 3) {
+    if (actionIndex !== step || isComplete) {
       setError(true);
       window.setTimeout(() => setError(false), 1200);
       return;
     }
 
     setError(false);
-    setStep((step + 1) as Step);
+    setStep(step + 1);
   }
 
   return (
     <main className="simulator-shell page-with-topbar">
       <section className="simulator-canvas">
         <div className="sim-top-row">
-          <span className="sim-context">{t.handshake}</span>
-          <h1>{t.simulatorTitle}</h1>
-          <button className="secondary-button" onClick={reset}>
-            <RefreshCw size={16} />
-            {t.reset}
-          </button>
-        </div>
-        <div className="lab-stage">
-          <Endpoint
-            kind="client"
-            title={t.client}
-            address="192.168.1.5"
-            state={step === 0 ? "CLOSED" : step === 1 ? "SYN-SENT" : "ESTABLISHED"}
-          />
-          <div className="wire-zone">
-            <svg
-              className="packet-sequence"
-              viewBox="0 0 480 280"
-              aria-label={t.history}
-              role="img"
-            >
-              <defs>
-                {[
-                  ["packet-arrow-brand", "var(--brand)"],
-                  ["packet-arrow-teal", "var(--tertiary)"],
-                  ["packet-arrow-success", "var(--success)"],
-                ].map(([id, fill]) => (
-                  <marker
-                    key={id}
-                    id={id}
-                    viewBox="0 0 10 10"
-                    refX="8"
-                    refY="5"
-                    markerWidth="7"
-                    markerHeight="7"
-                    orient="auto-start-reverse"
-                  >
-                    <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
-                  </marker>
-                ))}
-              </defs>
-              <line className="lifeline" x1="48" y1="22" x2="48" y2="258" />
-              <line className="lifeline" x1="432" y1="22" x2="432" y2="258" />
-              {packets
-                .filter((packet) => packet.visible)
-                .map((packet) => (
-                  <g
-                    key={packet.label}
-                    className={`packet-record ${packet.className} ${
-                      packet.active ? "active" : ""
-                    }`}
-                  >
-                    <line
-                      x1={packet.x1}
-                      y1={packet.y1}
-                      x2={packet.x2}
-                      y2={packet.y2}
-                      markerEnd={`url(#${packet.marker})`}
-                    />
-                    <text
-                      x={packet.labelX}
-                      y={packet.labelY}
-                      transform={`rotate(${packet.rotate} ${packet.labelX} ${packet.labelY})`}
-                    >
-                      {packet.label}
-                    </text>
-                  </g>
-                ))}
-            </svg>
-            <div className="wire-caption">
-              <span>{t.physicalLink}</span>
-              <span>10Gbps</span>
-            </div>
+          <span className="sim-context">{readLocalizedText(simulation.pattern, locale)}</span>
+          <div>
+            <h1>{readLocalizedText(simulation.title, locale)}</h1>
+            <p>{readLocalizedText(simulation.subtitle, locale)}</p>
           </div>
-          <Endpoint
-            kind="server"
-            title={t.server}
-            address="10.0.0.1:80"
-            state={step < 2 ? "LISTEN" : step === 2 ? "SYN-RCVD" : "ESTABLISHED"}
-          />
+          <div className="sim-control-group">
+            <button className="secondary-button" onClick={goBack} disabled={step <= 0}>
+              <ArrowLeft size={16} />
+              {t.previousAction}
+            </button>
+            <button className="secondary-button" onClick={reset}>
+              <RefreshCw size={16} />
+              {t.reset}
+            </button>
+          </div>
         </div>
+        <SimulationStage
+          simulation={simulation}
+          locale={locale}
+          completedSteps={completedSteps}
+          activeStepIndex={activeStepIndex}
+          actorStates={actorStates}
+        />
       </section>
       <aside className="simulator-panel">
         <section>
@@ -2138,24 +2322,32 @@ function SimulatorPage({ setPage, t }: { setPage: (page: Page) => void; t: Copy 
             <BookOpen size={18} />
             {t.currentTask}
           </h2>
-          <p className="task-text">{t.tasks[step]}</p>
+          <p className="task-text">
+            {isComplete
+              ? t.complete
+              : readLocalizedText(activeStep.description, locale)}
+          </p>
+          <div className="progress-meter" aria-label={t.progress}>
+            <span style={{ width: `${progress}%` }} />
+          </div>
         </section>
         <section className="action-section">
           <h2>
             <Zap size={18} />
             {t.actionPanel}
           </h2>
-          {t.actions.map((action, index) => {
-            const enabled = index === step && step < 3;
+          {simulation.steps.map((item, index) => {
+            const enabled = index === step && !isComplete;
 
             return (
               <button
-                key={action}
+                key={readLocalizedText(item.action, locale)}
                 className={enabled ? "sim-action enabled" : "sim-action"}
+                disabled={!enabled}
                 onClick={() => handleAction(index)}
               >
-                <span>{action}</span>
-                <Send size={17} />
+                <span>{readLocalizedText(item.action, locale)}</span>
+                {completedSteps > index ? <CheckCircle2 size={17} /> : <Send size={17} />}
               </button>
             );
           })}
@@ -2163,18 +2355,20 @@ function SimulatorPage({ setPage, t }: { setPage: (page: Page) => void; t: Copy 
         <section className="feedback-card">
           <h2>
             <CircleHelp size={18} />
-            {t.feedback}
+            {t.stepInsight}
           </h2>
-          <div className={error ? "feedback error" : step > 0 ? "feedback success" : "feedback"}>
+          <div className={error ? "feedback error" : completedSteps > 0 ? "feedback success" : "feedback"}>
             {error ? (
               <>
                 <CircleHelp size={28} />
                 <strong>{t.invalid}</strong>
               </>
-            ) : step > 0 ? (
+            ) : completedSteps > 0 ? (
               <>
                 <CheckCircle2 size={28} />
-                <strong>{t.feedbacks[step - 1]}</strong>
+                <strong>
+                  {readLocalizedText(simulation.steps[completedSteps - 1].insight, locale)}
+                </strong>
               </>
             ) : (
               <>
@@ -2187,21 +2381,28 @@ function SimulatorPage({ setPage, t }: { setPage: (page: Page) => void; t: Copy 
         <section className="history-card">
           <h2>{t.history}</h2>
           {history.length ? (
-            history.map((item) => <p key={item}>{item}</p>)
+            history.map((item, index) => (
+              <p key={`${readLocalizedText(item.title, locale)}-${index}`}>
+                <strong>{index + 1}.</strong> {readLocalizedText(item.title, locale)}
+              </p>
+            ))
           ) : (
             <p className="muted">{t.waitingAction}</p>
           )}
         </section>
       </aside>
       <footer className="timeline">
-        {t.timeline.map((item, index) => {
-          const done = step > index || (step === 3 && index === 3);
-          const active = step === index && step < 3;
+        {simulation.steps.map((item, index) => {
+          const done = completedSteps > index;
+          const active = step === index && !isComplete;
 
           return (
-            <div className={`timeline-item ${done ? "done" : ""} ${active ? "active" : ""}`} key={item}>
-              <span>{index === 3 ? <CheckCircle2 size={18} /> : index + 1}</span>
-              <small>{item}</small>
+            <div
+              className={`timeline-item ${done ? "done" : ""} ${active ? "active" : ""}`}
+              key={readLocalizedText(item.title, locale)}
+            >
+              <span>{done ? <CheckCircle2 size={18} /> : index + 1}</span>
+              <small>{readLocalizedText(item.title, locale)}</small>
             </div>
           );
         })}
@@ -2210,29 +2411,1545 @@ function SimulatorPage({ setPage, t }: { setPage: (page: Page) => void; t: Copy 
   );
 }
 
-function Endpoint({
-  kind,
-  title,
-  address,
-  state,
+function getSimulationActorStates(simulation: VisualSimulation, completedSteps: number) {
+  return simulation.steps.slice(0, completedSteps).reduce(
+    (states, currentStep) => ({
+      ...states,
+      ...currentStep.states,
+    }),
+    { ...simulation.initialStates },
+  );
+}
+
+function SvgLabelBox({
+  x,
+  y,
+  width,
+  height,
+  className,
+  children,
 }: {
-  kind: "client" | "server";
-  title: string;
-  address: string;
-  state: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  className: string;
+  children: ReactNode;
 }) {
-  const Icon = kind === "client" ? Laptop : Server;
+  return (
+    <foreignObject x={x - width / 2} y={y - height / 2} width={width} height={height}>
+      <div className={className}>{children}</div>
+    </foreignObject>
+  );
+}
+
+function SimulationStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+  actorStates,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+  actorStates: Record<string, { zh: string; en: string }>;
+}) {
+  if (simulation.key === "network:tcp-handshake") {
+    return (
+      <TcpHandshakeStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
+  if (simulation.key === "network:ethernet-frame") {
+    return (
+      <EthernetFrameStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
+  if (simulation.key === "network:switch") {
+    return (
+      <SwitchForwardingStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
+  if (simulation.key === "network:tcp-four-way-wave") {
+    return (
+      <TcpWaveStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
+  if (simulation.key === "network:tcp-state") {
+    return (
+      <TcpStateMachineStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
+  const visibleSteps = simulation.steps.slice(0, completedSteps);
+  const activeStep = simulation.steps[activeStepIndex];
+  const flowActors = simulation.actors.filter((actorItem) => actorItem.id !== "wire");
+  const laneActors = flowActors.length >= 2 ? flowActors : simulation.actors;
+  const laneCount = Math.max(laneActors.length, 1);
+  const laneWidth = 220;
+  const laneGap = laneCount === 1 ? 0 : 260 / Math.max(laneCount - 1, 1);
+  const laneTop = 118;
+  const stateHeight = 84;
+  const stateGap = 0;
+  const stateTones = ["blue", "yellow", "orange", "green", "purple", "teal"];
+  const statesByActor = useMemo(() => {
+    const result = new Map<string, string[]>();
+
+    laneActors.forEach((actorItem) => {
+      const states = [
+        readLocalizedText(simulation.initialStates[actorItem.id] ?? actorItem.detail, locale),
+      ];
+
+      if (simulation.key === "network:tcp-handshake" && actorItem.id === "server") {
+        states.unshift("CLOSED");
+      }
+
+      simulation.steps.forEach((stepItem) => {
+        const nextState = stepItem.states[actorItem.id];
+
+        if (nextState) {
+          const label = readLocalizedText(nextState, locale);
+
+          if (states[states.length - 1] !== label) {
+            states.push(label);
+          }
+        }
+      });
+
+      result.set(actorItem.id, states);
+    });
+
+    return result;
+  }, [laneActors, locale, simulation.initialStates, simulation.steps]);
+  const maxStateCount = Math.max(
+    1,
+    ...Array.from(statesByActor.values()).map((states) => states.length),
+  );
+  const stageWidth = 260 + laneWidth * laneCount + laneGap * Math.max(laneCount - 1, 0);
+  const stageHeight = Math.max(
+    560,
+    laneTop + maxStateCount * (stateHeight + stateGap) + 126,
+  );
+  const lanePositions = useMemo(() => {
+    const positions = new Map<string, { x: number; top: number; width: number }>();
+
+    laneActors.forEach((actorItem, index) => {
+      positions.set(actorItem.id, {
+        x: 70 + index * (laneWidth + laneGap),
+        top: laneTop,
+        width: laneWidth,
+      });
+    });
+
+    return positions;
+  }, [laneActors, laneGap]);
+  const stateIndexByActor = useMemo(() => {
+    const indexes = new Map<string, number>();
+
+    laneActors.forEach((actorItem) => {
+      const currentState = readLocalizedText(actorStates[actorItem.id], locale);
+      const states = statesByActor.get(actorItem.id) ?? [];
+      const index = states.findIndex((label) => label === currentState);
+
+      indexes.set(actorItem.id, Math.max(index, 0));
+    });
+
+    return indexes;
+  }, [actorStates, laneActors, locale, statesByActor]);
+
+  function getStateCenter(actorId: string, stateIndex: number) {
+    const lane = lanePositions.get(actorId) ?? lanePositions.get(laneActors[0]?.id ?? "");
+    const safeLane = lane ?? { x: 70, top: laneTop, width: laneWidth };
+
+    return {
+      x: safeLane.x + safeLane.width / 2,
+      y: safeLane.top + stateIndex * (stateHeight + stateGap) + stateHeight / 2,
+    };
+  }
+
+  function getStepEndpoints(stepIndex: number) {
+    const item = simulation.steps[stepIndex];
+    const previousStates = getSimulationActorStates(simulation, stepIndex);
+    const nextStates = getSimulationActorStates(simulation, stepIndex + 1);
+    const fromActor = lanePositions.has(item.from) ? item.from : laneActors[0]?.id;
+    const toActor = lanePositions.has(item.to) ? item.to : laneActors[laneActors.length - 1]?.id ?? fromActor;
+    const fromStates = statesByActor.get(fromActor) ?? [];
+    const toStates = statesByActor.get(toActor) ?? [];
+    const fromStateLabel = readLocalizedText(previousStates[fromActor] ?? simulation.initialStates[fromActor], locale);
+    const toStateLabel = readLocalizedText(nextStates[toActor] ?? simulation.initialStates[toActor], locale);
+    const fromIndex = Math.max(fromStates.findIndex((label) => label === fromStateLabel), 0);
+    const toIndex = Math.max(toStates.findIndex((label) => label === toStateLabel), 0);
+
+    return {
+      from: getStateCenter(fromActor, fromIndex),
+      to: getStateCenter(toActor, toIndex),
+      fromActor,
+      toActor,
+    };
+  }
 
   return (
-    <div className={`endpoint ${kind}`}>
-      <div className="endpoint-box">
-        <span className="endpoint-label">{title}</span>
-        <Icon size={46} />
-        <strong>{address}</strong>
+    <div className="visual-stage state-flow-stage">
+      <div
+        className="state-flow-map"
+        style={{ aspectRatio: `${stageWidth} / ${stageHeight}` }}
+      >
+        <svg
+          className="packet-sequence state-flow-sequence"
+          viewBox={`0 0 ${stageWidth} ${stageHeight}`}
+          preserveAspectRatio="xMidYMid meet"
+          aria-label={readLocalizedText(simulation.title, locale)}
+          role="img"
+        >
+          <defs>
+            {[
+              ["packet-arrow-brand", "var(--brand)"],
+              ["packet-arrow-teal", "var(--tertiary)"],
+              ["packet-arrow-success", "var(--success)"],
+              ["packet-arrow-warning", "#f59e0b"],
+              ["packet-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+          </defs>
+          <path
+            className="data-flow-arrow"
+            d={`M ${stageWidth * 0.29} 74 L ${stageWidth * 0.71} 74`}
+            markerStart="url(#packet-arrow-success)"
+            markerEnd="url(#packet-arrow-success)"
+          />
+          <SvgLabelBox
+            x={stageWidth / 2}
+            y={58}
+            width={Math.min(620, stageWidth * 0.45)}
+            height={42}
+            className="data-flow-label-box"
+          >
+            {readLocalizedText(simulation.pattern, locale)}
+          </SvgLabelBox>
+          {laneActors.map((actorItem) => {
+            const lane = lanePositions.get(actorItem.id) ?? { x: 70, top: laneTop, width: laneWidth };
+            const states = statesByActor.get(actorItem.id) ?? [];
+            const activeStateIndex = stateIndexByActor.get(actorItem.id) ?? 0;
+            const Icon = getActorIcon(actorItem.kind);
+
+            return (
+              <g key={actorItem.id} className="state-lane">
+                <foreignObject x={lane.x + 42} y="16" width={lane.width - 84} height="58">
+                  <div className="state-actor-icon">
+                    <Icon size={42} />
+                  </div>
+                </foreignObject>
+                <SvgLabelBox
+                  x={lane.x + lane.width / 2}
+                  y={104}
+                  width={lane.width}
+                  height={42}
+                  className="state-lane-label-box"
+                >
+                  {readLocalizedText(actorItem.label, locale)}
+                </SvgLabelBox>
+                {states.map((stateLabel, index) => {
+                  const y = lane.top + index * (stateHeight + stateGap);
+                  const active = index <= activeStateIndex;
+
+                  return (
+                    <g
+                      key={`${actorItem.id}-${stateLabel}-${index}`}
+                      className={`state-block ${stateTones[index % stateTones.length]} ${active ? "active" : ""}`}
+                    >
+                      <rect x={lane.x} y={y} width={lane.width} height={stateHeight} />
+                      <SvgLabelBox
+                        x={lane.x + lane.width / 2}
+                        y={y + stateHeight / 2}
+                        width={lane.width - 16}
+                        height={stateHeight - 12}
+                        className="state-block-label-box"
+                      >
+                        {stateLabel}
+                      </SvgLabelBox>
+                    </g>
+                  );
+                })}
+              </g>
+            );
+          })}
+          {visibleSteps.map((item, index) => {
+            const tone = item.tone ?? "brand";
+            const endpoints = getStepEndpoints(index);
+            const sameActor = endpoints.fromActor === endpoints.toActor;
+            const rawLabelX = sameActor
+              ? endpoints.from.x + 92
+              : (endpoints.from.x + endpoints.to.x) / 2;
+            const labelX = Math.min(Math.max(rawLabelX, 116), stageWidth - 116);
+            const labelY = Math.min(
+              Math.max((endpoints.from.y + endpoints.to.y) / 2 - 12, 144),
+              stageHeight - 76,
+            );
+            const path = sameActor
+              ? `M ${endpoints.from.x + 36} ${endpoints.from.y} C ${endpoints.from.x + 142} ${endpoints.from.y - 24}, ${endpoints.to.x + 142} ${endpoints.to.y + 24}, ${endpoints.to.x + 36} ${endpoints.to.y}`
+              : `M ${endpoints.from.x} ${endpoints.from.y} L ${endpoints.to.x} ${endpoints.to.y}`;
+
+            return (
+              <g
+                key={`${readLocalizedText(item.label, locale)}-${index}`}
+                className={`packet-record ${tone} ${
+                  index === completedSteps - 1 ? "active" : ""
+                }`}
+              >
+                <path d={path} markerEnd={`url(#packet-arrow-${tone})`} />
+                <SvgLabelBox
+                  x={labelX}
+                  y={labelY}
+                  width={sameActor ? 180 : 230}
+                  height={54}
+                  className="packet-record-label-box"
+                >
+                  {readLocalizedText(item.label, locale)}
+                </SvgLabelBox>
+              </g>
+            );
+          })}
+          {completedSteps >= simulation.steps.length && laneActors.length >= 2 && (
+            <>
+              <path
+                className="data-transfer-arrow"
+                d={`M ${stageWidth * 0.34} ${stageHeight - 58} L ${stageWidth * 0.66} ${stageHeight - 58}`}
+                markerEnd="url(#packet-arrow-success)"
+              />
+              <SvgLabelBox
+                x={stageWidth / 2}
+                y={stageHeight - 78}
+                width={260}
+                height={42}
+                className="data-transfer-label-box"
+              >
+                {locale === "zh" ? "数据传输" : "Data transfer"}
+              </SvgLabelBox>
+            </>
+          )}
+        </svg>
+        <div className="wire-caption">
+          <span>{readLocalizedText(activeStep.title, locale)}</span>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
       </div>
-      <code>{state}</code>
     </div>
   );
+}
+
+function SwitchForwardingStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const tableRows = [
+    { mac: "AA:AA", vlan: "10", port: "Gi0/1", step: 1 },
+    { mac: "BB:BB", vlan: "10", port: "Gi0/3", step: 3 },
+  ];
+  const floodPorts = [
+    { x1: 570, y1: 286, x2: 918, y2: 186, label: "Gi0/2" },
+    { x1: 570, y1: 286, x2: 918, y2: 352, label: "Gi0/3" },
+    { x1: 570, y1: 286, x2: 918, y2: 438, label: "Gi0/4" },
+  ];
+
+  return (
+    <div className="visual-stage switch-stage">
+      <div className="tcp-handshake-card switch-card">
+        <svg
+          className="switch-diagram"
+          viewBox="0 0 1040 580"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["switch-arrow-blue", "var(--brand)"],
+              ["switch-arrow-yellow", "#f59e0b"],
+              ["switch-arrow-teal", "var(--tertiary)"],
+              ["switch-arrow-green", "var(--success)"],
+              ["switch-arrow-muted", "color-mix(in srgb, var(--muted) 54%, transparent)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="switch-soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="switch-bg" x="28" y="24" width="984" height="512" rx="28" />
+          <text className="tcp-title switch-title" x="520" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="tcp-subtitle switch-subtitle" x="520" y="99">
+            Learn source MAC / Lookup destination MAC / Flood / Forward
+          </text>
+
+          <g className="switch-host host-a">
+            <rect x="70" y="246" width="154" height="88" rx="20" />
+            <text x="147" y="281">{locale === "zh" ? "主机 A" : "Host A"}</text>
+            <text x="147" y="306">MAC AA:AA</text>
+            <text x="147" y="326">VLAN 10</text>
+          </g>
+
+          <g className="switch-host host-b">
+            <rect x="850" y="318" width="154" height="88" rx="20" />
+            <text x="927" y="353">{locale === "zh" ? "主机 B" : "Host B"}</text>
+            <text x="927" y="378">MAC BB:BB</text>
+            <text x="927" y="398">VLAN 10</text>
+          </g>
+
+          <g className="switch-host host-c">
+            <rect x="850" y="152" width="154" height="70" rx="18" />
+            <text x="927" y="184">{locale === "zh" ? "同 VLAN 其他端口" : "Other VLAN port"}</text>
+            <text x="927" y="204">Gi0/2</text>
+          </g>
+
+          <g className="switch-host host-d">
+            <rect x="850" y="424" width="154" height="70" rx="18" />
+            <text x="927" y="456">{locale === "zh" ? "同 VLAN 其他端口" : "Other VLAN port"}</text>
+            <text x="927" y="476">Gi0/4</text>
+          </g>
+
+          <g className="switch-box">
+            <rect x="356" y="194" width="230" height="210" rx="24" />
+            <text x="471" y="230">{locale === "zh" ? "二层交换机" : "Layer-2 switch"}</text>
+            {([
+              { label: "Gi0/1", x: 356, y: 286, anchor: "end" },
+              { label: "Gi0/2", x: 586, y: 204, anchor: "start" },
+              { label: "Gi0/3", x: 586, y: 352, anchor: "start" },
+              { label: "Gi0/4", x: 586, y: 438, anchor: "start" },
+            ] as const).map((port) => (
+              <g key={port.label} className={`switch-port ${completedSteps >= 1 ? "active" : ""}`}>
+                <circle cx={port.x} cy={port.y} r="10" />
+                <text
+                  x={port.anchor === "end" ? port.x - 18 : port.x + 18}
+                  y={port.y + 5}
+                  textAnchor={port.anchor}
+                >
+                  {port.label}
+                </text>
+              </g>
+            ))}
+            <rect className="switch-vlan-chip" x="404" y="362" width="134" height="30" rx="15" />
+            <text className="switch-vlan-label" x="471" y="382">VLAN 10</text>
+          </g>
+
+          <g className="mac-table-panel">
+            <rect x="330" y="424" width="300" height="86" rx="18" />
+            <text className="mac-table-title" x="356" y="450">
+              {locale === "zh" ? "MAC 地址表" : "MAC Address Table"}
+            </text>
+            <text className="mac-table-head" x="356" y="474">MAC</text>
+            <text className="mac-table-head" x="460" y="474">VLAN</text>
+            <text className="mac-table-head" x="548" y="474">Port</text>
+            {tableRows.map((row, index) => (
+              <g
+                key={row.mac}
+                className={`mac-table-row ${completedSteps >= row.step ? "visible" : ""}`}
+              >
+                <text x="356" y={494 + index * 18}>{row.mac}</text>
+                <text x="468" y={494 + index * 18}>{row.vlan}</text>
+                <text x="548" y={494 + index * 18}>{row.port}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`switch-flow first-frame ${completedSteps >= 1 ? "visible" : ""}`}>
+            <path d="M 224 290 L 346 286" markerEnd="url(#switch-arrow-blue)" />
+            <rect x="232" y="246" width="106" height="32" rx="16" />
+            <text x="285" y="267">src AA:AA</text>
+          </g>
+
+          <g className={`switch-flow learn-line ${completedSteps >= 1 ? "visible" : ""}`}>
+            <path d="M 386 330 C 384 395 384 416 420 424" markerEnd="url(#switch-arrow-blue)" />
+            <rect x="260" y="350" width="180" height="34" rx="17" />
+            <text x="350" y="372">
+              {locale === "zh" ? "学习 AA:AA -> Gi0/1" : "Learn AA:AA -> Gi0/1"}
+            </text>
+          </g>
+
+          <g className={`switch-flow flood ${completedSteps >= 2 ? "visible" : ""}`}>
+            {floodPorts.map((port) => (
+              <path
+                key={port.label}
+                d={`M ${port.x1} ${port.y1} C 690 ${port.y1}, 750 ${port.y2}, ${port.x2 - 76} ${port.y2}`}
+                markerEnd="url(#switch-arrow-yellow)"
+              />
+            ))}
+            <rect x="594" y="246" width="196" height="44" rx="22" />
+            <text x="692" y="272">
+              {locale === "zh" ? "dst BB:BB 缺失，VLAN 内泛洪" : "dst BB:BB miss, flood in VLAN"}
+            </text>
+          </g>
+
+          <g className={`switch-flow reply ${completedSteps >= 3 ? "visible" : ""}`}>
+            <path d="M 850 362 C 760 360 700 402 628 436" markerEnd="url(#switch-arrow-teal)" />
+            <rect x="650" y="384" width="168" height="34" rx="17" />
+            <text x="734" y="406">
+              {locale === "zh" ? "学习 BB:BB -> Gi0/3" : "Learn BB:BB -> Gi0/3"}
+            </text>
+          </g>
+
+          <g className={`switch-flow direct ${completedSteps >= 4 ? "visible" : ""}`}>
+            <path d="M 224 304 C 318 304 322 258 404 258" markerEnd="url(#switch-arrow-green)" />
+            <path d="M 538 258 C 660 258 744 340 850 362" markerEnd="url(#switch-arrow-green)" />
+            <rect x="388" y="250" width="170" height="38" rx="19" />
+            <text x="473" y="274">
+              {locale === "zh" ? "命中 BB:BB -> Gi0/3" : "Hit BB:BB -> Gi0/3"}
+            </text>
+          </g>
+
+          <g className={`switch-flow filter ${completedSteps >= 5 ? "visible" : ""}`}>
+            <path d="M 420 318 C 372 334 372 384 420 396" markerEnd="url(#switch-arrow-muted)" />
+            <rect x="90" y="378" width="212" height="50" rx="20" />
+            <text x="196" y="400">
+              {locale === "zh" ? "同入端口过滤" : "Filter same ingress port"}
+            </text>
+            <text x="196" y="420">
+              {locale === "zh" ? "动态表项按年龄刷新/老化" : "Dynamic entries refresh or age out"}
+            </text>
+          </g>
+        </svg>
+        <div className="tcp-handshake-caption switch-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EthernetFrameStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const fields = [
+    {
+      id: "preamble",
+      label: "Preamble",
+      bytes: "7B",
+      x: 54,
+      width: 112,
+      group: "sync",
+      step: 1,
+      detailZh: "物理同步",
+      detailEn: "Physical sync",
+    },
+    {
+      id: "sfd",
+      label: "SFD",
+      bytes: "1B",
+      x: 166,
+      width: 64,
+      group: "sync",
+      step: 1,
+      detailZh: "帧起始",
+      detailEn: "Frame start",
+    },
+    {
+      id: "dst",
+      label: "Destination MAC",
+      bytes: "6B",
+      x: 230,
+      width: 148,
+      group: "header",
+      step: 2,
+      detailZh: "下一跳接收方",
+      detailEn: "Next-hop receiver",
+    },
+    {
+      id: "src",
+      label: "Source MAC",
+      bytes: "6B",
+      x: 378,
+      width: 132,
+      group: "header",
+      step: 2,
+      detailZh: "本帧发送方",
+      detailEn: "Frame sender",
+    },
+    {
+      id: "vlan",
+      label: "802.1Q Tag",
+      bytes: "4B",
+      x: 510,
+      width: 112,
+      group: "vlan",
+      step: 3,
+      detailZh: "可选 VLAN ID",
+      detailEn: "Optional VLAN ID",
+    },
+    {
+      id: "type",
+      label: "Type / Length",
+      bytes: "2B",
+      x: 622,
+      width: 116,
+      group: "type",
+      step: 4,
+      detailZh: "0x0800 / 0x0806",
+      detailEn: "0x0800 / 0x0806",
+    },
+    {
+      id: "payload",
+      label: "Payload + Pad",
+      bytes: "46-1500B",
+      x: 738,
+      width: 270,
+      group: "payload",
+      step: 4,
+      detailZh: "IP / ARP / IPv6",
+      detailEn: "IP / ARP / IPv6",
+    },
+    {
+      id: "fcs",
+      label: "FCS",
+      bytes: "4B",
+      x: 1008,
+      width: 92,
+      group: "fcs",
+      step: 5,
+      detailZh: "CRC 校验",
+      detailEn: "CRC check",
+    },
+  ];
+  const groupBands = [
+    {
+      id: "sync",
+      labelZh: "同步",
+      labelEn: "Sync",
+      x: 54,
+      width: 176,
+      step: 1,
+    },
+    {
+      id: "header",
+      labelZh: "帧头",
+      labelEn: "Header",
+      x: 230,
+      width: 392,
+      step: 2,
+    },
+    {
+      id: "data",
+      labelZh: "数据",
+      labelEn: "Data",
+      x: 622,
+      width: 386,
+      step: 4,
+    },
+    {
+      id: "trailer",
+      labelZh: "尾部",
+      labelEn: "Trailer",
+      x: 1008,
+      width: 92,
+      step: 5,
+    },
+  ];
+  const callouts = [
+    {
+      step: 1,
+      x: 142,
+      y: 156,
+      width: 236,
+      titleZh: "Preamble + SFD",
+      titleEn: "Preamble + SFD",
+      bodyZh: "接收端识别帧起始",
+      bodyEn: "Receiver finds frame start",
+      anchorX: 146,
+    },
+    {
+      step: 2,
+      x: 388,
+      y: 156,
+      width: 238,
+      titleZh: "MAC 地址",
+      titleEn: "MAC addresses",
+      bodyZh: "交换机按目的 MAC 转发",
+      bodyEn: "Switch forwards by destination MAC",
+      anchorX: 378,
+    },
+    {
+      step: 3,
+      x: 566,
+      y: 390,
+      width: 240,
+      titleZh: "802.1Q 插入点",
+      titleEn: "802.1Q insertion",
+      bodyZh: "Tag 位于源 MAC 与 Type 之间",
+      bodyEn: "Tag sits between source MAC and Type",
+      anchorX: 566,
+    },
+    {
+      step: 4,
+      x: 824,
+      y: 156,
+      width: 260,
+      titleZh: "Type/Length + Payload",
+      titleEn: "Type/Length + Payload",
+      bodyZh: "决定交给 IPv4、IPv6 或 ARP",
+      bodyEn: "Dispatches to IPv4, IPv6, or ARP",
+      anchorX: 808,
+    },
+    {
+      step: 5,
+      x: 1000,
+      y: 390,
+      width: 226,
+      titleZh: "FCS 校验",
+      titleEn: "FCS check",
+      bodyZh: "校验失败计入 CRC/FCS 错误",
+      bodyEn: "Failures appear as CRC/FCS errors",
+      anchorX: 1054,
+    },
+  ];
+  const visibleCallouts = callouts.filter((item) => item.step <= completedSteps);
+
+  return (
+    <div className="visual-stage ethernet-frame-stage">
+      <div className="tcp-handshake-card ethernet-frame-card">
+        <svg
+          className="ethernet-frame-diagram"
+          viewBox="0 0 1160 560"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            <marker
+              id="ethernet-arrow-brand"
+              viewBox="0 0 10 10"
+              refX="8.5"
+              refY="5"
+              markerWidth="8"
+              markerHeight="8"
+              orient="auto"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" />
+            </marker>
+            <filter id="ethernet-soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="ethernet-frame-bg" x="28" y="24" width="1104" height="500" rx="28" />
+          <text className="tcp-title ethernet-frame-title" x="580" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="tcp-subtitle ethernet-frame-subtitle" x="580" y="99">
+            Preamble / MAC / 802.1Q / Type / Payload / FCS
+          </text>
+
+          <g className="ethernet-frame-groups">
+            {groupBands.map((band) => {
+              const active = completedSteps >= band.step;
+
+              return (
+                <g
+                  key={band.id}
+                  className={`ethernet-group-band ${band.id} ${active ? "active" : ""}`}
+                >
+                  <rect x={band.x} y="270" width={band.width} height="58" rx="14" />
+                  <text x={band.x + band.width / 2} y="305">
+                    {locale === "zh" ? band.labelZh : band.labelEn}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+
+          <g className="ethernet-frame-fields">
+            {fields.map((field) => {
+              const active = completedSteps >= field.step;
+              const current = completedSteps === field.step;
+
+              return (
+                <g
+                  key={field.id}
+                  className={`ethernet-field ${field.group} ${active ? "active" : ""} ${
+                    current ? "current" : ""
+                  }`}
+                >
+                  <rect x={field.x} y="190" width={field.width} height="86" rx="14" />
+                  <text className="ethernet-field-label" x={field.x + field.width / 2} y="220">
+                    {field.label}
+                  </text>
+                  <text className="ethernet-field-bytes" x={field.x + field.width / 2} y="248">
+                    {field.bytes}
+                  </text>
+                  <text className="ethernet-field-detail" x={field.x + field.width / 2} y="265">
+                    {locale === "zh" ? field.detailZh : field.detailEn}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+
+          {completedSteps >= 3 && (
+            <g className="ethernet-vlan-insert active">
+              <path d="M 510 178 L 510 146 L 622 146 L 622 178" />
+              <rect x="501" y="122" width="130" height="30" rx="15" />
+              <text x="566" y="142">TPID + TCI</text>
+            </g>
+          )}
+
+          {completedSteps >= 4 && (
+            <g className="ethernet-dispatch active">
+              <path d="M 680 180 C 690 142 735 126 790 126" />
+              <path d="M 872 180 C 892 142 932 126 990 126" />
+              <rect x="780" y="108" width="226" height="36" rx="18" />
+              <text x="893" y="131">
+                {locale === "zh" ? "IPv4 / IPv6 / ARP 分发" : "IPv4 / IPv6 / ARP dispatch"}
+              </text>
+            </g>
+          )}
+
+          {completedSteps >= 5 && (
+            <g className="ethernet-fcs-loop active">
+              <path d="M 1054 282 C 1054 454 356 454 140 340" markerEnd="url(#ethernet-arrow-brand)" />
+              <rect x="384" y="430" width="392" height="42" rx="21" />
+              <text x="580" y="456">
+                {locale === "zh" ? "接收端校验整帧，成功后交付上层" : "Receiver checks the frame, then delivers upward"}
+              </text>
+            </g>
+          )}
+
+          {visibleCallouts.map((item) => (
+            <g key={item.titleEn} className={`ethernet-callout step-${item.step}`}>
+              <path d={`M ${item.anchorX} 190 L ${item.x} ${item.y + 34}`} />
+              <rect x={item.x - item.width / 2} y={item.y} width={item.width} height="68" rx="16" />
+              <text className="ethernet-callout-title" x={item.x} y={item.y + 27}>
+                {locale === "zh" ? item.titleZh : item.titleEn}
+              </text>
+              <text className="ethernet-callout-body" x={item.x} y={item.y + 49}>
+                {locale === "zh" ? item.bodyZh : item.bodyEn}
+              </text>
+            </g>
+          ))}
+
+          <g className="ethernet-size-note">
+            <rect x="66" y="352" width="324" height="86" rx="20" />
+            <text x="92" y="382">{locale === "zh" ? "典型数据载荷" : "Typical data payload"}</text>
+            <text x="92" y="410">46 - 1500 bytes</text>
+            <text x="92" y="430">{locale === "zh" ? "短载荷填充，大载荷受 MTU 约束" : "Short payloads pad; large payloads meet MTU"}</text>
+          </g>
+
+          <g className="ethernet-reference-note">
+            <rect x="744" y="352" width="326" height="86" rx="20" />
+            <text x="770" y="382">{locale === "zh" ? "抓包观察点" : "Packet-inspection points"}</text>
+            <text x="770" y="410">{locale === "zh" ? "MAC / VLAN / EtherType / Length" : "MAC / VLAN / EtherType / Length"}</text>
+            <text x="770" y="430">{locale === "zh" ? "端口计数器看 CRC/FCS 错误" : "Port counters reveal CRC/FCS errors"}</text>
+          </g>
+        </svg>
+        <div className="tcp-handshake-caption ethernet-frame-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TcpHandshakeStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const clientStates = ["CLOSED", "SYN-SENT", "ESTABLISHED"];
+  const serverStates = ["LISTEN", "SYN-RCVD", "ESTABLISHED"];
+  const clientStateIndex = completedSteps >= 3 ? 2 : completedSteps >= 1 ? 1 : 0;
+  const serverStateIndex = completedSteps >= 3 ? 2 : completedSteps >= 1 ? 1 : 0;
+  const sequenceRows = [
+    {
+      fromX: 194,
+      fromY: 198,
+      toX: 706,
+      toY: 272,
+      labelX: 450,
+      labelY: 217,
+      stateX: 176,
+      stateY: 235,
+      state: "SYN-SENT",
+    },
+    {
+      fromX: 706,
+      fromY: 322,
+      toX: 194,
+      toY: 396,
+      labelX: 450,
+      labelY: 343,
+      stateX: 724,
+      stateY: 352,
+      state: "SYN-RCVD",
+    },
+    {
+      fromX: 194,
+      fromY: 446,
+      toX: 706,
+      toY: 520,
+      labelX: 450,
+      labelY: 467,
+      stateX: 176,
+      stateY: 500,
+      state: "ESTABLISHED",
+    },
+  ];
+
+  return (
+    <div className="visual-stage tcp-handshake-stage">
+      <div className="tcp-handshake-card">
+        <svg
+          className="tcp-handshake-diagram"
+          viewBox="0 0 900 620"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            <marker
+              id="tcp-arrow-blue"
+              viewBox="0 0 10 10"
+              refX="8.5"
+              refY="5"
+              markerWidth="8"
+              markerHeight="8"
+              orient="auto"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" />
+            </marker>
+            <marker
+              id="tcp-arrow-green"
+              viewBox="0 0 10 10"
+              refX="8.5"
+              refY="5"
+              markerWidth="8"
+              markerHeight="8"
+              orient="auto"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" />
+            </marker>
+            <marker
+              id="tcp-arrow-muted"
+              viewBox="0 0 10 10"
+              refX="8.5"
+              refY="5"
+              markerWidth="8"
+              markerHeight="8"
+              orient="auto"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" />
+            </marker>
+            <filter id="tcp-soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="8" stdDeviation="8" floodColor="#172033" floodOpacity="0.14" />
+            </filter>
+          </defs>
+
+          <rect className="tcp-bg-panel" x="34" y="28" width="832" height="548" rx="30" />
+          <text className="tcp-title" x="450" y="72">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="tcp-subtitle" x="450" y="101">
+            SYN / SYN-ACK / ACK
+          </text>
+
+          <g className="tcp-endpoint client">
+            <rect x="74" y="122" width="152" height="72" rx="18" />
+            <text x="150" y="152">{locale === "zh" ? "客户端" : "Client"}</text>
+            <text x="150" y="176">{locale === "zh" ? "主动打开" : "Active open"}</text>
+          </g>
+          <g className="tcp-endpoint server">
+            <rect x="674" y="122" width="152" height="72" rx="18" />
+            <text x="750" y="152">{locale === "zh" ? "服务器" : "Server"}</text>
+            <text x="750" y="176">{locale === "zh" ? "监听端口" : "Listening"}</text>
+          </g>
+
+          <line className="tcp-lifeline" x1="150" y1="206" x2="150" y2="538" />
+          <line className="tcp-lifeline" x1="750" y1="206" x2="750" y2="538" />
+
+          {clientStates.map((state, index) => (
+            <g
+              className={`tcp-state-pill ${index <= clientStateIndex ? "active" : ""}`}
+              key={`client-${state}`}
+            >
+              <rect x="66" y={214 + index * 132} width="168" height="42" rx="21" />
+              <text x="150" y={241 + index * 132}>{state}</text>
+            </g>
+          ))}
+          {serverStates.map((state, index) => (
+            <g
+              className={`tcp-state-pill ${index <= serverStateIndex ? "active" : ""}`}
+              key={`server-${state}`}
+            >
+              <rect x="666" y={214 + index * 132} width="168" height="42" rx="21" />
+              <text x="750" y={241 + index * 132}>{state}</text>
+            </g>
+          ))}
+
+          {simulation.steps.map((stepItem, index) => {
+            const row = sequenceRows[index];
+            const isReturn = row.fromX > row.toX;
+            const revealed = index < completedSteps;
+            const marker = revealed
+              ? index === 2
+                ? "tcp-arrow-green"
+                : "tcp-arrow-blue"
+              : "tcp-arrow-muted";
+
+            return (
+              <g
+                className={`tcp-segment ${isReturn ? "return" : ""} ${
+                  revealed ? "revealed" : "pending"
+                } ${
+                  index === completedSteps - 1 ? "active" : ""
+                }`}
+                key={readLocalizedText(stepItem.label, locale)}
+              >
+                <line
+                  x1={row.fromX}
+                  y1={row.fromY}
+                  x2={row.toX}
+                  y2={row.toY}
+                  markerEnd={`url(#${marker})`}
+                />
+                <rect x={row.labelX - 156} y={row.labelY - 30} width="312" height="56" rx="16" />
+                <text className="tcp-segment-title" x={row.labelX} y={row.labelY - 7}>
+                  {readLocalizedText(stepItem.title, locale)}
+                </text>
+                <text className="tcp-segment-label" x={row.labelX} y={row.labelY + 15}>
+                  {readLocalizedText(stepItem.label, locale)}
+                </text>
+              </g>
+            );
+          })}
+
+          {completedSteps >= simulation.steps.length && (
+            <g className="tcp-established-flow">
+              <line x1="260" y1="552" x2="640" y2="552" markerEnd="url(#tcp-arrow-green)" />
+              <text x="450" y="539">{locale === "zh" ? "应用数据开始双向传输" : "Application data can flow"}</text>
+            </g>
+          )}
+        </svg>
+        <div className="tcp-handshake-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TcpWaveStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const clientStates = ["ESTABLISHED", "FIN-WAIT-1", "FIN-WAIT-2", "TIME-WAIT", "CLOSED"];
+  const serverStates = ["ESTABLISHED", "CLOSE-WAIT", "LAST-ACK", "CLOSED"];
+  const clientStateIndex = completedSteps >= 4 ? 3 : completedSteps >= 2 ? 2 : completedSteps >= 1 ? 1 : 0;
+  const serverStateIndex = completedSteps >= 4 ? 3 : completedSteps >= 3 ? 2 : completedSteps >= 2 ? 1 : 0;
+  const sequenceRows = [
+    {
+      fromX: 194,
+      fromY: 170,
+      toX: 706,
+      toY: 230,
+      labelX: 450,
+      labelY: 188,
+      markerTone: "blue",
+    },
+    {
+      fromX: 706,
+      fromY: 270,
+      toX: 194,
+      toY: 330,
+      labelX: 450,
+      labelY: 289,
+      markerTone: "blue",
+    },
+    {
+      fromX: 706,
+      fromY: 370,
+      toX: 194,
+      toY: 430,
+      labelX: 450,
+      labelY: 389,
+      markerTone: "orange",
+    },
+    {
+      fromX: 194,
+      fromY: 470,
+      toX: 706,
+      toY: 530,
+      labelX: 450,
+      labelY: 489,
+      markerTone: "green",
+    },
+  ];
+
+  return (
+    <div className="visual-stage tcp-handshake-stage">
+      <div className="tcp-handshake-card tcp-wave-card">
+        <svg
+          className="tcp-handshake-diagram tcp-wave-diagram"
+          viewBox="0 0 900 620"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            <marker
+              id="tcp-wave-arrow-blue"
+              viewBox="0 0 10 10"
+              refX="8.5"
+              refY="5"
+              markerWidth="8"
+              markerHeight="8"
+              orient="auto"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" />
+            </marker>
+            <marker
+              id="tcp-wave-arrow-green"
+              viewBox="0 0 10 10"
+              refX="8.5"
+              refY="5"
+              markerWidth="8"
+              markerHeight="8"
+              orient="auto"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" />
+            </marker>
+            <marker
+              id="tcp-wave-arrow-orange"
+              viewBox="0 0 10 10"
+              refX="8.5"
+              refY="5"
+              markerWidth="8"
+              markerHeight="8"
+              orient="auto"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" />
+            </marker>
+            <marker
+              id="tcp-wave-arrow-muted"
+              viewBox="0 0 10 10"
+              refX="8.5"
+              refY="5"
+              markerWidth="8"
+              markerHeight="8"
+              orient="auto"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" />
+            </marker>
+            <filter id="tcp-wave-soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="8" stdDeviation="8" floodColor="#172033" floodOpacity="0.14" />
+            </filter>
+          </defs>
+
+          <rect className="tcp-bg-panel" x="34" y="28" width="832" height="556" rx="30" />
+          <text className="tcp-title" x="450" y="72">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="tcp-subtitle" x="450" y="101">
+            FIN / ACK / FIN / ACK
+          </text>
+
+          <g className="tcp-endpoint client">
+            <rect x="74" y="122" width="152" height="72" rx="18" />
+            <text x="150" y="152">{locale === "zh" ? "主动关闭方" : "Active closer"}</text>
+            <text x="150" y="176">{locale === "zh" ? "先发 FIN" : "Sends first FIN"}</text>
+          </g>
+          <g className="tcp-endpoint server">
+            <rect x="674" y="122" width="152" height="72" rx="18" />
+            <text x="750" y="152">{locale === "zh" ? "被动关闭方" : "Passive closer"}</text>
+            <text x="750" y="176">{locale === "zh" ? "等待应用关闭" : "Waits for app"}</text>
+          </g>
+
+          <line className="tcp-lifeline" x1="150" y1="206" x2="150" y2="558" />
+          <line className="tcp-lifeline" x1="750" y1="206" x2="750" y2="558" />
+
+          {clientStates.map((state, index) => (
+            <g
+              className={`tcp-state-pill tcp-wave-state ${index <= clientStateIndex ? "active" : ""}`}
+              key={`wave-client-${state}`}
+            >
+              <rect x="54" y={210 + index * 75} width="192" height="40" rx="20" />
+              <text x="150" y={236 + index * 75}>{state}</text>
+            </g>
+          ))}
+          {serverStates.map((state, index) => (
+            <g
+              className={`tcp-state-pill tcp-wave-state ${
+                index <= serverStateIndex ? "active" : ""
+              }`}
+              key={`wave-server-${state}`}
+            >
+              <rect x="654" y={210 + index * 92} width="192" height="40" rx="20" />
+              <text x="750" y={236 + index * 92}>{state}</text>
+            </g>
+          ))}
+
+          <g className="tcp-half-close-band">
+            <rect x="280" y="316" width="340" height="44" rx="22" />
+            <text x="450" y="344">
+              {locale === "zh" ? "半关闭：被动方仍可发送剩余数据" : "Half-close: passive side may still send"}
+            </text>
+          </g>
+
+          {simulation.steps.map((stepItem, index) => {
+            const row = sequenceRows[index];
+            const isReturn = row.fromX > row.toX;
+            const revealed = index < completedSteps;
+            const marker = revealed ? `tcp-wave-arrow-${row.markerTone}` : "tcp-wave-arrow-muted";
+
+            return (
+              <g
+                className={`tcp-segment tcp-wave-segment ${isReturn ? "return" : ""} ${
+                  revealed ? "revealed" : "pending"
+                } ${
+                  index === completedSteps - 1 ? "active" : ""
+                } tone-${row.markerTone}`}
+                key={readLocalizedText(stepItem.label, locale)}
+              >
+                <line
+                  x1={row.fromX}
+                  y1={row.fromY}
+                  x2={row.toX}
+                  y2={row.toY}
+                  markerEnd={`url(#${marker})`}
+                />
+                <rect x={row.labelX - 158} y={row.labelY - 30} width="316" height="56" rx="16" />
+                <text className="tcp-segment-title" x={row.labelX} y={row.labelY - 7}>
+                  {readLocalizedText(stepItem.title, locale)}
+                </text>
+                <text className="tcp-segment-label" x={row.labelX} y={row.labelY + 15}>
+                  {readLocalizedText(stepItem.label, locale)}
+                </text>
+              </g>
+            );
+          })}
+
+          {completedSteps >= simulation.steps.length && (
+            <g className="tcp-timewait-note compact">
+              <rect x="58" y="478" width="184" height="28" rx="14" />
+              <text x="150" y="497">{locale === "zh" ? "2MSL 后进入 CLOSED" : "CLOSED after 2MSL"}</text>
+            </g>
+          )}
+        </svg>
+        <div className="tcp-handshake-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TcpStateMachineStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const nodes = [
+    { id: "closed-start", label: "CLOSED", x: 500, y: 126, width: 150, step: 0, tone: "closed" },
+    { id: "listen", label: "LISTEN", x: 215, y: 218, width: 150, step: 1, tone: "setup" },
+    { id: "syn-sent", label: "SYN-SENT", x: 785, y: 218, width: 164, step: 2, tone: "setup" },
+    { id: "syn-rcvd", label: "SYN-RECEIVED", x: 500, y: 278, width: 186, step: 2, tone: "setup" },
+    { id: "established", label: "ESTABLISHED", x: 500, y: 365, width: 178, step: 3, tone: "data" },
+    { id: "fin-wait-1", label: "FIN-WAIT-1", x: 245, y: 465, width: 166, step: 4, tone: "active" },
+    { id: "fin-wait-2", label: "FIN-WAIT-2", x: 245, y: 545, width: 166, step: 4, tone: "active" },
+    { id: "close-wait", label: "CLOSE-WAIT", x: 755, y: 465, width: 166, step: 4, tone: "passive" },
+    { id: "closing", label: "CLOSING", x: 500, y: 545, width: 146, step: 5, tone: "special" },
+    { id: "last-ack", label: "LAST-ACK", x: 755, y: 545, width: 154, step: 5, tone: "passive" },
+    { id: "time-wait", label: "TIME-WAIT", x: 500, y: 625, width: 166, step: 5, tone: "active" },
+    { id: "closed-end", label: "CLOSED", x: 500, y: 682, width: 150, step: 6, tone: "closed" },
+  ];
+  const edges = [
+    { id: "closed-listen", path: "M 437 143 C 348 148 260 166 218 194", label: "passive OPEN", x: 312, y: 160, step: 1, tone: "blue" },
+    { id: "closed-syn", path: "M 563 143 C 648 148 724 166 784 194", label: "active OPEN / SYN", x: 688, y: 160, step: 2, tone: "blue" },
+    { id: "listen-synrcvd", path: "M 284 224 C 350 234 390 252 414 270", label: "rcv SYN / SYN+ACK", x: 340, y: 233, step: 2, tone: "blue" },
+    { id: "syn-sent-synrcvd", path: "M 704 224 C 640 235 590 252 586 270", label: "simultaneous SYN", x: 650, y: 233, step: 2, tone: "muted", dashed: true },
+    { id: "synrcvd-estab", path: "M 500 301 L 500 340", label: "rcv ACK", x: 570, y: 326, step: 3, tone: "green" },
+    { id: "synsent-estab", path: "M 790 241 C 705 290 620 325 574 355", label: "SYN+ACK / ACK", x: 674, y: 300, step: 3, tone: "green" },
+    { id: "estab-finwait", path: "M 423 375 C 350 405 286 438 245 442", label: "close / FIN", x: 336, y: 411, step: 4, tone: "orange" },
+    { id: "estab-closewait", path: "M 577 375 C 650 405 712 438 755 442", label: "rcv FIN / ACK", x: 664, y: 411, step: 4, tone: "teal" },
+    { id: "finwait1-finwait2", path: "M 245 488 L 245 522", label: "rcv ACK", x: 150, y: 510, step: 4, tone: "orange" },
+    { id: "closewait-lastack", path: "M 755 488 L 755 522", label: "close / FIN", x: 852, y: 510, step: 5, tone: "teal" },
+    { id: "finwait1-closing", path: "M 316 475 C 380 495 426 525 456 535", label: "simultaneous FIN", x: 382, y: 505, step: 5, tone: "muted", dashed: true },
+    { id: "closing-timewait", path: "M 500 568 L 500 602", label: "ACK of FIN", x: 584, y: 590, step: 5, tone: "orange" },
+    { id: "finwait2-timewait", path: "M 316 556 C 385 577 428 607 456 616", label: "rcv FIN / ACK", x: 350, y: 590, step: 5, tone: "orange" },
+    { id: "lastack-closed", path: "M 716 556 C 650 595 592 635 555 660", label: "rcv ACK", x: 666, y: 626, step: 6, tone: "green" },
+    { id: "timewait-closed", path: "M 500 648 L 500 659", label: "2MSL timeout", x: 610, y: 655, step: 6, tone: "green" },
+  ];
+  return (
+    <div className="visual-stage tcp-handshake-stage tcp-state-machine-stage">
+      <div className="tcp-handshake-card tcp-state-machine-card">
+        <svg
+          className="tcp-handshake-diagram tcp-state-machine-diagram"
+          viewBox="0 0 1000 730"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["blue", "var(--brand)"],
+              ["teal", "var(--tertiary)"],
+              ["green", "var(--success)"],
+              ["orange", "#f59e0b"],
+              ["muted", "color-mix(in srgb, var(--muted) 55%, transparent)"],
+            ].map(([tone, fill]) => (
+              <marker
+                key={tone}
+                id={`tcp-fsm-arrow-${tone}`}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="tcp-fsm-soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="8" stdDeviation="9" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="tcp-bg-panel tcp-fsm-bg-panel" x="28" y="24" width="944" height="686" rx="30" />
+          <text className="tcp-title" x="500" y="68">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="tcp-subtitle" x="500" y="96">
+            OPEN / SYN / ACK / FIN / CLOSE / TIMEOUT
+          </text>
+
+          <g className="tcp-fsm-band setup">
+            <rect x="72" y="156" width="856" height="146" rx="26" />
+            <text x="112" y="184">{locale === "zh" ? "建立连接" : "Connection setup"}</text>
+          </g>
+          <g className="tcp-fsm-band transfer">
+            <rect x="72" y="322" width="856" height="82" rx="26" />
+            <text x="112" y="351">{locale === "zh" ? "数据传输" : "Data transfer"}</text>
+          </g>
+          <g className="tcp-fsm-band teardown">
+            <rect x="72" y="420" width="856" height="282" rx="26" />
+            <text x="112" y="448">{locale === "zh" ? "释放连接" : "Connection release"}</text>
+          </g>
+
+          {edges.map((edge) => {
+            const revealed = completedSteps >= edge.step;
+            const markerTone = revealed && edge.tone !== "muted" ? edge.tone : "muted";
+
+            return (
+              <g
+                key={edge.id}
+                className={`tcp-fsm-edge tone-${edge.tone} ${revealed ? "revealed" : "pending"} ${
+                  completedSteps === edge.step ? "current" : ""
+                } ${edge.dashed ? "dashed" : ""}`}
+              >
+                <path d={edge.path} markerEnd={`url(#tcp-fsm-arrow-${markerTone})`} />
+                <rect x={edge.x - 64} y={edge.y - 17} width="128" height="28" rx="14" />
+                <text x={edge.x} y={edge.y + 2}>{edge.label}</text>
+              </g>
+            );
+          })}
+
+          {nodes.map((node) => {
+            const active = node.step === 0 || completedSteps >= node.step;
+            const current = node.step > 0 && completedSteps === node.step;
+
+            return (
+              <g
+                key={node.id}
+                className={`tcp-fsm-node tone-${node.tone} ${active ? "active" : ""} ${
+                  current ? "current" : ""
+                }`}
+              >
+                <rect
+                  x={node.x - node.width / 2}
+                  y={node.y - 23}
+                  width={node.width}
+                  height="46"
+                  rx="15"
+                />
+                <text x={node.x} y={node.y + 6}>{node.label}</text>
+              </g>
+            );
+          })}
+
+        </svg>
+        <div className="tcp-handshake-caption tcp-state-machine-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SimulationActorCard({
+  actor,
+  locale,
+  state,
+}: {
+  actor: SimulationActor;
+  locale: Locale;
+  state: { zh: string; en: string };
+}) {
+  const Icon = getActorIcon(actor.kind);
+
+  return (
+    <div className={`simulation-actor ${actor.kind}`}>
+      <div className="simulation-actor-icon">
+        <Icon size={28} />
+      </div>
+      <div>
+        <span>{readLocalizedText(actor.label, locale)}</span>
+        <small>{readLocalizedText(actor.detail, locale)}</small>
+      </div>
+      <code>{readLocalizedText(state, locale)}</code>
+    </div>
+  );
+}
+
+function getActorIcon(kind: ActorKind) {
+  if (kind === "client") {
+    return Laptop;
+  }
+
+  if (kind === "server") {
+    return Server;
+  }
+
+  if (kind === "database") {
+    return Database;
+  }
+
+  if (kind === "cache") {
+    return MemoryStick;
+  }
+
+  if (kind === "queue" || kind === "broker") {
+    return Rabbit;
+  }
+
+  if (kind === "kernel" || kind === "cpu") {
+    return Cpu;
+  }
+
+  if (kind === "container") {
+    return Container;
+  }
+
+  if (kind === "cluster") {
+    return Boxes;
+  }
+
+  if (kind === "agent" || kind === "model") {
+    return Bot;
+  }
+
+  if (kind === "tool") {
+    return GitBranch;
+  }
+
+  if (kind === "security") {
+    return ShieldCheck;
+  }
+
+  if (kind === "storage" || kind === "data") {
+    return Database;
+  }
+
+  return Network;
 }
 
 export { App };

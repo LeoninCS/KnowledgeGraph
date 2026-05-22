@@ -384,10 +384,10 @@ img {
 .graph-canvas {
   position: relative;
   min-width: 0;
-  min-height: calc(100vh - var(--topbar-height));
+  height: calc(100vh - var(--topbar-height));
+  min-height: 720px;
   overflow: hidden;
   cursor: default;
-  touch-action: none;
   background:
     radial-gradient(color-mix(in srgb, var(--line) 58%, transparent) 1px, transparent 1px),
     var(--bg);
@@ -395,22 +395,10 @@ img {
   user-select: none;
 }
 
-.graph-canvas:active {
-  cursor: grabbing;
-}
-
-.graph-canvas.space-pan {
-  cursor: grab;
-}
-
-.graph-canvas.space-pan:active {
-  cursor: grabbing;
-}
-
 .search-status {
   position: absolute;
   top: 24px;
-  left: 28px;
+  left: 206px;
   z-index: 6;
   display: inline-flex;
   align-items: center;
@@ -433,26 +421,6 @@ img {
   color: var(--text);
 }
 
-.graph-map {
-  position: absolute;
-  top: 0;
-  left: 0;
-  min-width: 1100px;
-  min-height: 720px;
-  transform-origin: 0 0;
-  will-change: transform;
-}
-
-.graph-controls {
-  position: absolute;
-  right: 28px;
-  bottom: 28px;
-  z-index: 5;
-  display: grid;
-  gap: 8px;
-}
-
-.graph-controls button,
 .icon-button {
   display: inline-grid;
   place-items: center;
@@ -465,11 +433,17 @@ img {
   box-shadow: var(--shadow-sm);
 }
 
-.graph-mode-switch {
+.graph-toolbar {
   position: absolute;
   top: 24px;
   left: 28px;
   z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.graph-mode-switch {
   display: inline-flex;
   gap: 4px;
   border: 1px solid var(--border);
@@ -478,6 +452,10 @@ img {
   padding: 4px;
   box-shadow: var(--shadow-sm);
   backdrop-filter: blur(12px);
+}
+
+.scope-switch {
+  position: static;
 }
 
 .graph-mode-switch button {
@@ -512,83 +490,123 @@ img {
   backdrop-filter: blur(10px);
 }
 
-.graph-lines {
-  position: absolute;
-  inset: 0;
+.graph-canvas .react-flow {
   width: 100%;
   height: 100%;
+}
+
+.graph-canvas .react-flow__pane {
+  cursor: grab;
+}
+
+.graph-canvas .react-flow__pane.dragging {
+  cursor: grabbing;
+}
+
+.graph-canvas .react-flow__controls {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.graph-canvas .react-flow__controls-button {
+  width: 38px;
+  height: 38px;
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.graph-canvas .react-flow__controls-button:hover {
+  color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.graph-canvas .react-flow__background {
+  background-color: var(--bg);
+}
+
+.graph-canvas .react-flow__edge-path {
+  stroke: color-mix(in srgb, var(--category-color) 32%, var(--line));
+  stroke-width: 1.05;
+  stroke-linecap: round;
+  opacity: 0.72;
+}
+
+.graph-canvas .react-flow__edge.category .react-flow__edge-path {
+  stroke: color-mix(in srgb, var(--category-color) 42%, var(--line));
+  stroke-width: 1.2;
+  opacity: 0.86;
+}
+
+.graph-canvas .react-flow__edge.group .react-flow__edge-path {
+  stroke: color-mix(in srgb, var(--category-color) 30%, var(--line));
+  stroke-width: 1;
+}
+
+.graph-canvas .react-flow__edge.related .react-flow__edge-path {
+  stroke: color-mix(in srgb, var(--category-color) 24%, var(--line));
+  stroke-width: 0.9;
+  stroke-dasharray: 3 6;
+  opacity: 0.58;
+}
+
+.graph-canvas .react-flow__handle {
+  opacity: 0;
   pointer-events: none;
 }
 
-.graph-lines line {
-  stroke: color-mix(in srgb, var(--category-color) 42%, var(--line));
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.graph-lines line.category {
-  stroke-width: 2.2;
-}
-
-.graph-lines line.group {
-  stroke: color-mix(in srgb, var(--category-color) 34%, var(--line));
-  stroke-width: 1.3;
-}
-
-.graph-lines line.related {
-  stroke: color-mix(in srgb, var(--category-color) 26%, var(--line));
-  stroke-width: 0.9;
-  stroke-dasharray: 5 7;
-}
-
 .graph-node {
-  position: absolute;
   z-index: 2;
   display: inline-grid;
   place-items: center;
-  transform: translate(-50%, -50%);
-  border: 1px solid color-mix(in srgb, var(--category-color) 30%, var(--border));
+  border: 1px solid color-mix(in srgb, var(--category-color) 26%, transparent);
   border-radius: 999px;
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 72%, var(--category-color));
   color: var(--muted);
   text-align: center;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
   box-shadow:
-    inset 0 -8px 14px rgb(23 32 51 / 0.08),
-    0 8px 16px rgb(23 32 51 / 0.08);
+    inset 0 -9px 14px rgb(23 32 51 / 0.08),
+    0 9px 18px rgb(23 32 51 / 0.11);
   transition:
     transform 160ms ease,
     border-color 160ms ease,
-    color 160ms ease;
+    color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .graph-node:hover {
-  transform: translate(-50%, -50%) scale(1.04);
+  transform: scale(1.08);
   border-color: var(--category-color);
   color: var(--category-color);
+  box-shadow:
+    inset 0 -8px 12px rgb(23 32 51 / 0.08),
+    0 12px 24px color-mix(in srgb, var(--category-color) 18%, transparent);
 }
 
 .graph-node.knowledge {
-  width: 96px;
-  height: 96px;
-  min-height: 96px;
-  padding: 9px 10px;
-  background: color-mix(in srgb, var(--surface) 78%, var(--category-color));
-  font-size: 12px;
-  line-height: 1.18;
+  width: 62px;
+  height: 62px;
+  padding: 8px;
+  background: color-mix(in srgb, var(--surface) 66%, var(--category-color));
+  color: color-mix(in srgb, var(--text) 74%, var(--category-color));
+  font-size: 8.4px;
+  line-height: 1.15;
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .graph-node.knowledge.secondary {
-  opacity: 0.58;
-  border-style: dashed;
-  background: color-mix(in srgb, var(--surface) 90%, var(--category-color));
-  color: color-mix(in srgb, var(--muted) 84%, var(--category-color));
+  opacity: 0.82;
+  background: color-mix(in srgb, var(--surface) 78%, var(--category-color));
+  color: color-mix(in srgb, var(--muted) 70%, var(--category-color));
   box-shadow:
-    inset 0 -6px 10px rgb(23 32 51 / 0.05),
-    0 5px 10px rgb(23 32 51 / 0.05);
+    inset 0 -7px 11px rgb(23 32 51 / 0.06),
+    0 7px 14px rgb(23 32 51 / 0.08);
 }
 
 .graph-node.knowledge.secondary:hover {
@@ -596,74 +614,65 @@ img {
 }
 
 .graph-node.knowledge.primary {
-  border-width: 2px;
-  background: color-mix(in srgb, var(--surface) 68%, var(--category-color));
+  border-width: 1px;
+  background: color-mix(in srgb, var(--surface) 56%, var(--category-color));
   color: color-mix(in srgb, var(--text) 80%, var(--category-color));
 }
 
 .graph-node.knowledge.core-mode.primary {
-  width: 112px;
-  height: 112px;
-  min-height: 112px;
-  font-size: 13px;
+  font-size: 8.8px;
 }
 
 .graph-node.knowledge.all-mode.secondary {
-  width: 76px;
-  height: 76px;
-  min-height: 76px;
-  padding: 7px;
-  font-size: 10.5px;
+  font-size: 8px;
 }
 
 .graph-node.knowledge.easy {
-  width: 90px;
-  height: 90px;
-  min-height: 90px;
+  background: color-mix(in srgb, var(--surface) 82%, var(--category-color));
 }
 
 .graph-node.knowledge.medium {
-  width: 104px;
-  height: 104px;
-  min-height: 104px;
+  background: color-mix(in srgb, var(--surface) 76%, var(--category-color));
 }
 
 .graph-node.knowledge.hard {
-  width: 116px;
-  height: 116px;
-  min-height: 116px;
   background: color-mix(in srgb, var(--surface) 70%, var(--category-color));
 }
 
 .graph-node.category {
   z-index: 3;
-  width: 156px;
-  height: 156px;
+  width: 96px;
+  height: 96px;
+  padding: 13px;
   color: var(--category-color);
   border-color: color-mix(in srgb, var(--category-color) 58%, var(--border));
-  background: color-mix(in srgb, var(--category-color) 22%, var(--surface));
+  background: color-mix(in srgb, var(--category-color) 18%, var(--surface));
+  font-size: 11px;
   box-shadow:
-    0 0 0 7px color-mix(in srgb, var(--category-color) 8%, transparent),
-    0 14px 32px color-mix(in srgb, var(--category-color) 10%, transparent);
+    0 0 0 5px color-mix(in srgb, var(--category-color) 9%, transparent),
+    inset 0 -10px 18px color-mix(in srgb, var(--category-color) 10%, transparent),
+    0 14px 30px color-mix(in srgb, var(--category-color) 14%, transparent);
 }
 
 .graph-node.group {
   z-index: 3;
-  width: 122px;
-  height: 122px;
+  width: 70px;
+  height: 70px;
+  padding: 9px;
   color: #ffffff;
-  border-color: color-mix(in srgb, var(--category-color) 72%, var(--border));
+  border-color: color-mix(in srgb, var(--category-color) 68%, var(--surface));
   background:
     radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.28), transparent 34%),
     color-mix(in srgb, var(--category-color) 82%, #14213d);
+  font-size: 9.2px;
   box-shadow:
-    inset 0 -10px 16px rgb(0 0 0 / 0.16),
-    0 10px 22px color-mix(in srgb, var(--category-color) 20%, transparent);
+    inset 0 -10px 15px rgb(0 0 0 / 0.18),
+    0 10px 22px color-mix(in srgb, var(--category-color) 24%, transparent);
 }
 
 .graph-node.category span,
 .graph-node.group span {
-  max-width: 128px;
+  max-width: 82px;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
@@ -671,10 +680,10 @@ img {
 .graph-node.category small,
 .graph-node.group small {
   position: absolute;
-  right: 16px;
-  bottom: 14px;
+  right: 12px;
+  bottom: 10px;
   color: currentColor;
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 800;
 }
 
@@ -685,42 +694,63 @@ img {
 .graph-node.active {
   color: var(--category-color);
   border-color: var(--category-color);
-  background: color-mix(in srgb, var(--category-color) 14%, var(--surface));
+  background: color-mix(in srgb, var(--category-color) 24%, var(--surface));
   box-shadow:
-    0 0 0 7px color-mix(in srgb, var(--category-color) 10%, transparent),
-    0 12px 28px color-mix(in srgb, var(--category-color) 13%, transparent);
+    0 0 0 4px color-mix(in srgb, var(--category-color) 16%, transparent),
+    inset 0 -8px 13px color-mix(in srgb, var(--category-color) 10%, transparent),
+    0 12px 26px color-mix(in srgb, var(--category-color) 18%, transparent);
 }
 
 .graph-node.matched {
   border-color: var(--category-color);
   box-shadow:
-    0 0 0 7px color-mix(in srgb, var(--category-color) 12%, transparent),
-    0 14px 30px color-mix(in srgb, var(--category-color) 16%, transparent);
+    0 0 0 4px color-mix(in srgb, var(--category-color) 12%, transparent),
+    0 12px 24px color-mix(in srgb, var(--category-color) 16%, transparent);
 }
 
 .graph-node strong {
   position: absolute;
-  bottom: -32px;
+  bottom: -25px;
   white-space: nowrap;
   border-radius: 999px;
   background: color-mix(in srgb, var(--category-color) 12%, var(--surface));
   color: var(--category-color);
-  padding: 4px 10px;
-  font-size: 12px;
+  padding: 2px 8px;
+  font-size: 9px;
 }
 
 .node-badge {
   position: absolute;
-  top: -4px;
-  right: 0;
+  top: -5px;
+  right: -2px;
   display: inline-grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
   border-radius: 999px;
   background: var(--category-color);
   color: #ffffff;
   box-shadow: var(--shadow-sm);
+}
+
+.visual-node-badge {
+  position: absolute;
+  top: -2px;
+  left: -1px;
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--category-color) 88%, var(--surface));
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.visual-node-badge svg {
+  width: 9px;
+  height: 9px;
+  stroke-width: 2.4;
 }
 
 .right-panel {
@@ -1118,6 +1148,60 @@ img {
   min-height: 38px;
 }
 
+.example-problem-list {
+  display: grid;
+  gap: 10px;
+}
+
+.example-problem-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  min-height: 76px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  color: var(--text);
+  padding: 13px 14px;
+  text-decoration: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.example-problem-card:hover {
+  border-color: color-mix(in srgb, var(--brand) 42%, var(--border));
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-1px);
+}
+
+.example-problem-card span {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.example-problem-card strong {
+  overflow-wrap: anywhere;
+  font-size: 14.5px;
+}
+
+.example-problem-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.48;
+}
+
+.example-problem-card small {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--brand);
+  font-size: 12.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .step-stack {
   display: grid;
   gap: 14px;
@@ -1237,6 +1321,29 @@ td {
   line-height: 1.5;
 }
 
+.simulation-meta-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  margin: 0 0 14px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 58%, transparent);
+  padding: 10px 11px;
+}
+
+.simulation-meta-list span {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.simulation-meta-list strong {
+  color: var(--brand-strong);
+  font-size: 14px;
+}
+
 .cta-panel button {
   width: 100%;
   background: var(--brand);
@@ -1279,6 +1386,23 @@ td {
   font-weight: 800;
 }
 
+.simulation-signals span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  color: var(--muted);
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.simulation-signals svg {
+  color: var(--brand);
+}
+
 .footer-line {
   display: flex;
   flex-wrap: wrap;
@@ -1307,7 +1431,7 @@ td {
   min-width: 0;
   background:
     radial-gradient(color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px),
-    linear-gradient(145deg, color-mix(in srgb, var(--brand-soft) 44%, transparent), transparent 42%),
+    linear-gradient(145deg, color-mix(in srgb, var(--brand-soft) 32%, transparent), transparent 42%),
     var(--surface);
   background-size: 28px 28px, 100% 100%, 100% 100%;
   overflow: hidden;
@@ -1337,20 +1461,1173 @@ td {
   text-align: center;
 }
 
-.sim-top-row .secondary-button {
-  min-width: 132px;
+.sim-top-row p {
+  max-width: 720px;
+  margin: 5px auto 0;
+  color: var(--muted);
+  text-align: center;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.sim-control-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 224px;
+}
+
+.sim-control-group .secondary-button {
+  min-width: 104px;
   justify-content: center;
 }
 
-.lab-stage {
+.sim-control-group .secondary-button:disabled {
+  opacity: 0.48;
+  cursor: default;
+  transform: none;
+}
+
+.lab-stage,
+.visual-stage {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(150px, 220px) minmax(300px, 480px) minmax(150px, 220px);
   align-items: center;
   justify-content: center;
-  gap: clamp(28px, 5vw, 82px);
   min-height: calc(100vh - var(--topbar-height) - 104px - 86px);
   padding: 36px;
+}
+
+.visual-stage {
+  grid-template-columns: minmax(260px, 360px) minmax(420px, 620px);
+  gap: clamp(28px, 4vw, 56px);
+}
+
+.actor-rail {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+
+.simulation-actor {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  grid-template-areas:
+    "icon main"
+    "state state";
+  gap: 9px 12px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 90%, var(--brand-soft));
+  padding: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.simulation-actor-icon {
+  grid-area: icon;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.simulation-actor > div:nth-child(2) {
+  grid-area: main;
+  display: grid;
+  min-width: 0;
+}
+
+.simulation-actor span {
+  color: var(--text);
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.simulation-actor small {
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.simulation-actor code {
+  grid-area: state;
+  width: 100%;
+  min-height: 31px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--brand-strong);
+  padding: 6px 8px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 850;
+  white-space: normal;
+}
+
+.event-map {
+  position: relative;
+  width: min(100%, 620px);
+  min-height: 460px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.state-flow-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding: clamp(20px, 4vw, 42px);
+}
+
+.tcp-handshake-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(18px, 3vw, 34px);
+}
+
+.tcp-handshake-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 980px);
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: hidden;
+}
+
+:root[data-theme="dark"] .tcp-handshake-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.tcp-handshake-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+.tcp-wave-diagram {
+  min-height: 470px;
+}
+
+.tcp-state-machine-stage {
+  padding: clamp(14px, 2.4vw, 28px);
+}
+
+.tcp-state-machine-card {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.tcp-state-machine-diagram {
+  width: auto;
+  height: min(620px, calc(100vh - var(--topbar-height) - 316px));
+  max-width: 100%;
+  min-height: 0;
+}
+
+.ethernet-frame-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.ethernet-frame-card {
+  width: min(100%, 1160px);
+  overflow: visible;
+}
+
+.ethernet-frame-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.switch-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.switch-card {
+  width: min(100%, 1040px);
+  overflow: visible;
+}
+
+.switch-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.tcp-bg-panel {
+  fill: color-mix(in srgb, var(--brand-soft) 42%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.ethernet-frame-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 34%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.switch-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 34%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.switch-title {
+  font-size: 28px;
+}
+
+.switch-subtitle {
+  font-size: 15px;
+}
+
+.switch-host rect,
+.switch-box > rect,
+.mac-table-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#switch-soft-shadow);
+}
+
+.switch-host.host-b rect {
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.switch-host.host-c rect,
+.switch-host.host-d rect {
+  fill: color-mix(in srgb, var(--surface) 84%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: none;
+}
+
+.switch-host text,
+.switch-box text {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.switch-host text:nth-of-type(2),
+.switch-host text:nth-of-type(3) {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.switch-box > text {
+  fill: var(--brand);
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.switch-port circle {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--muted) 32%, var(--border));
+  stroke-width: 2;
+}
+
+.switch-port.active circle {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 46%, var(--border));
+}
+
+.switch-port text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.switch-vlan-chip {
+  fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 36%, var(--border));
+}
+
+.switch-vlan-label {
+  fill: var(--tertiary);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.mac-table-title {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.mac-table-head,
+.mac-table-row text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-anchor: start;
+}
+
+.mac-table-row {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.mac-table-row.visible {
+  opacity: 1;
+}
+
+.mac-table-row.visible text {
+  fill: var(--brand);
+}
+
+.switch-flow {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.switch-flow.visible {
+  opacity: 1;
+}
+
+.switch-flow path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.switch-flow.flood path {
+  stroke: #f59e0b;
+  stroke-dasharray: 9 8;
+}
+
+.switch-flow.reply path {
+  stroke: var(--tertiary);
+}
+
+.switch-flow.direct path {
+  stroke: var(--success);
+  stroke-width: 5;
+}
+
+.switch-flow.filter path {
+  stroke: color-mix(in srgb, var(--muted) 56%, transparent);
+  stroke-width: 3.2;
+}
+
+.switch-flow rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1;
+}
+
+.switch-flow.flood rect {
+  fill: color-mix(in srgb, #f59e0b 14%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 38%, var(--border));
+}
+
+.switch-flow.reply rect {
+  fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.switch-flow.direct rect {
+  fill: color-mix(in srgb, var(--success) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 36%, var(--border));
+}
+
+.switch-flow.filter rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.switch-flow text {
+  fill: var(--text);
+  font-size: 11.5px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.switch-flow.filter text:nth-of-type(2) {
+  fill: var(--muted);
+  font-size: 10.5px;
+}
+
+.switch-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.ethernet-frame-title {
+  font-size: 28px;
+}
+
+.ethernet-frame-subtitle {
+  font-size: 15px;
+}
+
+.ethernet-group-band rect {
+  fill: color-mix(in srgb, var(--surface) 72%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, transparent);
+  stroke-width: 1.2;
+}
+
+.ethernet-group-band.active rect {
+  fill: color-mix(in srgb, var(--surface) 92%, var(--brand-soft));
+  stroke: color-mix(in srgb, var(--brand) 28%, var(--border));
+}
+
+.ethernet-group-band text {
+  fill: var(--muted);
+  font-size: 16px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.ethernet-group-band.active text {
+  fill: var(--text);
+}
+
+.ethernet-field rect {
+  fill: color-mix(in srgb, var(--surface) 72%, var(--muted));
+  stroke: color-mix(in srgb, var(--muted) 18%, transparent);
+  stroke-width: 1.1;
+}
+
+.ethernet-field.active rect {
+  filter: url(#ethernet-soft-shadow);
+  fill: color-mix(in srgb, var(--surface) 92%, var(--brand-soft));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.ethernet-field.vlan.active rect {
+  fill: color-mix(in srgb, #f59e0b 16%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 44%, var(--border));
+}
+
+.ethernet-field.payload.active rect,
+.ethernet-field.type.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 40%, var(--border));
+}
+
+.ethernet-field.fcs.active rect {
+  fill: color-mix(in srgb, var(--success) 15%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 42%, var(--border));
+}
+
+.ethernet-field.current rect {
+  stroke-width: 2.8;
+}
+
+.ethernet-field-label,
+.ethernet-field-bytes,
+.ethernet-field-detail {
+  text-anchor: middle;
+}
+
+.ethernet-field-label {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.ethernet-field-bytes {
+  fill: var(--brand);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.ethernet-field-detail {
+  fill: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.ethernet-vlan-insert path,
+.ethernet-dispatch path,
+.ethernet-callout path,
+.ethernet-fcs-loop path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.6;
+}
+
+.ethernet-vlan-insert path {
+  stroke: #f59e0b;
+}
+
+.ethernet-vlan-insert rect {
+  fill: color-mix(in srgb, #f59e0b 18%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.ethernet-vlan-insert text,
+.ethernet-dispatch text,
+.ethernet-fcs-loop text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.ethernet-dispatch path {
+  stroke: var(--tertiary);
+  stroke-dasharray: 7 8;
+}
+
+.ethernet-dispatch rect {
+  fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.ethernet-fcs-loop path {
+  stroke: var(--success);
+  stroke-width: 3.4;
+}
+
+.ethernet-fcs-loop rect {
+  fill: color-mix(in srgb, var(--success) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.ethernet-callout path {
+  stroke: color-mix(in srgb, var(--brand) 58%, transparent);
+  stroke-width: 2;
+}
+
+.ethernet-callout rect,
+.ethernet-size-note rect,
+.ethernet-reference-note rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.1;
+}
+
+.ethernet-callout-title,
+.ethernet-callout-body,
+.ethernet-size-note text,
+.ethernet-reference-note text {
+  text-anchor: middle;
+}
+
+.ethernet-callout-title {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.ethernet-callout-body {
+  fill: var(--muted);
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.ethernet-size-note text,
+.ethernet-reference-note text {
+  text-anchor: start;
+}
+
+.ethernet-size-note text:first-of-type,
+.ethernet-reference-note text:first-of-type {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.ethernet-size-note text:nth-of-type(2),
+.ethernet-reference-note text:nth-of-type(2) {
+  fill: var(--brand);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.ethernet-size-note text:nth-of-type(3),
+.ethernet-reference-note text:nth-of-type(3) {
+  fill: var(--muted);
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.ethernet-frame-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.tcp-title {
+  fill: var(--text);
+  font-size: 30px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.tcp-subtitle {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 16px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.tcp-endpoint rect {
+  fill: var(--surface);
+  stroke-width: 2;
+  filter: url(#tcp-soft-shadow);
+}
+
+.tcp-endpoint.client rect {
+  stroke: var(--brand);
+}
+
+.tcp-endpoint.server rect {
+  stroke: var(--tertiary);
+}
+
+.tcp-endpoint text:first-of-type {
+  fill: var(--text);
+  font-size: 18px;
+  font-weight: 920;
+  text-anchor: middle;
+}
+
+.tcp-endpoint text:last-of-type {
+  fill: var(--faint);
+  font-size: 12px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.tcp-lifeline {
+  stroke: color-mix(in srgb, var(--muted) 34%, transparent);
+  stroke-dasharray: 8 8;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.tcp-state-pill rect {
+  fill: color-mix(in srgb, var(--surface) 88%, var(--muted));
+  stroke: color-mix(in srgb, var(--muted) 20%, transparent);
+  stroke-width: 1;
+}
+
+.tcp-state-pill.active rect {
+  fill: color-mix(in srgb, var(--brand-soft) 64%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 32%, transparent);
+}
+
+.tcp-state-pill text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.tcp-state-pill.active text {
+  fill: var(--brand-strong);
+}
+
+.tcp-segment line,
+.tcp-established-flow line {
+  stroke: color-mix(in srgb, var(--muted) 28%, transparent);
+  stroke-linecap: round;
+  stroke-width: 3.5;
+}
+
+.tcp-segment.return line {
+  stroke: color-mix(in srgb, var(--muted) 28%, transparent);
+}
+
+.tcp-segment.revealed line {
+  stroke: var(--brand);
+  stroke-width: 4.5;
+}
+
+.tcp-segment.return.revealed line {
+  stroke: var(--tertiary);
+}
+
+.tcp-wave-segment.return.revealed line {
+  stroke: var(--brand);
+}
+
+.tcp-wave-segment.tone-orange.revealed line {
+  stroke: #f59e0b;
+}
+
+.tcp-wave-segment.tone-green.revealed line {
+  stroke: var(--success);
+}
+
+.tcp-segment.active line,
+.tcp-established-flow line {
+  stroke-width: 6;
+}
+
+.tcp-segment rect {
+  fill: color-mix(in srgb, var(--surface) 82%, var(--muted));
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  stroke-width: 1;
+  filter: url(#tcp-soft-shadow);
+}
+
+.tcp-segment.revealed rect {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+}
+
+.tcp-segment.return.revealed rect {
+  stroke: color-mix(in srgb, var(--tertiary) 28%, var(--border));
+}
+
+.tcp-segment-title {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.tcp-segment-label {
+  fill: color-mix(in srgb, var(--muted) 74%, var(--text));
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.tcp-segment.revealed .tcp-segment-label {
+  fill: var(--text);
+}
+
+.tcp-established-flow line {
+  stroke: var(--success);
+}
+
+.tcp-established-flow text {
+  fill: var(--success);
+  font-size: 15px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+#tcp-arrow-blue path {
+  fill: var(--brand);
+}
+
+#tcp-arrow-green path {
+  fill: var(--success);
+}
+
+#tcp-arrow-muted path {
+  fill: color-mix(in srgb, var(--muted) 44%, transparent);
+}
+
+#tcp-wave-arrow-blue path {
+  fill: var(--brand);
+}
+
+#tcp-wave-arrow-green path {
+  fill: var(--success);
+}
+
+#tcp-wave-arrow-orange path {
+  fill: #f59e0b;
+}
+
+#tcp-wave-arrow-muted path {
+  fill: color-mix(in srgb, var(--muted) 44%, transparent);
+}
+
+.tcp-half-close-band rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 32%, var(--border));
+  stroke-width: 1;
+}
+
+.tcp-half-close-band text {
+  fill: color-mix(in srgb, #92400e 82%, var(--text));
+  font-size: 14px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.tcp-timewait-note rect {
+  fill: color-mix(in srgb, var(--success) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+  stroke-width: 1;
+  filter: url(#tcp-wave-soft-shadow);
+}
+
+.tcp-timewait-note text {
+  fill: var(--success);
+  font-size: 13px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.tcp-timewait-note text:first-of-type {
+  fill: color-mix(in srgb, var(--success) 78%, var(--text));
+  font-size: 15px;
+}
+
+.tcp-timewait-note.compact text,
+.tcp-timewait-note.compact text:first-of-type {
+  fill: color-mix(in srgb, var(--success) 82%, var(--text));
+  font-size: 12px;
+}
+
+.tcp-fsm-bg-panel {
+  fill: color-mix(in srgb, var(--brand-soft) 34%, var(--surface));
+}
+
+.tcp-fsm-band rect {
+  stroke-width: 1;
+}
+
+.tcp-fsm-band.setup rect {
+  fill: color-mix(in srgb, var(--brand) 7%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.tcp-fsm-band.transfer rect {
+  fill: color-mix(in srgb, var(--success) 8%, transparent);
+  stroke: color-mix(in srgb, var(--success) 18%, transparent);
+}
+
+.tcp-fsm-band.teardown rect {
+  fill: color-mix(in srgb, #f59e0b 8%, transparent);
+  stroke: color-mix(in srgb, #f59e0b 22%, transparent);
+}
+
+.tcp-fsm-band text {
+  fill: color-mix(in srgb, var(--muted) 82%, var(--text));
+  font-size: 14px;
+  font-weight: 900;
+  text-anchor: start;
+}
+
+.tcp-fsm-edge path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--muted) 38%, transparent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.6;
+}
+
+.tcp-fsm-edge.revealed path {
+  stroke-width: 3.7;
+}
+
+.tcp-fsm-edge.current path {
+  stroke-width: 5.2;
+}
+
+.tcp-fsm-edge.dashed path {
+  stroke-dasharray: 8 9;
+}
+
+.tcp-fsm-edge.tone-blue.revealed path {
+  stroke: var(--brand);
+}
+
+.tcp-fsm-edge.tone-teal.revealed path {
+  stroke: var(--tertiary);
+}
+
+.tcp-fsm-edge.tone-green.revealed path {
+  stroke: var(--success);
+}
+
+.tcp-fsm-edge.tone-orange.revealed path {
+  stroke: #f59e0b;
+}
+
+.tcp-fsm-edge rect {
+  fill: color-mix(in srgb, var(--surface) 84%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 12%, transparent);
+  stroke-width: 1;
+}
+
+.tcp-fsm-edge.revealed rect {
+  fill: color-mix(in srgb, var(--surface) 95%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 16%, var(--border));
+}
+
+.tcp-fsm-edge text {
+  fill: var(--muted);
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.tcp-fsm-edge.revealed text {
+  fill: var(--text);
+}
+
+.tcp-fsm-node rect {
+  fill: color-mix(in srgb, var(--surface) 84%, var(--muted));
+  stroke: color-mix(in srgb, var(--muted) 20%, transparent);
+  stroke-width: 1.2;
+}
+
+.tcp-fsm-node.active rect {
+  filter: url(#tcp-fsm-soft-shadow);
+}
+
+.tcp-fsm-node.tone-closed.active rect {
+  fill: color-mix(in srgb, var(--surface) 92%, var(--muted));
+  stroke: color-mix(in srgb, var(--muted) 32%, transparent);
+}
+
+.tcp-fsm-node.tone-setup.active rect {
+  fill: color-mix(in srgb, var(--brand-soft) 62%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, transparent);
+}
+
+.tcp-fsm-node.tone-data.active rect {
+  fill: color-mix(in srgb, var(--success) 16%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, transparent);
+}
+
+.tcp-fsm-node.tone-active.active rect {
+  fill: color-mix(in srgb, #f59e0b 15%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, transparent);
+}
+
+.tcp-fsm-node.tone-passive.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, transparent);
+}
+
+.tcp-fsm-node.tone-special.active rect {
+  fill: color-mix(in srgb, #8b5cf6 14%, var(--surface));
+  stroke: color-mix(in srgb, #8b5cf6 38%, transparent);
+}
+
+.tcp-fsm-node.current rect {
+  stroke-width: 2.8;
+}
+
+.tcp-fsm-node text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.tcp-fsm-node.active text {
+  fill: var(--text);
+}
+
+.tcp-handshake-caption {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid color-mix(in srgb, var(--brand) 20%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  padding: 8px 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.tcp-handshake-caption strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.tcp-handshake-caption span {
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.tcp-handshake-caption.tcp-state-machine-caption {
+  top: 14px;
+  bottom: auto;
+}
+
+.state-flow-map {
+  position: relative;
+  width: min(100%, 1120px);
+  aspect-ratio: 1.34;
+  min-height: 560px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.92), rgb(255 255 255 / 0.86)),
+    var(--surface);
+  box-shadow: 0 16px 36px rgb(23 32 51 / 0.09);
+  overflow: hidden;
+}
+
+:root[data-theme="dark"] .state-flow-map {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.94), rgb(21 29 43 / 0.88)),
+    var(--surface);
+}
+
+.state-flow-sequence {
+  display: block;
+}
+
+.state-actor-icon {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--muted);
+}
+
+.state-lane-label {
+  fill: var(--text);
+  font-size: 21px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.data-flow-label-box,
+.data-transfer-label-box,
+.state-lane-label-box,
+.state-block-label-box,
+.packet-record-label-box {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.data-flow-label-box,
+.data-transfer-label-box {
+  color: var(--muted);
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.data-transfer-label-box {
+  color: var(--text);
+}
+
+.state-lane-label-box {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.state-block-label-box {
+  color: #142033;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.16;
+  padding: 0 6px;
+}
+
+.packet-record-label-box {
+  color: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.18;
+  padding: 4px 7px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+.state-block rect {
+  stroke: rgb(255 255 255 / 0.52);
+  stroke-width: 1.2;
+}
+
+.state-block text {
+  fill: #142033;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 22px;
+  font-weight: 900;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.state-block.blue rect {
+  fill: #5aaee0;
+}
+
+.state-block.yellow rect {
+  fill: #ffe795;
+}
+
+.state-block.orange rect {
+  fill: #ffc48f;
+}
+
+.state-block.green rect {
+  fill: #86c574;
+}
+
+.state-block.purple rect {
+  fill: #c7b8ff;
+}
+
+.state-block.teal rect {
+  fill: #88d4dc;
+}
+
+.state-block.active rect {
+  filter: drop-shadow(0 8px 12px rgb(23 32 51 / 0.14));
+}
+
+.data-flow-arrow,
+.data-transfer-arrow {
+  stroke: #95d082;
+  stroke-width: 18;
+  stroke-linecap: round;
+  opacity: 0.74;
+  fill: none;
+}
+
+.data-flow-label,
+.data-transfer-label {
+  fill: var(--muted);
+  font-size: 18px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.data-transfer-label {
+  fill: var(--text);
 }
 
 .endpoint {
@@ -1443,23 +2720,48 @@ td {
   stroke-linecap: round;
 }
 
+.generic-sequence {
+  position: relative;
+  min-height: 420px;
+}
+
 .wire-caption {
   position: absolute;
   inset: auto 0 10px;
   display: flex;
   justify-content: space-between;
+  gap: 12px;
+  padding: 0 18px;
 }
 
-.packet-record line {
+.actor-node-dot {
+  fill: var(--surface);
+  stroke: var(--brand);
+  stroke-width: 2.4;
+}
+
+.actor-node-label {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 4px;
+}
+
+.packet-record line,
+.packet-record path {
   stroke: var(--brand);
   stroke-width: 2.4;
   stroke-linecap: round;
+  fill: none;
 }
 
 .packet-record text {
   fill: var(--text);
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 800;
   text-anchor: middle;
   paint-order: stroke;
@@ -1476,12 +2778,58 @@ td {
   stroke: var(--success);
 }
 
-.packet-record.active line {
+.packet-record.teal path,
+.packet-record.teal line {
+  stroke: var(--tertiary);
+}
+
+.packet-record.success path,
+.packet-record.success line {
+  stroke: var(--success);
+}
+
+.packet-record.warning path,
+.packet-record.warning line {
+  stroke: #f59e0b;
+}
+
+.packet-record.danger path,
+.packet-record.danger line {
+  stroke: var(--danger);
+}
+
+.packet-record.active line,
+.packet-record.active path {
   stroke-width: 3.2;
 }
 
 .packet-record.active text {
   fill: var(--brand-strong);
+}
+
+.packet-record.active .packet-record-label-box {
+  color: var(--brand-strong);
+  border-color: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.packet-record.teal.active .packet-record-label-box {
+  color: var(--tertiary);
+  border-color: color-mix(in srgb, var(--tertiary) 40%, var(--border));
+}
+
+.packet-record.success.active .packet-record-label-box {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 40%, var(--border));
+}
+
+.packet-record.warning.active .packet-record-label-box {
+  color: #b45309;
+  border-color: color-mix(in srgb, #f59e0b 40%, var(--border));
+}
+
+.packet-record.danger.active .packet-record-label-box {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
 }
 
 .packet-record.synAck.active text {
@@ -1490,6 +2838,22 @@ td {
 
 .packet-record.ack.active text {
   fill: var(--success);
+}
+
+.packet-record.teal.active text {
+  fill: var(--tertiary);
+}
+
+.packet-record.success.active text {
+  fill: var(--success);
+}
+
+.packet-record.warning.active text {
+  fill: #b45309;
+}
+
+.packet-record.danger.active text {
+  fill: var(--danger);
 }
 
 .simulator-panel {
@@ -1526,6 +2890,23 @@ td {
   line-height: 1.5;
 }
 
+.progress-meter {
+  position: relative;
+  height: 8px;
+  margin-top: 14px;
+  border-radius: 999px;
+  background: var(--surface-mid);
+  overflow: hidden;
+}
+
+.progress-meter span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brand), var(--tertiary));
+  transition: width 180ms ease;
+}
+
 .action-section {
   display: grid;
   gap: 11px;
@@ -1543,6 +2924,10 @@ td {
   color: var(--faint);
   padding: 0 15px;
   font-weight: 700;
+}
+
+.sim-action:disabled {
+  cursor: default;
 }
 
 .sim-action.enabled {
@@ -1606,10 +2991,62 @@ td {
   font-style: italic;
 }
 
+.history-card p strong {
+  color: var(--brand);
+}
+
+.actor-state-list {
+  display: grid;
+  gap: 8px;
+}
+
+.actor-state-list div {
+  display: grid;
+  grid-template-columns: minmax(88px, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  padding: 8px 10px;
+}
+
+.actor-state-list span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.actor-state-list code {
+  color: var(--brand-strong);
+  font-size: 12px;
+  font-weight: 850;
+  white-space: normal;
+  text-align: right;
+}
+
+.simulator-empty {
+  display: grid;
+  align-content: center;
+  gap: 14px;
+  width: min(760px, calc(100% - 42px));
+  min-height: 100vh;
+  margin: 0 auto;
+}
+
+.simulator-empty h1 {
+  margin: 0;
+  font-size: 34px;
+}
+
+.simulator-empty p {
+  margin: 0;
+  color: var(--muted);
+}
+
 .timeline {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
   align-items: center;
   gap: 14px;
   border-top: 1px solid var(--border);
@@ -1715,11 +3152,8 @@ td {
   }
 
   .graph-canvas {
+    height: 720px;
     min-height: 720px;
-  }
-
-  .graph-map {
-    min-width: 900px;
   }
 
   .simulator-shell {
@@ -1739,6 +3173,48 @@ td {
     grid-template-columns: 1fr;
     gap: 24px;
     min-height: 760px;
+  }
+
+  .visual-stage {
+    grid-template-columns: 1fr;
+    align-content: start;
+    min-height: auto;
+    padding: 24px 18px 32px;
+  }
+
+  .ethernet-frame-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
+  .switch-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
+  .switch-card {
+    width: 900px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .switch-diagram {
+    height: 502px;
+  }
+
+  .ethernet-frame-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .ethernet-frame-diagram {
+    height: 464px;
+  }
+
+  .event-map {
+    width: min(100%, 620px);
+    justify-self: center;
   }
 
   .wire-zone {
@@ -1773,44 +3249,24 @@ td {
   }
 
   .graph-node.category {
-    width: 122px;
-    height: 122px;
+    width: 88px;
+    height: 88px;
   }
 
   .graph-node.category span,
   .graph-node.group span {
-    max-width: 108px;
+    max-width: 76px;
   }
 
   .graph-node.group {
-    width: 104px;
-    height: 104px;
+    width: 66px;
+    height: 66px;
   }
 
   .graph-node.knowledge {
-    width: 76px;
-    height: 76px;
-    min-height: 76px;
-    padding: 7px 8px;
-    font-size: 11px;
-  }
-
-  .graph-node.knowledge.easy {
-    width: 72px;
-    height: 72px;
-    min-height: 72px;
-  }
-
-  .graph-node.knowledge.medium {
-    width: 80px;
-    height: 80px;
-    min-height: 80px;
-  }
-
-  .graph-node.knowledge.hard {
-    width: 88px;
-    height: 88px;
-    min-height: 88px;
+    width: 58px;
+    height: 58px;
+    font-size: 8px;
   }
 
   .concept-grid {
@@ -1819,6 +3275,11 @@ td {
 
   .detail-list {
     grid-template-columns: 1fr;
+  }
+
+  .example-problem-card {
+    grid-template-columns: 1fr;
+    align-items: start;
   }
 
   .detail-content {
@@ -1850,5 +3311,71 @@ td {
 
   .timeline-item::before {
     display: none;
+  }
+
+  .sim-top-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+    padding: 18px;
+  }
+
+  .sim-context,
+  .sim-control-group,
+  .sim-control-group .secondary-button {
+    min-width: 0;
+  }
+
+  .sim-control-group {
+    width: 100%;
+  }
+
+  .sim-control-group .secondary-button {
+    flex: 1;
+  }
+
+  .sim-top-row h1,
+  .sim-top-row p {
+    text-align: left;
+  }
+
+  .event-map {
+    min-height: 390px;
+  }
+
+  .generic-sequence {
+    min-height: 360px;
+  }
+
+  .ethernet-frame-stage {
+    padding-inline: 12px;
+  }
+
+  .switch-stage {
+    padding-inline: 12px;
+  }
+
+  .switch-card {
+    width: 840px;
+  }
+
+  .switch-diagram {
+    height: 468px;
+  }
+
+  .ethernet-frame-card {
+    width: 880px;
+  }
+
+  .ethernet-frame-diagram {
+    height: 425px;
+  }
+
+  .actor-state-list div {
+    grid-template-columns: 1fr;
+  }
+
+  .actor-state-list code {
+    text-align: left;
   }
 }
