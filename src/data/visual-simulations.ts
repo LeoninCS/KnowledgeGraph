@@ -2052,6 +2052,35 @@ function buildAlgorithmSpecific(point: GraphKnowledgePoint) {
     );
   }
 
+  if (point.id === "stack") {
+    return flow(
+      "algorithm",
+      point,
+      ["LIFO 栈顶演算", "LIFO top trace"],
+      ["用 top 指针、push、peek、pop 和空栈边界解释栈的后进先出语义。", "Use the top pointer, push, peek, pop, and empty-stack boundary to explain LIFO semantics."],
+      [
+        ["top", "栈顶指针", "Top pointer", "唯一操作入口", "Only operation end", "cpu"],
+        ["stack", "栈内容", "Stack contents", "bottom 到 top", "bottom to top", "data"],
+        ["operation", "操作", "Operation", "push / peek / pop", "push / peek / pop", "tool"],
+        ["result", "返回与边界", "Result and boundary", "返回值或错误", "Value or error", "server"],
+      ],
+      {
+        top: tx("top = -1", "top = -1"),
+        stack: tx("空栈", "Empty stack"),
+        operation: tx("等待操作", "Awaiting operation"),
+        result: tx("等待返回", "Awaiting result"),
+      },
+      [
+        ["建立空栈", "Start empty stack", "初始化", "Initialize", "top", "stack", "top=-1", "top=-1", "空栈时 top 指向栈外，任何读取或弹出都要先判断 isEmpty。", "On an empty stack, top points outside the stack; reads and pops check isEmpty first.", "栈的边界从空栈判断开始。", "Stack boundaries start with the empty check.", { top: tx("top=-1", "top=-1"), stack: tx("[]", "[]") }],
+        ["push 7、12、18", "push 7, 12, 18", "压入元素", "Push values", "operation", "stack", "push(x)", "push(x)", "push 把元素写入 top 上方的位置，再把 top 移到新元素。", "Push writes the value above current top, then moves top to the new value.", "最后压入的元素成为下一次读取或弹出的对象。", "The most recently pushed value becomes the next value to read or pop.", { top: tx("top=18", "top=18"), stack: tx("[7, 12, 18]", "[7, 12, 18]"), operation: tx("push 完成", "push complete") }, "teal"],
+        ["peek 栈顶", "Peek top", "读取 top", "Read top", "stack", "result", "peek()", "peek()", "peek 只读取 top 元素，栈内容和 top 位置保持不变。", "Peek only reads the top value; contents and top position stay unchanged.", "读取不改变结构，是调试栈状态的常用动作。", "A read leaves structure unchanged and helps inspect state.", { result: tx("返回 18", "Returns 18"), top: tx("top=18", "top=18") }, "warning"],
+        ["pop 两次", "Pop twice", "弹出栈顶", "Pop top", "stack", "result", "pop(), pop()", "pop(), pop()", "pop 先返回 top 元素，再把 top 移回下一个元素。连续两次弹出会先得到 18，再得到 12。", "Pop returns the top value, then moves top back to the next value. Two pops return 18 then 12.", "LIFO 通过 top 指针移动自然成立。", "LIFO follows from top-pointer movement.", { stack: tx("[7]", "[7]"), top: tx("top=7", "top=7"), result: tx("18, 12", "18, 12") }, "success"],
+        ["检查空栈边界", "Check empty boundary", "继续 pop", "Continue pop", "top", "result", "isEmpty()", "isEmpty()", "继续弹出前先检查 isEmpty；空栈 pop 或 peek 应返回约定值或抛出受控错误。", "Before continuing to pop, check isEmpty; empty pop or peek returns a contract value or raises a controlled error.", "空栈、满栈和容量扩容是数组栈实现的关键测试。", "Empty stack, full stack, and capacity growth are key tests for array stacks.", { stack: tx("[]", "[]"), top: tx("top=-1", "top=-1"), result: tx("边界已处理", "Boundary handled") }, "danger"],
+      ],
+      [["LIFO", "LIFO"], ["push/pop O(1)", "push/pop O(1)"], ["空栈边界", "empty boundary"]],
+    );
+  }
+
   if (area === "tree" || area === "heap") {
     return flow(
       "algorithm",

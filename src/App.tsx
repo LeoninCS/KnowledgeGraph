@@ -2533,6 +2533,17 @@ function SimulationStage({
     );
   }
 
+  if (simulation.key === "algorithm:stack") {
+    return (
+      <StackLifoStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   const visibleSteps = simulation.steps.slice(0, completedSteps);
   const activeStep = simulation.steps[activeStepIndex];
   const flowActors = simulation.actors.filter((actorItem) => actorItem.id !== "wire");
@@ -3158,6 +3169,192 @@ function LinkedListPointerStage({
           </g>
         </svg>
         <div className="wire-caption linked-list-caption">
+          <span>{readLocalizedText(activeStep.title, locale)}</span>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StackLifoStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const capacity = 5;
+  const pushedValues = [7, 12, 18];
+  const visibleValues = completedSteps >= 5
+    ? []
+    : completedSteps >= 4
+      ? [7]
+      : completedSteps >= 2
+        ? pushedValues
+        : [];
+  const topIndex = visibleValues.length - 1;
+  const showPush = completedSteps >= 2;
+  const showPeek = completedSteps >= 3;
+  const showPop = completedSteps >= 4;
+  const showBoundary = completedSteps >= 5;
+  const cellX = 340;
+  const cellY = 468;
+  const cellWidth = 270;
+  const cellHeight = 70;
+  const cellGap = 10;
+  const stackHeight = capacity * (cellHeight + cellGap) - cellGap;
+  const topY = topIndex >= 0
+    ? cellY - topIndex * (cellHeight + cellGap) + cellHeight / 2
+    : cellY + cellHeight / 2;
+  const topLabel = topIndex >= 0 ? `top -> ${visibleValues[topIndex]}` : "top = -1";
+  const arrowId = (tone: string) => `url(#stack-arrow-${tone})`;
+
+  return (
+    <div className="visual-stage stack-stage">
+      <div className="stack-card">
+        <svg
+          className="stack-diagram"
+          viewBox="0 0 980 650"
+          preserveAspectRatio="xMidYMid meet"
+          aria-label={readLocalizedText(simulation.title, locale)}
+          role="img"
+        >
+          <defs>
+            <filter id="stack-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="9" floodOpacity="0.12" />
+            </filter>
+            {[
+              ["brand", "var(--brand)"],
+              ["teal", "var(--tertiary)"],
+              ["warning", "#f59e0b"],
+              ["success", "var(--success)"],
+              ["danger", "var(--danger)"],
+              ["muted", "color-mix(in srgb, var(--muted) 54%, transparent)"],
+            ].map(([tone, fill]) => (
+              <marker
+                key={tone}
+                id={`stack-arrow-${tone}`}
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+          </defs>
+
+          <rect className="stack-bg" x="26" y="24" width="928" height="586" rx="24" />
+          <text className="stack-title" x="490" y="76">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="stack-subtitle" x="490" y="108">
+            {locale === "zh" ? "bottom 固定，所有操作都发生在 top" : "bottom stays fixed; every operation touches top"}
+          </text>
+
+          <g className="stack-frame" transform={`translate(${cellX}, ${cellY - stackHeight + cellHeight})`}>
+            <path d={`M 0 0 L 0 ${stackHeight + 16} L ${cellWidth} ${stackHeight + 16} L ${cellWidth} 0`} />
+            {Array.from({ length: capacity }).map((_, slot) => {
+              const valueIndex = capacity - 1 - slot;
+              const value = visibleValues[valueIndex];
+              const y = slot * (cellHeight + cellGap);
+              const isTop = valueIndex === topIndex;
+
+              return (
+                <g
+                  key={slot}
+                  className={[
+                    "stack-slot",
+                    value !== undefined ? "filled" : "",
+                    isTop ? "top" : "",
+                  ].filter(Boolean).join(" ")}
+                >
+                  <rect x="12" y={y} width={cellWidth - 24} height={cellHeight} rx="10" />
+                  <text x={cellWidth / 2} y={y + 44}>
+                    {value !== undefined ? value : ""}
+                  </text>
+                </g>
+              );
+            })}
+            <text className="stack-bottom-label" x={cellWidth / 2} y={stackHeight + 46}>
+              bottom
+            </text>
+          </g>
+
+          <g className="stack-top-pointer">
+            <rect x="90" y={topY - 26} width="154" height="52" rx="14" />
+            <text x="167" y={topY + 5}>{topLabel}</text>
+            <path
+              d={`M 244 ${topY} C 282 ${topY}, 306 ${topY}, ${cellX + 16} ${topY}`}
+              markerEnd={arrowId(showBoundary ? "danger" : topIndex >= 0 ? "teal" : "muted")}
+            />
+          </g>
+
+          <g className="stack-operation-panel">
+            <rect x="690" y="154" width="210" height="280" rx="18" />
+            <text className="stack-operation-title" x="795" y="194">
+              {locale === "zh" ? "操作序列" : "Operation trace"}
+            </text>
+            {[
+              [1, "init", locale === "zh" ? "top=-1" : "top=-1"],
+              [2, "push", "push(7), push(12), push(18)"],
+              [3, "peek", locale === "zh" ? "peek() -> 18" : "peek() -> 18"],
+              [4, "pop", locale === "zh" ? "pop() -> 18, 12" : "pop() -> 18, 12"],
+              [5, "empty", "isEmpty()"],
+            ].map(([stepNumber, label, detail]) => (
+              <g
+                key={label}
+                className={`stack-operation-row ${completedSteps >= Number(stepNumber) ? "active" : ""}`}
+              >
+                <circle cx="716" cy={196 + Number(stepNumber) * 38} r="8" />
+                <text x="742" y={202 + Number(stepNumber) * 38}>{detail}</text>
+              </g>
+            ))}
+          </g>
+
+          {showPush && (
+            <g className="stack-push-path">
+              <path d={`M 490 142 C 490 182, 490 208, 490 ${topY - 44}`} markerEnd={arrowId("teal")} />
+              <rect x="410" y="122" width="180" height="44" rx="12" />
+              <text x="500" y="151">{locale === "zh" ? "push 写入 top+1" : "push writes top+1"}</text>
+            </g>
+          )}
+
+          {showPeek && (
+            <g className="stack-peek-note">
+              <rect x="122" y="132" width="238" height="70" rx="16" />
+              <text x="241" y="160">peek() = 18</text>
+              <text x="241" y="184">{locale === "zh" ? "不移动 top" : "top unchanged"}</text>
+              <path d={`M 360 168 C 422 154, 506 154, ${cellX + cellWidth - 12} ${topY}`} markerEnd={arrowId("warning")} />
+            </g>
+          )}
+
+          {showPop && (
+            <g className="stack-pop-note">
+              <path d={`M ${cellX + cellWidth - 12} ${topY} C 660 ${topY}, 682 500, 776 500`} markerEnd={arrowId("success")} />
+              <rect x="712" y="466" width="206" height="74" rx="16" />
+              <text x="815" y="492">{locale === "zh" ? "弹出顺序" : "pop order"}</text>
+              <text x="815" y="516">{"18 -> 12"}</text>
+            </g>
+          )}
+
+          {showBoundary && (
+            <g className="stack-boundary-note">
+              <rect x="108" y="514" width="324" height="58" rx="16" />
+              <text x="270" y="538">{locale === "zh" ? "空栈先判断 isEmpty()" : "check isEmpty() first"}</text>
+              <text x="270" y="558">{locale === "zh" ? "pop / peek 走受控边界" : "pop / peek use controlled boundary"}</text>
+            </g>
+          )}
+        </svg>
+        <div className="wire-caption stack-caption">
           <span>{readLocalizedText(activeStep.title, locale)}</span>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>
