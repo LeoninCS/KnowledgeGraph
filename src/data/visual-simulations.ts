@@ -2024,6 +2024,63 @@ function buildAlgorithmSpecific(point: GraphKnowledgePoint) {
     );
   }
 
+  if (point.id === "linked-list") {
+    return flow(
+      "algorithm",
+      point,
+      ["节点与指针重连", "Nodes and pointer rewiring"],
+      ["用 head、next、prev/curr 游标和引用重连解释链表访问、插入和反转成本。", "Use head, next, prev/curr cursors, and reference rewiring to explain linked-list access, insertion, and reversal cost."],
+      [
+        ["head", "头指针", "Head pointer", "链表入口", "List entry", "tool"],
+        ["nodes", "节点链", "Node chain", "value + next", "value + next", "data"],
+        ["cursor", "游标", "Cursor", "prev / curr / next", "prev / curr / next", "cpu"],
+        ["cost", "成本结论", "Cost result", "遍历或重连成本", "Traversal or rewiring cost", "server"],
+      ],
+      {
+        head: tx("head -> A", "head -> A"),
+        nodes: tx("A -> B -> C -> D", "A -> B -> C -> D"),
+        cursor: tx("等待遍历", "Awaiting traversal"),
+        cost: tx("等待分析", "Awaiting analysis"),
+      },
+      [
+        ["建立节点链", "Build node chain", "载入链表", "Load list", "head", "nodes", "head + next", "head + next", "链表从 head 进入，每个节点用 next 指向后继节点。", "The list enters from head; each node points to its successor through next.", "结构顺序由引用决定，节点在内存中可以分散。", "Reference links define order; nodes can live apart in memory.", { head: tx("入口确定", "Entry fixed"), nodes: tx("next 链就绪", "next chain ready") }],
+        ["顺序访问 C", "Sequential access to C", "沿 next 前进", "Follow next", "nodes", "cursor", "A -> B -> C", "A -> B -> C", "访问目标节点需要从 head 沿 next 逐个移动游标。", "Accessing a target node moves the cursor from head through next links.", "链表随机访问依赖遍历步数，所以按 O(n) 分析。", "Random access depends on traversal steps, so it is analyzed as O(n).", { cursor: tx("curr = C", "curr = C"), cost: tx("访问 O(n)", "Access O(n)") }, "teal"],
+        ["在 B 后插入 X", "Insert X after B", "重连两条引用", "Rewrite two links", "cursor", "nodes", "X.next = C; B.next = X", "X.next = C; B.next = X", "已知前驱 B 时，先让新节点指向 C，再让 B 指向新节点。", "When predecessor B is known, point the new node to C, then point B to the new node.", "已定位位置附近的插入主要成本是常数次引用更新。", "Insertion near a known position mainly costs constant reference updates.", { nodes: tx("A -> B -> X -> C -> D", "A -> B -> X -> C -> D"), cost: tx("重连 O(1)", "Rewire O(1)") }, "warning"],
+        ["反转前三个节点", "Reverse first three nodes", "prev/curr/next 推进", "Advance prev/curr/next", "nodes", "cost", "A <- B <- X", "A <- B <- X", "反转时先保存 next，再把 curr.next 指向 prev，最后同步移动 prev 与 curr。", "Reversal saves next, points curr.next to prev, then advances prev and curr.", "指针题的关键是不丢失剩余链和正确更新 head。", "Pointer problems hinge on preserving the remaining chain and updating head.", { head: tx("head -> X", "head -> X"), cursor: tx("prev=X curr=C", "prev=X curr=C"), cost: tx("反转 O(n)", "Reverse O(n)") }, "success"],
+      ],
+      [["访问 O(n)", "Access O(n)"], ["已定位插入 O(1)", "Known-position insert O(1)"], ["head/tail 边界", "head/tail boundaries"]],
+    );
+  }
+
+  if (point.id === "stack") {
+    return flow(
+      "algorithm",
+      point,
+      ["LIFO 栈顶演算", "LIFO top trace"],
+      ["用 top 指针、push、peek、pop 和空栈边界解释栈的后进先出语义。", "Use the top pointer, push, peek, pop, and empty-stack boundary to explain LIFO semantics."],
+      [
+        ["top", "栈顶指针", "Top pointer", "唯一操作入口", "Only operation end", "cpu"],
+        ["stack", "栈内容", "Stack contents", "bottom 到 top", "bottom to top", "data"],
+        ["operation", "操作", "Operation", "push / peek / pop", "push / peek / pop", "tool"],
+        ["result", "返回与边界", "Result and boundary", "返回值或错误", "Value or error", "server"],
+      ],
+      {
+        top: tx("top = -1", "top = -1"),
+        stack: tx("空栈", "Empty stack"),
+        operation: tx("等待操作", "Awaiting operation"),
+        result: tx("等待返回", "Awaiting result"),
+      },
+      [
+        ["建立空栈", "Start empty stack", "初始化", "Initialize", "top", "stack", "top=-1", "top=-1", "空栈时 top 指向栈外，任何读取或弹出都要先判断 isEmpty。", "On an empty stack, top points outside the stack; reads and pops check isEmpty first.", "栈的边界从空栈判断开始。", "Stack boundaries start with the empty check.", { top: tx("top=-1", "top=-1"), stack: tx("[]", "[]") }],
+        ["push 7、12、18", "push 7, 12, 18", "压入元素", "Push values", "operation", "stack", "push(x)", "push(x)", "push 把元素写入 top 上方的位置，再把 top 移到新元素。", "Push writes the value above current top, then moves top to the new value.", "最后压入的元素成为下一次读取或弹出的对象。", "The most recently pushed value becomes the next value to read or pop.", { top: tx("top=18", "top=18"), stack: tx("[7, 12, 18]", "[7, 12, 18]"), operation: tx("push 完成", "push complete") }, "teal"],
+        ["peek 栈顶", "Peek top", "读取 top", "Read top", "stack", "result", "peek()", "peek()", "peek 只读取 top 元素，栈内容和 top 位置保持不变。", "Peek only reads the top value; contents and top position stay unchanged.", "读取不改变结构，是调试栈状态的常用动作。", "A read leaves structure unchanged and helps inspect state.", { result: tx("返回 18", "Returns 18"), top: tx("top=18", "top=18") }, "warning"],
+        ["pop 两次", "Pop twice", "弹出栈顶", "Pop top", "stack", "result", "pop(), pop()", "pop(), pop()", "pop 先返回 top 元素，再把 top 移回下一个元素。连续两次弹出会先得到 18，再得到 12。", "Pop returns the top value, then moves top back to the next value. Two pops return 18 then 12.", "LIFO 通过 top 指针移动自然成立。", "LIFO follows from top-pointer movement.", { stack: tx("[7]", "[7]"), top: tx("top=7", "top=7"), result: tx("18, 12", "18, 12") }, "success"],
+        ["检查空栈边界", "Check empty boundary", "继续 pop", "Continue pop", "top", "result", "isEmpty()", "isEmpty()", "继续弹出前先检查 isEmpty；空栈 pop 或 peek 应返回约定值或抛出受控错误。", "Before continuing to pop, check isEmpty; empty pop or peek returns a contract value or raises a controlled error.", "空栈、满栈和容量扩容是数组栈实现的关键测试。", "Empty stack, full stack, and capacity growth are key tests for array stacks.", { stack: tx("[]", "[]"), top: tx("top=-1", "top=-1"), result: tx("边界已处理", "Boundary handled") }, "danger"],
+      ],
+      [["LIFO", "LIFO"], ["push/pop O(1)", "push/pop O(1)"], ["空栈边界", "empty boundary"]],
+    );
+  }
+
   if (area === "tree" || area === "heap") {
     return flow(
       "algorithm",

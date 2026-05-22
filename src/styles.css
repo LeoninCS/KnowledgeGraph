@@ -1667,6 +1667,18 @@ td {
   padding: clamp(12px, 2.4vw, 28px);
 }
 
+.linked-list-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.stack-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
 .array-card {
   position: relative;
   width: min(100%, 1080px);
@@ -1677,7 +1689,41 @@ td {
   overflow: hidden;
 }
 
+.linked-list-card {
+  position: relative;
+  width: min(100%, 1080px);
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: hidden;
+}
+
+.stack-card {
+  position: relative;
+  width: min(100%, 1080px);
+  border: 1px solid color-mix(in srgb, var(--secondary) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: hidden;
+}
+
 .array-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+.linked-list-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+.stack-diagram {
   display: block;
   width: 100%;
   height: auto;
@@ -1717,7 +1763,31 @@ td {
   stroke: color-mix(in srgb, var(--brand) 18%, transparent);
 }
 
+.linked-list-bg {
+  fill: color-mix(in srgb, var(--tertiary-soft) 28%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 20%, transparent);
+}
+
+.stack-bg {
+  fill: color-mix(in srgb, var(--secondary-soft) 34%, var(--surface));
+  stroke: color-mix(in srgb, var(--secondary) 20%, transparent);
+}
+
 .array-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.linked-list-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.stack-title {
   fill: var(--text);
   font-size: 28px;
   font-weight: 950;
@@ -1726,6 +1796,36 @@ td {
 
 .array-subtitle,
 .array-cell-address {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.linked-list-subtitle,
+.linked-node-value,
+.linked-node-next,
+.linked-head-pointer text,
+.linked-traversal text,
+.linked-insert-note text,
+.linked-reverse-note text,
+.linked-null-tail text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.stack-subtitle,
+.stack-top-pointer text,
+.stack-operation-panel text,
+.stack-push-path text,
+.stack-peek-note text,
+.stack-pop-note text,
+.stack-boundary-note text,
+.stack-bottom-label {
   fill: var(--muted);
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 14px;
@@ -1856,6 +1956,238 @@ td {
 }
 
 .array-caption {
+  bottom: 14px;
+}
+
+.linked-node rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 24%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#linked-list-soft-shadow);
+}
+
+.linked-node line {
+  stroke: color-mix(in srgb, var(--muted) 30%, var(--border));
+  stroke-width: 1.2;
+}
+
+.linked-node.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 44%, var(--border));
+  stroke-width: 2.4;
+}
+
+.linked-node.inserted rect {
+  fill: color-mix(in srgb, #f59e0b 17%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 50%, var(--border));
+  stroke-width: 2.4;
+}
+
+.linked-node.reversed-head rect {
+  fill: color-mix(in srgb, var(--success) 16%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 48%, var(--border));
+}
+
+.linked-node-id,
+.linked-node-value,
+.linked-node-next {
+  text-anchor: middle;
+}
+
+.linked-node-id {
+  fill: var(--text);
+  font-size: 20px;
+  font-weight: 950;
+}
+
+.linked-node-value {
+  fill: var(--text);
+  font-size: 16px;
+}
+
+.linked-node-next {
+  font-size: 12px;
+}
+
+.linked-head-pointer rect,
+.linked-traversal rect,
+.linked-insert-note rect,
+.linked-reverse-note rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 24%, var(--border));
+  stroke-width: 1.2;
+}
+
+.linked-head-pointer text,
+.linked-traversal text,
+.linked-insert-note text,
+.linked-reverse-note text {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.linked-next-links path,
+.linked-head-pointer path,
+.linked-traversal path,
+.linked-null-tail path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.linked-traversal path,
+.linked-remainder-link {
+  stroke: var(--tertiary);
+}
+
+.linked-next-links path[marker-end*="warning"] {
+  stroke: #f59e0b;
+}
+
+.linked-next-links path[marker-end*="success"],
+.linked-head-pointer path[marker-end*="success"] {
+  stroke: var(--success);
+}
+
+.linked-null-tail path {
+  stroke: color-mix(in srgb, var(--muted) 54%, transparent);
+  stroke-dasharray: 7 8;
+}
+
+.linked-null-tail text {
+  text-anchor: start;
+}
+
+.linked-list-caption {
+  bottom: 14px;
+}
+
+.stack-frame > path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--muted) 42%, var(--border));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.stack-slot rect {
+  fill: color-mix(in srgb, var(--surface) 82%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 24%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#stack-soft-shadow);
+}
+
+.stack-slot.filled rect {
+  fill: color-mix(in srgb, var(--secondary) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--secondary) 34%, var(--border));
+}
+
+.stack-slot.top rect {
+  fill: color-mix(in srgb, var(--tertiary) 16%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+  stroke-width: 2.6;
+}
+
+.stack-slot text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.stack-bottom-label {
+  fill: var(--faint);
+  font-size: 12px;
+}
+
+.stack-top-pointer rect,
+.stack-operation-panel rect,
+.stack-push-path rect,
+.stack-peek-note rect,
+.stack-pop-note rect,
+.stack-boundary-note rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--secondary) 24%, var(--border));
+  stroke-width: 1.2;
+}
+
+.stack-top-pointer text,
+.stack-operation-panel text,
+.stack-push-path text,
+.stack-peek-note text,
+.stack-pop-note text,
+.stack-boundary-note text {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.stack-operation-title {
+  font-size: 15px;
+}
+
+.stack-operation-row {
+  opacity: 0.36;
+  transition: opacity 180ms ease;
+}
+
+.stack-operation-row.active {
+  opacity: 1;
+}
+
+.stack-operation-row circle {
+  fill: color-mix(in srgb, var(--secondary) 18%, var(--surface));
+  stroke: color-mix(in srgb, var(--secondary) 42%, var(--border));
+  stroke-width: 1.4;
+}
+
+.stack-operation-row.active circle {
+  fill: var(--secondary);
+}
+
+.stack-operation-row text {
+  text-anchor: start;
+  font-size: 12px;
+}
+
+.stack-top-pointer path,
+.stack-push-path path,
+.stack-peek-note path,
+.stack-pop-note path {
+  fill: none;
+  stroke: var(--secondary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3.2;
+}
+
+.stack-push-path path {
+  stroke: var(--tertiary);
+}
+
+.stack-peek-note path {
+  stroke: #f59e0b;
+}
+
+.stack-pop-note path {
+  stroke: var(--success);
+}
+
+.stack-boundary-note rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 36%, var(--border));
+}
+
+.stack-boundary-note text {
+  fill: var(--danger);
+  font-size: 13px;
+}
+
+.stack-caption {
   bottom: 14px;
 }
 
@@ -3574,7 +3906,29 @@ td {
     justify-content: start;
   }
 
+  .linked-list-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
+  .stack-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .array-card {
+    width: 860px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .linked-list-card {
+    width: 900px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .stack-card {
     width: 860px;
     max-width: none;
     justify-self: start;
@@ -3582,6 +3936,10 @@ td {
 
   .array-diagram {
     height: 544px;
+  }
+
+  .linked-list-diagram {
+    height: 592px;
   }
 
   .switch-card {
