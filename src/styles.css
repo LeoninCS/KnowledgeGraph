@@ -26,6 +26,7 @@
   --radius-md: 8px;
   --radius-lg: 8px;
   --topbar-height: 68px;
+  --sidebar-width: 264px;
 }
 
 :root[data-theme="dark"] {
@@ -260,7 +261,7 @@ img {
 
 .home-layout {
   display: grid;
-  grid-template-columns: 232px minmax(0, 1fr) 292px;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -323,10 +324,13 @@ img {
   text-align: left;
 }
 
-.category-list button span {
+.category-heading {
   display: flex;
   align-items: center;
   gap: 10px;
+  color: inherit;
+  font-weight: 800;
+  min-width: 0;
 }
 
 .category-list button small {
@@ -382,10 +386,61 @@ img {
   min-width: 0;
   min-height: calc(100vh - var(--topbar-height));
   overflow: hidden;
+  cursor: default;
+  touch-action: none;
   background:
     radial-gradient(color-mix(in srgb, var(--line) 58%, transparent) 1px, transparent 1px),
     var(--bg);
   background-size: 30px 30px, 100% 100%;
+  user-select: none;
+}
+
+.graph-canvas:active {
+  cursor: grabbing;
+}
+
+.graph-canvas.space-pan {
+  cursor: grab;
+}
+
+.graph-canvas.space-pan:active {
+  cursor: grabbing;
+}
+
+.search-status {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  color: var(--muted);
+  padding: 0 12px;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+}
+
+.search-status svg {
+  color: var(--brand);
+}
+
+.search-status strong {
+  color: var(--text);
+}
+
+.graph-map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 1100px;
+  min-height: 720px;
+  transform-origin: 0 0;
+  will-change: transform;
 }
 
 .graph-controls {
@@ -410,6 +465,53 @@ img {
   box-shadow: var(--shadow-sm);
 }
 
+.graph-mode-switch {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  z-index: 6;
+  display: inline-flex;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  padding: 4px;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+}
+
+.graph-mode-switch button {
+  min-width: 58px;
+  min-height: 32px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.graph-mode-switch button.active {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.graph-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 30px;
+  z-index: 5;
+  transform: translateX(-50%);
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  color: var(--muted);
+  padding: 7px 13px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+}
+
 .graph-lines {
   position: absolute;
   inset: 0;
@@ -419,22 +521,43 @@ img {
 }
 
 .graph-lines line {
-  stroke: var(--line);
-  stroke-width: 0.24;
+  stroke: color-mix(in srgb, var(--category-color) 42%, var(--line));
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.graph-lines line.category {
+  stroke-width: 2.2;
+}
+
+.graph-lines line.group {
+  stroke: color-mix(in srgb, var(--category-color) 34%, var(--line));
+  stroke-width: 1.3;
+}
+
+.graph-lines line.related {
+  stroke: color-mix(in srgb, var(--category-color) 26%, var(--line));
+  stroke-width: 0.9;
+  stroke-dasharray: 5 7;
 }
 
 .graph-node {
   position: absolute;
   z-index: 2;
-  display: grid;
+  display: inline-grid;
   place-items: center;
   transform: translate(-50%, -50%);
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--category-color) 30%, var(--border));
   border-radius: 999px;
   background: var(--surface);
   color: var(--muted);
+  text-align: center;
   font-weight: 700;
-  box-shadow: 0 4px 14px rgb(23 32 51 / 0.04);
+  cursor: pointer;
+  box-shadow:
+    inset 0 -8px 14px rgb(23 32 51 / 0.08),
+    0 8px 16px rgb(23 32 51 / 0.08);
   transition:
     transform 160ms ease,
     border-color 160ms ease,
@@ -443,29 +566,136 @@ img {
 
 .graph-node:hover {
   transform: translate(-50%, -50%) scale(1.04);
-  border-color: var(--brand);
-  color: var(--brand);
+  border-color: var(--category-color);
+  color: var(--category-color);
 }
 
-.graph-node.small {
+.graph-node.knowledge {
+  width: 96px;
+  height: 96px;
+  min-height: 96px;
+  padding: 9px 10px;
+  background: color-mix(in srgb, var(--surface) 78%, var(--category-color));
+  font-size: 12px;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+
+.graph-node.knowledge.secondary {
+  opacity: 0.58;
+  border-style: dashed;
+  background: color-mix(in srgb, var(--surface) 90%, var(--category-color));
+  color: color-mix(in srgb, var(--muted) 84%, var(--category-color));
+  box-shadow:
+    inset 0 -6px 10px rgb(23 32 51 / 0.05),
+    0 5px 10px rgb(23 32 51 / 0.05);
+}
+
+.graph-node.knowledge.secondary:hover {
+  opacity: 1;
+}
+
+.graph-node.knowledge.primary {
+  border-width: 2px;
+  background: color-mix(in srgb, var(--surface) 68%, var(--category-color));
+  color: color-mix(in srgb, var(--text) 80%, var(--category-color));
+}
+
+.graph-node.knowledge.core-mode.primary {
+  width: 112px;
+  height: 112px;
+  min-height: 112px;
+  font-size: 13px;
+}
+
+.graph-node.knowledge.all-mode.secondary {
   width: 76px;
   height: 76px;
+  min-height: 76px;
+  padding: 7px;
+  font-size: 10.5px;
 }
 
-.graph-node.medium {
-  width: 92px;
-  height: 92px;
+.graph-node.knowledge.easy {
+  width: 90px;
+  height: 90px;
+  min-height: 90px;
 }
 
-.graph-node.large {
+.graph-node.knowledge.medium {
+  width: 104px;
+  height: 104px;
+  min-height: 104px;
+}
+
+.graph-node.knowledge.hard {
   width: 116px;
   height: 116px;
-  color: var(--brand);
-  border-color: var(--brand);
-  background: color-mix(in srgb, var(--brand-soft) 45%, var(--surface));
+  min-height: 116px;
+  background: color-mix(in srgb, var(--surface) 70%, var(--category-color));
+}
+
+.graph-node.category {
+  z-index: 3;
+  width: 156px;
+  height: 156px;
+  color: var(--category-color);
+  border-color: color-mix(in srgb, var(--category-color) 58%, var(--border));
+  background: color-mix(in srgb, var(--category-color) 22%, var(--surface));
   box-shadow:
-    0 0 0 8px color-mix(in srgb, var(--brand) 8%, transparent),
-    0 14px 32px color-mix(in srgb, var(--brand) 10%, transparent);
+    0 0 0 7px color-mix(in srgb, var(--category-color) 8%, transparent),
+    0 14px 32px color-mix(in srgb, var(--category-color) 10%, transparent);
+}
+
+.graph-node.group {
+  z-index: 3;
+  width: 122px;
+  height: 122px;
+  color: #ffffff;
+  border-color: color-mix(in srgb, var(--category-color) 72%, var(--border));
+  background:
+    radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.28), transparent 34%),
+    color-mix(in srgb, var(--category-color) 82%, #14213d);
+  box-shadow:
+    inset 0 -10px 16px rgb(0 0 0 / 0.16),
+    0 10px 22px color-mix(in srgb, var(--category-color) 20%, transparent);
+}
+
+.graph-node.category span,
+.graph-node.group span {
+  max-width: 128px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.graph-node.category small,
+.graph-node.group small {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  color: currentColor;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.graph-node.group small {
+  color: rgb(255 255 255 / 0.84);
+}
+
+.graph-node.active {
+  color: var(--category-color);
+  border-color: var(--category-color);
+  background: color-mix(in srgb, var(--category-color) 14%, var(--surface));
+  box-shadow:
+    0 0 0 7px color-mix(in srgb, var(--category-color) 10%, transparent),
+    0 12px 28px color-mix(in srgb, var(--category-color) 13%, transparent);
+}
+
+.graph-node.matched {
+  border-color: var(--category-color);
+  box-shadow:
+    0 0 0 7px color-mix(in srgb, var(--category-color) 12%, transparent),
+    0 14px 30px color-mix(in srgb, var(--category-color) 16%, transparent);
 }
 
 .graph-node strong {
@@ -473,8 +703,8 @@ img {
   bottom: -32px;
   white-space: nowrap;
   border-radius: 999px;
-  background: var(--brand-soft);
-  color: var(--brand-strong);
+  background: color-mix(in srgb, var(--category-color) 12%, var(--surface));
+  color: var(--category-color);
   padding: 4px 10px;
   font-size: 12px;
 }
@@ -488,7 +718,7 @@ img {
   width: 30px;
   height: 30px;
   border-radius: 999px;
-  background: var(--brand);
+  background: var(--category-color);
   color: #ffffff;
   box-shadow: var(--shadow-sm);
 }
@@ -616,10 +846,67 @@ img {
   text-align: left;
 }
 
+.panel-links button small {
+  color: var(--faint);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .panel-links button:hover {
   border-color: var(--border);
   background: var(--surface-low);
   color: var(--text);
+}
+
+.about-shell {
+  display: grid;
+  gap: 24px;
+  width: min(1120px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 54px 0;
+}
+
+.about-hero {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
+}
+
+.about-hero h1 {
+  margin: 0;
+  font-size: clamp(34px, 5vw, 52px);
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.about-hero p,
+.about-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.about-hero .primary-button {
+  width: fit-content;
+  min-width: 156px;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.about-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  padding: 20px;
+}
+
+.about-card h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
 }
 
 .mini-concept > div {
@@ -644,7 +931,7 @@ img {
 
 .detail-shell {
   display: grid;
-  grid-template-columns: 264px minmax(0, 1fr);
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
 }
 
 .detail-content {
@@ -758,6 +1045,30 @@ img {
   font-weight: 650;
 }
 
+.explanation-flow {
+  display: grid;
+  gap: 14px;
+}
+
+.explanation-card {
+  border-left: 3px solid color-mix(in srgb, var(--brand) 56%, var(--border));
+  background: color-mix(in srgb, var(--brand-soft) 34%, transparent);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.explanation-card h3 {
+  margin: 0 0 8px;
+  color: var(--brand);
+  font-size: 15px;
+}
+
+.explanation-card p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.72;
+}
+
 .mini-facts {
   display: flex;
   flex-wrap: wrap;
@@ -775,6 +1086,36 @@ img {
   padding: 0 11px;
   font-size: 13px;
   font-weight: 650;
+}
+
+.chip-list,
+.detail-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.chip-list span,
+.detail-list span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  color: var(--muted);
+  padding: 0 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.detail-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.detail-list span {
+  justify-content: flex-start;
+  min-height: 38px;
 }
 
 .step-stack {
@@ -912,7 +1253,18 @@ td {
   margin: 0 0 4px;
 }
 
+.contents-panel p {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .contents-panel a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   color: var(--muted);
   text-decoration: none;
   border-left: 3px solid transparent;
@@ -1324,10 +1676,6 @@ td {
     display: none;
   }
 
-  .home-layout {
-    grid-template-columns: minmax(0, 1fr) 332px;
-  }
-
   .detail-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1367,7 +1715,11 @@ td {
   }
 
   .graph-canvas {
-    min-height: 590px;
+    min-height: 720px;
+  }
+
+  .graph-map {
+    min-width: 900px;
   }
 
   .simulator-shell {
@@ -1394,6 +1746,10 @@ td {
     justify-self: center;
     height: 240px;
   }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1416,22 +1772,52 @@ td {
     white-space: nowrap;
   }
 
-  .graph-node.large {
+  .graph-node.category {
+    width: 122px;
+    height: 122px;
+  }
+
+  .graph-node.category span,
+  .graph-node.group span {
+    max-width: 108px;
+  }
+
+  .graph-node.group {
     width: 104px;
     height: 104px;
   }
 
-  .graph-node.small {
-    width: 66px;
-    height: 66px;
-  }
-
-  .graph-node.medium {
+  .graph-node.knowledge {
     width: 76px;
     height: 76px;
+    min-height: 76px;
+    padding: 7px 8px;
+    font-size: 11px;
+  }
+
+  .graph-node.knowledge.easy {
+    width: 72px;
+    height: 72px;
+    min-height: 72px;
+  }
+
+  .graph-node.knowledge.medium {
+    width: 80px;
+    height: 80px;
+    min-height: 80px;
+  }
+
+  .graph-node.knowledge.hard {
+    width: 88px;
+    height: 88px;
+    min-height: 88px;
   }
 
   .concept-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-list {
     grid-template-columns: 1fr;
   }
 
