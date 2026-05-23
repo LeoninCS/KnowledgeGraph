@@ -23,33 +23,32 @@ KnowledgeGraph 是一个纯前端静态站点，重点是可扩展的知识数�
 KnowledgeGraph/
 ├── docs/
 │   ├── README.md
-│   ├── product-spec.md
-│   ├── project-design.md
+│   ├── specs/
+│   │   ├── product-spec.md
+│   │   ├── project-design.md
+│   │   └── KnowledgeGraph-UIUX.md
+│   ├── workflows/
 │   └── roadmap.md
-├── public/
-│   └── assets/
 ├── src/
 │   ├── app/
 │   │   ├── App.tsx
-│   │   └── router.tsx
-│   ├── components/
-│   │   ├── graph/
-│   │   ├── layout/
-│   │   └── ui/
+│   │   ├── TopNav.tsx
+│   │   ├── copy.ts
+│   │   └── ui-types.ts
 │   ├── data/
-│   │   ├── categories.ts
-│   │   ├── knowledge-points.ts
-│   │   └── relations.ts
+│   │   ├── knowledge-points/
+│   │   ├── visual-simulations/
+│   │   ├── algorithm-example-problems.ts
+│   │   └── types.ts
 │   ├── features/
-│   │   ├── knowledge-graph/
-│   │   ├── knowledge-detail/
-│   │   └── simulators/
-│   │       └── tcp-handshake/
-│   ├── types/
-│   │   ├── knowledge.ts
-│   │   └── simulator.ts
+│   │   ├── knowledge/
+│   │   └── simulation/
 │   ├── styles/
-│   │   └── globals.css
+│   │   ├── base.css
+│   │   ├── graph.css
+│   │   ├── detail.css
+│   │   └── simulation.css
+│   ├── styles.css
 │   └── main.tsx
 ├── .github/
 │   └── workflows/
