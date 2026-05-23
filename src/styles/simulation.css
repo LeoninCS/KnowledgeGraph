@@ -1,0 +1,3141 @@
+.simulator-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 372px;
+  grid-template-rows: minmax(0, 1fr) 104px;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.simulator-canvas {
+  min-width: 0;
+  background:
+    radial-gradient(color-mix(in srgb, var(--line) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(145deg, color-mix(in srgb, var(--brand-soft) 32%, transparent), transparent 42%),
+    var(--surface);
+  background-size: 28px 28px, 100% 100%, 100% 100%;
+  overflow: hidden;
+}
+
+.sim-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 28px;
+}
+
+.sim-context {
+  min-width: 132px;
+  color: var(--faint);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sim-top-row h1 {
+  margin: 0;
+  font-size: 23px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.sim-top-row p {
+  max-width: 720px;
+  margin: 5px auto 0;
+  color: var(--muted);
+  text-align: center;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.sim-control-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 224px;
+}
+
+.sim-control-group .secondary-button {
+  min-width: 104px;
+  justify-content: center;
+}
+
+.sim-control-group .secondary-button:disabled {
+  opacity: 0.48;
+  cursor: default;
+  transform: none;
+}
+
+.visual-stage {
+  position: relative;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - var(--topbar-height) - 104px - 86px);
+  padding: 36px;
+}
+
+.visual-stage {
+  grid-template-columns: minmax(260px, 360px) minmax(420px, 620px);
+  gap: clamp(28px, 4vw, 56px);
+}
+
+.simulation-actor {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  grid-template-areas:
+    "icon main"
+    "state state";
+  gap: 9px 12px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 90%, var(--brand-soft));
+  padding: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.simulation-actor-icon {
+  grid-area: icon;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.simulation-actor > div:nth-child(2) {
+  grid-area: main;
+  display: grid;
+  min-width: 0;
+}
+
+.simulation-actor span {
+  color: var(--text);
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.simulation-actor small {
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.simulation-actor code {
+  grid-area: state;
+  width: 100%;
+  min-height: 31px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--brand-strong);
+  padding: 6px 8px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 850;
+  white-space: normal;
+}
+
+.event-map {
+  position: relative;
+  width: min(100%, 620px);
+  min-height: 460px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.state-flow-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  padding: clamp(20px, 4vw, 42px);
+}
+
+.tcp-handshake-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(18px, 3vw, 34px);
+}
+
+.tcp-handshake-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 980px);
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: hidden;
+}
+
+:root[data-theme="dark"] .tcp-handshake-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.tcp-handshake-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+.tcp-wave-diagram {
+  min-height: 470px;
+}
+
+.tcp-state-machine-stage {
+  padding: clamp(14px, 2.4vw, 28px);
+}
+
+.tcp-state-machine-card {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.tcp-state-machine-diagram {
+  width: auto;
+  height: min(620px, calc(100vh - var(--topbar-height) - 316px));
+  max-width: 100%;
+  min-height: 0;
+}
+
+.ethernet-frame-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.ethernet-frame-card {
+  width: min(100%, 1160px);
+  overflow: visible;
+}
+
+.ethernet-frame-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.signal-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.signal-card {
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  overflow: visible;
+}
+
+.signal-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.tcp-ip-model-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.tcp-ip-model-card {
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  overflow: visible;
+}
+
+.tcp-ip-model-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.arp-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.arp-card {
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  overflow: visible;
+}
+
+.arp-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.cdn-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.cdn-card {
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  overflow: visible;
+}
+
+.cdn-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.array-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.linked-list-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.stack-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.array-card {
+  position: relative;
+  width: min(100%, 1080px);
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: hidden;
+}
+
+.linked-list-card {
+  position: relative;
+  width: min(100%, 1080px);
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: hidden;
+}
+
+.stack-card {
+  position: relative;
+  width: min(100%, 1080px);
+  border: 1px solid color-mix(in srgb, var(--secondary) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: hidden;
+}
+
+.array-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+.linked-list-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+.stack-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+.switch-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.switch-card {
+  width: min(100%, 1040px);
+  overflow: visible;
+}
+
+.switch-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.tcp-bg-panel {
+  fill: color-mix(in srgb, var(--brand-soft) 42%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.ethernet-frame-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 34%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.switch-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 34%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.signal-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 30%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.signal-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.signal-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.signal-device rect,
+.signal-link rect,
+.signal-panel > rect,
+.signal-scenario rect:first-child {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#signal-soft-shadow);
+}
+
+.signal-device.active rect,
+.signal-link.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.signal-device text,
+.signal-link text,
+.signal-control text,
+.signal-bit-cell text,
+.signal-timeline-dot + text,
+.signal-scenario text,
+.signal-metric-row text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.signal-device-title,
+.signal-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.signal-panel-title {
+  text-anchor: start;
+}
+
+.signal-link,
+.signal-main-arrow,
+.signal-panel,
+.signal-control,
+.signal-metric-row,
+.signal-scenario {
+  opacity: 0.25;
+  transition: opacity 180ms ease;
+}
+
+.signal-link.active,
+.signal-main-arrow.active,
+.signal-panel.active,
+.signal-control.active,
+.signal-metric-row.active,
+.signal-scenario.active {
+  opacity: 1;
+}
+
+.signal-link path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+
+.signal-main-arrow {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+
+.signal-main-arrow.success {
+  stroke: var(--success);
+}
+
+.signal-control text {
+  text-anchor: start;
+}
+
+.signal-control text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+}
+
+.signal-control rect:first-of-type {
+  fill: color-mix(in srgb, var(--muted) 18%, transparent);
+}
+
+.signal-control rect:nth-of-type(2) {
+  fill: var(--brand);
+}
+
+.signal-axis,
+.signal-timeline-base {
+  fill: none;
+  stroke: color-mix(in srgb, var(--muted) 44%, transparent);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.signal-axis.muted {
+  stroke-width: 1.5;
+}
+
+.signal-axis-label,
+.signal-band-label {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 850;
+  text-anchor: end;
+}
+
+.signal-band {
+  fill: url(#signal-band-gradient);
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.signal-band-label {
+  fill: var(--brand-strong);
+  font-size: 13px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.signal-spectrum-line,
+.signal-waveform {
+  fill: none;
+  stroke: var(--tertiary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.signal-waveform {
+  stroke: var(--brand);
+}
+
+.signal-bit-cell rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 28%, var(--border));
+}
+
+.signal-bit-cell text {
+  fill: var(--text);
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.signal-timeline-dot {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--muted) 40%, var(--border));
+  stroke-width: 2;
+}
+
+.signal-timeline-dot.start,
+.signal-timeline-dot.active {
+  fill: var(--brand);
+  stroke: var(--brand-strong);
+}
+
+.signal-timeline-dot.full.active {
+  fill: var(--success);
+  stroke: var(--success);
+}
+
+.signal-timeline-fill {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-width: 5;
+  opacity: 0.18;
+}
+
+.signal-timeline-fill.active {
+  opacity: 1;
+}
+
+.signal-timeline-fill.throughput {
+  stroke: var(--success);
+}
+
+.signal-panel.timing text:not(.signal-panel-title) {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.signal-metric-row text:first-child {
+  text-anchor: start;
+}
+
+.signal-metric-row text:nth-child(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.signal-scenario rect:first-child {
+  fill: color-mix(in srgb, var(--signal-tone) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--signal-tone) 34%, var(--border));
+  filter: none;
+}
+
+.signal-scenario rect:nth-child(2) {
+  fill: var(--signal-tone);
+}
+
+.signal-scenario text:first-of-type {
+  fill: var(--text);
+  text-anchor: start;
+}
+
+.signal-scenario text:nth-of-type(2) {
+  fill: var(--signal-tone);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.signal-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.tcp-ip-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 32%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.tcp-ip-title {
+  font-size: 28px;
+}
+
+.tcp-ip-subtitle {
+  font-size: 15px;
+}
+
+.tcp-ip-host rect,
+.tcp-ip-osi-map > rect,
+.tcp-ip-receiver > rect,
+.tcp-ip-debug-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#tcp-ip-soft-shadow);
+}
+
+.tcp-ip-host text {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.tcp-ip-host text:nth-of-type(2) {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.tcp-ip-layer rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 20%, var(--border));
+  stroke-width: 1.1;
+}
+
+.tcp-ip-layer.active rect {
+  fill: color-mix(in srgb, var(--layer-color) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--layer-color) 46%, var(--border));
+}
+
+.tcp-ip-layer-title,
+.tcp-ip-layer-examples,
+.tcp-ip-layer-pdu,
+.tcp-ip-layer-header {
+  text-anchor: start;
+}
+
+.tcp-ip-layer-title {
+  fill: var(--text);
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.tcp-ip-layer-examples {
+  fill: var(--muted);
+  font-size: 11.5px;
+  font-weight: 850;
+}
+
+.tcp-ip-layer-pdu,
+.tcp-ip-layer-header {
+  fill: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.tcp-ip-layer-header {
+  fill: var(--muted);
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.tcp-ip-packet,
+.tcp-ip-down-arrow,
+.tcp-ip-wire,
+.tcp-ip-receiver,
+.tcp-ip-osi-row,
+.tcp-ip-debug-chip {
+  opacity: 0.24;
+  transition: opacity 180ms ease;
+}
+
+.tcp-ip-packet.visible,
+.tcp-ip-down-arrow.visible,
+.tcp-ip-wire.visible,
+.tcp-ip-receiver.visible,
+.tcp-ip-osi-row.active,
+.tcp-ip-debug-chip.active {
+  opacity: 1;
+}
+
+.tcp-ip-packet rect {
+  fill: color-mix(in srgb, var(--brand) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 40%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#tcp-ip-soft-shadow);
+}
+
+.tcp-ip-packet.teal rect {
+  fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.tcp-ip-packet.warning rect {
+  fill: color-mix(in srgb, #f59e0b 16%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.tcp-ip-packet.success rect {
+  fill: color-mix(in srgb, var(--success) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 40%, var(--border));
+}
+
+.tcp-ip-packet text,
+.tcp-ip-wire text,
+.tcp-ip-rx-step text,
+.tcp-ip-osi-row text,
+.tcp-ip-debug-chip text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.tcp-ip-packet-detail {
+  fill: var(--muted);
+  font-size: 9.5px;
+  font-weight: 850;
+}
+
+.tcp-ip-down-arrow path,
+.tcp-ip-wire path,
+.tcp-ip-up-path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3.5;
+}
+
+.tcp-ip-down-arrow:nth-of-type(2) path {
+  stroke: var(--tertiary);
+}
+
+.tcp-ip-down-arrow:nth-of-type(3) path {
+  stroke: #f59e0b;
+}
+
+.tcp-ip-wire path {
+  stroke: var(--success);
+  stroke-width: 4.2;
+}
+
+.tcp-ip-wire rect {
+  fill: color-mix(in srgb, var(--success) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.tcp-ip-receiver-title,
+.tcp-ip-panel-title {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.tcp-ip-panel-title {
+  text-anchor: start;
+}
+
+.tcp-ip-rx-step rect {
+  fill: color-mix(in srgb, var(--layer-color) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--layer-color) 42%, var(--border));
+}
+
+.tcp-ip-up-path {
+  stroke: color-mix(in srgb, var(--muted) 64%, transparent);
+  stroke-dasharray: 7 8;
+}
+
+.tcp-ip-osi-row rect {
+  fill: color-mix(in srgb, var(--surface) 86%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.tcp-ip-osi-row.active rect {
+  fill: color-mix(in srgb, var(--brand-soft) 76%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 30%, var(--border));
+}
+
+.tcp-ip-osi-row text {
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.tcp-ip-debug-panel > .tcp-ip-panel-title {
+  text-anchor: start;
+}
+
+.tcp-ip-debug-chip rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 20%, var(--border));
+}
+
+.tcp-ip-debug-chip.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.tcp-ip-debug-chip text {
+  fill: var(--muted);
+  font-size: 9.5px;
+}
+
+.tcp-ip-debug-chip.active text {
+  fill: var(--brand-strong);
+}
+
+.tcp-ip-model-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.arp-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 30%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.arp-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.arp-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.arp-device rect,
+.arp-next-hop rect,
+.arp-switch rect,
+.arp-cache-panel > rect,
+.arp-header-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#arp-soft-shadow);
+}
+
+.arp-device.gateway rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 32%, var(--border));
+}
+
+.arp-switch rect {
+  fill: color-mix(in srgb, var(--tertiary-soft) 48%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.arp-device text,
+.arp-switch text,
+.arp-next-hop text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.arp-device-title,
+.arp-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.arp-panel-title {
+  text-anchor: start;
+}
+
+.arp-next-hop {
+  opacity: 0.34;
+  transition: opacity 180ms ease;
+}
+
+.arp-next-hop.active {
+  opacity: 1;
+}
+
+.arp-next-hop.active rect {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.arp-packet,
+.arp-broadcast,
+.arp-cache-panel,
+.arp-header-row,
+.arp-diagnostic {
+  opacity: 0.25;
+  transition: opacity 180ms ease;
+}
+
+.arp-packet.active,
+.arp-broadcast.active,
+.arp-cache-panel.active,
+.arp-header-row.active,
+.arp-diagnostic.active {
+  opacity: 1;
+}
+
+.arp-packet path,
+.arp-broadcast path {
+  fill: none;
+  stroke: var(--tertiary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.arp-packet.reply path,
+.arp-packet.frame path {
+  stroke: var(--success);
+}
+
+.arp-packet rect {
+  fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#arp-soft-shadow);
+}
+
+.arp-packet.reply rect,
+.arp-packet.frame rect {
+  fill: color-mix(in srgb, var(--success) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.arp-packet text,
+.arp-diagnostic text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.arp-packet-sub {
+  fill: var(--muted);
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.arp-cache-row rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.arp-cache-row.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 36%, var(--border));
+}
+
+.arp-cache-row.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 40%, var(--border));
+}
+
+.arp-cache-row text,
+.arp-header-row text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 850;
+  text-anchor: start;
+}
+
+.arp-cache-row.active text {
+  fill: var(--text);
+}
+
+.arp-cache-row text:nth-of-type(3),
+.arp-header-row text:nth-of-type(2) {
+  text-anchor: end;
+}
+
+.arp-header-row.active text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+}
+
+.arp-diagnostic rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.arp-diagnostic.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.arp-diagnostic.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.arp-diagnostic text {
+  font-size: 8.5px;
+}
+
+.arp-diagnostic text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-size: 12px;
+}
+
+.arp-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.cdn-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 28%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.cdn-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.cdn-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.cdn-users > rect,
+.cdn-routing rect,
+.cdn-edge rect,
+.cdn-shield rect,
+.cdn-origin rect,
+.cdn-status-panel > rect,
+.cdn-control-panel > rect,
+.cdn-metrics-panel > rect,
+.cdn-purge-band rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#cdn-soft-shadow);
+}
+
+.cdn-edge rect {
+  fill: url(#cdn-edge-gradient);
+}
+
+.cdn-routing.active rect,
+.cdn-edge.active rect,
+.cdn-shield.active rect,
+.cdn-origin.active rect,
+.cdn-purge-band.active rect {
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.cdn-panel-title,
+.cdn-node-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.cdn-node-title {
+  text-anchor: middle;
+}
+
+.cdn-region text,
+.cdn-asset text,
+.cdn-routing text,
+.cdn-edge text,
+.cdn-shield text,
+.cdn-origin text,
+.cdn-status text,
+.cdn-control text,
+.cdn-metric text,
+.cdn-purge-band text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.cdn-region,
+.cdn-asset,
+.cdn-routing,
+.cdn-edge,
+.cdn-shield,
+.cdn-origin,
+.cdn-path,
+.cdn-status,
+.cdn-control,
+.cdn-metric,
+.cdn-purge-band {
+  opacity: 0.25;
+  transition: opacity 180ms ease;
+}
+
+.cdn-region.active,
+.cdn-asset.active,
+.cdn-routing.active,
+.cdn-edge.active,
+.cdn-shield.active,
+.cdn-origin.active,
+.cdn-path.active,
+.cdn-status.active,
+.cdn-control.active,
+.cdn-metric.active,
+.cdn-purge-band.active {
+  opacity: 1;
+}
+
+.cdn-region circle {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+  stroke-width: 2;
+}
+
+.cdn-region.active circle {
+  fill: var(--brand);
+}
+
+.cdn-region text:first-of-type {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 900;
+  text-anchor: start;
+}
+
+.cdn-region text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  text-anchor: end;
+}
+
+.cdn-asset rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 30%, var(--border));
+}
+
+.cdn-asset text:first-of-type,
+.cdn-routing .cdn-node-title,
+.cdn-edge .cdn-node-title,
+.cdn-shield .cdn-node-title,
+.cdn-origin .cdn-node-title {
+  fill: var(--text);
+  font-family: inherit;
+}
+
+.cdn-path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.cdn-path.teal {
+  stroke: var(--tertiary);
+}
+
+.cdn-path.success {
+  stroke: var(--success);
+}
+
+.cdn-path.warning {
+  stroke: #f59e0b;
+}
+
+.cdn-path.danger {
+  stroke: var(--danger);
+}
+
+.cdn-status rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.cdn-status.success.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.cdn-status.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 14%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.cdn-status.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.cdn-status.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 36%, var(--border));
+}
+
+.cdn-status text:first-of-type,
+.cdn-metric text:first-of-type,
+.cdn-control text:first-of-type {
+  fill: var(--text);
+  text-anchor: start;
+}
+
+.cdn-status text:nth-of-type(2),
+.cdn-metric text:nth-of-type(2),
+.cdn-control text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.cdn-control rect:first-of-type {
+  fill: color-mix(in srgb, var(--muted) 18%, transparent);
+}
+
+.cdn-control rect:nth-of-type(2) {
+  fill: var(--brand);
+}
+
+.cdn-purge-band text {
+  fill: var(--brand-strong);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.cdn-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.array-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 30%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.linked-list-bg {
+  fill: color-mix(in srgb, var(--tertiary-soft) 28%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 20%, transparent);
+}
+
+.stack-bg {
+  fill: color-mix(in srgb, var(--secondary-soft) 34%, var(--surface));
+  stroke: color-mix(in srgb, var(--secondary) 20%, transparent);
+}
+
+.array-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.linked-list-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.stack-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.array-subtitle,
+.array-cell-address {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.linked-list-subtitle,
+.linked-node-value,
+.linked-node-next,
+.linked-head-pointer text,
+.linked-traversal text,
+.linked-insert-note text,
+.linked-reverse-note text,
+.linked-null-tail text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.stack-subtitle,
+.stack-top-pointer text,
+.stack-operation-panel text,
+.stack-push-path text,
+.stack-peek-note text,
+.stack-pop-note text,
+.stack-boundary-note text,
+.stack-bottom-label {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.array-formula {
+  opacity: 0.35;
+  transition: opacity 180ms ease;
+}
+
+.array-formula.visible,
+.array-boundary.visible {
+  opacity: 1;
+}
+
+.array-formula rect,
+.array-boundary rect,
+.array-read-pointer rect,
+.array-shift-arrows rect,
+.array-insert-marker rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 20%, var(--border));
+  stroke-width: 1.2;
+}
+
+.array-formula text,
+.array-boundary text,
+.array-read-pointer text,
+.array-shift-arrows text,
+.array-insert-marker text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 15px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.array-cell rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 24%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#array-soft-shadow);
+}
+
+.array-cell.target rect {
+  fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 45%, var(--border));
+  stroke-width: 2.4;
+}
+
+.array-cell.inserted rect {
+  fill: color-mix(in srgb, #f59e0b 18%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 48%, var(--border));
+  stroke-width: 2.4;
+}
+
+.array-cell.shifted rect {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.array-cell-value,
+.array-cell-index {
+  text-anchor: middle;
+}
+
+.array-cell-value {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 24px;
+  font-weight: 950;
+}
+
+.array-cell-index {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.array-cell-address {
+  font-size: 12px;
+}
+
+.array-read-pointer path,
+.array-insert-marker path,
+.array-shift-arrows path {
+  fill: none;
+  stroke: var(--tertiary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3.2;
+}
+
+.array-shift-arrows path,
+.array-insert-marker path {
+  stroke: #f59e0b;
+}
+
+#array-arrow-brand path {
+  fill: var(--tertiary);
+}
+
+#array-arrow-warning path {
+  fill: #f59e0b;
+}
+
+.array-read-pointer text:nth-of-type(2),
+.array-shift-arrows text:nth-of-type(2) {
+  fill: var(--brand);
+  font-size: 14px;
+}
+
+.array-boundary {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.array-boundary rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.array-boundary text {
+  fill: var(--success);
+  font-size: 14px;
+}
+
+.array-caption {
+  bottom: 14px;
+}
+
+.linked-node rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 24%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#linked-list-soft-shadow);
+}
+
+.linked-node line {
+  stroke: color-mix(in srgb, var(--muted) 30%, var(--border));
+  stroke-width: 1.2;
+}
+
+.linked-node.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 44%, var(--border));
+  stroke-width: 2.4;
+}
+
+.linked-node.inserted rect {
+  fill: color-mix(in srgb, #f59e0b 17%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 50%, var(--border));
+  stroke-width: 2.4;
+}
+
+.linked-node.reversed-head rect {
+  fill: color-mix(in srgb, var(--success) 16%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 48%, var(--border));
+}
+
+.linked-node-id,
+.linked-node-value,
+.linked-node-next {
+  text-anchor: middle;
+}
+
+.linked-node-id {
+  fill: var(--text);
+  font-size: 20px;
+  font-weight: 950;
+}
+
+.linked-node-value {
+  fill: var(--text);
+  font-size: 16px;
+}
+
+.linked-node-next {
+  font-size: 12px;
+}
+
+.linked-head-pointer rect,
+.linked-traversal rect,
+.linked-insert-note rect,
+.linked-reverse-note rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 24%, var(--border));
+  stroke-width: 1.2;
+}
+
+.linked-head-pointer text,
+.linked-traversal text,
+.linked-insert-note text,
+.linked-reverse-note text {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.linked-next-links path,
+.linked-head-pointer path,
+.linked-traversal path,
+.linked-null-tail path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.linked-traversal path,
+.linked-remainder-link {
+  stroke: var(--tertiary);
+}
+
+.linked-next-links path[marker-end*="warning"] {
+  stroke: #f59e0b;
+}
+
+.linked-next-links path[marker-end*="success"],
+.linked-head-pointer path[marker-end*="success"] {
+  stroke: var(--success);
+}
+
+.linked-null-tail path {
+  stroke: color-mix(in srgb, var(--muted) 54%, transparent);
+  stroke-dasharray: 7 8;
+}
+
+.linked-null-tail text {
+  text-anchor: start;
+}
+
+.linked-list-caption {
+  bottom: 14px;
+}
+
+.stack-frame > path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--muted) 42%, var(--border));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.stack-slot rect {
+  fill: color-mix(in srgb, var(--surface) 82%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 24%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#stack-soft-shadow);
+}
+
+.stack-slot.filled rect {
+  fill: color-mix(in srgb, var(--secondary) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--secondary) 34%, var(--border));
+}
+
+.stack-slot.top rect {
+  fill: color-mix(in srgb, var(--tertiary) 16%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+  stroke-width: 2.6;
+}
+
+.stack-slot text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.stack-bottom-label {
+  fill: var(--faint);
+  font-size: 12px;
+}
+
+.stack-top-pointer rect,
+.stack-operation-panel rect,
+.stack-push-path rect,
+.stack-peek-note rect,
+.stack-pop-note rect,
+.stack-boundary-note rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--secondary) 24%, var(--border));
+  stroke-width: 1.2;
+}
+
+.stack-top-pointer text,
+.stack-operation-panel text,
+.stack-push-path text,
+.stack-peek-note text,
+.stack-pop-note text,
+.stack-boundary-note text {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.stack-operation-title {
+  font-size: 15px;
+}
+
+.stack-operation-row {
+  opacity: 0.36;
+  transition: opacity 180ms ease;
+}
+
+.stack-operation-row.active {
+  opacity: 1;
+}
+
+.stack-operation-row circle {
+  fill: color-mix(in srgb, var(--secondary) 18%, var(--surface));
+  stroke: color-mix(in srgb, var(--secondary) 42%, var(--border));
+  stroke-width: 1.4;
+}
+
+.stack-operation-row.active circle {
+  fill: var(--secondary);
+}
+
+.stack-operation-row text {
+  text-anchor: start;
+  font-size: 12px;
+}
+
+.stack-top-pointer path,
+.stack-push-path path,
+.stack-peek-note path,
+.stack-pop-note path {
+  fill: none;
+  stroke: var(--secondary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3.2;
+}
+
+.stack-push-path path {
+  stroke: var(--tertiary);
+}
+
+.stack-peek-note path {
+  stroke: #f59e0b;
+}
+
+.stack-pop-note path {
+  stroke: var(--success);
+}
+
+.stack-boundary-note rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 36%, var(--border));
+}
+
+.stack-boundary-note text {
+  fill: var(--danger);
+  font-size: 13px;
+}
+
+.stack-caption {
+  bottom: 14px;
+}
+
+.switch-title {
+  font-size: 28px;
+}
+
+.switch-subtitle {
+  font-size: 15px;
+}
+
+.switch-host rect,
+.switch-box > rect,
+.mac-table-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#switch-soft-shadow);
+}
+
+.switch-host.host-b rect {
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.switch-host.host-c rect,
+.switch-host.host-d rect {
+  fill: color-mix(in srgb, var(--surface) 84%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: none;
+}
+
+.switch-host text,
+.switch-box text {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.switch-host text:nth-of-type(2),
+.switch-host text:nth-of-type(3) {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.switch-box > text {
+  fill: var(--brand);
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.switch-port circle {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--muted) 32%, var(--border));
+  stroke-width: 2;
+}
+
+.switch-port.active circle {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 46%, var(--border));
+}
+
+.switch-port text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.switch-vlan-chip {
+  fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 36%, var(--border));
+}
+
+.switch-vlan-label {
+  fill: var(--tertiary);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.mac-table-title {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.mac-table-head,
+.mac-table-row text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-anchor: start;
+}
+
+.mac-table-row {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.mac-table-row.visible {
+  opacity: 1;
+}
+
+.mac-table-row.visible text {
+  fill: var(--brand);
+}
+
+.switch-flow {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.switch-flow.visible {
+  opacity: 1;
+}
+
+.switch-flow path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.switch-flow.flood path {
+  stroke: #f59e0b;
+  stroke-dasharray: 9 8;
+}
+
+.switch-flow.reply path {
+  stroke: var(--tertiary);
+}
+
+.switch-flow.direct path {
+  stroke: var(--success);
+  stroke-width: 5;
+}
+
+.switch-flow.filter path {
+  stroke: color-mix(in srgb, var(--muted) 56%, transparent);
+  stroke-width: 3.2;
+}
+
+.switch-flow rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1;
+}
+
+.switch-flow.flood rect {
+  fill: color-mix(in srgb, #f59e0b 14%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 38%, var(--border));
+}
+
+.switch-flow.reply rect {
+  fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.switch-flow.direct rect {
+  fill: color-mix(in srgb, var(--success) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 36%, var(--border));
+}
+
+.switch-flow.filter rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.switch-flow text {
+  fill: var(--text);
+  font-size: 11.5px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.switch-flow.filter text:nth-of-type(2) {
+  fill: var(--muted);
+  font-size: 10.5px;
+}
+
+.switch-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.ethernet-frame-title {
+  font-size: 28px;
+}
+
+.ethernet-frame-subtitle {
+  font-size: 15px;
+}
+
+.ethernet-group-band rect {
+  fill: color-mix(in srgb, var(--surface) 72%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, transparent);
+  stroke-width: 1.2;
+}
+
+.ethernet-group-band.active rect {
+  fill: color-mix(in srgb, var(--surface) 92%, var(--brand-soft));
+  stroke: color-mix(in srgb, var(--brand) 28%, var(--border));
+}
+
+.ethernet-group-band text {
+  fill: var(--muted);
+  font-size: 16px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.ethernet-group-band.active text {
+  fill: var(--text);
+}
+
+.ethernet-field rect {
+  fill: color-mix(in srgb, var(--surface) 72%, var(--muted));
+  stroke: color-mix(in srgb, var(--muted) 18%, transparent);
+  stroke-width: 1.1;
+}
+
+.ethernet-field.active rect {
+  filter: url(#ethernet-soft-shadow);
+  fill: color-mix(in srgb, var(--surface) 92%, var(--brand-soft));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.ethernet-field.vlan.active rect {
+  fill: color-mix(in srgb, #f59e0b 16%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 44%, var(--border));
+}
+
+.ethernet-field.payload.active rect,
+.ethernet-field.type.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 40%, var(--border));
+}
+
+.ethernet-field.fcs.active rect {
+  fill: color-mix(in srgb, var(--success) 15%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 42%, var(--border));
+}
+
+.ethernet-field.current rect {
+  stroke-width: 2.8;
+}
+
+.ethernet-field-label,
+.ethernet-field-bytes,
+.ethernet-field-detail {
+  text-anchor: middle;
+}
+
+.ethernet-field-label {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.ethernet-field-bytes {
+  fill: var(--brand);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.ethernet-field-detail {
+  fill: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.ethernet-vlan-insert path,
+.ethernet-dispatch path,
+.ethernet-callout path,
+.ethernet-fcs-loop path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.6;
+}
+
+.ethernet-vlan-insert path {
+  stroke: #f59e0b;
+}
+
+.ethernet-vlan-insert rect {
+  fill: color-mix(in srgb, #f59e0b 18%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.ethernet-vlan-insert text,
+.ethernet-dispatch text,
+.ethernet-fcs-loop text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.ethernet-dispatch path {
+  stroke: var(--tertiary);
+  stroke-dasharray: 7 8;
+}
+
+.ethernet-dispatch rect {
+  fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.ethernet-fcs-loop path {
+  stroke: var(--success);
+  stroke-width: 3.4;
+}
+
+.ethernet-fcs-loop rect {
+  fill: color-mix(in srgb, var(--success) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.ethernet-callout path {
+  stroke: color-mix(in srgb, var(--brand) 58%, transparent);
+  stroke-width: 2;
+}
+
+.ethernet-callout rect,
+.ethernet-size-note rect,
+.ethernet-reference-note rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.1;
+}
+
+.ethernet-callout-title,
+.ethernet-callout-body,
+.ethernet-size-note text,
+.ethernet-reference-note text {
+  text-anchor: middle;
+}
+
+.ethernet-callout-title {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.ethernet-callout-body {
+  fill: var(--muted);
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.ethernet-size-note text,
+.ethernet-reference-note text {
+  text-anchor: start;
+}
+
+.ethernet-size-note text:first-of-type,
+.ethernet-reference-note text:first-of-type {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.ethernet-size-note text:nth-of-type(2),
+.ethernet-reference-note text:nth-of-type(2) {
+  fill: var(--brand);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.ethernet-size-note text:nth-of-type(3),
+.ethernet-reference-note text:nth-of-type(3) {
+  fill: var(--muted);
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.ethernet-frame-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.tcp-title {
+  fill: var(--text);
+  font-size: 30px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.tcp-subtitle {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 16px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.tcp-endpoint rect {
+  fill: var(--surface);
+  stroke-width: 2;
+  filter: url(#tcp-soft-shadow);
+}
+
+.tcp-endpoint.client rect {
+  stroke: var(--brand);
+}
+
+.tcp-endpoint.server rect {
+  stroke: var(--tertiary);
+}
+
+.tcp-endpoint text:first-of-type {
+  fill: var(--text);
+  font-size: 18px;
+  font-weight: 920;
+  text-anchor: middle;
+}
+
+.tcp-endpoint text:last-of-type {
+  fill: var(--faint);
+  font-size: 12px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.tcp-lifeline {
+  stroke: color-mix(in srgb, var(--muted) 34%, transparent);
+  stroke-dasharray: 8 8;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.tcp-state-pill rect {
+  fill: color-mix(in srgb, var(--surface) 88%, var(--muted));
+  stroke: color-mix(in srgb, var(--muted) 20%, transparent);
+  stroke-width: 1;
+}
+
+.tcp-state-pill.active rect {
+  fill: color-mix(in srgb, var(--brand-soft) 64%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 32%, transparent);
+}
+
+.tcp-state-pill text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.tcp-state-pill.active text {
+  fill: var(--brand-strong);
+}
+
+.tcp-segment line,
+.tcp-established-flow line {
+  stroke: color-mix(in srgb, var(--muted) 28%, transparent);
+  stroke-linecap: round;
+  stroke-width: 3.5;
+}
+
+.tcp-segment.return line {
+  stroke: color-mix(in srgb, var(--muted) 28%, transparent);
+}
+
+.tcp-segment.revealed line {
+  stroke: var(--brand);
+  stroke-width: 4.5;
+}
+
+.tcp-segment.return.revealed line {
+  stroke: var(--tertiary);
+}
+
+.tcp-wave-segment.return.revealed line {
+  stroke: var(--brand);
+}
+
+.tcp-wave-segment.tone-orange.revealed line {
+  stroke: #f59e0b;
+}
+
+.tcp-wave-segment.tone-green.revealed line {
+  stroke: var(--success);
+}
+
+.tcp-segment.active line,
+.tcp-established-flow line {
+  stroke-width: 6;
+}
+
+.tcp-segment rect {
+  fill: color-mix(in srgb, var(--surface) 82%, var(--muted));
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  stroke-width: 1;
+  filter: url(#tcp-soft-shadow);
+}
+
+.tcp-segment.revealed rect {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+}
+
+.tcp-segment.return.revealed rect {
+  stroke: color-mix(in srgb, var(--tertiary) 28%, var(--border));
+}
+
+.tcp-segment-title {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.tcp-segment-label {
+  fill: color-mix(in srgb, var(--muted) 74%, var(--text));
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.tcp-segment.revealed .tcp-segment-label {
+  fill: var(--text);
+}
+
+.tcp-established-flow line {
+  stroke: var(--success);
+}
+
+.tcp-established-flow text {
+  fill: var(--success);
+  font-size: 15px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+#tcp-arrow-blue path {
+  fill: var(--brand);
+}
+
+#tcp-arrow-green path {
+  fill: var(--success);
+}
+
+#tcp-arrow-muted path {
+  fill: color-mix(in srgb, var(--muted) 44%, transparent);
+}
+
+#tcp-wave-arrow-blue path {
+  fill: var(--brand);
+}
+
+#tcp-wave-arrow-green path {
+  fill: var(--success);
+}
+
+#tcp-wave-arrow-orange path {
+  fill: #f59e0b;
+}
+
+#tcp-wave-arrow-muted path {
+  fill: color-mix(in srgb, var(--muted) 44%, transparent);
+}
+
+.tcp-half-close-band rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 32%, var(--border));
+  stroke-width: 1;
+}
+
+.tcp-half-close-band text {
+  fill: color-mix(in srgb, #92400e 82%, var(--text));
+  font-size: 14px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.tcp-timewait-note rect {
+  fill: color-mix(in srgb, var(--success) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+  stroke-width: 1;
+  filter: url(#tcp-wave-soft-shadow);
+}
+
+.tcp-timewait-note text {
+  fill: var(--success);
+  font-size: 13px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.tcp-timewait-note text:first-of-type {
+  fill: color-mix(in srgb, var(--success) 78%, var(--text));
+  font-size: 15px;
+}
+
+.tcp-timewait-note.compact text,
+.tcp-timewait-note.compact text:first-of-type {
+  fill: color-mix(in srgb, var(--success) 82%, var(--text));
+  font-size: 12px;
+}
+
+.tcp-fsm-bg-panel {
+  fill: color-mix(in srgb, var(--brand-soft) 34%, var(--surface));
+}
+
+.tcp-fsm-band rect {
+  stroke-width: 1;
+}
+
+.tcp-fsm-band.setup rect {
+  fill: color-mix(in srgb, var(--brand) 7%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.tcp-fsm-band.transfer rect {
+  fill: color-mix(in srgb, var(--success) 8%, transparent);
+  stroke: color-mix(in srgb, var(--success) 18%, transparent);
+}
+
+.tcp-fsm-band.teardown rect {
+  fill: color-mix(in srgb, #f59e0b 8%, transparent);
+  stroke: color-mix(in srgb, #f59e0b 22%, transparent);
+}
+
+.tcp-fsm-band text {
+  fill: color-mix(in srgb, var(--muted) 82%, var(--text));
+  font-size: 14px;
+  font-weight: 900;
+  text-anchor: start;
+}
+
+.tcp-fsm-edge path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--muted) 38%, transparent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.6;
+}
+
+.tcp-fsm-edge.revealed path {
+  stroke-width: 3.7;
+}
+
+.tcp-fsm-edge.current path {
+  stroke-width: 5.2;
+}
+
+.tcp-fsm-edge.dashed path {
+  stroke-dasharray: 8 9;
+}
+
+.tcp-fsm-edge.tone-blue.revealed path {
+  stroke: var(--brand);
+}
+
+.tcp-fsm-edge.tone-teal.revealed path {
+  stroke: var(--tertiary);
+}
+
+.tcp-fsm-edge.tone-green.revealed path {
+  stroke: var(--success);
+}
+
+.tcp-fsm-edge.tone-orange.revealed path {
+  stroke: #f59e0b;
+}
+
+.tcp-fsm-edge rect {
+  fill: color-mix(in srgb, var(--surface) 84%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 12%, transparent);
+  stroke-width: 1;
+}
+
+.tcp-fsm-edge.revealed rect {
+  fill: color-mix(in srgb, var(--surface) 95%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 16%, var(--border));
+}
+
+.tcp-fsm-edge text {
+  fill: var(--muted);
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.tcp-fsm-edge.revealed text {
+  fill: var(--text);
+}
+
+.tcp-fsm-node rect {
+  fill: color-mix(in srgb, var(--surface) 84%, var(--muted));
+  stroke: color-mix(in srgb, var(--muted) 20%, transparent);
+  stroke-width: 1.2;
+}
+
+.tcp-fsm-node.active rect {
+  filter: url(#tcp-fsm-soft-shadow);
+}
+
+.tcp-fsm-node.tone-closed.active rect {
+  fill: color-mix(in srgb, var(--surface) 92%, var(--muted));
+  stroke: color-mix(in srgb, var(--muted) 32%, transparent);
+}
+
+.tcp-fsm-node.tone-setup.active rect {
+  fill: color-mix(in srgb, var(--brand-soft) 62%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, transparent);
+}
+
+.tcp-fsm-node.tone-data.active rect {
+  fill: color-mix(in srgb, var(--success) 16%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, transparent);
+}
+
+.tcp-fsm-node.tone-active.active rect {
+  fill: color-mix(in srgb, #f59e0b 15%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, transparent);
+}
+
+.tcp-fsm-node.tone-passive.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, transparent);
+}
+
+.tcp-fsm-node.tone-special.active rect {
+  fill: color-mix(in srgb, #8b5cf6 14%, var(--surface));
+  stroke: color-mix(in srgb, #8b5cf6 38%, transparent);
+}
+
+.tcp-fsm-node.current rect {
+  stroke-width: 2.8;
+}
+
+.tcp-fsm-node text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.tcp-fsm-node.active text {
+  fill: var(--text);
+}
+
+.tcp-handshake-caption {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid color-mix(in srgb, var(--brand) 20%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  padding: 8px 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.tcp-handshake-caption strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.tcp-handshake-caption span {
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.tcp-handshake-caption.tcp-state-machine-caption {
+  top: 14px;
+  bottom: auto;
+}
+
+.state-flow-map {
+  position: relative;
+  width: min(100%, 1120px);
+  aspect-ratio: 1.34;
+  min-height: 560px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.92), rgb(255 255 255 / 0.86)),
+    var(--surface);
+  box-shadow: 0 16px 36px rgb(23 32 51 / 0.09);
+  overflow: hidden;
+}
+
+:root[data-theme="dark"] .state-flow-map {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.94), rgb(21 29 43 / 0.88)),
+    var(--surface);
+}
+
+.state-flow-sequence {
+  display: block;
+}
+
+.state-actor-icon {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--muted);
+}
+
+.state-lane-label {
+  fill: var(--text);
+  font-size: 21px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.data-flow-label-box,
+.data-transfer-label-box,
+.state-lane-label-box,
+.state-block-label-box,
+.packet-record-label-box {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--text);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.data-flow-label-box,
+.data-transfer-label-box {
+  color: var(--muted);
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.data-transfer-label-box {
+  color: var(--text);
+}
+
+.state-lane-label-box {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.state-block-label-box {
+  color: #142033;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.16;
+  padding: 0 6px;
+}
+
+.packet-record-label-box {
+  color: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.18;
+  padding: 4px 7px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+.state-block rect {
+  stroke: rgb(255 255 255 / 0.52);
+  stroke-width: 1.2;
+}
+
+.state-block text {
+  fill: #142033;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 22px;
+  font-weight: 900;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.state-block.blue rect {
+  fill: #5aaee0;
+}
+
+.state-block.yellow rect {
+  fill: #ffe795;
+}
+
+.state-block.orange rect {
+  fill: #ffc48f;
+}
+
+.state-block.green rect {
+  fill: #86c574;
+}
+
+.state-block.purple rect {
+  fill: #c7b8ff;
+}
+
+.state-block.teal rect {
+  fill: #88d4dc;
+}
+
+.state-block.active rect {
+  filter: drop-shadow(0 8px 12px rgb(23 32 51 / 0.14));
+}
+
+.data-flow-arrow,
+.data-transfer-arrow {
+  stroke: #95d082;
+  stroke-width: 18;
+  stroke-linecap: round;
+  opacity: 0.74;
+  fill: none;
+}
+
+.data-flow-label,
+.data-transfer-label {
+  fill: var(--muted);
+  font-size: 18px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.data-transfer-label {
+  fill: var(--text);
+}
+
+.endpoint {
+  display: grid;
+  place-items: center;
+  gap: 19px;
+}
+
+.endpoint-box {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 148px;
+  height: 148px;
+  border: 2px solid var(--brand);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: 0 18px 38px rgb(23 32 51 / 0.1);
+}
+
+.endpoint.server .endpoint-box {
+  border-color: var(--tertiary);
+}
+
+.endpoint-box svg {
+  color: var(--brand);
+}
+
+.endpoint.server .endpoint-box svg {
+  color: var(--tertiary);
+}
+
+.endpoint-box strong {
+  color: var(--brand);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+}
+
+.endpoint.server .endpoint-box strong {
+  color: var(--tertiary);
+}
+
+.endpoint-label {
+  position: absolute;
+  top: -14px;
+  min-width: 76px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #ffffff;
+  padding: 3px 10px;
+  text-align: center;
+}
+
+.endpoint.server .endpoint-label {
+  background: var(--tertiary);
+}
+
+.endpoint > code {
+  min-width: 124px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-low);
+  color: var(--brand-strong);
+  padding: 7px 13px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.endpoint.server > code {
+  color: var(--tertiary);
+}
+
+.wire-zone {
+  position: relative;
+  height: 300px;
+}
+
+.packet-sequence {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.packet-sequence .lifeline {
+  stroke: color-mix(in srgb, var(--line) 82%, var(--muted));
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.generic-sequence {
+  position: relative;
+  min-height: 420px;
+}
+
+.wire-caption {
+  position: absolute;
+  inset: auto 0 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 18px;
+}
+
+.actor-node-dot {
+  fill: var(--surface);
+  stroke: var(--brand);
+  stroke-width: 2.4;
+}
+
+.actor-node-label {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 4px;
+}
+
+.packet-record line,
+.packet-record path {
+  stroke: var(--brand);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  fill: none;
+}
+
+.packet-record text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  font-weight: 800;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+
+.packet-record.synAck line {
+  stroke: var(--tertiary);
+}
+
+.packet-record.ack line {
+  stroke: var(--success);
+}
+
+.packet-record.teal path,
+.packet-record.teal line {
+  stroke: var(--tertiary);
+}
+
+.packet-record.success path,
+.packet-record.success line {
+  stroke: var(--success);
+}
+
+.packet-record.warning path,
+.packet-record.warning line {
+  stroke: #f59e0b;
+}
+
+.packet-record.danger path,
+.packet-record.danger line {
+  stroke: var(--danger);
+}
+
+.packet-record.active line,
+.packet-record.active path {
+  stroke-width: 3.2;
+}
+
+.packet-record.active text {
+  fill: var(--brand-strong);
+}
+
+.packet-record.active .packet-record-label-box {
+  color: var(--brand-strong);
+  border-color: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.packet-record.teal.active .packet-record-label-box {
+  color: var(--tertiary);
+  border-color: color-mix(in srgb, var(--tertiary) 40%, var(--border));
+}
+
+.packet-record.success.active .packet-record-label-box {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 40%, var(--border));
+}
+
+.packet-record.warning.active .packet-record-label-box {
+  color: #b45309;
+  border-color: color-mix(in srgb, #f59e0b 40%, var(--border));
+}
+
+.packet-record.danger.active .packet-record-label-box {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
+}
+
+.packet-record.synAck.active text {
+  fill: var(--tertiary);
+}
+
+.packet-record.ack.active text {
+  fill: var(--success);
+}
+
+.packet-record.teal.active text {
+  fill: var(--tertiary);
+}
+
+.packet-record.success.active text {
+  fill: var(--success);
+}
+
+.packet-record.warning.active text {
+  fill: #b45309;
+}
+
+.packet-record.danger.active text {
+  fill: var(--danger);
+}
+
+.simulator-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+  padding: 24px;
+  border-left: 1px solid var(--border);
+  overflow: auto;
+}
+
+.simulator-panel section {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+}
+
+.simulator-panel h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 11px;
+  color: var(--brand);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.task-text {
+  margin: 0;
+  color: var(--text);
+  font-size: 16.5px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.progress-meter {
+  position: relative;
+  height: 8px;
+  margin-top: 14px;
+  border-radius: 999px;
+  background: var(--surface-mid);
+  overflow: hidden;
+}
+
+.progress-meter span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brand), var(--tertiary));
+  transition: width 180ms ease;
+}
+
+.action-section {
+  display: grid;
+  gap: 11px;
+}
+
+.sim-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-low);
+  color: var(--faint);
+  padding: 0 15px;
+  font-weight: 700;
+}
+
+.sim-action:disabled {
+  cursor: default;
+}
+
+.sim-action.enabled {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #ffffff;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.sim-action.enabled:hover {
+  background: var(--brand-strong);
+  transform: translateY(-1px);
+}
+
+.feedback-card {
+  display: grid;
+  gap: 8px;
+}
+
+.feedback {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  min-height: 130px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--faint);
+  text-align: center;
+  padding: 18px;
+}
+
+.feedback.success {
+  border-color: color-mix(in srgb, var(--success) 60%, var(--border));
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.feedback.error {
+  border-color: color-mix(in srgb, var(--danger) 60%, var(--border));
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.history-card {
+  display: grid;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.history-card p {
+  margin: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-low);
+  color: var(--muted);
+  padding: 9px 11px;
+  font-size: 14px;
+}
+
+.history-card .muted {
+  color: var(--faint);
+  font-style: italic;
+}
+
+.history-card p strong {
+  color: var(--brand);
+}
+
+.simulator-empty {
+  display: grid;
+  align-content: center;
+  gap: 14px;
+  width: min(760px, calc(100% - 42px));
+  min-height: 100vh;
+  margin: 0 auto;
+}
+
+.simulator-empty h1 {
+  margin: 0;
+  font-size: 34px;
+}
+
+.simulator-empty p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.timeline {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  align-items: center;
+  gap: 14px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding: 18px clamp(18px, 5vw, 88px);
+}
+
+.timeline-item {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 7px;
+  color: var(--faint);
+}
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  top: 21px;
+  left: calc(-50% + 25px);
+  width: calc(100% - 50px);
+  height: 2px;
+  background: var(--border);
+}
+
+.timeline-item:first-child::before {
+  display: none;
+}
+
+.timeline-item span {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-low);
+  font-weight: 800;
+}
+
+.timeline-item.active span {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #ffffff;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--brand) 14%, transparent);
+}
+
+.timeline-item.done span,
+.timeline-item.done::before {
+  background: var(--success);
+  border-color: var(--success);
+  color: #ffffff;
+}

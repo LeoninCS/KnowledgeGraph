@@ -1,0 +1,70 @@
+.about-shell {
+  display: grid;
+  gap: 24px;
+  width: min(1120px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 54px 0;
+}
+
+.about-hero {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
+}
+
+.about-hero h1 {
+  margin: 0;
+  font-size: clamp(34px, 5vw, 52px);
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.about-hero p,
+.about-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.about-hero .primary-button {
+  width: fit-content;
+  min-width: 156px;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.about-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  padding: 20px;
+}
+
+.about-card h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.mini-concept > div {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--brand);
+}
+
+.mini-concept span {
+  display: grid;
+  line-height: 1.2;
+}
+
+.mini-concept small {
+  color: var(--faint);
+  font-size: 12px;
+}

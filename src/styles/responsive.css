@@ -1,0 +1,326 @@
+@media (max-width: 1100px) {
+  .home-layout,
+  .detail-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .left-sidebar {
+    display: none;
+  }
+
+  .detail-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detail-aside {
+    position: static;
+  }
+}
+
+@media (max-width: 900px) {
+  .top-nav {
+    height: auto;
+    min-height: var(--topbar-height);
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 11px 16px;
+  }
+
+  .page-with-topbar {
+    padding-top: 108px;
+  }
+
+  .primary-nav,
+  .search-box {
+    display: none;
+  }
+
+  .home-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .graph-canvas {
+    height: 720px;
+    min-height: 720px;
+  }
+
+  .simulator-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .simulator-panel {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .visual-stage {
+    grid-template-columns: 1fr;
+    align-content: start;
+    min-height: auto;
+    padding: 24px 18px 32px;
+  }
+
+  .ethernet-frame-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
+  .signal-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
+  .tcp-ip-model-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
+  .arp-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
+  .switch-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
+  .array-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
+  .linked-list-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
+  .stack-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
+  .array-card {
+    width: 860px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .linked-list-card {
+    width: 900px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .stack-card {
+    width: 860px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .array-diagram {
+    height: 544px;
+  }
+
+  .linked-list-diagram {
+    height: 592px;
+  }
+
+  .switch-card {
+    width: 900px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .switch-diagram {
+    height: 502px;
+  }
+
+  .ethernet-frame-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .ethernet-frame-diagram {
+    height: 464px;
+  }
+
+  .signal-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .signal-diagram {
+    height: 582px;
+  }
+
+  .tcp-ip-model-card {
+    width: 940px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .tcp-ip-model-diagram {
+    height: 504px;
+  }
+
+  .arp-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .arp-diagram {
+    height: 532px;
+  }
+
+  .event-map {
+    width: min(100%, 620px);
+    justify-self: center;
+  }
+
+  .wire-zone {
+    width: min(80vw, 420px);
+    justify-self: center;
+    height: 240px;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .top-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .icon-text-button {
+    min-width: 0;
+    justify-content: center;
+    padding: 0 10px;
+  }
+
+  .icon-text-button span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .graph-node.category {
+    width: 88px;
+    height: 88px;
+  }
+
+  .graph-node.category span,
+  .graph-node.group span {
+    max-width: 76px;
+  }
+
+  .graph-node.group {
+    width: 66px;
+    height: 66px;
+  }
+
+  .graph-node.knowledge {
+    width: 58px;
+    height: 58px;
+    font-size: 8px;
+  }
+
+  .detail-list {
+    grid-template-columns: 1fr;
+  }
+
+  .example-problem-card {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .detail-content {
+    padding: 26px 16px;
+  }
+
+  .hero-panel,
+  .info-section > div,
+  .cta-panel,
+  .contents-panel {
+    padding: 19px;
+  }
+
+  .timeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 162px;
+  }
+
+  .timeline-item::before {
+    display: none;
+  }
+
+  .sim-top-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+    padding: 18px;
+  }
+
+  .sim-context,
+  .sim-control-group,
+  .sim-control-group .secondary-button {
+    min-width: 0;
+  }
+
+  .sim-control-group {
+    width: 100%;
+  }
+
+  .sim-control-group .secondary-button {
+    flex: 1;
+  }
+
+  .sim-top-row h1,
+  .sim-top-row p {
+    text-align: left;
+  }
+
+  .event-map {
+    min-height: 390px;
+  }
+
+  .generic-sequence {
+    min-height: 360px;
+  }
+
+  .ethernet-frame-stage {
+    padding-inline: 12px;
+  }
+
+  .switch-stage {
+    padding-inline: 12px;
+  }
+
+  .switch-card {
+    width: 840px;
+  }
+
+  .switch-diagram {
+    height: 468px;
+  }
+
+  .ethernet-frame-card {
+    width: 880px;
+  }
+
+  .ethernet-frame-diagram {
+    height: 425px;
+  }
+}
