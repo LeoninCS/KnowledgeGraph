@@ -5,55 +5,19 @@
   min-height: 720px;
   overflow: hidden;
   cursor: default;
-  background:
-    radial-gradient(circle at calc(50% + var(--canvas-x, 0px)) calc(44% + var(--canvas-y, 0px)), color-mix(in srgb, var(--brand-soft) 46%, transparent), transparent 36%),
-    radial-gradient(color-mix(in srgb, var(--line) 58%, transparent) 1.15px, transparent 1.35px),
-    linear-gradient(color-mix(in srgb, var(--line) 22%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--line) 22%, transparent) 1px, transparent 1px),
-    linear-gradient(color-mix(in srgb, var(--line) 46%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--line) 46%, transparent) 1px, transparent 1px),
-    radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--surface) 82%, transparent), transparent 62%),
-    var(--bg);
-  background-position:
-    0 0,
-    var(--canvas-x, 0px) var(--canvas-y, 0px),
-    var(--canvas-x, 0px) var(--canvas-y, 0px),
-    var(--canvas-x, 0px) var(--canvas-y, 0px),
-    var(--canvas-x, 0px) var(--canvas-y, 0px),
-    var(--canvas-x, 0px) var(--canvas-y, 0px),
-    0 0,
-    0 0;
-  background-size:
-    100% 100%,
-    var(--grid-step, 34px) var(--grid-step, 34px),
-    calc(var(--grid-step, 34px) * 2) calc(var(--grid-step, 34px) * 2),
-    calc(var(--grid-step, 34px) * 2) calc(var(--grid-step, 34px) * 2),
-    var(--grid-major, 170px) var(--grid-major, 170px),
-    var(--grid-major, 170px) var(--grid-major, 170px),
-    100% 100%,
-    100% 100%;
+  background: var(--bg);
   user-select: none;
 }
 
-.graph-canvas::before,
-.graph-canvas::after {
+.graph-canvas::before {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  content: "";
-}
-
-.graph-canvas::before {
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--surface) 92%, transparent),
-    inset 0 0 80px color-mix(in srgb, var(--text) 7%, transparent);
-}
-
-.graph-canvas::after {
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--bg) 92%, transparent), transparent 14%, transparent 86%, color-mix(in srgb, var(--bg) 92%, transparent)),
-    linear-gradient(180deg, color-mix(in srgb, var(--bg) 78%, transparent), transparent 18%, transparent 82%, color-mix(in srgb, var(--bg) 90%, transparent));
+    inset 0 0 60px color-mix(in srgb, var(--text) 5%, transparent);
+  content: "";
 }
 
 .graph-canvas.is-panning {
@@ -323,56 +287,6 @@
   font-size: 12px;
   font-weight: 850;
   font-variant-numeric: tabular-nums;
-}
-
-.canvas-minimap {
-  position: absolute;
-  left: 20px;
-  bottom: 22px;
-  z-index: 7;
-  width: 154px;
-  height: 112px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, transparent), color-mix(in srgb, var(--surface) 80%, transparent)),
-    var(--surface);
-  box-shadow:
-    0 1px 0 rgb(255 255 255 / 0.78) inset,
-    0 18px 38px rgb(23 32 51 / 0.14);
-  pointer-events: none;
-  backdrop-filter: blur(16px);
-}
-
-.canvas-minimap svg {
-  width: 100%;
-  height: 100%;
-  padding: 12px;
-}
-
-.canvas-minimap line {
-  stroke: color-mix(in srgb, var(--line) 78%, var(--brand));
-  stroke-width: 7;
-  stroke-linecap: round;
-  opacity: 0.58;
-}
-
-.canvas-minimap circle {
-  fill: color-mix(in srgb, var(--brand) 68%, var(--surface));
-  opacity: 0.72;
-}
-
-.canvas-minimap circle.active {
-  fill: var(--brand);
-  opacity: 1;
-}
-
-.canvas-minimap-viewport {
-  fill: color-mix(in srgb, var(--brand-soft) 54%, transparent);
-  stroke: var(--brand);
-  stroke-width: 8;
-  vector-effect: non-scaling-stroke;
 }
 
 .sphere-node:hover,

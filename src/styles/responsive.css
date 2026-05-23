@@ -133,10 +133,6 @@
     inset: 118px -30px 106px;
   }
 
-  .canvas-minimap {
-    display: none;
-  }
-
   .graph-canvas-controls {
     right: 18px;
     bottom: 18px;

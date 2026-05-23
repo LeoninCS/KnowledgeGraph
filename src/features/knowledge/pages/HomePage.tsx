@@ -84,13 +84,6 @@ type CanvasDrag = {
   originY: number;
 };
 
-type MinimapViewport = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
-
 const graphDimensions: Record<GraphMode, { width: number; height: number }> = {
   core: { width: 1320, height: 980 },
   all: { width: 1560, height: 1140 },
@@ -656,32 +649,6 @@ export function HomePage({
     (node) => node.kind === "knowledge" && node.matched,
   );
   const isEmptySearch = hasSearch && !hasResults;
-  const minimapNodeById = useMemo(() => getNodeById(graph.nodes), [graph.nodes]);
-  const minimapViewport = useMemo<MinimapViewport>(() => {
-    const width = Math.max(120, Math.min(graph.width - 36, graph.width / canvasView.zoom));
-    const height = Math.max(90, Math.min(graph.height - 36, graph.height / canvasView.zoom));
-    const rawX = (graph.width - width) / 2 - (canvasView.x / canvasView.zoom) * 1.3;
-    const rawY = (graph.height - height) / 2 - (canvasView.y / canvasView.zoom) * 1.3;
-    const maxX = graph.width - width - 18;
-    const maxY = graph.height - height - 18;
-
-    return {
-      x: maxX <= 18 ? (graph.width - width) / 2 : clampValue(rawX, 18, maxX),
-      y: maxY <= 18 ? (graph.height - height) / 2 : clampValue(rawY, 18, maxY),
-      width,
-      height,
-    };
-  }, [canvasView.x, canvasView.y, canvasView.zoom, graph.height, graph.width]);
-  const canvasSurfaceStyle = useMemo(
-    () =>
-      ({
-        "--canvas-x": `${canvasView.x}px`,
-        "--canvas-y": `${canvasView.y}px`,
-        "--grid-step": `${Math.max(18, Math.round(34 * canvasView.zoom))}px`,
-        "--grid-major": `${Math.max(94, Math.round(170 * canvasView.zoom))}px`,
-      }) as CSSProperties,
-    [canvasView.x, canvasView.y, canvasView.zoom],
-  );
   const zoomPercent = `${Math.round(canvasView.zoom * 100)}%`;
 
   useEffect(() => {
@@ -799,7 +766,6 @@ export function HomePage({
       <section
         className={`graph-canvas ${canvasDrag ? "is-panning" : ""}`}
         aria-label={t.navGraph}
-        style={canvasSurfaceStyle}
       >
         <div className="mobile-category-tabs" aria-label={t.learningPath}>
           {t.categories.map(([id, name], index) => {
@@ -887,51 +853,6 @@ export function HomePage({
             </div>
           </div>
         )}
-        <div className="canvas-minimap" aria-hidden="true">
-          <svg viewBox={`0 0 ${graph.width} ${graph.height}`}>
-            <g>
-              {graph.edges
-                .filter((edge) => edge.relation === "category" || edge.relation === "group")
-                .map((edge) => {
-                  const source = minimapNodeById.get(edge.source);
-                  const target = minimapNodeById.get(edge.target);
-
-                  if (!source || !target) {
-                    return null;
-                  }
-
-                  return (
-                    <line
-                      key={edge.id}
-                      x1={source.x}
-                      y1={source.y}
-                      x2={target.x}
-                      y2={target.y}
-                    />
-                  );
-                })}
-            </g>
-            <g>
-              {graph.nodes.map((node) => (
-                <circle
-                  key={node.id}
-                  className={node.active ? "active" : ""}
-                  cx={node.x}
-                  cy={node.y}
-                  r={node.kind === "category" ? 20 : node.kind === "group" ? 13 : 8}
-                />
-              ))}
-            </g>
-            <rect
-              className="canvas-minimap-viewport"
-              x={minimapViewport.x}
-              y={minimapViewport.y}
-              width={minimapViewport.width}
-              height={minimapViewport.height}
-              rx="46"
-            />
-          </svg>
-        </div>
         <div className="graph-canvas-controls" aria-label={t.canvasControls}>
           <button
             type="button"
