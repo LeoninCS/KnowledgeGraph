@@ -2471,6 +2471,132 @@ function buildRabbitmqSpecific(point: GraphKnowledgePoint) {
     );
   }
 
+  if (point.id === "binding") {
+    return flow(
+      "rabbitmq",
+      point,
+      ["绑定路由拓扑", "Binding route topology"],
+      [
+        "模拟绑定如何把交换机、队列、流和下游交换机连成可调整的消息路由表。",
+        "Simulate how bindings connect exchanges, queues, streams, and downstream exchanges into an adjustable routing table.",
+      ],
+      [
+        ["publisher", "生产者", "Publisher", "发布 routing key 与 headers", "Publishes routing key and headers", "client"],
+        ["exchange", "源交换机", "Source exchange", "读取当前绑定表", "Reads current binding table", "broker"],
+        ["binding", "绑定规则", "Binding rule", "保存目标、binding key 和 arguments", "Stores destination, binding key, and arguments", "data"],
+        ["destination", "目标队列/交换机", "Destination queue/exchange", "接收消息或继续二次路由", "Receives message or routes again", "queue"],
+      ],
+      {
+        publisher: tx("准备发布 order.created.eu", "Preparing order.created.eu"),
+        exchange: tx("orders.events 在线", "orders.events online"),
+        binding: tx("绑定表已加载", "Binding table loaded"),
+        destination: tx("等待匹配消息", "Awaiting matching message"),
+      },
+      [
+        [
+          "声明绑定",
+          "Declare binding",
+          "queue.bind / exchange.bind",
+          "queue.bind / exchange.bind",
+          "destination",
+          "binding",
+          "binding key=order.created.*",
+          "binding key=order.created.*",
+          "队列、流或下游交换机通过绑定订阅源交换机，绑定保存目标、key 或 headers arguments。",
+          "A queue, stream, or downstream exchange subscribes to the source exchange through a binding that stores destination, key, or header arguments.",
+          "绑定是消费者侧的订阅表达，生产者只需要发布到业务交换机。",
+          "A binding expresses consumer-side subscription, while publishers target the business exchange.",
+          {
+            destination: tx("订阅目标已声明", "Destination declared"),
+            binding: tx("规则写入拓扑", "Rule stored in topology"),
+          },
+        ],
+        [
+          "匹配 routing key",
+          "Match routing key",
+          "比较 message key 与 binding key",
+          "Compare message key with binding key",
+          "publisher",
+          "exchange",
+          "order.created.eu",
+          "order.created.eu",
+          "消息进入源交换机后，Direct 用精确匹配，Topic 用词段模式匹配，Headers 用 arguments 匹配消息头。",
+          "After a message enters the source exchange, Direct uses exact match, Topic uses word-pattern match, and Headers uses arguments to match headers.",
+          "路由结果由交换机类型和绑定属性共同决定。",
+          "Routing result is decided by exchange type and binding attributes together.",
+          {
+            publisher: tx("消息已发布", "Message published"),
+            exchange: tx("开始评估绑定", "Evaluating bindings"),
+          },
+          "teal",
+        ],
+        [
+          "Fanout 全量命中",
+          "Fanout matches all",
+          "复制给所有绑定目标",
+          "Copy to every bound target",
+          "exchange",
+          "binding",
+          "fanout ignores key",
+          "fanout ignores key",
+          "Fanout 交换机会把消息复制给所有绑定目标，binding key 在该类型下通常无需参与匹配。",
+          "A fanout exchange copies the message to every bound destination, and the binding key usually does not participate in matching for that type.",
+          "同一事件进入多个独立队列，订阅方的消费进度彼此隔离。",
+          "The same event enters multiple independent queues, isolating subscriber progress.",
+          {
+            exchange: tx("Fanout 路由完成", "Fanout route complete"),
+            binding: tx("所有目标命中", "All destinations matched"),
+          },
+          "success",
+        ],
+        [
+          "级联到下游交换机",
+          "Cascade to downstream exchange",
+          "exchange-to-exchange binding",
+          "exchange-to-exchange binding",
+          "binding",
+          "destination",
+          "orders.events -> audit.events",
+          "orders.events -> audit.events",
+          "Exchange-to-exchange binding 命中后，消息沿源交换机和目标交换机之间的单向绑定继续计算最终队列集合。",
+          "When an exchange-to-exchange binding matches, the message continues through the one-way binding from source exchange to destination exchange to compute final queues.",
+          "RabbitMQ 会消除绑定环路造成的重复投递，级联路由适合事件域聚合、灰度迁移和跨团队订阅。",
+          "RabbitMQ eliminates duplicate deliveries caused by binding cycles; cascaded routing fits event-domain aggregation, gradual migration, and cross-team subscriptions.",
+          {
+            binding: tx("级联规则命中", "Cascade rule matched"),
+            destination: tx("最终队列集合已计算", "Final queue set computed"),
+          },
+          "warning",
+        ],
+        [
+          "调整绑定",
+          "Adjust binding",
+          "新增/删除绑定后重新计算",
+          "Recompute after bind/unbind",
+          "binding",
+          "destination",
+          "bind / unbind",
+          "bind / unbind",
+          "新增绑定会让后续匹配消息进入新目标，删除绑定会让后续路由跳过该目标。",
+          "Adding a binding lets future matching messages enter the new destination; removing a binding makes future routing skip that destination.",
+          "绑定变更影响后续消息流向，是灰度订阅和故障隔离的主要控制点。",
+          "Binding changes affect future message flow and serve as a main control point for gradual subscription and fault isolation.",
+          {
+            binding: tx("绑定表已更新", "Binding table updated"),
+            destination: tx("新流向生效", "New flow active"),
+          },
+          "danger",
+        ],
+      ],
+      [
+        ["binding key", "binding key"],
+        ["arguments / headers", "arguments / headers"],
+        ["目标数量", "Destination count"],
+        ["bind / unbind", "bind / unbind"],
+      ],
+    );
+  }
+
   if (area === "dead-letter" || area === "delay-retry") {
     return flow(
       "rabbitmq",
