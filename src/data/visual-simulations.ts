@@ -180,12 +180,15 @@ const visualAreas: Record<CategoryId, string[]> = {
   ],
 };
 
-const visualPointIds: Partial<Record<CategoryId, string[]>> = {
+export const visualPointIds: Partial<Record<CategoryId, string[]>> = {
   network: [
     "network-overview",
     "osi-model",
     "tcp-ip-model",
     "signal",
+    "ethernet-physical",
+    "mac-address",
+    "ethernet-frame",
     "arp",
     "switch",
     "vlan",
@@ -382,8 +385,8 @@ function getAreaKey(point: GraphKnowledgePoint) {
   return point.area ?? point.layer ?? "foundation";
 }
 
-export function isPointVisualizable(_categoryId: CategoryId, point: GraphKnowledgePoint) {
-  return Boolean(point.id);
+export function isPointVisualizable(categoryId: CategoryId, point: GraphKnowledgePoint) {
+  return visualPointIds[categoryId]?.includes(point.id) ?? false;
 }
 
 function actor(
@@ -2644,26 +2647,32 @@ function buildAgentSpecific(point: GraphKnowledgePoint) {
     return flow(
       "agent",
       point,
-      ["工具调用", "Tool calling"],
-      ["模拟模型选择工具、生成参数、执行外部系统并读取 observation。", "Simulate model selecting tool, generating arguments, executing external system, and reading observation."],
+      ["工具调用闭环", "Tool-calling loop"],
+      ["模拟工具 Schema 进入上下文、模型生成调用、执行器校验运行并把结果回填。", "Simulate tool schemas entering context, the model producing a call, the executor validating and running it, and results returning to context."],
       [
-        ["user", "用户目标", "User goal", "任务和约束", "Task and constraints", "client"],
-        ["agent", "Agent", "Agent", "选择工具和参数", "Selects tool and arguments", "agent"],
-        ["tool", "工具/API", "Tool / API", "执行外部动作", "Runs external action", "tool"],
-        ["obs", "Observation", "Observation", "结果、错误或证据", "Result, error, or evidence", "data"],
+        ["user", "用户目标", "User goal", "任务、约束与缺失参数", "Task, constraints, and missing slots", "client"],
+        ["schema", "工具目录", "Tool catalog", "名称、描述、JSON Schema、权限", "Names, descriptions, JSON Schema, permissions", "data"],
+        ["model", "模型", "Model", "选择工具并生成参数", "Selects tool and generates arguments", "model"],
+        ["call", "调用记录", "Call record", "call id、工具名、参数快照", "Call id, tool name, argument snapshot", "data"],
+        ["executor", "执行器", "Executor", "校验、授权、调用、重试", "Validates, authorizes, calls, retries", "tool"],
+        ["context", "结果上下文", "Result context", "Observation、错误、证据、下一步", "Observation, error, evidence, next step", "agent"],
       ],
       {
         user: tx("目标已输入", "Goal entered"),
-        agent: tx("工具待选", "Tool pending"),
-        tool: tx("权限待校验", "Permission pending"),
-        obs: tx("等待结果", "Awaiting result"),
+        schema: tx("工具待绑定", "Tools pending bind"),
+        model: tx("等待工具列表", "Awaiting tool list"),
+        call: tx("等待调用编号", "Awaiting call id"),
+        executor: tx("等待调用", "Awaiting call"),
+        context: tx("等待结果", "Awaiting result"),
       },
       [
-        ["选择工具", "Select tool", `执行 ${point.zh}`, `Run ${point.en}`, "user", "agent", "intent + schema", "intent + schema", "Agent 根据目标和工具 schema 选择动作。", "The agent selects action from goal and tool schema.", "工具选择要匹配能力、权限和输入约束。", "Tool selection matches capability, permission, and input constraints.", { user: tx("等待执行", "Waiting execution"), agent: tx("选择中", "Selecting") }],
-        ["生成参数", "Generate arguments", "填充结构化参数", "Fill structured arguments", "agent", "tool", "JSON args", "JSON args", "模型生成参数，系统校验类型、必填项和权限。", "The model generates arguments; system validates types, required fields, and permission.", "参数校验能减少工具误用。", "Argument validation reduces tool misuse.", { agent: tx("参数就绪", "Arguments ready"), tool: tx("执行中", "Executing") }, "teal"],
-        ["读取观察", "Read observation", "把工具结果放回上下文", "Put tool result into context", "tool", "obs", "result/error", "result / error", "工具返回结果、错误或证据，Agent 决定下一步。", "The tool returns result, error, or evidence; the agent decides next step.", "稳定工具链要记录调用轨迹、错误和重试。", "Stable toolchains record call trace, errors, and retries.", { tool: tx("已返回", "Returned"), obs: tx("进入上下文", "In context") }, "success"],
+        ["绑定工具", "Bind tools", `准备 ${point.zh}`, `Prepare ${point.en}`, "user", "schema", "tool schema", "tool schema", "应用把可用工具的名称、描述、参数 Schema 和权限边界放入模型上下文。", "The app places available tool names, descriptions, parameter schemas, and permission boundaries into model context.", "Schema 越清晰，模型越容易选对工具和参数。", "Clear schemas improve tool and argument selection.", { user: tx("目标已解析", "Goal parsed"), schema: tx("Schema 已绑定", "Schema bound"), model: tx("工具可见", "Tools visible") }],
+        ["生成调用", "Generate call", "选择工具并填参", "Select tool and fill args", "model", "call", "call_id + JSON args", "call_id + JSON args", "模型根据目标和工具说明输出结构化工具调用，通常包含工具名、参数和调用标识。", "The model emits a structured tool call from the goal and tool descriptions, usually with a tool name, arguments, and call id.", "调用标识让后续结果能精确回填到原始请求。", "Call ids let returned results map back to the original request.", { schema: tx("候选工具已比较", "Tools compared"), model: tx("调用已生成", "Call generated"), call: tx("call_7 待执行", "call_7 pending") }, "teal"],
+        ["校验执行", "Validate and run", "执行外部能力", "Run external capability", "call", "executor", "validated call", "validated call", "执行器校验参数类型、必填字段、用户权限和风险等级，然后调用 API、数据库、浏览器或代码环境。", "The executor validates argument types, required fields, user permission, and risk level, then calls an API, database, browser, or code environment.", "写操作要用权限、幂等键、审批门和审计日志保护。", "Write actions use permissions, idempotency keys, approval gates, and audit logs.", { model: tx("等待执行结果", "Awaiting execution result"), call: tx("校验通过", "Validation passed"), executor: tx("外部调用中", "Calling external system") }, "warning"],
+        ["匹配结果", "Match result", "关联 tool_result", "Correlate tool_result", "executor", "call", "tool_result(call_id)", "tool_result(call_id)", "工具返回数据、错误或证据，系统用同一个 call id 把结果匹配到原始调用记录。", "The tool returns data, error, or evidence; the system uses the same call id to match the result to the original call record.", "并行工具调用依赖调用编号保持结果顺序和归属清晰。", "Parallel tool calls rely on call ids to keep result order and ownership clear.", { executor: tx("结果已返回", "Result returned"), call: tx("call_7 已匹配", "call_7 matched") }, "success"],
+        ["回填上下文", "Update context", "写回 observation", "Write back observation", "call", "context", "observation + evidence", "observation + evidence", "系统压缩工具结果并把 observation 放回会话，模型继续下一步或生成最终回答。", "The system compresses the tool result and places the observation back into the conversation so the model can continue or answer.", "稳定工具链要记录调用轨迹、错误分类、重试和最终证据。", "Stable toolchains record trace, error class, retries, and final evidence.", { call: tx("证据已整理", "Evidence summarized"), context: tx("上下文已更新", "Context updated"), model: tx("可继续推理", "Can continue reasoning") }, "success"],
       ],
-      [["schema", "schema"], ["权限", "Permission"], ["observation", "observation"]],
+      [["Schema 约束", "Schema constraints"], ["call id 关联", "Call id correlation"], ["权限与审计", "Permission and audit"], ["结果回填", "Result return"]],
     );
   }
 

@@ -2516,8 +2516,8 @@ function SimulationStage({
   const flowActors = simulation.actors.filter((actorItem) => actorItem.id !== "wire");
   const laneActors = flowActors.length >= 2 ? flowActors : simulation.actors;
   const laneCount = Math.max(laneActors.length, 1);
-  const laneWidth = 220;
-  const laneGap = laneCount === 1 ? 0 : 260 / Math.max(laneCount - 1, 1);
+  const laneWidth = 190;
+  const laneGap = laneCount === 1 ? 0 : 130 / Math.max(laneCount - 1, 1);
   const laneTop = 118;
   const stateHeight = 84;
   const stateGap = 0;
@@ -2555,7 +2555,7 @@ function SimulationStage({
     1,
     ...Array.from(statesByActor.values()).map((states) => states.length),
   );
-  const stageWidth = 260 + laneWidth * laneCount + laneGap * Math.max(laneCount - 1, 0);
+  const stageWidth = 180 + laneWidth * laneCount + laneGap * Math.max(laneCount - 1, 0);
   const stageHeight = Math.max(
     560,
     laneTop + maxStateCount * (stateHeight + stateGap) + 126,
@@ -2565,7 +2565,7 @@ function SimulationStage({
 
     laneActors.forEach((actorItem, index) => {
       positions.set(actorItem.id, {
-        x: 70 + index * (laneWidth + laneGap),
+        x: 48 + index * (laneWidth + laneGap),
         top: laneTop,
         width: laneWidth,
       });
@@ -2742,7 +2742,7 @@ function SimulationStage({
                 <SvgLabelBox
                   x={labelX}
                   y={labelY}
-                  width={sameActor ? 180 : 230}
+                  width={sameActor ? 172 : 202}
                   height={54}
                   className="packet-record-label-box"
                 >
