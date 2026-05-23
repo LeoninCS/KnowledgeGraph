@@ -25,7 +25,13 @@
     "visual:lanes:sync": "node scripts/visualization-lanes.mjs sync",
     "visual:lanes:clean": "node scripts/visualization-lanes.mjs clean",
     "visual:complete": "node scripts/visualization-queue.mjs complete",
-    "visual:fail": "node scripts/visualization-queue.mjs fail"
+    "visual:fail": "node scripts/visualization-queue.mjs fail",
+    "kg:explain:status": "node scripts/kg-explain-queue.mjs status",
+    "kg:explain:start": "node scripts/kg-explain-queue.mjs start",
+    "kg:explain:complete": "node scripts/kg-explain-queue.mjs complete",
+    "kg:explain:handoff": "node scripts/kg-explain-queue.mjs handoff",
+    "kg:explain:validate": "node scripts/kg-explain-queue.mjs validate",
+    "kg:explain:fail": "node scripts/kg-explain-queue.mjs fail"
   },
   "dependencies": {
     "@dagrejs/dagre": "^3.0.0",

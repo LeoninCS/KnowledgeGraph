@@ -7,3 +7,5 @@ dist/
 .visualization-research/
 .visualization-lock/
 .visualization-implementation-lock/
+.kg-explain-progress.json
+.kg-explain-lock/
