@@ -2555,6 +2555,17 @@ function SimulationStage({
     );
   }
 
+  if (simulation.key === "algorithm:hash-table") {
+    return (
+      <HashTableBucketStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   const visibleSteps = simulation.steps.slice(0, completedSteps);
   const activeStep = simulation.steps[activeStepIndex];
   const flowActors = simulation.actors.filter((actorItem) => actorItem.id !== "wire");
@@ -3570,6 +3581,237 @@ function QueueFifoStage({
           )}
         </svg>
         <div className="wire-caption queue-caption">
+          <span>{readLocalizedText(activeStep.title, locale)}</span>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HashTableBucketStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const capacity = completedSteps >= 5 ? 10 : 5;
+  const showInsert = completedSteps >= 2;
+  const showLookup = completedSteps >= 3;
+  const showDelete = completedSteps >= 4;
+  const showResize = completedSteps >= 5;
+  const bucketRows = [
+    { index: 0, y: 170 },
+    { index: 1, y: 248 },
+    { index: 2, y: 326 },
+    { index: 3, y: 404 },
+    { index: 4, y: 482 },
+  ];
+  const bucketX = 132;
+  const bucketWidth = 170;
+  const bucketHeight = 54;
+  const chainStartX = 392;
+  const entryWidth = 132;
+  const entryHeight = 48;
+  const entryGap = 26;
+  const activeEntries = showDelete
+    ? [{ key: "grape", value: 7, bucket: 2 }]
+    : showInsert
+      ? [
+          { key: "apple", value: 3, bucket: 2 },
+          { key: "grape", value: 7, bucket: 2 },
+        ]
+      : [];
+  const resizeEntries = [
+    { key: "grape", value: 7, x: 698, y: 194, bucket: 7 },
+    { key: "melon", value: 4, x: 698, y: 278, bucket: 1 },
+    { key: "pear", value: 9, x: 698, y: 362, bucket: 4 },
+    { key: "kiwi", value: 5, x: 698, y: 446, bucket: 6 },
+  ];
+  const alpha = showResize ? "4/10 = 0.40" : showDelete ? "1/5 = 0.20" : showInsert ? "2/5 = 0.40" : "0/5 = 0.00";
+  const arrowId = (tone: string) => `url(#hash-arrow-${tone})`;
+
+  return (
+    <div className="visual-stage hash-table-stage">
+      <div className="hash-table-card">
+        <svg
+          className="hash-table-diagram"
+          viewBox="0 0 980 680"
+          preserveAspectRatio="xMidYMid meet"
+          aria-label={readLocalizedText(simulation.title, locale)}
+          role="img"
+        >
+          <defs>
+            <filter id="hash-table-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="9" floodOpacity="0.12" />
+            </filter>
+            {[
+              ["brand", "var(--brand)"],
+              ["teal", "var(--tertiary)"],
+              ["warning", "#f59e0b"],
+              ["success", "var(--success)"],
+              ["danger", "var(--danger)"],
+              ["muted", "color-mix(in srgb, var(--muted) 54%, transparent)"],
+            ].map(([tone, fill]) => (
+              <marker
+                key={tone}
+                id={`hash-arrow-${tone}`}
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+          </defs>
+
+          <rect className="hash-table-bg" x="26" y="24" width="928" height="620" rx="24" />
+          <text className="hash-table-title" x="490" y="76">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="hash-table-subtitle" x="490" y="108">
+            {locale === "zh"
+              ? "hash(key) % capacity 定位桶，碰撞项进入同桶链"
+              : "hash(key) % capacity selects a bucket; collisions enter the bucket chain"}
+          </text>
+
+          <g className="hash-formula">
+            <rect x="98" y="126" width="354" height="52" rx="16" />
+            <text x="275" y="158">{`bucket = hash(key) % ${capacity}`}</text>
+          </g>
+
+          <g className="hash-buckets">
+            {bucketRows.map((row) => {
+              const active = row.index === 2 && showInsert;
+              const x = bucketX;
+              const y = row.y;
+
+              return (
+                <g
+                  key={row.index}
+                  className={[
+                    "hash-bucket",
+                    active ? "active" : "",
+                    showResize ? "resized" : "",
+                  ].filter(Boolean).join(" ")}
+                >
+                  <rect x={x} y={y} width={bucketWidth} height={bucketHeight} rx="12" />
+                  <text x={x + 42} y={y + 34}>{`[${row.index}]`}</text>
+                  <text x={x + 114} y={y + 34}>
+                    {active ? "chain" : "empty"}
+                  </text>
+                  {active && (
+                    <path
+                      d={`M ${x + bucketWidth} ${y + bucketHeight / 2} L ${chainStartX - 18} ${y + bucketHeight / 2}`}
+                      markerEnd={arrowId(showDelete ? "success" : "teal")}
+                    />
+                  )}
+                </g>
+              );
+            })}
+          </g>
+
+          {activeEntries.length > 0 && (
+            <g className="hash-chain">
+              {activeEntries.map((entry, index) => {
+                const x = chainStartX + index * (entryWidth + entryGap);
+                const y = bucketRows[2].y + 3;
+                const isLookup = showLookup && entry.key === "grape";
+                const isDeletedTarget = showDelete && entry.key === "apple";
+
+                return (
+                  <g
+                    key={entry.key}
+                    className={[
+                      "hash-entry",
+                      isLookup ? "lookup" : "",
+                      isDeletedTarget ? "deleted" : "",
+                    ].filter(Boolean).join(" ")}
+                  >
+                    <rect x={x} y={y} width={entryWidth} height={entryHeight} rx="12" />
+                    <text className="hash-entry-key" x={x + entryWidth / 2} y={y + 22}>
+                      {entry.key}
+                    </text>
+                    <text className="hash-entry-value" x={x + entryWidth / 2} y={y + 40}>
+                      {`value=${entry.value}`}
+                    </text>
+                    {index < activeEntries.length - 1 && (
+                      <path
+                        d={`M ${x + entryWidth} ${y + entryHeight / 2} L ${x + entryWidth + entryGap - 8} ${y + entryHeight / 2}`}
+                        markerEnd={arrowId("teal")}
+                      />
+                    )}
+                  </g>
+                );
+              })}
+            </g>
+          )}
+
+          {showInsert && (
+            <g className="hash-insert-note">
+              <path d={`M 275 178 C 316 230, 348 292, ${chainStartX + 56} ${bucketRows[2].y - 14}`} markerEnd={arrowId("teal")} />
+              <rect x="548" y="138" width="314" height="76" rx="16" />
+              <text x="705" y="166">hash(apple) = 17, hash(grape) = 22</text>
+              <text x="705" y="190">{locale === "zh" ? "17 % 5 = 2, 22 % 5 = 2" : "17 % 5 = 2, 22 % 5 = 2"}</text>
+            </g>
+          )}
+
+          {showLookup && (
+            <g className="hash-lookup-note">
+              <rect x="570" y="404" width="268" height="70" rx="16" />
+              <text x="704" y="430">{locale === "zh" ? "lookup(\"grape\")" : "lookup(\"grape\")"}</text>
+              <text x="704" y="454">{locale === "zh" ? "定位桶 2 后比较 key" : "jump to bucket 2, compare keys"}</text>
+              <path d={`M ${chainStartX + entryWidth + entryGap + entryWidth / 2} ${bucketRows[2].y + 56} C 688 384, 698 404, 704 404`} markerEnd={arrowId("warning")} />
+            </g>
+          )}
+
+          {showDelete && (
+            <g className="hash-delete-note">
+              <rect x="346" y="500" width="262" height="70" rx="16" />
+              <text x="477" y="526">{locale === "zh" ? "delete(\"apple\")" : "delete(\"apple\")"}</text>
+              <text x="477" y="550">{locale === "zh" ? "bucket[2] 保留 grape" : "bucket[2] keeps grape"}</text>
+              <path d={`M ${chainStartX + 64} ${bucketRows[2].y + 60} C 468 444, 472 470, 477 500`} markerEnd={arrowId("success")} />
+            </g>
+          )}
+
+          {showResize && (
+            <g className="hash-resize-panel">
+              <rect x="646" y="180" width="230" height="342" rx="18" />
+              <text className="hash-resize-title" x="761" y="212">{locale === "zh" ? "扩容后 capacity=10" : "after resize capacity=10"}</text>
+              {resizeEntries.map((entry) => (
+                <g key={entry.key} className="hash-resize-entry">
+                  <rect x={entry.x} y={entry.y} width="126" height="44" rx="11" />
+                  <text x={entry.x + 63} y={entry.y + 19}>{entry.key}</text>
+                  <text x={entry.x + 63} y={entry.y + 36}>{`bucket ${entry.bucket}`}</text>
+                </g>
+              ))}
+              <path d="M 606 354 C 646 332, 658 326, 690 318" markerEnd={arrowId("danger")} />
+            </g>
+          )}
+
+          <g className="hash-load-panel">
+            <rect x="102" y="590" width="364" height="52" rx="16" />
+            <text x="284" y="622">{`load factor alpha = ${alpha}`}</text>
+          </g>
+          <g className="hash-cost-panel">
+            <rect x="520" y="590" width="338" height="52" rx="16" />
+            <text x="689" y="622">
+              {showResize
+                ? locale === "zh" ? "resize 后摊还 O(1)" : "amortized O(1) after resize"
+                : locale === "zh" ? "桶分布均匀时期望 O(1)" : "expected O(1) with balanced buckets"}
+            </text>
+          </g>
+        </svg>
+        <div className="wire-caption hash-table-caption">
           <span>{readLocalizedText(activeStep.title, locale)}</span>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

@@ -1685,6 +1685,12 @@ td {
   padding: clamp(12px, 2.4vw, 28px);
 }
 
+.hash-table-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
 .array-card {
   position: relative;
   width: min(100%, 1080px);
@@ -1725,6 +1731,16 @@ td {
   overflow: hidden;
 }
 
+.hash-table-card {
+  position: relative;
+  width: min(100%, 1080px);
+  border: 1px solid color-mix(in srgb, var(--brand) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: hidden;
+}
+
 .array-diagram {
   display: block;
   width: 100%;
@@ -1747,6 +1763,13 @@ td {
 }
 
 .queue-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+.hash-table-diagram {
   display: block;
   width: 100%;
   height: auto;
@@ -1801,6 +1824,11 @@ td {
   stroke: color-mix(in srgb, var(--tertiary) 20%, transparent);
 }
 
+.hash-table-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 24%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 20%, transparent);
+}
+
 .array-title {
   fill: var(--text);
   font-size: 28px;
@@ -1823,6 +1851,13 @@ td {
 }
 
 .queue-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.hash-table-title {
   fill: var(--text);
   font-size: 28px;
   font-weight: 950;
@@ -1878,6 +1913,22 @@ td {
 .queue-peek-note text,
 .queue-dequeue-note text,
 .queue-wrap-note text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.hash-table-subtitle,
+.hash-formula text,
+.hash-bucket text,
+.hash-insert-note text,
+.hash-lookup-note text,
+.hash-delete-note text,
+.hash-load-panel text,
+.hash-cost-panel text,
+.hash-resize-panel text {
   fill: var(--muted);
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 14px;
@@ -2362,6 +2413,169 @@ td {
 }
 
 .queue-caption {
+  bottom: 14px;
+}
+
+.hash-formula rect,
+.hash-insert-note rect,
+.hash-lookup-note rect,
+.hash-delete-note rect,
+.hash-load-panel rect,
+.hash-cost-panel rect,
+.hash-resize-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 24%, var(--border));
+  stroke-width: 1.2;
+}
+
+.hash-formula text,
+.hash-insert-note text,
+.hash-lookup-note text,
+.hash-delete-note text,
+.hash-load-panel text,
+.hash-cost-panel text,
+.hash-resize-panel text {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.hash-bucket rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 24%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#hash-table-soft-shadow);
+}
+
+.hash-bucket.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 46%, var(--border));
+  stroke-width: 2.4;
+}
+
+.hash-bucket.resized rect {
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.hash-bucket text {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.hash-bucket text:nth-of-type(2) {
+  fill: var(--muted);
+  font-size: 12px;
+}
+
+.hash-bucket path,
+.hash-entry path,
+.hash-insert-note path,
+.hash-lookup-note path,
+.hash-delete-note path,
+.hash-resize-panel path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.hash-entry rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#hash-table-soft-shadow);
+}
+
+.hash-entry.lookup rect {
+  fill: color-mix(in srgb, #f59e0b 16%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 54%, var(--border));
+  stroke-width: 2.5;
+}
+
+.hash-entry.deleted {
+  opacity: 0.3;
+}
+
+.hash-entry-key,
+.hash-entry-value,
+.hash-resize-entry text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-anchor: middle;
+}
+
+.hash-entry-key {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.hash-entry-value {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.hash-insert-note path {
+  stroke: var(--tertiary);
+}
+
+.hash-lookup-note path {
+  stroke: #f59e0b;
+}
+
+.hash-delete-note path {
+  stroke: var(--success);
+}
+
+.hash-resize-panel > rect {
+  fill: color-mix(in srgb, var(--success) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 28%, var(--border));
+}
+
+.hash-resize-title {
+  fill: var(--success);
+  font-size: 13px;
+}
+
+.hash-resize-entry rect {
+  fill: color-mix(in srgb, var(--success) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 40%, var(--border));
+  stroke-width: 1.2;
+}
+
+.hash-resize-entry text {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.hash-resize-entry text:nth-of-type(2) {
+  fill: var(--muted);
+  font-size: 10px;
+}
+
+.hash-resize-panel path {
+  stroke: var(--danger);
+}
+
+.hash-load-panel text,
+.hash-cost-panel text {
+  fill: var(--brand);
+  font-size: 14px;
+}
+
+.hash-cost-panel rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 30%, var(--border));
+}
+
+.hash-cost-panel text {
+  fill: var(--tertiary);
+}
+
+.hash-table-caption {
   bottom: 14px;
 }
 
@@ -3888,6 +4102,11 @@ td {
     justify-content: start;
   }
 
+  .hash-table-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .array-card {
     width: 860px;
     max-width: none;
@@ -3908,6 +4127,12 @@ td {
 
   .queue-card {
     width: 880px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .hash-table-card {
+    width: 900px;
     max-width: none;
     justify-self: start;
   }

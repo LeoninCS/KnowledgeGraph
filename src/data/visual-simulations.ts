@@ -2110,6 +2110,35 @@ function buildAlgorithmSpecific(point: GraphKnowledgePoint) {
     );
   }
 
+  if (point.id === "hash-table") {
+    return flow(
+      "algorithm",
+      point,
+      ["哈希桶与碰撞链", "Hash buckets and collision chains"],
+      ["用 hash(key) 映射桶、链式碰撞处理、查找删除和负载因子扩容解释哈希表成本。", "Use hash(key) bucket mapping, chaining, lookup/delete, and load-factor resizing to explain hash-table cost."],
+      [
+        ["hash", "哈希函数", "Hash function", "hash(key) % capacity", "hash(key) % capacity", "cpu"],
+        ["buckets", "桶数组", "Bucket array", "每个槽位保存链", "Each slot stores a chain", "data"],
+        ["chain", "碰撞链", "Collision chain", "同桶键值项", "Entries in one bucket", "tool"],
+        ["cost", "成本与扩容", "Cost and resize", "期望 O(1) 与负载因子", "Expected O(1) and load factor", "server"],
+      ],
+      {
+        hash: tx("capacity = 5", "capacity = 5"),
+        buckets: tx("5 个桶为空", "5 empty buckets"),
+        chain: tx("等待插入", "Awaiting inserts"),
+        cost: tx("load factor = 0/5", "load factor = 0/5"),
+      },
+      [
+        ["建立桶数组", "Build bucket array", "初始化 table", "Initialize table", "hash", "buckets", "capacity=5", "capacity=5", "哈希表先分配桶数组，每个桶保存一个碰撞链或探测入口。", "A hash table first allocates a bucket array; each bucket stores a collision chain or probing entry.", "哈希表的入口是 hash(key) 到桶下标的映射。", "Hash tables start from mapping hash(key) to a bucket index.", { hash: tx("hash(key) % 5", "hash(key) % 5"), buckets: tx("桶数组就绪", "Bucket array ready"), cost: tx("alpha=0.00", "alpha=0.00") }],
+        ["插入 apple 和 grape", "Insert apple and grape", "计算桶下标", "Compute bucket index", "hash", "chain", "bucket 2", "bucket 2", "apple 和 grape 映射到同一个桶，链式哈希把两个键值项放进同一条链。", "apple and grape map to the same bucket; chaining stores both entries in one list.", "碰撞处理让同桶元素仍然可区分。", "Collision handling keeps same-bucket entries distinguishable.", { buckets: tx("bucket[2] 有链", "bucket[2] has chain"), chain: tx("apple -> grape", "apple -> grape"), cost: tx("2/5 = 0.40", "2/5 = 0.40") }, "teal"],
+        ["查找 grape", "Lookup grape", "定位后扫描链", "Index then scan chain", "buckets", "chain", "hash(grape)=2", "hash(grape)=2", "查找先用 hash(key) 直达桶，再在桶内比较 key，直到命中目标项。", "Lookup jumps to a bucket with hash(key), then compares keys within the bucket until it finds the entry.", "平均成本取决于桶分散程度和链长。", "Average cost depends on bucket distribution and chain length.", { chain: tx("命中 grape", "Hit grape"), cost: tx("期望 O(1)", "Expected O(1)") }, "warning"],
+        ["删除 apple", "Delete apple", "重连链表", "Relink chain", "chain", "buckets", "remove from bucket[2]", "remove from bucket[2]", "删除同样先定位桶，再从链中移除匹配键，保持其余键值项可访问。", "Delete also locates the bucket, then removes the matching key from the chain while preserving the remaining entries.", "删除要覆盖链首、链中和缺失键。", "Deletion tests head entry, middle entry, and missing key cases.", { buckets: tx("bucket[2] -> grape", "bucket[2] -> grape"), chain: tx("apple 已移除", "apple removed"), cost: tx("链保持可达", "Chain reachable") }, "success"],
+        ["扩容并再哈希", "Resize and rehash", "检查负载因子", "Check load factor", "cost", "buckets", "alpha > 0.75", "alpha > 0.75", "元素数量接近阈值时，哈希表扩容并按新 capacity 重新计算桶下标。", "When entries approach the threshold, the hash table grows and recomputes bucket indexes with the new capacity.", "扩容降低后续链长，但单次写入会承担再哈希成本。", "Resizing lowers later chain length, while one write pays the rehash cost.", { hash: tx("capacity = 10", "capacity = 10"), buckets: tx("重新分布完成", "Redistributed"), chain: tx("长链被拆散", "Long chain split"), cost: tx("摊还 O(1)", "Amortized O(1)") }, "danger"],
+      ],
+      [["hash(key) -> bucket", "hash(key) -> bucket"], ["碰撞链长度", "Collision chain length"], ["负载因子与扩容", "Load factor and resize"]],
+    );
+  }
+
   if (area === "tree" || area === "heap") {
     return flow(
       "algorithm",
