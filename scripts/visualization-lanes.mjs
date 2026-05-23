@@ -36,12 +36,47 @@ function printJson(value) {
 
 function truncate(value, maxLength) {
   const text = value ? String(value) : "";
-  return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
+  if (displayWidth(text) <= maxLength) {
+    return text;
+  }
+  let output = "";
+  for (const char of text) {
+    if (displayWidth(`${output}${char}…`) > maxLength) {
+      break;
+    }
+    output += char;
+  }
+  return `${output}…`;
 }
 
 function pad(value, width) {
   const text = truncate(value, width);
-  return `${text}${" ".repeat(Math.max(0, width - text.length))}`;
+  return `${text}${" ".repeat(Math.max(0, width - displayWidth(text)))}`;
+}
+
+function displayWidth(value) {
+  let width = 0;
+  for (const char of String(value ?? "")) {
+    const code = char.codePointAt(0) ?? 0;
+    if (
+      code >= 0x1100 &&
+      (code <= 0x115f ||
+        code === 0x2329 ||
+        code === 0x232a ||
+        (code >= 0x2e80 && code <= 0xa4cf && code !== 0x303f) ||
+        (code >= 0xac00 && code <= 0xd7a3) ||
+        (code >= 0xf900 && code <= 0xfaff) ||
+        (code >= 0xfe10 && code <= 0xfe19) ||
+        (code >= 0xfe30 && code <= 0xfe6f) ||
+        (code >= 0xff00 && code <= 0xff60) ||
+        (code >= 0xffe0 && code <= 0xffe6))
+    ) {
+      width += 2;
+    } else {
+      width += 1;
+    }
+  }
+  return width;
 }
 
 function percent(done, total) {
@@ -50,6 +85,34 @@ function percent(done, total) {
   }
   return `${Math.round((done / total) * 100)}%`;
 }
+
+const categoryLabels = {
+  network: "网络",
+  os: "操作系统",
+  algorithm: "算法",
+  mysql: "MySQL",
+  redis: "Redis",
+  rabbitmq: "RabbitMQ",
+  backend: "后端",
+  docker: "Docker",
+  kubernetes: "K8s",
+  agent: "Agent",
+};
+
+const statusLabels = {
+  idle: "空闲",
+  active: "进行中",
+  blocked: "阻塞",
+  complete: "完成",
+  missing: "缺失",
+  unknown: "未知",
+};
+
+const stepLabels = {
+  research: "搜资料",
+  implementation: "实现",
+  verification: "验证",
+};
 
 function parseArgs(argv) {
   const result = { _: [] };
@@ -248,13 +311,14 @@ async function dashboard(args) {
 }
 
 async function board(args) {
+  const zh = args.zh !== false && args.en !== true;
   const lanes = [];
   for (const category of selectedCategories(args)) {
     const path = lanePath(category);
     if (!existsSync(path)) {
       lanes.push({
-        category,
-        status: "missing",
+        category: zh ? categoryLabels[category] ?? category : category,
+        status: zh ? statusLabels.missing : "missing",
         done: 0,
         total: 0,
         pending: 0,
@@ -281,18 +345,20 @@ async function board(args) {
     const dirty = Boolean(await shortStatus(path));
 
     lanes.push({
-      category,
-      status: queueStatus.status ?? "unknown",
+      category: zh ? categoryLabels[category] ?? category : category,
+      status: zh
+        ? statusLabels[queueStatus.status] ?? queueStatus.status ?? statusLabels.unknown
+        : queueStatus.status ?? "unknown",
       done: queueStatus.done ?? 0,
       total: queueStatus.total ?? 0,
       pending: queueStatus.pending ?? 0,
       current: queueStatus.current
-        ? `${queueStatus.current.id}:${queueStatus.current.step ?? ""}`
+        ? `${queueStatus.current.zh ?? queueStatus.current.id}:${zh ? stepLabels[queueStatus.current.step] ?? queueStatus.current.step ?? "" : queueStatus.current.step ?? ""}`
         : "",
-      next: queueStatus.next ? queueStatus.next.id : "",
+      next: queueStatus.next ? (zh ? queueStatus.next.zh : queueStatus.next.id) : "",
       ready: research.ready ?? 0,
       git: latest.split(" ").slice(0, 3).join(" "),
-      dirty: dirty ? "yes" : "",
+      dirty: dirty ? (zh ? "是" : "yes") : "",
     });
   }
 
@@ -305,26 +371,26 @@ async function board(args) {
   }, { total: 0, done: 0, pending: 0, ready: 0 });
 
   const widths = {
-    category: 12,
+    category: 10,
     status: 8,
     progress: 12,
     pending: 7,
-    current: 28,
+    current: 30,
     next: 24,
     ready: 6,
     dirty: 5,
     git: 18,
   };
   const header = [
-    pad("category", widths.category),
-    pad("status", widths.status),
-    pad("progress", widths.progress),
-    pad("pending", widths.pending),
-    pad("current", widths.current),
-    pad("next", widths.next),
-    pad("ready", widths.ready),
-    pad("dirty", widths.dirty),
-    pad("git", widths.git),
+    pad(zh ? "分类" : "category", widths.category),
+    pad(zh ? "状态" : "status", widths.status),
+    pad(zh ? "进度" : "progress", widths.progress),
+    pad(zh ? "待处理" : "pending", widths.pending),
+    pad(zh ? "当前" : "current", widths.current),
+    pad(zh ? "下一个" : "next", widths.next),
+    pad(zh ? "资料" : "ready", widths.ready),
+    pad(zh ? "改动" : "dirty", widths.dirty),
+    pad(zh ? "最近提交" : "git", widths.git),
   ].join("  ");
   const separator = "-".repeat(header.length);
   const rows = lanes.map((lane) => [
@@ -340,15 +406,17 @@ async function board(args) {
   ].join("  "));
 
   process.stdout.write([
-    `KnowledgeGraph visualization lanes`,
-    `Generated: ${new Date().toISOString()}`,
-    `Total: ${totals.done}/${totals.total} (${percent(totals.done, totals.total)}) | pending ${totals.pending} | ready research ${totals.ready}`,
+    zh ? `KnowledgeGraph 可视化并行进度` : `KnowledgeGraph visualization lanes`,
+    zh ? `生成时间：${new Date().toISOString()}` : `Generated: ${new Date().toISOString()}`,
+    zh
+      ? `总进度：${totals.done}/${totals.total} (${percent(totals.done, totals.total)}) | 待处理 ${totals.pending} | 已备资料 ${totals.ready}`
+      : `Total: ${totals.done}/${totals.total} (${percent(totals.done, totals.total)}) | pending ${totals.pending} | ready research ${totals.ready}`,
     "",
     header,
     separator,
     ...rows,
     "",
-    `Lane root: ${laneRoot}`,
+    zh ? `分片目录：${laneRoot}` : `Lane root: ${laneRoot}`,
   ].join("\n"));
   process.stdout.write("\n");
 }

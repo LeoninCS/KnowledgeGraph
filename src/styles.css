@@ -1655,10 +1655,84 @@ td {
   overflow: visible;
 }
 
-.switch-stage {
+.signal-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
   padding: clamp(12px, 2.4vw, 28px);
+}
+
+.signal-card {
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  overflow: visible;
+}
+
+.signal-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.tcp-ip-model-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.tcp-ip-model-card {
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  overflow: visible;
+}
+
+.tcp-ip-model-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.arp-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.arp-card {
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  overflow: visible;
+}
+
+.arp-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.cdn-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.cdn-card {
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  overflow: visible;
+}
+
+.cdn-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
 }
 
 .array-stage {
@@ -1730,6 +1804,12 @@ td {
   min-height: 0;
 }
 
+.switch-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
 .switch-card {
   width: min(100%, 1040px);
   overflow: visible;
@@ -1756,6 +1836,918 @@ td {
 .switch-bg {
   fill: color-mix(in srgb, var(--brand-soft) 34%, var(--surface));
   stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.signal-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 30%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.signal-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.signal-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.signal-device rect,
+.signal-link rect,
+.signal-panel > rect,
+.signal-scenario rect:first-child {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#signal-soft-shadow);
+}
+
+.signal-device.active rect,
+.signal-link.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.signal-device text,
+.signal-link text,
+.signal-control text,
+.signal-bit-cell text,
+.signal-timeline-dot + text,
+.signal-scenario text,
+.signal-metric-row text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.signal-device-title,
+.signal-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.signal-panel-title {
+  text-anchor: start;
+}
+
+.signal-link,
+.signal-main-arrow,
+.signal-panel,
+.signal-control,
+.signal-metric-row,
+.signal-scenario {
+  opacity: 0.25;
+  transition: opacity 180ms ease;
+}
+
+.signal-link.active,
+.signal-main-arrow.active,
+.signal-panel.active,
+.signal-control.active,
+.signal-metric-row.active,
+.signal-scenario.active {
+  opacity: 1;
+}
+
+.signal-link path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+
+.signal-main-arrow {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+
+.signal-main-arrow.success {
+  stroke: var(--success);
+}
+
+.signal-control text {
+  text-anchor: start;
+}
+
+.signal-control text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+}
+
+.signal-control rect:first-of-type {
+  fill: color-mix(in srgb, var(--muted) 18%, transparent);
+}
+
+.signal-control rect:nth-of-type(2) {
+  fill: var(--brand);
+}
+
+.signal-axis,
+.signal-timeline-base {
+  fill: none;
+  stroke: color-mix(in srgb, var(--muted) 44%, transparent);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.signal-axis.muted {
+  stroke-width: 1.5;
+}
+
+.signal-axis-label,
+.signal-band-label {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 850;
+  text-anchor: end;
+}
+
+.signal-band {
+  fill: url(#signal-band-gradient);
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.signal-band-label {
+  fill: var(--brand-strong);
+  font-size: 13px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.signal-spectrum-line,
+.signal-waveform {
+  fill: none;
+  stroke: var(--tertiary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.signal-waveform {
+  stroke: var(--brand);
+}
+
+.signal-bit-cell rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 28%, var(--border));
+}
+
+.signal-bit-cell text {
+  fill: var(--text);
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.signal-timeline-dot {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--muted) 40%, var(--border));
+  stroke-width: 2;
+}
+
+.signal-timeline-dot.start,
+.signal-timeline-dot.active {
+  fill: var(--brand);
+  stroke: var(--brand-strong);
+}
+
+.signal-timeline-dot.full.active {
+  fill: var(--success);
+  stroke: var(--success);
+}
+
+.signal-timeline-fill {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-width: 5;
+  opacity: 0.18;
+}
+
+.signal-timeline-fill.active {
+  opacity: 1;
+}
+
+.signal-timeline-fill.throughput {
+  stroke: var(--success);
+}
+
+.signal-panel.timing text:not(.signal-panel-title) {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.signal-metric-row text:first-child {
+  text-anchor: start;
+}
+
+.signal-metric-row text:nth-child(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.signal-scenario rect:first-child {
+  fill: color-mix(in srgb, var(--signal-tone) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--signal-tone) 34%, var(--border));
+  filter: none;
+}
+
+.signal-scenario rect:nth-child(2) {
+  fill: var(--signal-tone);
+}
+
+.signal-scenario text:first-of-type {
+  fill: var(--text);
+  text-anchor: start;
+}
+
+.signal-scenario text:nth-of-type(2) {
+  fill: var(--signal-tone);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.signal-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.tcp-ip-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 32%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.tcp-ip-title {
+  font-size: 28px;
+}
+
+.tcp-ip-subtitle {
+  font-size: 15px;
+}
+
+.tcp-ip-host rect,
+.tcp-ip-osi-map > rect,
+.tcp-ip-receiver > rect,
+.tcp-ip-debug-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#tcp-ip-soft-shadow);
+}
+
+.tcp-ip-host text {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.tcp-ip-host text:nth-of-type(2) {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.tcp-ip-layer rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 20%, var(--border));
+  stroke-width: 1.1;
+}
+
+.tcp-ip-layer.active rect {
+  fill: color-mix(in srgb, var(--layer-color) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--layer-color) 46%, var(--border));
+}
+
+.tcp-ip-layer-title,
+.tcp-ip-layer-examples,
+.tcp-ip-layer-pdu,
+.tcp-ip-layer-header {
+  text-anchor: start;
+}
+
+.tcp-ip-layer-title {
+  fill: var(--text);
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.tcp-ip-layer-examples {
+  fill: var(--muted);
+  font-size: 11.5px;
+  font-weight: 850;
+}
+
+.tcp-ip-layer-pdu,
+.tcp-ip-layer-header {
+  fill: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.tcp-ip-layer-header {
+  fill: var(--muted);
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.tcp-ip-packet,
+.tcp-ip-down-arrow,
+.tcp-ip-wire,
+.tcp-ip-receiver,
+.tcp-ip-osi-row,
+.tcp-ip-debug-chip {
+  opacity: 0.24;
+  transition: opacity 180ms ease;
+}
+
+.tcp-ip-packet.visible,
+.tcp-ip-down-arrow.visible,
+.tcp-ip-wire.visible,
+.tcp-ip-receiver.visible,
+.tcp-ip-osi-row.active,
+.tcp-ip-debug-chip.active {
+  opacity: 1;
+}
+
+.tcp-ip-packet rect {
+  fill: color-mix(in srgb, var(--brand) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 40%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#tcp-ip-soft-shadow);
+}
+
+.tcp-ip-packet.teal rect {
+  fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.tcp-ip-packet.warning rect {
+  fill: color-mix(in srgb, #f59e0b 16%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.tcp-ip-packet.success rect {
+  fill: color-mix(in srgb, var(--success) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 40%, var(--border));
+}
+
+.tcp-ip-packet text,
+.tcp-ip-wire text,
+.tcp-ip-rx-step text,
+.tcp-ip-osi-row text,
+.tcp-ip-debug-chip text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.tcp-ip-packet-detail {
+  fill: var(--muted);
+  font-size: 9.5px;
+  font-weight: 850;
+}
+
+.tcp-ip-down-arrow path,
+.tcp-ip-wire path,
+.tcp-ip-up-path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3.5;
+}
+
+.tcp-ip-down-arrow:nth-of-type(2) path {
+  stroke: var(--tertiary);
+}
+
+.tcp-ip-down-arrow:nth-of-type(3) path {
+  stroke: #f59e0b;
+}
+
+.tcp-ip-wire path {
+  stroke: var(--success);
+  stroke-width: 4.2;
+}
+
+.tcp-ip-wire rect {
+  fill: color-mix(in srgb, var(--success) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.tcp-ip-receiver-title,
+.tcp-ip-panel-title {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.tcp-ip-panel-title {
+  text-anchor: start;
+}
+
+.tcp-ip-rx-step rect {
+  fill: color-mix(in srgb, var(--layer-color) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--layer-color) 42%, var(--border));
+}
+
+.tcp-ip-up-path {
+  stroke: color-mix(in srgb, var(--muted) 64%, transparent);
+  stroke-dasharray: 7 8;
+}
+
+.tcp-ip-osi-row rect {
+  fill: color-mix(in srgb, var(--surface) 86%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.tcp-ip-osi-row.active rect {
+  fill: color-mix(in srgb, var(--brand-soft) 76%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 30%, var(--border));
+}
+
+.tcp-ip-osi-row text {
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.tcp-ip-debug-panel > .tcp-ip-panel-title {
+  text-anchor: start;
+}
+
+.tcp-ip-debug-chip rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 20%, var(--border));
+}
+
+.tcp-ip-debug-chip.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.tcp-ip-debug-chip text {
+  fill: var(--muted);
+  font-size: 9.5px;
+}
+
+.tcp-ip-debug-chip.active text {
+  fill: var(--brand-strong);
+}
+
+.tcp-ip-model-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.arp-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 30%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.arp-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.arp-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.arp-device rect,
+.arp-next-hop rect,
+.arp-switch rect,
+.arp-cache-panel > rect,
+.arp-header-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#arp-soft-shadow);
+}
+
+.arp-device.gateway rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 32%, var(--border));
+}
+
+.arp-switch rect {
+  fill: color-mix(in srgb, var(--tertiary-soft) 48%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.arp-device text,
+.arp-switch text,
+.arp-next-hop text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.arp-device-title,
+.arp-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.arp-panel-title {
+  text-anchor: start;
+}
+
+.arp-next-hop {
+  opacity: 0.34;
+  transition: opacity 180ms ease;
+}
+
+.arp-next-hop.active {
+  opacity: 1;
+}
+
+.arp-next-hop.active rect {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.arp-packet,
+.arp-broadcast,
+.arp-cache-panel,
+.arp-header-row,
+.arp-diagnostic {
+  opacity: 0.25;
+  transition: opacity 180ms ease;
+}
+
+.arp-packet.active,
+.arp-broadcast.active,
+.arp-cache-panel.active,
+.arp-header-row.active,
+.arp-diagnostic.active {
+  opacity: 1;
+}
+
+.arp-packet path,
+.arp-broadcast path {
+  fill: none;
+  stroke: var(--tertiary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.arp-packet.reply path,
+.arp-packet.frame path {
+  stroke: var(--success);
+}
+
+.arp-packet rect {
+  fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#arp-soft-shadow);
+}
+
+.arp-packet.reply rect,
+.arp-packet.frame rect {
+  fill: color-mix(in srgb, var(--success) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.arp-packet text,
+.arp-diagnostic text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.arp-packet-sub {
+  fill: var(--muted);
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.arp-cache-row rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.arp-cache-row.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 36%, var(--border));
+}
+
+.arp-cache-row.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 40%, var(--border));
+}
+
+.arp-cache-row text,
+.arp-header-row text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 850;
+  text-anchor: start;
+}
+
+.arp-cache-row.active text {
+  fill: var(--text);
+}
+
+.arp-cache-row text:nth-of-type(3),
+.arp-header-row text:nth-of-type(2) {
+  text-anchor: end;
+}
+
+.arp-header-row.active text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+}
+
+.arp-diagnostic rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.arp-diagnostic.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.arp-diagnostic.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.arp-diagnostic text {
+  font-size: 8.5px;
+}
+
+.arp-diagnostic text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-size: 12px;
+}
+
+.arp-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.cdn-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 28%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.cdn-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.cdn-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.cdn-users > rect,
+.cdn-routing rect,
+.cdn-edge rect,
+.cdn-shield rect,
+.cdn-origin rect,
+.cdn-status-panel > rect,
+.cdn-control-panel > rect,
+.cdn-metrics-panel > rect,
+.cdn-purge-band rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#cdn-soft-shadow);
+}
+
+.cdn-edge rect {
+  fill: url(#cdn-edge-gradient);
+}
+
+.cdn-routing.active rect,
+.cdn-edge.active rect,
+.cdn-shield.active rect,
+.cdn-origin.active rect,
+.cdn-purge-band.active rect {
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.cdn-panel-title,
+.cdn-node-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.cdn-node-title {
+  text-anchor: middle;
+}
+
+.cdn-region text,
+.cdn-asset text,
+.cdn-routing text,
+.cdn-edge text,
+.cdn-shield text,
+.cdn-origin text,
+.cdn-status text,
+.cdn-control text,
+.cdn-metric text,
+.cdn-purge-band text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.cdn-region,
+.cdn-asset,
+.cdn-routing,
+.cdn-edge,
+.cdn-shield,
+.cdn-origin,
+.cdn-path,
+.cdn-status,
+.cdn-control,
+.cdn-metric,
+.cdn-purge-band {
+  opacity: 0.25;
+  transition: opacity 180ms ease;
+}
+
+.cdn-region.active,
+.cdn-asset.active,
+.cdn-routing.active,
+.cdn-edge.active,
+.cdn-shield.active,
+.cdn-origin.active,
+.cdn-path.active,
+.cdn-status.active,
+.cdn-control.active,
+.cdn-metric.active,
+.cdn-purge-band.active {
+  opacity: 1;
+}
+
+.cdn-region circle {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+  stroke-width: 2;
+}
+
+.cdn-region.active circle {
+  fill: var(--brand);
+}
+
+.cdn-region text:first-of-type {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 900;
+  text-anchor: start;
+}
+
+.cdn-region text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  text-anchor: end;
+}
+
+.cdn-asset rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 30%, var(--border));
+}
+
+.cdn-asset text:first-of-type,
+.cdn-routing .cdn-node-title,
+.cdn-edge .cdn-node-title,
+.cdn-shield .cdn-node-title,
+.cdn-origin .cdn-node-title {
+  fill: var(--text);
+  font-family: inherit;
+}
+
+.cdn-path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.cdn-path.teal {
+  stroke: var(--tertiary);
+}
+
+.cdn-path.success {
+  stroke: var(--success);
+}
+
+.cdn-path.warning {
+  stroke: #f59e0b;
+}
+
+.cdn-path.danger {
+  stroke: var(--danger);
+}
+
+.cdn-status rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.cdn-status.success.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.cdn-status.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 14%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.cdn-status.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.cdn-status.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 36%, var(--border));
+}
+
+.cdn-status text:first-of-type,
+.cdn-metric text:first-of-type,
+.cdn-control text:first-of-type {
+  fill: var(--text);
+  text-anchor: start;
+}
+
+.cdn-status text:nth-of-type(2),
+.cdn-metric text:nth-of-type(2),
+.cdn-control text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.cdn-control rect:first-of-type {
+  fill: color-mix(in srgb, var(--muted) 18%, transparent);
+}
+
+.cdn-control rect:nth-of-type(2) {
+  fill: var(--brand);
+}
+
+.cdn-purge-band text {
+  fill: var(--brand-strong);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.cdn-caption {
+  right: 16px;
+  bottom: 14px;
 }
 
 .array-bg {
@@ -3111,199 +4103,6 @@ td {
   filter: drop-shadow(0 8px 12px rgb(23 32 51 / 0.14));
 }
 
-.tcp-ip-stage {
-  grid-template-columns: minmax(0, 1fr);
-  overflow-x: auto;
-  justify-content: center;
-}
-
-.tcp-ip-card {
-  justify-self: center;
-  width: min(100%, 1060px);
-  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
-  border-radius: var(--radius-lg);
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
-    var(--surface);
-  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
-  overflow: hidden;
-}
-
-:root[data-theme="dark"] .tcp-ip-card {
-  background:
-    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
-    var(--surface);
-}
-
-.tcp-ip-diagram {
-  display: block;
-  width: 100%;
-  height: auto;
-  min-height: 530px;
-}
-
-.tcp-ip-bg {
-  fill: color-mix(in srgb, var(--surface) 94%, var(--brand-soft));
-  stroke: var(--border);
-  stroke-width: 1.2;
-}
-
-.tcp-ip-title {
-  font-size: 24px;
-}
-
-.tcp-ip-subtitle {
-  font-size: 12px;
-  letter-spacing: 0.04em;
-}
-
-.tcp-ip-layer rect {
-  fill: color-mix(in srgb, var(--layer-color) 9%, var(--surface));
-  stroke: color-mix(in srgb, var(--layer-color) 42%, var(--border));
-  stroke-width: 1.3;
-}
-
-.tcp-ip-layer circle {
-  fill: var(--layer-color);
-}
-
-.tcp-ip-layer.active rect {
-  fill: color-mix(in srgb, var(--layer-color) 17%, var(--surface));
-  stroke: var(--layer-color);
-  filter: url(#tcpip-soft-shadow);
-}
-
-.tcp-ip-layer-name {
-  fill: var(--text);
-  font-size: 14px;
-  font-weight: 900;
-}
-
-.tcp-ip-layer-protocol {
-  fill: var(--muted);
-  font-size: 11px;
-  font-weight: 750;
-}
-
-.tcp-ip-field-chip rect {
-  fill: color-mix(in srgb, var(--surface) 92%, transparent);
-  stroke: color-mix(in srgb, var(--layer-color) 34%, var(--border));
-  stroke-width: 1;
-}
-
-.tcp-ip-field-chip text {
-  fill: var(--text);
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10.5px;
-  font-weight: 850;
-  text-anchor: middle;
-}
-
-.tcp-ip-route-line {
-  stroke: color-mix(in srgb, var(--muted) 36%, transparent);
-  stroke-width: 3;
-  stroke-dasharray: 9 9;
-  fill: none;
-}
-
-.tcp-ip-segment,
-.tcp-ip-active-segment {
-  stroke-width: 5;
-  stroke-linecap: round;
-  fill: none;
-}
-
-.tcp-ip-segment {
-  stroke: color-mix(in srgb, var(--muted) 30%, transparent);
-}
-
-.tcp-ip-active-segment {
-  stroke: var(--brand);
-}
-
-.tcp-ip-hop circle {
-  fill: var(--surface);
-  stroke: color-mix(in srgb, var(--muted) 44%, var(--border));
-  stroke-width: 3;
-}
-
-.tcp-ip-hop.active circle {
-  fill: var(--brand);
-  stroke: var(--brand-strong);
-  filter: url(#tcpip-soft-shadow);
-}
-
-.tcp-ip-hop.current circle {
-  stroke: #f59e0b;
-  stroke-width: 4;
-}
-
-.tcp-ip-hop text {
-  fill: var(--muted);
-  font-size: 12px;
-  font-weight: 850;
-  text-anchor: middle;
-  paint-order: stroke;
-  stroke: var(--surface);
-  stroke-width: 4px;
-}
-
-.tcp-ip-hop.active text {
-  fill: var(--brand-strong);
-}
-
-.tcp-ip-device rect {
-  fill: color-mix(in srgb, var(--surface) 94%, var(--tertiary-soft));
-  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
-  stroke-width: 1.2;
-}
-
-.tcp-ip-device text {
-  fill: var(--text);
-  font-size: 12px;
-  font-weight: 850;
-  text-anchor: middle;
-}
-
-.tcp-ip-device text + text {
-  fill: var(--muted);
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10.5px;
-}
-
-.tcp-ip-caption {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  height: 100%;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  padding: 0 16px;
-  color: var(--text);
-}
-
-.tcp-ip-caption strong {
-  min-width: 0;
-  overflow-wrap: anywhere;
-  font-size: 13.5px;
-}
-
-.tcp-ip-caption span {
-  color: var(--brand);
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.tcp-ip-caption small {
-  color: var(--faint);
-  font-size: 12px;
-  font-weight: 850;
-}
-
 .data-flow-arrow,
 .data-transfer-arrow {
   stroke: #95d082;
@@ -3877,21 +4676,22 @@ td {
     padding: 24px 18px 32px;
   }
 
-  .tcp-ip-stage {
+  .ethernet-frame-stage {
+    overflow-x: auto;
     justify-content: start;
   }
 
-  .tcp-ip-card {
-    width: 960px;
-    max-width: none;
-    justify-self: start;
+  .signal-stage {
+    overflow-x: auto;
+    justify-content: start;
   }
 
-  .tcp-ip-diagram {
-    min-height: 590px;
+  .tcp-ip-model-stage {
+    overflow-x: auto;
+    justify-content: start;
   }
 
-  .ethernet-frame-stage {
+  .arp-stage {
     overflow-x: auto;
     justify-content: start;
   }
@@ -3960,6 +4760,36 @@ td {
 
   .ethernet-frame-diagram {
     height: 464px;
+  }
+
+  .signal-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .signal-diagram {
+    height: 582px;
+  }
+
+  .tcp-ip-model-card {
+    width: 940px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .tcp-ip-model-diagram {
+    height: 504px;
+  }
+
+  .arp-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .arp-diagram {
+    height: 532px;
   }
 
   .event-map {

@@ -1623,28 +1623,11 @@ function buildGraphItems(
 }
 
 function App() {
-  const debugParams = useMemo(() => {
-    const params = new URLSearchParams(window.location.search);
-    const category = params.get("category") as CategoryId | null;
-    const point = params.get("point");
-    const pageParam = params.get("page");
-    const validCategory = category && knowledgePointsByCategory[category] ? category : "network";
-    const validPoint = point && knowledgePointsByCategory[validCategory].some((item) => item.id === point)
-      ? point
-      : "tcp-handshake";
-    const validPage: Page = pageParam === "detail" || pageParam === "simulator" || pageParam === "about" ? pageParam : "home";
-
-    return {
-      page: validPage,
-      category: validCategory,
-      point: validPoint,
-    };
-  }, []);
-  const [page, setPage] = useState<Page>(debugParams.page);
+  const [page, setPage] = useState<Page>("home");
   const [theme, setTheme] = useState<Theme>("light");
   const [locale, setLocale] = useState<Locale>("zh");
-  const [selectedCategory, setSelectedCategory] = useState<CategoryId>(debugParams.category);
-  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState(debugParams.point);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId>("network");
+  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState("tcp-handshake");
   const [graphBoard, setGraphBoard] = useState<GraphBoard>("knowledge");
   const [searchQuery, setSearchQuery] = useState("");
   const t = copy[locale];
@@ -2495,6 +2478,17 @@ function SimulationStage({
     );
   }
 
+  if (simulation.key === "network:signal") {
+    return (
+      <SignalBandwidthStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "network:tcp-ip-model") {
     return (
       <TcpIpModelStage
@@ -2509,6 +2503,28 @@ function SimulationStage({
   if (simulation.key === "network:switch") {
     return (
       <SwitchForwardingStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
+  if (simulation.key === "network:arp") {
+    return (
+      <ArpResolutionStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
+  if (simulation.key === "network:cdn") {
+    return (
+      <CdnRequestStage
         simulation={simulation}
         locale={locale}
         completedSteps={completedSteps}
@@ -2840,6 +2856,460 @@ function SimulationStage({
   );
 }
 
+function SignalBandwidthStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const bitPattern = "101100101101";
+  const bitCells = bitPattern.split("");
+  const signalPath = bitCells.reduce((path, bit, index) => {
+    const x = 104 + index * 30;
+    const nextX = x + 30;
+    const y = bit === "1" ? 360 : 420;
+    const previousBit = bitCells[index - 1] ?? bit;
+    const previousY = previousBit === "1" ? 360 : 420;
+    const prefix = index === 0 ? `M ${x} ${y}` : `${path} L ${x} ${previousY} L ${x} ${y}`;
+
+    return `${prefix} L ${nextX} ${y}`;
+  }, "");
+  const scenarioRows = [
+    {
+      id: "lan",
+      name: label("低延迟局域网", "Low-latency LAN"),
+      value: "1 Gbps / 2 ms",
+      width: 120,
+      color: "var(--success)",
+      active: completedSteps >= 3,
+    },
+    {
+      id: "satellite",
+      name: label("高带宽长路径", "High-band long path"),
+      value: "200 Mbps / 620 ms",
+      width: 94,
+      color: "var(--tertiary)",
+      active: completedSteps >= 3,
+    },
+    {
+      id: "queue",
+      name: label("拥塞排队", "Congested queue"),
+      value: "80 Mbps / +95 ms",
+      width: 72,
+      color: "#f59e0b",
+      active: completedSteps >= 4,
+    },
+    {
+      id: "wireless",
+      name: label("弱无线链路", "Lossy wireless"),
+      value: "42 Mbps / 1.2%",
+      width: 54,
+      color: "var(--danger)",
+      active: completedSteps >= 5,
+    },
+  ];
+  const controls = [
+    { name: label("带宽容量", "Capacity"), value: "100 Mbps", fill: 0.78, active: completedSteps >= 2 },
+    { name: label("传播延迟", "Delay"), value: "38 ms", fill: 0.42, active: completedSteps >= 3 },
+    { name: label("队列深度", "Queue"), value: "6 pkt", fill: 0.58, active: completedSteps >= 4 },
+    { name: label("丢包率", "Loss"), value: "1.2%", fill: 0.3, active: completedSteps >= 5 },
+    { name: label("消息大小", "Message"), value: "12 KB", fill: 0.66, active: completedSteps >= 1 },
+  ];
+  const metricRows: Array<{ name: string; value: string; active: boolean }> = [
+    { name: label("标称带宽", "Nominal bandwidth"), value: "100 Mbps", active: completedSteps >= 2 },
+    { name: label("实测吞吐", "Measured throughput"), value: completedSteps >= 4 ? "72 Mbps" : "--", active: completedSteps >= 4 },
+    { name: label("首比特/RTT", "First bit / RTT"), value: completedSteps >= 3 ? "19 ms / 38 ms" : "--", active: completedSteps >= 3 },
+    { name: label("抖动", "Jitter"), value: completedSteps >= 5 ? "8 ms" : "--", active: completedSteps >= 5 },
+    { name: label("重传成本", "Retry cost"), value: completedSteps >= 5 ? "+1 segment" : "--", active: completedSteps >= 5 },
+  ];
+
+  return (
+    <div className="visual-stage signal-stage">
+      <div className="tcp-handshake-card signal-card">
+        <svg
+          className="signal-diagram"
+          viewBox="0 0 1120 680"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["signal-arrow-brand", "var(--brand)"],
+              ["signal-arrow-teal", "var(--tertiary)"],
+              ["signal-arrow-success", "var(--success)"],
+              ["signal-arrow-warning", "#f59e0b"],
+              ["signal-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="signal-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+            <linearGradient id="signal-band-gradient" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.14" />
+              <stop offset="50%" stopColor="var(--tertiary)" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="var(--success)" stopOpacity="0.14" />
+            </linearGradient>
+          </defs>
+
+          <rect className="signal-bg" x="24" y="24" width="1072" height="616" rx="30" />
+          <text className="signal-title" x="560" y="68">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="signal-subtitle" x="560" y="96">
+            {label("时域波形 + 频域带宽 + 端到端体验", "Time waveform + frequency band + end-to-end experience")}
+          </text>
+
+          <g className="signal-device sender">
+            <rect x="68" y="126" width="192" height="126" rx="22" />
+            <text className="signal-device-title" x="164" y="162">{label("发送端", "Sender")}</text>
+            <text x="164" y="190">{label("12 KB 消息", "12 KB message")}</text>
+            <text x="164" y="216">10110010...</text>
+          </g>
+
+          <g className={`signal-link ${completedSteps >= 1 ? "active" : ""}`}>
+            <rect x="300" y="145" width="520" height="86" rx="34" />
+            <path d="M 322 188 C 392 150, 454 226, 522 188 S 654 150, 732 188 S 792 226, 806 188" />
+            <text x="560" y="176">{label("电 / 光 / 无线介质", "Electrical / optical / radio media")}</text>
+            <text x="560" y="210">{completedSteps >= 2 ? "occupied band 18-82 MHz" : "awaiting modulation"}</text>
+          </g>
+
+          <g className={`signal-device receiver ${completedSteps >= 3 ? "active" : ""}`}>
+            <rect x="860" y="126" width="192" height="126" rx="22" />
+            <text className="signal-device-title" x="956" y="162">{label("接收端", "Receiver")}</text>
+            <text x="956" y="190">{completedSteps >= 3 ? label("首比特已到达", "First bit arrived") : label("等待采样", "Awaiting sample")}</text>
+            <text x="956" y="216">{completedSteps >= 4 ? "72 Mbps" : "-- Mbps"}</text>
+          </g>
+
+          <path
+            className={`signal-main-arrow ${completedSteps >= 1 ? "active" : ""}`}
+            d="M 260 188 L 300 188"
+            markerEnd="url(#signal-arrow-brand)"
+          />
+          <path
+            className={`signal-main-arrow ${completedSteps >= 3 ? "active success" : ""}`}
+            d="M 820 188 L 860 188"
+            markerEnd="url(#signal-arrow-success)"
+          />
+
+          <g className="signal-control-panel">
+            {controls.map((control, index) => {
+              const y = 118 + index * 28;
+              return (
+                <g key={control.name} className={`signal-control ${control.active ? "active" : ""}`}>
+                  <text x="330" y={y + 8}>{control.name}</text>
+                  <rect x="430" y={y - 4} width="154" height="10" rx="5" />
+                  <rect x="430" y={y - 4} width={154 * control.fill} height="10" rx="5" />
+                  <text x="604" y={y + 8}>{control.value}</text>
+                </g>
+              );
+            })}
+          </g>
+
+          <g className={`signal-panel time ${completedSteps >= 1 ? "active" : ""}`}>
+            <rect x="68" y="288" width="490" height="172" rx="22" />
+            <text className="signal-panel-title" x="94" y="322">{label("时域波形", "Time-domain waveform")}</text>
+            <text className="signal-axis-label" x="512" y="432">time</text>
+            <path className="signal-axis" d="M 104 424 L 514 424" markerEnd="url(#signal-arrow-brand)" />
+            <path className="signal-axis muted" d="M 104 338 L 104 430" />
+            <path className="signal-waveform" d={signalPath} />
+            {bitCells.map((bit, index) => (
+              <g key={`${bit}-${index}`} className="signal-bit-cell">
+                <rect x={104 + index * 30} y="438" width="24" height="18" rx="5" />
+                <text x={116 + index * 30} y="452">{bit}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`signal-panel spectrum ${completedSteps >= 2 ? "active" : ""}`}>
+            <rect x="582" y="288" width="470" height="172" rx="22" />
+            <text className="signal-panel-title" x="608" y="322">{label("频域带宽", "Frequency-domain bandwidth")}</text>
+            <rect className="signal-band" x="708" y="346" width="192" height="74" rx="18" />
+            <path className="signal-spectrum-line" d="M 626 420 C 668 420, 674 394, 704 386 C 744 376, 750 342, 790 342 C 832 342, 840 374, 880 384 C 918 394, 918 420, 1008 420" />
+            <path className="signal-axis" d="M 626 424 L 1008 424" markerEnd="url(#signal-arrow-teal)" />
+            <text className="signal-axis-label" x="994" y="442">frequency</text>
+            <text className="signal-band-label" x="804" y="388">18-82 MHz</text>
+          </g>
+
+          <g className={`signal-panel timing ${completedSteps >= 3 ? "active" : ""}`}>
+            <rect x="68" y="482" width="490" height="120" rx="22" />
+            <text className="signal-panel-title" x="94" y="516">{label("延迟与完成时间", "Latency and completion time")}</text>
+            <path className="signal-timeline-base" d="M 104 552 L 512 552" />
+            <circle className="signal-timeline-dot start" cx="118" cy="552" r="7" />
+            <circle className={`signal-timeline-dot first ${completedSteps >= 3 ? "active" : ""}`} cx="246" cy="552" r="7" />
+            <circle className={`signal-timeline-dot full ${completedSteps >= 4 ? "active" : ""}`} cx="484" cy="552" r="7" />
+            <path className={`signal-timeline-fill ${completedSteps >= 3 ? "active" : ""}`} d="M 118 552 L 246 552" />
+            <path className={`signal-timeline-fill throughput ${completedSteps >= 4 ? "active" : ""}`} d="M 246 552 L 484 552" />
+            <text x="118" y="580">{label("发送", "Send")}</text>
+            <text x="246" y="580">{label("首比特 19ms", "First bit 19ms")}</text>
+            <text x="484" y="580">{label("完成 1.36s", "Done 1.36s")}</text>
+          </g>
+
+          <g className="signal-panel metrics">
+            <rect x="582" y="482" width="470" height="120" rx="22" />
+            <text className="signal-panel-title" x="608" y="516">{label("观测指标", "Observed metrics")}</text>
+            {metricRows.map(({ name, value, active }, index) => (
+              <g key={name} className={`signal-metric-row ${active ? "active" : ""}`}>
+                <text x={608 + (index % 2) * 224} y={544 + Math.floor(index / 2) * 28}>{name}</text>
+                <text x={772 + (index % 2) * 224} y={544 + Math.floor(index / 2) * 28}>{value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="signal-scenarios">
+            {scenarioRows.map((scenario, index) => {
+              const x = 74 + index * 258;
+              return (
+                <g
+                  key={scenario.id}
+                  className={`signal-scenario ${scenario.active ? "active" : ""}`}
+                  style={{ "--signal-tone": scenario.color } as CSSProperties}
+                >
+                  <rect x={x} y="620" width="232" height="34" rx="12" />
+                  <rect x={x + 10} y="640" width={scenario.width} height="5" rx="3" />
+                  <text x={x + 16} y="635">{scenario.name}</text>
+                  <text x={x + 218} y="635">{scenario.value}</text>
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+        <div className="tcp-handshake-caption signal-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ArpResolutionStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const hostLabel = label("主机 A", "Host A");
+  const targetLabel = label("主机 B", "Host B");
+  const gatewayLabel = label("默认网关", "Default GW");
+  const ownerLabel = completedSteps >= 4 ? targetLabel : label("目标/网关", "Target / GW");
+  const sameSubnetActive = completedSteps >= 1;
+  const cacheMissActive = completedSteps >= 2;
+  const requestActive = completedSteps >= 3;
+  const replyActive = completedSteps >= 4;
+  const dataFrameActive = completedSteps >= 5;
+  const cacheRows = [
+    {
+      ip: "192.168.1.1",
+      mac: "11:11:11:11:11:11",
+      state: label("网关表项", "Gateway entry"),
+      active: sameSubnetActive,
+    },
+    {
+      ip: "192.168.1.20",
+      mac: replyActive ? "BB:BB:BB:BB:BB:BB" : "--",
+      state: replyActive ? label("动态表项", "Dynamic entry") : label("缺失", "Missing"),
+      active: replyActive,
+    },
+    {
+      ip: "192.168.1.20",
+      mac: dataFrameActive ? "66:66:66:66:66:66" : "--",
+      state: dataFrameActive ? label("冲突告警", "Conflict alert") : label("监控中", "Watching"),
+      active: dataFrameActive,
+      danger: true,
+    },
+  ];
+  const headerRows = [
+    [label("Ethernet 目的 MAC", "Ethernet dst MAC"), requestActive && !replyActive ? "FF:FF:FF:FF:FF:FF" : dataFrameActive ? "BB:BB:BB:BB:BB:BB" : "--"],
+    [label("ARP opcode", "ARP opcode"), requestActive && !replyActive ? "request" : replyActive ? "reply" : "--"],
+    [label("sender MAC / IP", "sender MAC / IP"), requestActive ? "AA:AA / 192.168.1.10" : "--"],
+    [label("target MAC / IP", "target MAC / IP"), replyActive ? "BB:BB / 192.168.1.20" : requestActive ? "00:00 / 192.168.1.20" : "--"],
+  ];
+  const diagnostics = [
+    { text: label("同网段目标：查目标 IP", "Local target: query target IP"), active: sameSubnetActive },
+    { text: label("跨网段目标：查网关 IP", "Remote target: query gateway IP"), active: sameSubnetActive },
+    { text: label("广播域限定 Request 范围", "Broadcast domain scopes the request"), active: requestActive },
+    { text: label("同 IP 多 MAC 触发告警", "One IP with multiple MACs raises an alert"), active: dataFrameActive },
+  ];
+
+  return (
+    <div className="visual-stage arp-stage">
+      <div className="tcp-handshake-card arp-card">
+        <svg
+          className="arp-diagram"
+          viewBox="0 0 1120 620"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["arp-arrow-brand", "var(--brand)"],
+              ["arp-arrow-teal", "var(--tertiary)"],
+              ["arp-arrow-success", "var(--success)"],
+              ["arp-arrow-warning", "#f59e0b"],
+              ["arp-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="7"
+                markerHeight="7"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="arp-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="arp-bg" x="24" y="24" width="1072" height="558" rx="28" />
+          <text className="arp-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="arp-subtitle" x="560" y="100">
+            {label("IPv4 下一跳 IP -> 本地链路 MAC", "IPv4 next-hop IP -> local-link MAC")}
+          </text>
+
+          <g className="arp-device host">
+            <rect x="72" y="150" width="192" height="116" rx="20" />
+            <text className="arp-device-title" x="168" y="184">{hostLabel}</text>
+            <text x="168" y="212">192.168.1.10</text>
+            <text x="168" y="236">AA:AA:AA:AA:AA:AA</text>
+          </g>
+
+          <g className={`arp-next-hop ${sameSubnetActive ? "active" : ""}`}>
+            <rect x="72" y="292" width="192" height="92" rx="18" />
+            <text x="168" y="322">{label("下一跳选择", "Next-hop choice")}</text>
+            <text x="168" y="350">dst 192.168.1.20/24</text>
+            <text x="168" y="370">{label("查询 192.168.1.20", "Query 192.168.1.20")}</text>
+          </g>
+
+          <g className="arp-switch">
+            <rect x="444" y="170" width="232" height="168" rx="26" />
+            <text className="arp-device-title" x="560" y="210">{label("交换机 / VLAN 10", "Switch / VLAN 10")}</text>
+            <text x="560" y="240">{label("广播域", "Broadcast domain")}</text>
+            <text x="560" y="266">FF:FF:FF:FF:FF:FF</text>
+            <text x="560" y="292">{requestActive ? label("正在泛洪 Request", "Flooding request") : label("等待广播帧", "Awaiting broadcast frame")}</text>
+          </g>
+
+          <g className="arp-device target">
+            <rect x="844" y="132" width="198" height="120" rx="20" />
+            <text className="arp-device-title" x="943" y="166">{ownerLabel}</text>
+            <text x="943" y="195">192.168.1.20</text>
+            <text x="943" y="220">BB:BB:BB:BB:BB:BB</text>
+          </g>
+
+          <g className="arp-device gateway">
+            <rect x="844" y="286" width="198" height="98" rx="20" />
+            <text className="arp-device-title" x="943" y="320">{gatewayLabel}</text>
+            <text x="943" y="348">192.168.1.1</text>
+            <text x="943" y="370">11:11:11:11:11:11</text>
+          </g>
+
+          <g className={`arp-packet request ${requestActive ? "active" : ""}`}>
+            <path d="M 264 208 C 342 160, 372 160, 444 214" markerEnd="url(#arp-arrow-teal)" />
+            <rect x="284" y="130" width="190" height="44" rx="14" />
+            <text x="379" y="156">ARP Request</text>
+          </g>
+
+          <g className={`arp-broadcast ${requestActive ? "active" : ""}`}>
+            <path d="M 676 214 C 736 142, 782 138, 844 178" markerEnd="url(#arp-arrow-teal)" />
+            <path d="M 676 254 C 742 300, 782 316, 844 334" markerEnd="url(#arp-arrow-teal)" />
+            <path d="M 560 338 C 560 384, 560 402, 560 430" markerEnd="url(#arp-arrow-teal)" />
+          </g>
+
+          <g className={`arp-packet reply ${replyActive ? "active" : ""}`}>
+            <path d="M 844 212 C 748 406, 388 414, 264 242" markerEnd="url(#arp-arrow-success)" />
+            <rect x="560" y="394" width="178" height="44" rx="14" />
+            <text x="649" y="420">ARP Reply</text>
+          </g>
+
+          <g className={`arp-packet frame ${dataFrameActive ? "active" : ""}`}>
+            <path d="M 264 254 C 378 526, 730 528, 844 238" markerEnd="url(#arp-arrow-success)" />
+            <rect x="472" y="500" width="216" height="46" rx="15" />
+            <text x="580" y="519">Ethernet frame</text>
+            <text className="arp-packet-sub" x="580" y="537">dst MAC BB:BB</text>
+          </g>
+
+          <g className={`arp-cache-panel ${cacheMissActive ? "active" : ""}`}>
+            <rect x="68" y="424" width="382" height="126" rx="20" />
+            <text className="arp-panel-title" x="92" y="452">{label("主机 A ARP 缓存", "Host A ARP cache")}</text>
+            {cacheRows.map((row, index) => (
+              <g
+                key={`${row.ip}-${index}`}
+                className={`arp-cache-row ${row.active ? "active" : ""} ${row.danger ? "danger" : ""}`}
+              >
+                <rect x="92" y={466 + index * 28} width="334" height="24" rx="8" />
+                <text x="108" y={483 + index * 28}>{row.ip}</text>
+                <text x="236" y={483 + index * 28}>{row.mac}</text>
+                <text x="372" y={483 + index * 28}>{row.state}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="arp-header-panel">
+            <rect x="704" y="418" width="338" height="132" rx="20" />
+            <text className="arp-panel-title" x="728" y="446">{label("抓包字段", "Packet fields")}</text>
+            {headerRows.map(([name, value], index) => (
+              <g key={name} className={`arp-header-row ${requestActive ? "active" : ""}`}>
+                <text x="728" y={474 + index * 24}>{name}</text>
+                <text x="1018" y={474 + index * 24}>{value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="arp-diagnostics">
+            {diagnostics.map((item, index) => (
+              <g
+                key={item.text}
+                className={`arp-diagnostic ${item.active ? "active" : ""} ${index === 3 ? "danger" : ""}`}
+              >
+                <rect x={330 + index * 142} y="108" width="124" height="42" rx="14" />
+                <text x={392 + index * 142} y="127">{item.text}</text>
+                <text x={392 + index * 142} y="142">{index + 1}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="tcp-handshake-caption arp-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TcpIpModelStage({
   simulation,
   locale,
@@ -2852,64 +3322,85 @@ function TcpIpModelStage({
   activeStepIndex: number;
 }) {
   const activeStep = simulation.steps[activeStepIndex];
+  const layerLabel = (zh: string, en: string) => (locale === "zh" ? zh : en);
   const layers = [
     {
       id: "application",
       zh: "应用层",
       en: "Application",
-      protocol: "HTTP / DNS",
-      fields: ["Host", "Path", "Headers", "Body"],
-      color: "#2563eb",
+      examples: "HTTP / DNS / SSH",
+      pdu: "Payload",
+      y: 116,
+      color: "var(--brand)",
+      header: "URL / Header / DNS",
     },
     {
       id: "transport",
       zh: "传输层",
       en: "Transport",
-      protocol: "TCP / UDP",
-      fields: ["src port", "dst port", "seq/ack", "window"],
-      color: "#0f8ea8",
+      examples: "TCP / UDP",
+      pdu: "Segment / Datagram",
+      y: 212,
+      color: "var(--tertiary)",
+      header: "ports / seq / window",
     },
     {
       id: "internet",
       zh: "Internet 层",
       en: "Internet",
-      protocol: "IP / ICMP",
-      fields: ["src IP", "dst IP", "TTL", "gateway"],
+      examples: "IP / ICMP",
+      pdu: "IP Packet",
+      y: 308,
       color: "#f59e0b",
+      header: "src IP / dst IP / TTL",
     },
     {
       id: "link",
       zh: "链路层",
       en: "Link",
-      protocol: "Ethernet / Wi-Fi",
-      fields: ["src MAC", "next-hop MAC", "VLAN", "FCS"],
-      color: "#16a34a",
+      examples: "Ethernet / Wi-Fi / ARP",
+      pdu: "Frame",
+      y: 404,
+      color: "var(--success)",
+      header: "next-hop MAC / FCS",
     },
   ];
-  const path = [
-    { id: "app", x: 92, y: 392, zh: "应用载荷", en: "App payload", step: 0 },
-    { id: "segment", x: 276, y: 392, zh: "Segment", en: "Segment", step: 1 },
-    { id: "packet", x: 462, y: 392, zh: "IP Packet", en: "IP packet", step: 2 },
-    { id: "frame", x: 652, y: 392, zh: "下一跳帧", en: "Next-hop frame", step: 3 },
-    { id: "receiver", x: 860, y: 392, zh: "解封装", en: "Decapsulation", step: 4 },
+  const packets = [
+    { step: 1, x: 160, y: 126, width: 184, label: "App data", detail: "HTTP GET / DNS", tone: "brand" },
+    { step: 2, x: 236, y: 222, width: 214, label: "TCP/UDP", detail: "+ payload", tone: "teal" },
+    { step: 3, x: 312, y: 318, width: 230, label: "IP packet", detail: "+ segment", tone: "warning" },
+    { step: 4, x: 388, y: 414, width: 250, label: "Ethernet frame", detail: "+ IP packet", tone: "success" },
   ];
+  const osiRows = [
+    { zh: "应用 + 表示 + 会话", en: "Application + Presentation + Session", tcp: "Application", y: 123 },
+    { zh: "传输", en: "Transport", tcp: "Transport", y: 219 },
+    { zh: "网络", en: "Network", tcp: "Internet", y: 315 },
+    { zh: "数据链路 + 物理", en: "Data Link + Physical", tcp: "Link", y: 411 },
+  ];
+  const troubleshooting = [
+    { step: 1, label: "URL / Header / Status" },
+    { step: 2, label: "Port / SYN / Window" },
+    { step: 3, label: "IP / Route / TTL" },
+    { step: 4, label: "MAC / ARP / FCS" },
+  ];
+  const decapsulationVisible = completedSteps >= 5;
 
   return (
-    <div className="visual-stage tcp-ip-stage">
-      <div className="tcp-ip-card">
+    <div className="visual-stage tcp-ip-model-stage">
+      <div className="tcp-handshake-card tcp-ip-model-card">
         <svg
-          className="tcp-ip-diagram"
-          viewBox="0 0 960 590"
+          className="tcp-ip-model-diagram"
+          viewBox="0 0 1120 600"
           role="img"
           aria-label={readLocalizedText(simulation.title, locale)}
         >
           <defs>
             {[
-              ["tcpip-arrow-blue", "var(--brand)"],
-              ["tcpip-arrow-teal", "var(--tertiary)"],
-              ["tcpip-arrow-yellow", "#f59e0b"],
-              ["tcpip-arrow-green", "var(--success)"],
-              ["tcpip-arrow-muted", "color-mix(in srgb, var(--muted) 54%, transparent)"],
+              ["tcp-ip-arrow-brand", "var(--brand)"],
+              ["tcp-ip-arrow-teal", "var(--tertiary)"],
+              ["tcp-ip-arrow-warning", "#f59e0b"],
+              ["tcp-ip-arrow-success", "var(--success)"],
+              ["tcp-ip-arrow-muted", "color-mix(in srgb, var(--muted) 72%, transparent)"],
             ].map(([id, fill]) => (
               <marker
                 key={id}
@@ -2924,106 +3415,147 @@ function TcpIpModelStage({
                 <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
               </marker>
             ))}
-            <filter id="tcpip-soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.12" />
+            <filter id="tcp-ip-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.14" />
             </filter>
           </defs>
 
-          <rect className="tcp-ip-bg" x="24" y="24" width="912" height="528" rx="26" />
-          <text className="tcp-title tcp-ip-title" x="480" y="66">
+          <rect className="tcp-ip-bg" x="24" y="24" width="1072" height="530" rx="28" />
+          <text className="tcp-title tcp-ip-title" x="560" y="70">
             {readLocalizedText(simulation.title, locale)}
           </text>
-          <text className="tcp-subtitle tcp-ip-subtitle" x="480" y="94">
-            RFC 1122 Link / IP / Transport / Application
+          <text className="tcp-subtitle tcp-ip-subtitle" x="560" y="99">
+            {layerLabel(
+              "应用数据 -> TCP/UDP -> IP 包 -> 以太网/Wi-Fi 帧 -> 接收端解封装",
+              "Application -> TCP/UDP -> IP packet -> Ethernet/Wi-Fi frame -> receiver decapsulation",
+            )}
           </text>
+
+          <g className="tcp-ip-host source">
+            <rect x="72" y="118" width="112" height="322" rx="28" />
+            <text x="128" y="274">{locale === "zh" ? "发送端" : "Sender"}</text>
+            <text x="128" y="304">Host A</text>
+          </g>
 
           <g className="tcp-ip-layer-stack">
             {layers.map((layer, index) => {
-              const y = 130 + index * 58;
-              const active = completedSteps > index || activeStep.from === layer.id || activeStep.to === layer.id;
+              const active = completedSteps >= index + 1;
 
               return (
                 <g
                   key={layer.id}
-                  className={`tcp-ip-layer ${active ? "active" : ""}`}
+                  className={`tcp-ip-layer ${layer.id} ${active ? "active" : ""}`}
                   style={{ "--layer-color": layer.color } as CSSProperties}
                 >
-                  <rect x="56" y={y} width="352" height="46" rx="12" />
-                  <circle cx="82" cy={y + 23} r="9" />
-                  <text className="tcp-ip-layer-name" x="102" y={y + 20}>
+                  <rect x="214" y={layer.y} width="342" height="70" rx="16" />
+                  <text className="tcp-ip-layer-title" x="238" y={layer.y + 27}>
                     {locale === "zh" ? layer.zh : layer.en}
                   </text>
-                  <text className="tcp-ip-layer-protocol" x="102" y={y + 36}>
-                    {layer.protocol}
+                  <text className="tcp-ip-layer-examples" x="238" y={layer.y + 51}>
+                    {layer.examples}
                   </text>
-                  {layer.fields.map((field, fieldIndex) => (
-                    <g key={field} className="tcp-ip-field-chip">
-                      <rect x={438 + fieldIndex * 112} y={y + 7} width="96" height="32" rx="8" />
-                      <text x={486 + fieldIndex * 112} y={y + 28}>
-                        {field}
-                      </text>
-                    </g>
-                  ))}
+                  <text className="tcp-ip-layer-pdu" x="530" y={layer.y + 30}>
+                    {layer.pdu}
+                  </text>
+                  <text className="tcp-ip-layer-header" x="530" y={layer.y + 52}>
+                    {layer.header}
+                  </text>
                 </g>
               );
             })}
           </g>
 
-          <g className="tcp-ip-route">
-            <path
-              className="tcp-ip-route-line"
-              d="M 92 392 L 860 392"
-              markerEnd="url(#tcpip-arrow-muted)"
-            />
-            {path.map((item, index) => {
-              const active = completedSteps > item.step;
-              const current = completedSteps === item.step;
+          <g className="tcp-ip-encapsulation">
+            {packets.map((packet) => (
+              <g
+                key={packet.label}
+                className={`tcp-ip-packet ${packet.tone} ${completedSteps >= packet.step ? "visible" : ""}`}
+              >
+                <rect x={packet.x} y={packet.y} width={packet.width} height="38" rx="19" />
+                <text x={packet.x + packet.width / 2} y={packet.y + 17}>{packet.label}</text>
+                <text className="tcp-ip-packet-detail" x={packet.x + packet.width / 2} y={packet.y + 31}>{packet.detail}</text>
+              </g>
+            ))}
+            {layers.slice(0, -1).map((layer, index) => (
+              <g
+                key={`${layer.id}-arrow`}
+                className={`tcp-ip-down-arrow ${completedSteps >= index + 2 ? "visible" : ""}`}
+              >
+                <path
+                  d={`M 572 ${layer.y + 70} C 604 ${layer.y + 88}, 604 ${layers[index + 1].y - 18}, 572 ${layers[index + 1].y}`}
+                  markerEnd={`url(#tcp-ip-arrow-${packets[index + 1].tone})`}
+                />
+              </g>
+            ))}
+          </g>
 
-              return (
+          <g className={`tcp-ip-wire ${completedSteps >= 4 ? "visible" : ""}`}>
+            <path d="M 556 439 C 640 486, 752 486, 838 439" markerEnd="url(#tcp-ip-arrow-success)" />
+            <rect x="636" y="466" width="136" height="34" rx="17" />
+            <text x="704" y="488">{layerLabel("逐跳投递", "Hop delivery")}</text>
+          </g>
+
+          <g className={`tcp-ip-receiver ${decapsulationVisible ? "visible" : ""}`}>
+            <rect x="852" y="118" width="146" height="322" rx="28" />
+            <text className="tcp-ip-receiver-title" x="925" y="150">
+              {layerLabel("接收端解封装", "Receiver decapsulation")}
+            </text>
+            {layers
+              .slice()
+              .reverse()
+              .map((layer, index) => (
                 <g
-                  key={item.id}
-                  className={`tcp-ip-hop ${active ? "active" : ""} ${current ? "current" : ""}`}
+                  key={`rx-${layer.id}`}
+                  className={`tcp-ip-rx-step ${decapsulationVisible ? "active" : ""}`}
+                  style={{ "--layer-color": layer.color } as CSSProperties}
                 >
-                  {index > 0 && (
-                    <path
-                      className={active ? "tcp-ip-active-segment" : "tcp-ip-segment"}
-                      d={`M ${path[index - 1].x + 24} ${item.y} L ${item.x - 24} ${item.y}`}
-                      markerEnd={active ? "url(#tcpip-arrow-blue)" : undefined}
-                    />
-                  )}
-                  <circle cx={item.x} cy={item.y} r="24" />
-                  <text x={item.x} y={item.y + 52}>
-                    {locale === "zh" ? item.zh : item.en}
-                  </text>
+                  <rect x="884" y={188 + index * 50} width="82" height="30" rx="15" />
+                  <text x="925" y={208}>{layer.pdu}</text>
                 </g>
-              );
-            })}
+              ))}
+            <path
+              className="tcp-ip-up-path"
+              d="M 925 380 L 925 184"
+              markerEnd="url(#tcp-ip-arrow-muted)"
+            />
           </g>
 
-          <g className="tcp-ip-device source">
-            <rect x="54" y="452" width="184" height="58" rx="14" />
-            <text x="146" y="476">{locale === "zh" ? "源主机协议栈" : "Source host stack"}</text>
-            <text x="146" y="496">10.0.1.10:51532</text>
-          </g>
-          <g className="tcp-ip-device gateway">
-            <rect x="374" y="452" width="212" height="58" rx="14" />
-            <text x="480" y="476">{locale === "zh" ? "默认网关 / 路由表" : "Default gateway / route table"}</text>
-            <text x="480" y="496">next hop 10.0.1.1 · TTL - 1</text>
-          </g>
-          <g className="tcp-ip-device target">
-            <rect x="718" y="452" width="184" height="58" rx="14" />
-            <text x="810" y="476">{locale === "zh" ? "目标服务协议栈" : "Target service stack"}</text>
-            <text x="810" y="496">203.0.113.8:443</text>
+          <g className="tcp-ip-osi-map">
+            <rect x="604" y="118" width="196" height="322" rx="20" />
+            <text className="tcp-ip-panel-title" x="702" y="148">
+              {layerLabel("OSI 对照", "OSI Mapping")}
+            </text>
+            {osiRows.map((row, index) => (
+              <g
+                key={row.tcp}
+                className={`tcp-ip-osi-row ${completedSteps >= index + 1 ? "active" : ""}`}
+              >
+                <rect x="628" y={row.y + 22} width="148" height="35" rx="12" />
+                <text x="702" y={row.y + 44}>{locale === "zh" ? row.zh : row.en}</text>
+              </g>
+            ))}
           </g>
 
-          <foreignObject x="50" y="520" width="860" height="54">
-            <div className="tcp-ip-caption">
-              <strong>{readLocalizedText(activeStep.title, locale)}</strong>
-              <span>{readLocalizedText(activeStep.label, locale)}</span>
-              <small>{completedSteps}/{simulation.steps.length}</small>
-            </div>
-          </foreignObject>
+          <g className="tcp-ip-debug-panel">
+            <rect x="200" y="470" width="724" height="58" rx="20" />
+            <text className="tcp-ip-panel-title" x="226" y="493">
+              {layerLabel("排障观察点", "Troubleshooting signals")}
+            </text>
+            {troubleshooting.map((item, index) => (
+              <g
+                key={item.label}
+                className={`tcp-ip-debug-chip ${completedSteps >= item.step ? "active" : ""}`}
+              >
+                <rect x={396 + index * 126} y="482" width="112" height="30" rx="15" />
+                <text x={452 + index * 126} y="502">{item.label}</text>
+              </g>
+            ))}
+          </g>
         </svg>
+        <div className="tcp-handshake-caption tcp-ip-model-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
       </div>
     </div>
   );
@@ -4305,6 +4837,215 @@ function TcpHandshakeStage({
           )}
         </svg>
         <div className="tcp-handshake-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CdnRequestStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const regions = [
+    { name: "Tokyo", x: 158, y: 148, latency: "38 ms", active: completedSteps >= 1 },
+    { name: "Frankfurt", x: 136, y: 234, latency: "52 ms", active: completedSteps >= 1 },
+    { name: "Virginia", x: 180, y: 320, latency: "71 ms", active: completedSteps >= 1 },
+  ];
+  const cacheStatuses = [
+    { label: "HIT", value: completedSteps >= 3 ? "edge" : "--", tone: "success", active: completedSteps >= 3 },
+    { label: "EXPIRED", value: completedSteps >= 4 ? "ETag" : "--", tone: "warning", active: completedSteps >= 4 },
+    { label: "MISS", value: completedSteps >= 5 ? "shield" : "--", tone: "teal", active: completedSteps >= 5 },
+    { label: "BYPASS", value: completedSteps >= 6 ? "api" : "--", tone: "danger", active: completedSteps >= 6 },
+  ];
+  const controls = [
+    { name: "max-age", value: "300s", fill: 0.58, active: completedSteps >= 2 },
+    { name: "s-maxage", value: "1h", fill: 0.78, active: completedSteps >= 2 },
+    { name: "stale-while-revalidate", value: "30s", fill: 0.42, active: completedSteps >= 4 },
+    { name: "Vary", value: "Accept-Encoding", fill: 0.66, active: completedSteps >= 2 },
+    { name: "Purge", value: completedSteps >= 6 ? "v42 -> v43" : "idle", fill: completedSteps >= 6 ? 0.9 : 0.18, active: completedSteps >= 6 },
+  ];
+  const metricRows = [
+    { name: label("边缘 TTFB", "Edge TTFB"), value: completedSteps >= 3 ? "42 ms" : "--", active: completedSteps >= 3 },
+    { name: label("缓存状态", "Cache status"), value: completedSteps >= 5 ? "MISS -> HIT" : completedSteps >= 3 ? "HIT" : "--", active: completedSteps >= 3 },
+    { name: label("命中率", "Hit ratio"), value: completedSteps >= 6 ? "91%" : "--", active: completedSteps >= 6 },
+    { name: label("回源请求", "Origin requests"), value: completedSteps >= 5 ? "-68%" : "--", active: completedSteps >= 5 },
+    { name: label("新鲜度", "Freshness"), value: completedSteps >= 4 ? "ETag 304" : "--", active: completedSteps >= 4 },
+  ];
+  const requestPath = [
+    { id: "route", d: "M 250 232 C 310 150, 382 132, 448 184", marker: "brand", active: completedSteps >= 1 },
+    { id: "key", d: "M 560 214 C 594 228, 608 248, 620 282", marker: "teal", active: completedSteps >= 2 },
+    { id: "hit", d: "M 452 278 C 352 338, 292 330, 226 270", marker: "success", active: completedSteps >= 3 },
+    { id: "revalidate", d: "M 602 338 C 660 362, 704 360, 762 330", marker: "warning", active: completedSteps >= 4 },
+    { id: "miss", d: "M 818 312 C 884 280, 928 250, 974 204", marker: "teal", active: completedSteps >= 5 },
+    { id: "fill", d: "M 974 244 C 914 402, 728 422, 580 356", marker: "success", active: completedSteps >= 5 },
+  ];
+
+  return (
+    <div className="visual-stage cdn-stage">
+      <div className="tcp-handshake-card cdn-card">
+        <svg
+          className="cdn-diagram"
+          viewBox="0 0 1120 650"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["cdn-arrow-brand", "var(--brand)"],
+              ["cdn-arrow-teal", "var(--tertiary)"],
+              ["cdn-arrow-success", "var(--success)"],
+              ["cdn-arrow-warning", "#f59e0b"],
+              ["cdn-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="cdn-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.14" />
+            </filter>
+            <linearGradient id="cdn-edge-gradient" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.14" />
+              <stop offset="54%" stopColor="var(--tertiary)" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="var(--success)" stopOpacity="0.13" />
+            </linearGradient>
+          </defs>
+
+          <rect className="cdn-bg" x="24" y="24" width="1072" height="582" rx="30" />
+          <text className="cdn-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="cdn-subtitle" x="560" y="99">
+            {label(
+              "用户 -> DNS/Anycast -> 边缘缓存 -> 区域缓存 / Origin Shield -> 源站",
+              "User -> DNS / Anycast -> edge cache -> regional cache / Origin Shield -> origin",
+            )}
+          </text>
+
+          <g className="cdn-users">
+            <rect x="70" y="116" width="190" height="248" rx="24" />
+            <text className="cdn-panel-title" x="96" y="148">{label("用户地域", "User regions")}</text>
+            {regions.map((region) => (
+              <g key={region.name} className={`cdn-region ${region.active ? "active" : ""}`}>
+                <circle cx={region.x} cy={region.y} r="11" />
+                <text x={region.x + 22} y={region.y + 5}>{region.name}</text>
+                <text x="228" y={region.y + 5}>{region.latency}</text>
+              </g>
+            ))}
+            <g className={`cdn-asset ${completedSteps >= 1 ? "active" : ""}`}>
+              <rect x="96" y="286" width="138" height="48" rx="15" />
+              <text x="165" y="306">/assets/app.js</text>
+              <text x="165" y="324">v42 · 118 KB</text>
+            </g>
+          </g>
+
+          <g className={`cdn-routing ${completedSteps >= 1 ? "active" : ""}`}>
+            <rect x="410" y="132" width="184" height="108" rx="24" />
+            <text className="cdn-node-title" x="502" y="166">{label("DNS / Anycast", "DNS / Anycast")}</text>
+            <text x="502" y="194">{label("低 RTT 边缘", "low-RTT edge")}</text>
+            <text x="502" y="216">CNAME cdn.example</text>
+          </g>
+
+          <g className={`cdn-edge ${completedSteps >= 2 ? "active" : ""}`}>
+            <rect x="400" y="282" width="230" height="142" rx="28" />
+            <text className="cdn-node-title" x="515" y="316">{label("边缘缓存 PoP", "Edge cache PoP")}</text>
+            <text x="515" y="344">key: host + path + vary</text>
+            <text x="515" y="370">{completedSteps >= 3 ? "CF-Cache-Status: HIT" : "lookup pending"}</text>
+            <text x="515" y="396">{completedSteps >= 4 ? "ETag: \"v42\" / 304" : "TTL: s-maxage=3600"}</text>
+          </g>
+
+          <g className={`cdn-shield ${completedSteps >= 4 ? "active" : ""}`}>
+            <rect x="732" y="278" width="182" height="140" rx="26" />
+            <text className="cdn-node-title" x="823" y="314">{label("区域缓存", "Regional cache")}</text>
+            <text x="823" y="342">Origin Shield</text>
+            <text x="823" y="368">{completedSteps >= 5 ? "coalesced MISS" : "conditional GET"}</text>
+            <text x="823" y="394">If-None-Match</text>
+          </g>
+
+          <g className={`cdn-origin ${completedSteps >= 5 ? "active" : ""}`}>
+            <rect x="944" y="144" width="126" height="132" rx="26" />
+            <text className="cdn-node-title" x="1007" y="180">{label("源站", "Origin")}</text>
+            <text x="1007" y="210">v42</text>
+            <text x="1007" y="236">{completedSteps >= 6 ? label("回源 -68%", "origin -68%") : "200 OK"}</text>
+          </g>
+
+          <g className="cdn-paths">
+            {requestPath.map((path) => (
+              <path
+                key={path.id}
+                className={`cdn-path ${path.marker} ${path.active ? "active" : ""}`}
+                d={path.d}
+                markerEnd={`url(#cdn-arrow-${path.marker})`}
+              />
+            ))}
+          </g>
+
+          <g className="cdn-status-panel">
+            <rect x="70" y="402" width="300" height="146" rx="22" />
+            <text className="cdn-panel-title" x="96" y="434">{label("缓存状态分支", "Cache status branches")}</text>
+            {cacheStatuses.map((status, index) => (
+              <g key={status.label} className={`cdn-status ${status.tone} ${status.active ? "active" : ""}`}>
+                <rect x={96 + (index % 2) * 132} y={456 + Math.floor(index / 2) * 42} width="112" height="30" rx="15" />
+                <text x={116 + (index % 2) * 132} y={476 + Math.floor(index / 2) * 42}>{status.label}</text>
+                <text x={198 + (index % 2) * 132} y={476 + Math.floor(index / 2) * 42}>{status.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="cdn-control-panel">
+            <rect x="400" y="454" width="304" height="116" rx="22" />
+            <text className="cdn-panel-title" x="426" y="486">{label("缓存控制", "Cache controls")}</text>
+            {controls.map((control, index) => {
+              const y = 510 + index * 18;
+              return (
+                <g key={control.name} className={`cdn-control ${control.active ? "active" : ""}`}>
+                  <text x="426" y={y + 5}>{control.name}</text>
+                  <rect x="558" y={y - 4} width="74" height="7" rx="4" />
+                  <rect x="558" y={y - 4} width={74 * control.fill} height="7" rx="4" />
+                  <text x="670" y={y + 5}>{control.value}</text>
+                </g>
+              );
+            })}
+          </g>
+
+          <g className="cdn-metrics-panel">
+            <rect x="732" y="454" width="338" height="116" rx="22" />
+            <text className="cdn-panel-title" x="758" y="486">{label("观测指标", "Observed metrics")}</text>
+            {metricRows.map((metric, index) => (
+              <g key={metric.name} className={`cdn-metric ${metric.active ? "active" : ""}`}>
+                <text x={758 + (index % 2) * 164} y={514 + Math.floor(index / 2) * 24}>{metric.name}</text>
+                <text x={878 + (index % 2) * 164} y={514 + Math.floor(index / 2) * 24}>{metric.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`cdn-purge-band ${completedSteps >= 6 ? "active" : ""}`}>
+            <rect x="882" y="102" width="166" height="34" rx="17" />
+            <text x="965" y="124">{label("Purge / versioned URL", "Purge / versioned URL")}</text>
+          </g>
+        </svg>
+        <div className="tcp-handshake-caption cdn-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>
