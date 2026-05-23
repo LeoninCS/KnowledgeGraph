@@ -1,6 +1,6 @@
 import type { GraphKnowledgePoint } from "./types.ts";
 
-export const dsaKnowledgePoints = [
+const dsaKnowledgePointBase = [
   /* <!-- KG_EXPLAINED: 数据结构与算法概览 | 2026-05-23 | source_count=4 --> */
   { sourceRefs: ["cp-algorithms","visualgo","cs-notes","javaguide"], id: "dsa-overview", zh: "数据结构与算法概览", en: "DSA Overview", area: "foundation", difficulty: "easy", concept: "理解数据组织方式、操作成本和算法复杂度。", explanation: ["核心概念：数据结构与算法概览（DSA Overview）聚焦理解数据组织方式、操作成本和算法复杂度。。算法用数据结构、状态、递推和复杂度分析把问题转化为可验证步骤；理解它时先抓住复杂度、输入规模、边界条件和证明方法，再看输入、状态变化、输出结果和失败分支。","适用场景：数据结构与算法概览常用于选择算法前估算数据规模、操作频率和内存限制。学习时把它放回数据结构与算法链路中观察，并结合前置知识基础概念判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，数据结构与算法概览通常会和时间复杂度和空间复杂度一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认复杂度、输入规模、边界条件和证明方法是否仍然成立。","常见误区与注意点：实践中容易把数据结构与算法概览当成孤立概念处理，结果遗漏最坏/平均复杂度、稳定性、溢出和空输入。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考cp-algorithms、VisuAlgo、CS-Notes 和 JavaGuide，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["数据结构与算法概览适合解决什么题型","数据结构与算法概览复杂度如何分析","数据结构与算法概览常见边界条件有哪些"], prerequisites: [], related: ["time-complexity","space-complexity"] },
   /* <!-- KG_EXPLAINED: 时间复杂度 | 2026-05-23 | source_count=4 --> */
@@ -134,3 +134,342 @@ export const dsaKnowledgePoints = [
   /* <!-- KG_EXPLAINED: 分治 | 2026-05-23 | source_count=4 --> */
   { sourceRefs: ["cp-algorithms","visualgo","cs-notes","javaguide"], id: "divide-and-conquer", zh: "分治", en: "Divide and Conquer", area: "algorithm", difficulty: "medium", concept: "把问题拆成独立子问题，分别求解后合并。", explanation: ["核心概念：分治（Divide and Conquer）聚焦把问题拆成独立子问题，分别求解后合并。。算法用数据结构、状态、递推和复杂度分析把问题转化为可验证步骤；理解它时先抓住贪心、动态规划、回溯和分治范式，再看输入、状态变化、输出结果和失败分支。","适用场景：分治常用于最优化、可行性判断、组合搜索和重叠子问题。学习时把它放回数据结构与算法链路中观察，并结合前置知识递归判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，分治通常会和归并排序和快速排序一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认贪心、动态规划、回溯和分治范式是否仍然成立。","常见误区与注意点：实践中容易把分治当成孤立概念处理，结果遗漏状态定义、转移顺序、贪心证明和剪枝正确性。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考cp-algorithms、VisuAlgo、CS-Notes 和 JavaGuide，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["分治适合解决什么题型","分治复杂度如何分析","分治常见边界条件有哪些"], prerequisites: ["recursion"], related: ["merge-sort","quick-sort"] },
 ] satisfies GraphKnowledgePoint[];
+
+const dsaKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {
+  "dsa-overview": {
+    order: 1,
+    related: ["time-complexity", "array", "hash-table"],
+  },
+  "time-complexity": {
+    order: 2,
+    prerequisites: ["dsa-overview"],
+    related: ["space-complexity", "recursion"],
+  },
+  "space-complexity": {
+    order: 3,
+    prerequisites: ["dsa-overview"],
+    related: ["time-complexity", "dynamic-programming"],
+  },
+  "recursion": {
+    order: 4,
+    prerequisites: ["time-complexity"],
+    related: ["tree-traversal", "backtracking", "dynamic-programming"],
+  },
+  "array": {
+    order: 5,
+    prerequisites: ["dsa-overview"],
+    related: ["two-pointers", "sliding-window", "prefix-sum"],
+  },
+  "two-pointers": {
+    order: 6,
+    prerequisites: ["array"],
+    related: ["sliding-window", "fast-slow-pointers"],
+  },
+  "sliding-window": {
+    order: 7,
+    prerequisites: ["array", "two-pointers"],
+    related: ["hash-table", "queue"],
+  },
+  "prefix-sum": {
+    order: 8,
+    prerequisites: ["array"],
+    related: ["difference-array", "hash-table"],
+  },
+  "difference-array": {
+    order: 9,
+    prerequisites: ["prefix-sum"],
+    related: ["array"],
+  },
+  "linked-list": {
+    order: 10,
+    prerequisites: ["dsa-overview"],
+    related: ["fast-slow-pointers", "stack"],
+  },
+  "singly-linked-list": {
+    order: 11,
+    prerequisites: ["linked-list"],
+    related: ["fast-slow-pointers"],
+  },
+  "doubly-linked-list": {
+    order: 12,
+    prerequisites: ["linked-list"],
+    related: ["lru-cache"],
+  },
+  "fast-slow-pointers": {
+    order: 13,
+    prerequisites: ["linked-list", "two-pointers"],
+    related: ["binary-search"],
+  },
+  "stack": {
+    order: 14,
+    prerequisites: ["linked-list"],
+    related: ["monotonic-stack", "dfs"],
+  },
+  "monotonic-stack": {
+    order: 15,
+    prerequisites: ["stack"],
+    related: ["greedy"],
+  },
+  "queue": {
+    order: 16,
+    prerequisites: ["dsa-overview"],
+    related: ["bfs", "deque"],
+  },
+  "deque": {
+    order: 17,
+    prerequisites: ["queue"],
+    related: ["monotonic-queue"],
+  },
+  "monotonic-queue": {
+    order: 18,
+    prerequisites: ["queue", "sliding-window"],
+    related: ["deque"],
+  },
+  "hash-table": {
+    order: 19,
+    prerequisites: ["dsa-overview"],
+    related: ["set", "lru-cache", "prefix-sum"],
+  },
+  "hash-function": {
+    order: 20,
+    prerequisites: ["hash-table"],
+    related: ["collision"],
+  },
+  "collision": {
+    order: 21,
+    prerequisites: ["hash-function"],
+    related: ["hash-table"],
+  },
+  "set": {
+    order: 22,
+    prerequisites: ["hash-table"],
+    related: ["trie"],
+  },
+  "lru-cache": {
+    order: 23,
+    prerequisites: ["hash-table", "linked-list"],
+    related: ["doubly-linked-list"],
+  },
+  "tree": {
+    order: 24,
+    prerequisites: ["recursion"],
+    related: ["binary-tree", "graph"],
+  },
+  "binary-tree": {
+    order: 25,
+    prerequisites: ["tree"],
+    related: ["tree-traversal", "heap"],
+  },
+  "tree-traversal": {
+    order: 26,
+    prerequisites: ["binary-tree", "recursion"],
+    related: ["dfs", "bfs"],
+  },
+  "binary-search-tree": {
+    order: 27,
+    prerequisites: ["binary-tree", "binary-search"],
+    related: ["balanced-tree"],
+  },
+  "balanced-tree": {
+    order: 28,
+    prerequisites: ["binary-search-tree"],
+    related: ["tree"],
+  },
+  "trie": {
+    order: 29,
+    prerequisites: ["tree", "hash-table"],
+    related: ["backtracking"],
+  },
+  "heap": {
+    order: 30,
+    prerequisites: ["binary-tree", "array"],
+    related: ["priority-queue", "quickselect"],
+  },
+  "priority-queue": {
+    order: 31,
+    prerequisites: ["heap"],
+    related: ["dijkstra", "greedy"],
+  },
+  "union-find": {
+    order: 32,
+    prerequisites: ["tree"],
+    related: ["graph", "minimum-spanning-tree"],
+  },
+  "graph": {
+    order: 33,
+    prerequisites: ["tree", "queue", "stack"],
+    related: ["graph-representation", "dfs", "bfs"],
+  },
+  "graph-representation": {
+    order: 34,
+    prerequisites: ["graph"],
+    related: ["dfs", "bfs"],
+  },
+  "dfs": {
+    order: 35,
+    prerequisites: ["recursion", "stack", "graph-representation"],
+    related: ["backtracking", "topological-sort"],
+  },
+  "bfs": {
+    order: 36,
+    prerequisites: ["queue", "graph-representation"],
+    related: ["topological-sort", "binary-tree"],
+  },
+  "topological-sort": {
+    order: 37,
+    prerequisites: ["graph-representation", "dfs", "bfs"],
+    related: ["graph"],
+  },
+  "dijkstra": {
+    order: 38,
+    prerequisites: ["graph", "priority-queue"],
+    related: ["bfs"],
+  },
+  "minimum-spanning-tree": {
+    order: 39,
+    prerequisites: ["graph", "union-find"],
+    related: ["greedy"],
+  },
+  "search": {
+    order: 40,
+    prerequisites: ["array"],
+    related: ["binary-search", "dfs", "bfs"],
+  },
+  "linear-search": {
+    order: 41,
+    prerequisites: ["array"],
+    related: ["binary-search"],
+  },
+  "binary-search": {
+    order: 42,
+    prerequisites: ["array"],
+    related: ["search-boundary", "parametric-search"],
+  },
+  "search-boundary": {
+    order: 43,
+    prerequisites: ["binary-search"],
+    related: ["parametric-search"],
+  },
+  "parametric-search": {
+    order: 44,
+    prerequisites: ["binary-search"],
+    related: ["greedy"],
+  },
+  "sorting": {
+    order: 45,
+    prerequisites: ["array", "time-complexity"],
+    related: ["merge-sort", "quick-sort", "heap-sort"],
+  },
+  "bubble-sort": {
+    order: 46,
+    prerequisites: ["sorting"],
+    related: ["selection-sort"],
+  },
+  "selection-sort": {
+    order: 47,
+    prerequisites: ["sorting"],
+    related: ["insertion-sort"],
+  },
+  "insertion-sort": {
+    order: 48,
+    prerequisites: ["sorting"],
+    related: ["merge-sort"],
+  },
+  "divide-and-conquer": {
+    order: 49,
+    prerequisites: ["recursion"],
+    related: ["merge-sort", "quick-sort"],
+  },
+  "merge-sort": {
+    order: 50,
+    prerequisites: ["sorting", "recursion"],
+    related: ["divide-and-conquer", "quick-sort"],
+  },
+  "quick-sort": {
+    order: 51,
+    prerequisites: ["sorting", "recursion", "two-pointers"],
+    related: ["quickselect"],
+  },
+  "quickselect": {
+    order: 52,
+    prerequisites: ["quick-sort"],
+    related: ["heap", "priority-queue"],
+  },
+  "heap-sort": {
+    order: 53,
+    prerequisites: ["heap", "sorting"],
+    related: ["quick-sort"],
+  },
+  "counting-sort": {
+    order: 54,
+    prerequisites: ["sorting"],
+    related: ["bucket-sort"],
+  },
+  "bucket-sort": {
+    order: 55,
+    prerequisites: ["sorting"],
+    related: ["counting-sort"],
+  },
+  "greedy": {
+    order: 56,
+    prerequisites: ["sorting"],
+    related: ["interval-greedy", "priority-queue"],
+  },
+  "interval-greedy": {
+    order: 57,
+    prerequisites: ["greedy"],
+    related: ["sorting"],
+  },
+  "backtracking": {
+    order: 58,
+    prerequisites: ["recursion", "dfs"],
+    related: ["pruning", "permutation-combination"],
+  },
+  "pruning": {
+    order: 59,
+    prerequisites: ["backtracking"],
+    related: ["dfs"],
+  },
+  "permutation-combination": {
+    order: 60,
+    prerequisites: ["backtracking"],
+    related: ["pruning"],
+  },
+  "dynamic-programming": {
+    order: 61,
+    prerequisites: ["recursion", "time-complexity"],
+    related: ["memoization", "dp-state"],
+  },
+  "memoization": {
+    order: 62,
+    prerequisites: ["recursion"],
+    related: ["dynamic-programming"],
+  },
+  "dp-state": {
+    order: 63,
+    prerequisites: ["dynamic-programming"],
+    related: ["dp-transition"],
+  },
+  "dp-transition": {
+    order: 64,
+    prerequisites: ["dp-state"],
+    related: ["knapsack"],
+  },
+  "knapsack": {
+    order: 65,
+    prerequisites: ["dp-state", "dp-transition"],
+    related: ["space-optimized-dp"],
+  },
+  "space-optimized-dp": {
+    order: 66,
+    prerequisites: ["knapsack"],
+    related: ["space-complexity"],
+  },
+};
+
+export const dsaKnowledgePoints = dsaKnowledgePointBase
+  .map((point) => ({
+    ...point,
+    ...dsaKnowledgePointOverrides[point.id],
+  }))
+  .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) satisfies GraphKnowledgePoint[];

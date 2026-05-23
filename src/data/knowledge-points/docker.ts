@@ -204,3 +204,231 @@ export const dockerKnowledgePoints = [
   /* <!-- KG_EXPLAINED: 本地开发环境 | 2026-05-23 | source_count=4 --> */
   { sourceRefs: ["docker-docs","dockerfile-reference","devinterview-docker","javaguide"], id: "local-dev", zh: "本地开发环境", en: "Local Development Environment", area: "deployment", difficulty: "easy", concept: "Docker 可用 Compose 快速拉起数据库、缓存、消息队列和应用依赖。", explanation: ["核心概念：本地开发环境（Local Development Environment）聚焦Docker 可用 Compose 快速拉起数据库、缓存、消息队列和应用依赖。。Docker 用镜像、容器、网络、存储和资源限制封装应用运行环境；理解它时先抓住发布、回滚、灰度和容器平台集成，再看输入、状态变化、输出结果和失败分支。","适用场景：本地开发环境常用于docker compose up -d、docker compose logs -f和docker compose down。学习时把它放回Docker链路中观察，并结合前置知识Compose判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，本地开发环境通常会和绑定挂载和Compose Profile一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认发布、回滚、灰度和容器平台集成是否仍然成立。","常见误区与注意点：实践中容易把本地开发环境当成孤立概念处理，结果遗漏健康检查缺失、镜像不可拉取和环境变量差异。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Docker 官方文档、Dockerfile Reference、Devinterview Docker 和 JavaGuide，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["本地开发环境在容器化中负责什么","本地开发环境常用命令或配置有哪些","本地开发环境构建、运行或部署问题怎么排查"], commonCommands: ["docker compose up -d","docker compose logs -f","docker compose down"], prerequisites: ["compose"], related: ["bind-mount","compose-profile"], order: 101 },
 ] satisfies GraphKnowledgePoint[];
+
+const dockerKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {
+  "docker-overview": {
+    related: ["containerization", "image", "container", "dockerfile", "network", "volume"],
+  },
+  containerization: {
+    prerequisites: ["docker-overview"],
+    related: ["namespace", "cgroup", "container-runtime"],
+  },
+  namespace: {
+    prerequisites: ["containerization"],
+    related: ["container", "network", "volume"],
+  },
+  cgroup: {
+    prerequisites: ["containerization"],
+    related: ["resource-limit", "memory-limit", "cpu-limit", "oom"],
+  },
+  "docker-engine": {
+    prerequisites: ["docker-overview"],
+    related: ["docker-cli", "container-runtime", "image", "container"],
+  },
+  "docker-cli": {
+    prerequisites: ["docker-engine"],
+    related: ["image", "container", "compose"],
+  },
+  "container-runtime": {
+    prerequisites: ["docker-engine"],
+    related: ["namespace", "cgroup", "container"],
+  },
+  image: {
+    prerequisites: ["docker-overview"],
+    related: ["image-layer", "tag", "registry", "dockerfile"],
+  },
+  "image-layer": {
+    prerequisites: ["image"],
+    related: ["union-fs", "copy-on-write", "build-cache"],
+  },
+  "copy-on-write": {
+    prerequisites: ["image-layer"],
+    related: ["container-filesystem", "image-size"],
+  },
+  tag: {
+    prerequisites: ["image"],
+    related: ["image-digest", "registry", "rollback"],
+  },
+  "base-image": {
+    prerequisites: ["image"],
+    related: ["dockerfile-from", "image-security", "image-size"],
+  },
+  container: {
+    prerequisites: ["image"],
+    related: ["container-lifecycle", "run-command", "logs", "resource-limit"],
+  },
+  "container-lifecycle": {
+    prerequisites: ["container"],
+    related: ["run-command", "restart-policy", "healthcheck"],
+  },
+  "run-command": {
+    prerequisites: ["container"],
+    related: ["port-mapping", "environment-variable", "volume"],
+  },
+  exec: {
+    prerequisites: ["container"],
+    related: ["debugging", "inspect"],
+  },
+  "port-mapping": {
+    prerequisites: ["run-command"],
+    related: ["bridge-network", "network-debugging"],
+  },
+  healthcheck: {
+    prerequisites: ["container-lifecycle"],
+    related: ["restart-policy", "deployment-practice", "zero-downtime"],
+  },
+  dockerfile: {
+    prerequisites: ["image"],
+    related: ["dockerfile-from", "dockerfile-run", "dockerfile-copy", "entrypoint", "build-cache"],
+  },
+  "dockerfile-run": {
+    prerequisites: ["dockerfile"],
+    related: ["image-layer", "build-cache", "layer-order"],
+  },
+  "dockerfile-copy": {
+    prerequisites: ["dockerfile"],
+    related: ["build-context", "dockerignore", "layer-order"],
+  },
+  "dockerfile-cmd": {
+    prerequisites: ["dockerfile"],
+    related: ["entrypoint", "run-command"],
+  },
+  entrypoint: {
+    prerequisites: ["dockerfile"],
+    related: ["dockerfile-cmd", "run-command", "healthcheck"],
+  },
+  "build-context": {
+    prerequisites: ["dockerfile-copy"],
+    related: ["dockerignore", "build-cache"],
+  },
+  dockerignore: {
+    prerequisites: ["build-context"],
+    related: ["image-size", "build-cache"],
+  },
+  "build-cache": {
+    prerequisites: ["dockerfile"],
+    related: ["layer-order", "buildkit", "multi-stage-build"],
+  },
+  "multi-stage-build": {
+    prerequisites: ["dockerfile"],
+    related: ["image-size", "base-image", "image-security"],
+  },
+  registry: {
+    prerequisites: ["image"],
+    related: ["docker-hub", "private-registry", "registry-auth", "image-digest"],
+  },
+  "private-registry": {
+    prerequisites: ["registry"],
+    related: ["registry-auth", "image-security"],
+  },
+  network: {
+    prerequisites: ["docker-overview"],
+    related: ["bridge-network", "custom-network", "dns", "port-mapping"],
+  },
+  "bridge-network": {
+    prerequisites: ["network"],
+    related: ["port-mapping", "dns"],
+  },
+  "custom-network": {
+    prerequisites: ["network"],
+    related: ["service-discovery", "compose-network"],
+  },
+  dns: {
+    prerequisites: ["network"],
+    related: ["service-discovery", "network-debugging"],
+  },
+  volume: {
+    prerequisites: ["docker-overview"],
+    related: ["bind-mount", "volume-mount", "backup"],
+  },
+  "bind-mount": {
+    prerequisites: ["volume"],
+    related: ["local-dev", "debugging"],
+  },
+  "volume-mount": {
+    prerequisites: ["volume"],
+    related: ["backup", "restore", "compose-volume"],
+  },
+  backup: {
+    prerequisites: ["volume-mount"],
+    related: ["restore"],
+  },
+  compose: {
+    prerequisites: ["container", "network", "volume"],
+    related: ["compose-file", "compose-service", "compose-network", "local-dev"],
+  },
+  "compose-file": {
+    prerequisites: ["compose"],
+    related: ["compose-service", "compose-env", "compose-depends-on"],
+  },
+  "compose-service": {
+    prerequisites: ["compose-file"],
+    related: ["compose-network", "compose-volume", "logs"],
+  },
+  logs: {
+    prerequisites: ["container"],
+    related: ["logging-driver", "log-rotation", "debugging"],
+  },
+  "container-stats": {
+    prerequisites: ["container"],
+    related: ["resource-limit", "memory-limit", "cpu-limit"],
+  },
+  "resource-limit": {
+    prerequisites: ["cgroup"],
+    related: ["memory-limit", "cpu-limit", "pids-limit", "oom"],
+  },
+  "memory-limit": {
+    prerequisites: ["resource-limit"],
+    related: ["oom", "container-stats"],
+  },
+  oom: {
+    prerequisites: ["memory-limit"],
+    related: ["logs", "container-stats"],
+  },
+  "security-hardening": {
+    prerequisites: ["docker-overview"],
+    related: ["non-root-user", "secret", "image-security", "audit"],
+  },
+  "non-root-user": {
+    prerequisites: ["security-hardening"],
+    related: ["dockerfile-user", "image-security"],
+  },
+  "image-security": {
+    prerequisites: ["image"],
+    related: ["official-image", "base-image", "security-hardening"],
+  },
+  debugging: {
+    prerequisites: ["container"],
+    related: ["logs", "inspect", "image-debugging", "network-debugging"],
+  },
+  "network-debugging": {
+    prerequisites: ["network"],
+    related: ["dns", "port-mapping", "debugging"],
+  },
+  "deployment-practice": {
+    prerequisites: ["compose", "registry", "logs"],
+    related: ["immutable-deployment", "rollback", "ci-build"],
+  },
+  rollback: {
+    prerequisites: ["deployment-practice"],
+    related: ["tag", "registry", "logs"],
+  },
+  "ci-build": {
+    prerequisites: ["dockerfile", "registry"],
+    related: ["build-cache", "image-security", "multi-stage-build"],
+  },
+  "local-dev": {
+    prerequisites: ["compose"],
+    related: ["bind-mount", "compose-profile", "logs"],
+  },
+};
+
+for (const point of dockerKnowledgePoints) {
+  const override = dockerKnowledgePointOverrides[point.id];
+
+  if (override) {
+    Object.assign(point, override);
+  }
+}
+
+dockerKnowledgePoints.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));

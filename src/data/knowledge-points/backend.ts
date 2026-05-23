@@ -252,3 +252,227 @@ export const backendKnowledgePoints = [
   /* <!-- KG_EXPLAINED: 队列容量 | 2026-05-23 | source_count=4 --> */
   { sourceRefs: ["javaguide","doocs-advanced-java","cs-notes","opentelemetry-docs"], id: "queue-capacity", zh: "队列容量", en: "Queue Capacity", area: "resilience", difficulty: "medium", engineeringValue: "限制排队长度，防止请求堆积导致延迟失控。", explanation: ["核心概念：队列容量（Queue Capacity）聚焦限制排队长度，防止请求堆积导致延迟失控。。后端系统围绕 API、鉴权、流量治理、韧性、一致性、消息、缓存和可观测性构建可靠服务；理解它时先抓住重试、超时、隔离、背压和故障恢复，再看输入、状态变化、输出结果和失败分支。","适用场景：队列容量常用于按最大等待时间和处理速率估算容量和队列满时返回明确拒绝结果。学习时把它放回后端进阶链路中观察，并结合前置知识背压判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，队列容量通常会和过载保护和线程池隔离一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认重试、超时、隔离、背压和故障恢复是否仍然成立。","常见误区与注意点：实践中容易把队列容量当成孤立概念处理，结果遗漏重试风暴、线程池耗尽、队列堆积和级联故障。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考JavaGuide、doocs advanced-java、CS-Notes 和 OpenTelemetry 文档，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["队列容量解决什么工程问题","队列容量如何设计落地方案","队列容量常见风险如何治理"], practiceAdvice: ["按最大等待时间和处理速率估算容量","队列满时返回明确拒绝结果"], prerequisites: ["back-pressure"], related: ["load-shedding","thread-pool-isolation"], order: 125 },
 ] satisfies GraphKnowledgePoint[];
+
+const backendKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {
+  "backend-overview": {
+    related: ["api-design", "auth", "rate-limit", "database-transaction", "observability"],
+  },
+  "api-design": {
+    prerequisites: ["backend-overview"],
+    related: ["restful-api", "api-contract", "error-model", "idempotent-api"],
+  },
+  "restful-api": {
+    prerequisites: ["api-design"],
+    related: ["http-method", "status-code", "idempotent-api"],
+  },
+  "error-model": {
+    prerequisites: ["api-design"],
+    related: ["status-code", "trace-id", "observability"],
+  },
+  "api-contract": {
+    prerequisites: ["api-design"],
+    related: ["openapi", "api-versioning", "contract-test"],
+  },
+  "api-versioning": {
+    prerequisites: ["api-contract"],
+    related: ["backward-compatibility", "contract-test"],
+  },
+  "backward-compatibility": {
+    prerequisites: ["api-versioning"],
+    related: ["contract-test", "migration"],
+  },
+  auth: {
+    prerequisites: ["backend-overview"],
+    related: ["authentication", "authorization", "jwt", "rbac"],
+  },
+  authentication: {
+    prerequisites: ["auth"],
+    related: ["session", "jwt", "oauth2"],
+  },
+  authorization: {
+    prerequisites: ["auth"],
+    related: ["rbac", "permission-model", "audit-log"],
+  },
+  jwt: {
+    prerequisites: ["authentication"],
+    related: ["token-refresh", "sso"],
+  },
+  rbac: {
+    prerequisites: ["authorization"],
+    related: ["permission-model", "audit-log"],
+  },
+  "api-gateway": {
+    prerequisites: ["backend-overview"],
+    related: ["auth", "rate-limit", "cors"],
+  },
+  "rate-limit": {
+    prerequisites: ["api-gateway"],
+    related: ["token-bucket", "sliding-window", "distributed-rate-limit"],
+  },
+  "distributed-rate-limit": {
+    prerequisites: ["rate-limit"],
+    related: ["redis-cache", "token-bucket"],
+  },
+  "circuit-breaker": {
+    prerequisites: ["timeout"],
+    related: ["fallback", "retry-policy"],
+  },
+  fallback: {
+    prerequisites: ["circuit-breaker"],
+    related: ["graceful-degradation", "rollback"],
+  },
+  timeout: {
+    prerequisites: ["backend-overview"],
+    related: ["retry-policy", "circuit-breaker", "connection-pool"],
+  },
+  "retry-policy": {
+    prerequisites: ["timeout"],
+    related: ["backoff", "jitter", "idempotent-api"],
+  },
+  bulkhead: {
+    prerequisites: ["timeout"],
+    related: ["thread-pool-isolation", "queue-capacity", "load-shedding"],
+  },
+  "back-pressure": {
+    prerequisites: ["bulkhead"],
+    related: ["load-shedding", "queue-capacity"],
+  },
+  "queue-capacity": {
+    prerequisites: ["back-pressure"],
+    related: ["load-shedding", "thread-pool-isolation"],
+  },
+  "distributed-lock": {
+    prerequisites: ["database-transaction"],
+    related: ["redis-lock", "fencing-token"],
+  },
+  "redis-lock": {
+    prerequisites: ["distributed-lock"],
+    related: ["lua-unlock", "lock-expiration", "lock-renewal"],
+  },
+  "fencing-token": {
+    prerequisites: ["distributed-lock"],
+    related: ["lock-expiration"],
+  },
+  "database-transaction": {
+    prerequisites: ["backend-overview"],
+    related: ["acid", "isolation-level", "transaction-boundary", "deadlock"],
+  },
+  "isolation-level": {
+    prerequisites: ["database-transaction"],
+    related: ["optimistic-lock", "pessimistic-lock", "deadlock"],
+  },
+  deadlock: {
+    prerequisites: ["database-transaction"],
+    related: ["pessimistic-lock", "retry-policy"],
+  },
+  "distributed-transaction": {
+    prerequisites: ["database-transaction"],
+    related: ["saga", "tcc", "transactional-outbox"],
+  },
+  saga: {
+    prerequisites: ["distributed-transaction"],
+    related: ["compensation", "transactional-outbox"],
+  },
+  "transactional-outbox": {
+    prerequisites: ["database-transaction"],
+    related: ["message-queue", "change-data-capture"],
+  },
+  "idempotent-api": {
+    prerequisites: ["api-design"],
+    related: ["idempotency-key", "distributed-lock", "message-queue"],
+  },
+  "message-queue": {
+    prerequisites: ["backend-overview"],
+    related: ["rabbitmq", "kafka", "dead-letter", "idempotency"],
+  },
+  rabbitmq: {
+    prerequisites: ["message-queue"],
+    related: ["dead-letter", "idempotency"],
+  },
+  kafka: {
+    prerequisites: ["message-queue"],
+    related: ["consumer-group", "event-driven"],
+  },
+  "consumer-group": {
+    prerequisites: ["kafka"],
+    related: ["message-queue", "alerting"],
+  },
+  "event-driven": {
+    prerequisites: ["message-queue"],
+    related: ["domain-event", "message-contract", "event-schema"],
+  },
+  "dead-letter": {
+    prerequisites: ["message-queue"],
+    related: ["poison-message", "retry-policy"],
+  },
+  cache: {
+    prerequisites: ["backend-overview"],
+    related: ["redis-cache", "cache-aside", "cache-consistency"],
+  },
+  "redis-cache": {
+    prerequisites: ["cache"],
+    related: ["hot-key", "big-key"],
+  },
+  "cache-aside": {
+    prerequisites: ["cache"],
+    related: ["cache-consistency", "delayed-double-delete"],
+  },
+  "cache-consistency": {
+    prerequisites: ["cache-aside"],
+    related: ["delayed-double-delete", "transactional-outbox"],
+  },
+  "cache-penetration": {
+    prerequisites: ["cache"],
+    related: ["bloom-filter", "null-cache"],
+  },
+  "cache-breakdown": {
+    prerequisites: ["cache"],
+    related: ["mutex-rebuild", "logical-expire", "hot-key"],
+  },
+  "cache-avalanche": {
+    prerequisites: ["cache"],
+    related: ["ttl-jitter", "rate-limit"],
+  },
+  observability: {
+    prerequisites: ["backend-overview"],
+    related: ["logging", "metrics", "tracing", "alerting"],
+  },
+  logging: {
+    prerequisites: ["observability"],
+    related: ["structured-log", "trace-id"],
+  },
+  metrics: {
+    prerequisites: ["observability"],
+    related: ["prometheus", "grafana", "sli-slo"],
+  },
+  monitoring: {
+    prerequisites: ["metrics"],
+    related: ["alerting", "sli-slo"],
+  },
+  alerting: {
+    prerequisites: ["monitoring"],
+    related: ["on-call", "runbook", "incident-review"],
+  },
+  tracing: {
+    prerequisites: ["observability"],
+    related: ["trace-id", "span", "opentelemetry"],
+  },
+  "canary-release": {
+    prerequisites: ["api-versioning"],
+    related: ["feature-flag", "rollback", "monitoring"],
+  },
+  rollback: {
+    prerequisites: ["canary-release"],
+    related: ["migration", "incident-review"],
+  },
+};
+
+for (const point of backendKnowledgePoints) {
+  const override = backendKnowledgePointOverrides[point.id];
+
+  if (override) {
+    Object.assign(point, override);
+  }
+}
+
+backendKnowledgePoints.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));

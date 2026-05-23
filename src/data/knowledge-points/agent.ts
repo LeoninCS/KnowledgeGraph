@@ -262,3 +262,535 @@ export const agentKnowledgePoints = [
   /* <!-- KG_EXPLAINED: 交接 | 2026-05-23 | source_count=7 --> */
   { sourceRefs: ["openai-agents-guide","openai-prompt-engineering","openai-retrieval","openai-structured-outputs","dair-prompt-guide","awesome-context-engineering","nist-ai-rmf"], id: "handoff", zh: "交接", en: "Handoff", area: "product", difficulty: "medium", concept: "交接把 Agent 无法完成或高风险任务转给人、团队或另一个系统。", explanation: ["核心概念：交接（Handoff）聚焦交接把 Agent 无法完成或高风险任务转给人、团队或另一个系统。。Agent 通过模型、提示词、工具、检索、记忆、规划和治理完成多步骤任务；理解它时先抓住用户体验、交接、透明度和可控性，再看输入、状态变化、输出结果和失败分支。","适用场景：交接常用于客服转人工、专家审核和复杂工单升级。学习时把它放回Agent链路中观察，并结合前置知识人工介入判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，交接通常会和兜底和审计日志一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认用户体验、交接、透明度和可控性是否仍然成立。","常见误区与注意点：实践中容易把交接当成孤立概念处理，结果遗漏信任校准、失败兜底、人工升级和用户授权。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考OpenAI Agents、Prompt engineering、File search、Structured Outputs 文档、DAIR.AI Prompt Engineering Guide、Awesome Context Engineering 和 NIST AI RMF，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["交接在 Agent 系统中负责什么","交接如何设计和评估","交接有哪些安全或稳定性风险"], applicationScenarios: ["客服转人工","专家审核","复杂工单升级"], prerequisites: ["human-in-the-loop"], related: ["fallback","audit-log"], order: 130 },
 ] satisfies GraphKnowledgePoint[];
+
+const agentKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {
+  "agent-overview": {
+    related: ["llm", "prompt", "tool-calling", "rag", "planner", "evaluation"],
+  },
+  llm: {
+    prerequisites: ["agent-overview"],
+    related: ["token", "context-window", "model-selection", "structured-output"],
+  },
+  token: {
+    prerequisites: ["llm"],
+    related: ["context-window", "cost-control", "latency"],
+  },
+  "context-window": {
+    prerequisites: ["token"],
+    related: ["context-management", "rag", "memory", "context-compression"],
+  },
+  "model-selection": {
+    prerequisites: ["llm"],
+    related: ["latency", "cost-control", "evaluation", "router"],
+  },
+  temperature: {
+    prerequisites: ["llm"],
+    related: ["sampling", "determinism"],
+  },
+  sampling: {
+    prerequisites: ["temperature"],
+    related: ["determinism", "evaluation"],
+  },
+  determinism: {
+    prerequisites: ["sampling"],
+    related: ["evaluation", "regression-test"],
+  },
+  prompt: {
+    prerequisites: ["llm"],
+    related: ["system-prompt", "prompt-template", "structured-output", "tool-calling"],
+  },
+  "system-prompt": {
+    prerequisites: ["prompt"],
+    related: ["instruction-hierarchy", "safety-boundary", "prompt-injection"],
+  },
+  "instruction-hierarchy": {
+    prerequisites: ["system-prompt"],
+    related: ["prompt-injection", "safety-boundary"],
+  },
+  "prompt-template": {
+    prerequisites: ["prompt"],
+    related: ["few-shot", "structured-output", "validation"],
+  },
+  "few-shot": {
+    prerequisites: ["prompt"],
+    related: ["chain-of-thought", "structured-output"],
+  },
+  "chain-of-thought": {
+    prerequisites: ["prompt"],
+    related: ["planner", "reflection"],
+  },
+  "structured-output": {
+    prerequisites: ["prompt"],
+    related: ["json-schema", "function-calling", "validation"],
+  },
+  "json-schema": {
+    prerequisites: ["structured-output"],
+    related: ["function-calling", "validation", "tool-schema"],
+  },
+  validation: {
+    prerequisites: ["structured-output"],
+    related: ["guardrails", "evaluation", "tool-call-accuracy"],
+  },
+  "tool-calling": {
+    prerequisites: ["prompt", "structured-output"],
+    related: ["function-calling", "tool-schema", "tool-result", "tool-error-handling"],
+  },
+  "function-calling": {
+    prerequisites: ["tool-calling", "json-schema"],
+    related: ["tool-schema", "parameter-extraction", "tool-call-accuracy"],
+  },
+  "tool-schema": {
+    prerequisites: ["function-calling"],
+    related: ["json-schema", "tool-selection", "tool-permission"],
+  },
+  "tool-selection": {
+    prerequisites: ["tool-schema"],
+    related: ["planner", "router"],
+  },
+  "parameter-extraction": {
+    prerequisites: ["function-calling"],
+    related: ["slot-filling", "validation"],
+  },
+  "slot-filling": {
+    prerequisites: ["parameter-extraction"],
+    related: ["dialog-state", "tool-calling"],
+  },
+  "tool-result": {
+    prerequisites: ["tool-calling"],
+    related: ["observation", "planner", "cache"],
+  },
+  observation: {
+    prerequisites: ["tool-result"],
+    related: ["react", "planner", "agent-trajectory"],
+  },
+  "tool-error-handling": {
+    prerequisites: ["tool-calling"],
+    related: ["retry", "fallback", "human-in-the-loop"],
+  },
+  retry: {
+    prerequisites: ["tool-error-handling"],
+    related: ["fallback", "idempotency"],
+  },
+  fallback: {
+    prerequisites: ["tool-error-handling"],
+    related: ["human-in-the-loop", "safety-boundary", "handoff"],
+  },
+  idempotency: {
+    prerequisites: ["function-calling"],
+    related: ["retry", "approval-gate"],
+  },
+  "code-execution": {
+    prerequisites: ["tool-calling"],
+    related: ["tool-sandbox", "approval-gate"],
+  },
+  embedding: {
+    prerequisites: ["llm"],
+    related: ["vector-database", "semantic-search", "memory-retrieval"],
+  },
+  rag: {
+    prerequisites: ["llm", "embedding"],
+    related: ["retrieval", "vector-database", "chunking", "grounding", "rag-evaluation"],
+  },
+  "vector-database": {
+    prerequisites: ["embedding"],
+    related: ["retrieval", "semantic-search", "metadata-filter"],
+  },
+  chunking: {
+    prerequisites: ["rag"],
+    related: ["chunk-size", "overlap", "metadata", "retrieval"],
+  },
+  "chunk-size": {
+    prerequisites: ["chunking"],
+    related: ["overlap", "retrieval"],
+  },
+  overlap: {
+    prerequisites: ["chunking"],
+    related: ["chunk-size"],
+  },
+  metadata: {
+    prerequisites: ["chunking"],
+    related: ["metadata-filter", "citation"],
+  },
+  "metadata-filter": {
+    prerequisites: ["metadata"],
+    related: ["retrieval", "access-control"],
+  },
+  retrieval: {
+    prerequisites: ["vector-database", "chunking"],
+    related: ["semantic-search", "hybrid-search", "reranking", "retrieval-recall"],
+  },
+  "semantic-search": {
+    prerequisites: ["embedding", "retrieval"],
+    related: ["hybrid-search", "reranking"],
+  },
+  "hybrid-search": {
+    prerequisites: ["semantic-search"],
+    related: ["bm25", "reranking"],
+  },
+  bm25: {
+    prerequisites: ["hybrid-search"],
+    related: ["semantic-search"],
+  },
+  reranking: {
+    prerequisites: ["retrieval"],
+    related: ["context-compression", "citation", "retrieval-recall"],
+  },
+  "context-compression": {
+    prerequisites: ["reranking"],
+    related: ["context-window", "citation", "cost-control"],
+  },
+  citation: {
+    prerequisites: ["metadata", "retrieval"],
+    related: ["grounding", "answer-quality"],
+  },
+  grounding: {
+    prerequisites: ["rag", "citation"],
+    related: ["groundedness", "evaluation"],
+  },
+  memory: {
+    prerequisites: ["context-window"],
+    related: ["short-term-memory", "long-term-memory", "user-profile", "context-management"],
+  },
+  "short-term-memory": {
+    prerequisites: ["memory"],
+    related: ["dialog-state", "context-management"],
+  },
+  "long-term-memory": {
+    prerequisites: ["memory"],
+    related: ["memory-retrieval", "memory-write-policy", "semantic-memory"],
+  },
+  "episodic-memory": {
+    prerequisites: ["long-term-memory"],
+    related: ["reflection", "memory-retrieval"],
+  },
+  "semantic-memory": {
+    prerequisites: ["long-term-memory"],
+    related: ["rag", "memory-retrieval"],
+  },
+  "user-profile": {
+    prerequisites: ["long-term-memory"],
+    related: ["personalization", "privacy"],
+  },
+  personalization: {
+    prerequisites: ["user-profile"],
+    related: ["privacy", "memory-write-policy"],
+  },
+  "dialog-state": {
+    prerequisites: ["short-term-memory"],
+    related: ["slot-filling", "planner"],
+  },
+  "context-management": {
+    prerequisites: ["context-window", "short-term-memory"],
+    related: ["context-compression", "memory", "rag"],
+  },
+  "memory-retrieval": {
+    prerequisites: ["long-term-memory", "embedding"],
+    related: ["rag", "semantic-memory"],
+  },
+  "memory-write-policy": {
+    prerequisites: ["long-term-memory"],
+    related: ["privacy", "memory-evaluation"],
+  },
+  "memory-evaluation": {
+    prerequisites: ["memory-write-policy"],
+    related: ["evaluation", "privacy"],
+  },
+  planner: {
+    prerequisites: ["agent-overview", "tool-calling"],
+    related: ["task-decomposition", "execution", "react", "workflow-orchestration"],
+  },
+  "task-decomposition": {
+    prerequisites: ["planner"],
+    related: ["workflow-orchestration", "milestone"],
+  },
+  milestone: {
+    prerequisites: ["task-decomposition"],
+    related: ["execution", "reflection"],
+  },
+  execution: {
+    prerequisites: ["planner", "tool-calling"],
+    related: ["observation", "state-machine", "agent-trajectory"],
+  },
+  react: {
+    prerequisites: ["planner", "observation"],
+    related: ["tool-calling", "reflection"],
+  },
+  "state-machine": {
+    prerequisites: ["execution"],
+    related: ["workflow-orchestration", "guardrails"],
+  },
+  router: {
+    prerequisites: ["planner"],
+    related: ["model-selection", "multi-agent"],
+  },
+  reflection: {
+    prerequisites: ["planner", "evaluation"],
+    related: ["self-critique", "revision"],
+  },
+  "self-critique": {
+    prerequisites: ["reflection"],
+    related: ["revision", "evaluation"],
+  },
+  revision: {
+    prerequisites: ["self-critique"],
+    related: ["reflection"],
+  },
+  "human-in-the-loop": {
+    prerequisites: ["planner"],
+    related: ["approval-gate", "safety-boundary", "handoff"],
+  },
+  "approval-gate": {
+    prerequisites: ["human-in-the-loop"],
+    related: ["idempotency", "audit-log", "tool-permission"],
+  },
+  "workflow-orchestration": {
+    prerequisites: ["planner", "state-machine"],
+    related: ["dag", "event-driven-agent", "workflow-engine"],
+  },
+  dag: {
+    prerequisites: ["workflow-orchestration"],
+    related: ["workflow-engine", "parallel-execution"],
+  },
+  "workflow-engine": {
+    prerequisites: ["workflow-orchestration"],
+    related: ["state-machine", "observability"],
+  },
+  "event-driven-agent": {
+    prerequisites: ["workflow-orchestration"],
+    related: ["trigger", "message-queue"],
+  },
+  trigger: {
+    prerequisites: ["event-driven-agent"],
+    related: ["scheduler-agent", "webhook"],
+  },
+  "scheduler-agent": {
+    prerequisites: ["trigger"],
+    related: ["workflow-engine"],
+  },
+  webhook: {
+    prerequisites: ["trigger"],
+    related: ["event-driven-agent"],
+  },
+  "parallel-execution": {
+    prerequisites: ["dag", "task-decomposition"],
+    related: ["multi-agent", "map-reduce-agent"],
+  },
+  "message-queue": {
+    prerequisites: ["event-driven-agent"],
+    related: ["workflow-engine", "retry"],
+  },
+  "multi-agent": {
+    prerequisites: ["planner", "router"],
+    related: ["role-agent", "coordinator", "communication-protocol"],
+  },
+  "role-agent": {
+    prerequisites: ["multi-agent"],
+    related: ["coordinator", "specialist-agent"],
+  },
+  "specialist-agent": {
+    prerequisites: ["role-agent"],
+    related: ["router", "tool-selection"],
+  },
+  coordinator: {
+    prerequisites: ["multi-agent", "task-decomposition"],
+    related: ["blackboard", "consensus"],
+  },
+  "communication-protocol": {
+    prerequisites: ["multi-agent"],
+    related: ["blackboard", "shared-memory"],
+  },
+  blackboard: {
+    prerequisites: ["communication-protocol"],
+    related: ["shared-memory", "coordinator"],
+  },
+  "shared-memory": {
+    prerequisites: ["memory", "multi-agent"],
+    related: ["blackboard", "conflict-resolution"],
+  },
+  "conflict-resolution": {
+    prerequisites: ["coordinator"],
+    related: ["consensus", "evaluation"],
+  },
+  consensus: {
+    prerequisites: ["conflict-resolution"],
+    related: ["evaluation", "self-critique"],
+  },
+  "map-reduce-agent": {
+    prerequisites: ["parallel-execution"],
+    related: ["coordinator", "context-compression"],
+  },
+  evaluation: {
+    prerequisites: ["agent-overview"],
+    related: ["task-success-rate", "golden-dataset", "regression-test", "observability"],
+  },
+  "task-success-rate": {
+    prerequisites: ["evaluation"],
+    related: ["human-evaluation", "agent-trajectory"],
+  },
+  "answer-quality": {
+    prerequisites: ["evaluation"],
+    related: ["citation", "grounding", "groundedness"],
+  },
+  "tool-call-accuracy": {
+    prerequisites: ["evaluation", "tool-calling"],
+    related: ["function-calling", "validation"],
+  },
+  "rag-evaluation": {
+    prerequisites: ["rag", "evaluation"],
+    related: ["retrieval-recall", "groundedness"],
+  },
+  "retrieval-recall": {
+    prerequisites: ["rag-evaluation"],
+    related: ["retrieval", "reranking"],
+  },
+  groundedness: {
+    prerequisites: ["rag-evaluation"],
+    related: ["grounding"],
+  },
+  "golden-dataset": {
+    prerequisites: ["evaluation"],
+    related: ["regression-test", "benchmark"],
+  },
+  benchmark: {
+    prerequisites: ["golden-dataset"],
+    related: ["regression-test", "latency"],
+  },
+  "regression-test": {
+    prerequisites: ["golden-dataset"],
+    related: ["determinism", "ci-evaluation"],
+  },
+  "ci-evaluation": {
+    prerequisites: ["regression-test"],
+    related: ["observability", "golden-dataset"],
+  },
+  "human-evaluation": {
+    prerequisites: ["evaluation"],
+    related: ["rubric", "feedback-loop"],
+  },
+  rubric: {
+    prerequisites: ["human-evaluation"],
+    related: ["answer-quality"],
+  },
+  "feedback-loop": {
+    prerequisites: ["human-evaluation"],
+    related: ["observability", "memory-evaluation"],
+  },
+  "agent-trajectory": {
+    prerequisites: ["planner", "evaluation"],
+    related: ["observability", "audit-log"],
+  },
+  "safety-boundary": {
+    prerequisites: ["system-prompt", "tool-calling"],
+    related: ["guardrails", "policy", "approval-gate", "access-control"],
+  },
+  guardrails: {
+    prerequisites: ["safety-boundary"],
+    related: ["content-filter", "policy", "validation"],
+  },
+  policy: {
+    prerequisites: ["safety-boundary"],
+    related: ["policy-engine", "approval-gate"],
+  },
+  "policy-engine": {
+    prerequisites: ["policy"],
+    related: ["guardrails", "audit-log"],
+  },
+  "prompt-injection": {
+    prerequisites: ["instruction-hierarchy", "rag"],
+    related: ["indirect-prompt-injection", "guardrails"],
+  },
+  "indirect-prompt-injection": {
+    prerequisites: ["prompt-injection"],
+    related: ["content-filter", "tool-sandbox"],
+  },
+  "content-filter": {
+    prerequisites: ["guardrails"],
+    related: ["data-loss-prevention", "policy"],
+  },
+  "data-loss-prevention": {
+    prerequisites: ["content-filter"],
+    related: ["privacy", "access-control"],
+  },
+  privacy: {
+    prerequisites: ["memory", "data-loss-prevention"],
+    related: ["user-consent", "memory-write-policy"],
+  },
+  "user-consent": {
+    prerequisites: ["privacy"],
+    related: ["approval-gate", "access-control"],
+  },
+  "access-control": {
+    prerequisites: ["safety-boundary"],
+    related: ["tool-permission", "metadata-filter"],
+  },
+  "tool-permission": {
+    prerequisites: ["access-control", "tool-calling"],
+    related: ["approval-gate", "audit-log"],
+  },
+  "tool-sandbox": {
+    prerequisites: ["tool-calling", "safety-boundary"],
+    related: ["code-execution", "data-loss-prevention"],
+  },
+  "audit-log": {
+    prerequisites: ["safety-boundary"],
+    related: ["agent-trajectory", "observability"],
+  },
+  observability: {
+    prerequisites: ["agent-overview"],
+    related: ["trace", "metrics", "agent-trajectory", "audit-log"],
+  },
+  trace: {
+    prerequisites: ["observability"],
+    related: ["agent-trajectory", "audit-log"],
+  },
+  metrics: {
+    prerequisites: ["observability"],
+    related: ["cost-control", "evaluation", "latency"],
+  },
+  latency: {
+    prerequisites: ["metrics"],
+    related: ["streaming", "parallel-execution", "model-selection"],
+  },
+  streaming: {
+    prerequisites: ["latency"],
+    related: ["user-experience"],
+  },
+  "cost-control": {
+    prerequisites: ["token", "metrics"],
+    related: ["model-selection", "cache", "rate-limit"],
+  },
+  cache: {
+    prerequisites: ["cost-control"],
+    related: ["semantic-cache", "tool-result"],
+  },
+  "semantic-cache": {
+    prerequisites: ["cache", "embedding"],
+    related: ["cost-control"],
+  },
+  "rate-limit": {
+    prerequisites: ["metrics"],
+    related: ["quota", "safety-boundary"],
+  },
+  quota: {
+    prerequisites: ["rate-limit"],
+    related: ["cost-control"],
+  },
+  "user-experience": {
+    prerequisites: ["agent-overview"],
+    related: ["streaming", "human-in-the-loop"],
+  },
+  handoff: {
+    prerequisites: ["human-in-the-loop"],
+    related: ["fallback", "audit-log"],
+  },
+};
+
+for (const point of agentKnowledgePoints) {
+  const override = agentKnowledgePointOverrides[point.id];
+
+  if (override) {
+    Object.assign(point, override);
+  }
+}
+
+agentKnowledgePoints.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));

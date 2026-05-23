@@ -254,3 +254,239 @@ export const kubernetesKnowledgePoints = [
   /* <!-- KG_EXPLAINED: 发布管理 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["kubernetes-docs","kubernetes-components","kubernetes-architecture","kubernetes-service","kubernetes-scheduler"], id: "release-management", zh: "发布管理", en: "Release Management", area: "operations", difficulty: "medium", concept: "发布管理关注版本、变更、回滚、验证和风险控制。", explanation: ["核心概念：发布管理（Release Management）聚焦发布管理关注版本、变更、回滚、验证和风险控制。。Kubernetes 用声明式 API、控制器和调度机制管理容器化应用；理解它时先抓住备份、GitOps、Helm 和发布管理，再看输入、状态变化、输出结果和失败分支。","适用场景：发布管理常用于生产发布、灰度验证和回滚演练。学习时把它放回Kubernetes链路中观察，并结合前置知识Deployment和Helm判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，发布管理通常会和滚动更新、回滚和GitOps一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认备份、GitOps、Helm 和发布管理是否仍然成立。","常见误区与注意点：实践中容易把发布管理当成孤立概念处理，结果遗漏状态漂移、Chart 复杂度、备份可恢复性和升级风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Kubernetes 官方文档、组件、架构、Service 和调度器文档，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["发布管理在集群中负责什么","发布管理如何配置并关联其他资源","发布管理异常状态怎么排查"], opsScenarios: ["生产发布","灰度验证","回滚演练"], prerequisites: ["deployment","helm"], related: ["rolling-update","rollback","gitops"], order: 126 },
 ] satisfies GraphKnowledgePoint[];
+
+const kubernetesKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {
+  "kubernetes-overview": {
+    related: ["cluster", "pod", "deployment", "service", "configmap"],
+  },
+  cluster: {
+    prerequisites: ["kubernetes-overview"],
+    related: ["control-plane", "node", "namespace"],
+  },
+  "control-plane": {
+    prerequisites: ["cluster"],
+    related: ["api-server", "etcd", "scheduler", "controller-manager"],
+  },
+  "api-server": {
+    prerequisites: ["control-plane"],
+    related: ["kubectl", "rbac", "admission-controller", "audit-log"],
+  },
+  etcd: {
+    prerequisites: ["control-plane"],
+    related: ["backup-restore", "api-server"],
+  },
+  "controller-manager": {
+    prerequisites: ["control-plane"],
+    related: ["replicaset", "deployment", "node", "pod-disruption-budget"],
+  },
+  scheduler: {
+    prerequisites: ["pod", "node"],
+    related: ["node-affinity", "taint-toleration", "resource-request"],
+  },
+  kubectl: {
+    prerequisites: ["api-server"],
+    related: ["kubeconfig", "manifest", "troubleshooting"],
+  },
+  manifest: {
+    prerequisites: ["kubectl"],
+    related: ["declarative-management", "apply", "gitops"],
+  },
+  "declarative-management": {
+    prerequisites: ["manifest"],
+    related: ["apply", "server-side-apply", "gitops"],
+  },
+  apply: {
+    prerequisites: ["manifest"],
+    related: ["declarative-management", "server-side-apply"],
+  },
+  namespace: {
+    prerequisites: ["cluster"],
+    related: ["resource-quota", "limit-range", "rbac", "network-policy"],
+  },
+  node: {
+    prerequisites: ["cluster"],
+    related: ["kubelet", "container-runtime", "node-condition", "cordon-drain"],
+  },
+  kubelet: {
+    prerequisites: ["node"],
+    related: ["pod", "container-runtime", "probe"],
+  },
+  pod: {
+    prerequisites: ["cluster"],
+    related: ["container", "pod-lifecycle", "probe", "resource-request"],
+  },
+  "pod-lifecycle": {
+    prerequisites: ["pod"],
+    related: ["restart-policy", "probe", "crashloopbackoff"],
+  },
+  probe: {
+    prerequisites: ["pod"],
+    related: ["liveness-probe", "readiness-probe", "startup-probe"],
+  },
+  "readiness-probe": {
+    prerequisites: ["probe"],
+    related: ["service", "endpoint", "rolling-update"],
+  },
+  "resource-request": {
+    prerequisites: ["pod"],
+    related: ["resource-limit", "qos", "scheduler", "hpa"],
+  },
+  "resource-limit": {
+    prerequisites: ["pod"],
+    related: ["qos", "oomkilled", "vpa"],
+  },
+  deployment: {
+    prerequisites: ["pod"],
+    related: ["replicaset", "rolling-update", "rollback", "hpa"],
+  },
+  replicaset: {
+    prerequisites: ["deployment"],
+    related: ["label-selector", "pod"],
+  },
+  "label-selector": {
+    prerequisites: ["pod"],
+    related: ["service", "replicaset", "network-policy"],
+  },
+  "rolling-update": {
+    prerequisites: ["deployment"],
+    related: ["rollout", "rollback", "max-surge", "readiness-probe"],
+  },
+  rollback: {
+    prerequisites: ["rolling-update"],
+    related: ["revision-history", "release-management"],
+  },
+  statefulset: {
+    prerequisites: ["pod"],
+    related: ["persistent-volume-claim", "service", "volume"],
+  },
+  daemonset: {
+    prerequisites: ["pod"],
+    related: ["node", "monitoring"],
+  },
+  service: {
+    prerequisites: ["pod", "label-selector"],
+    related: ["clusterip", "endpoint", "dns", "ingress"],
+  },
+  clusterip: {
+    prerequisites: ["service"],
+    related: ["dns", "endpoint"],
+  },
+  endpoint: {
+    prerequisites: ["service", "label-selector"],
+    related: ["endpoint-slice", "readiness-probe"],
+  },
+  dns: {
+    prerequisites: ["service"],
+    related: ["coredns", "service-discovery"],
+  },
+  "service-discovery": {
+    prerequisites: ["dns", "service"],
+    related: ["endpoint", "ingress"],
+  },
+  ingress: {
+    prerequisites: ["service"],
+    related: ["ingress-controller", "path-routing", "host-routing", "tls-secret"],
+  },
+  "ingress-controller": {
+    prerequisites: ["ingress"],
+    related: ["service", "certificate-manager"],
+  },
+  "network-policy": {
+    prerequisites: ["pod", "label-selector"],
+    related: ["cni", "namespace"],
+  },
+  configmap: {
+    prerequisites: ["pod"],
+    related: ["env-var", "config-volume", "projected-volume"],
+  },
+  secret: {
+    prerequisites: ["pod"],
+    related: ["env-var", "projected-volume", "tls-secret"],
+  },
+  "service-account": {
+    prerequisites: ["pod"],
+    related: ["rbac", "rolebinding"],
+  },
+  rbac: {
+    prerequisites: ["api-server"],
+    related: ["role", "rolebinding", "clusterrole", "service-account"],
+  },
+  "admission-controller": {
+    prerequisites: ["api-server"],
+    related: ["pod-security", "security-context"],
+  },
+  volume: {
+    prerequisites: ["pod"],
+    related: ["persistent-volume", "persistent-volume-claim", "storage-class"],
+  },
+  "persistent-volume": {
+    prerequisites: ["volume"],
+    related: ["persistent-volume-claim", "storage-class", "reclaim-policy"],
+  },
+  "persistent-volume-claim": {
+    prerequisites: ["persistent-volume"],
+    related: ["storage-class", "statefulset"],
+  },
+  "storage-class": {
+    prerequisites: ["persistent-volume"],
+    related: ["csi", "volume-snapshot"],
+  },
+  "node-affinity": {
+    prerequisites: ["scheduler"],
+    related: ["pod-affinity", "topology-spread"],
+  },
+  "taint-toleration": {
+    prerequisites: ["scheduler"],
+    related: ["node", "pending-pod"],
+  },
+  hpa: {
+    prerequisites: ["deployment", "metrics-server"],
+    related: ["custom-metrics", "vpa", "cluster-autoscaler"],
+  },
+  "metrics-server": {
+    prerequisites: ["resource-request"],
+    related: ["hpa", "monitoring"],
+  },
+  "pod-disruption-budget": {
+    prerequisites: ["deployment"],
+    related: ["eviction", "rolling-update"],
+  },
+  troubleshooting: {
+    prerequisites: ["kubectl"],
+    related: ["describe", "logs", "events", "debug-container"],
+  },
+  describe: {
+    prerequisites: ["troubleshooting"],
+    related: ["events", "pending-pod"],
+  },
+  logs: {
+    prerequisites: ["troubleshooting"],
+    related: ["crashloopbackoff", "oomkilled"],
+  },
+  events: {
+    prerequisites: ["troubleshooting"],
+    related: ["describe", "imagepullbackoff", "pending-pod"],
+  },
+  monitoring: {
+    prerequisites: ["metrics-server"],
+    related: ["prometheus", "grafana", "alerting"],
+  },
+  prometheus: {
+    prerequisites: ["monitoring"],
+    related: ["grafana", "prometheus-adapter", "hpa"],
+  },
+  helm: {
+    prerequisites: ["manifest"],
+    related: ["helm-chart", "release-management"],
+  },
+};
+
+for (const point of kubernetesKnowledgePoints) {
+  const override = kubernetesKnowledgePointOverrides[point.id];
+
+  if (override) {
+    Object.assign(point, override);
+  }
+}
+
+kubernetesKnowledgePoints.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));

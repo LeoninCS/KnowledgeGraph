@@ -1,6 +1,6 @@
 import type { GraphKnowledgePoint } from "./types.ts";
 
-export const rabbitmqKnowledgePoints = [
+const rabbitmqKnowledgePointBase = [
   /* <!-- KG_EXPLAINED: RabbitMQ 概览 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["rabbitmq-docs","rabbitmq-amqp-concepts","rabbitmq-exchanges","javaguide","doocs-advanced-java"], id: "rabbitmq-overview", zh: "RabbitMQ 概览", en: "RabbitMQ Overview", area: "foundation", difficulty: "easy", concept: "RabbitMQ 是基于 AMQP 的消息代理，用交换机、队列和绑定完成消息投递。", explanation: ["核心概念：RabbitMQ 概览（RabbitMQ Overview）聚焦RabbitMQ 是基于 AMQP 的消息代理，用交换机、队列和绑定完成消息投递。。RabbitMQ 用 Broker、Exchange、Queue、Binding 和确认机制实现可靠异步消息投递；理解它时先抓住AMQP 模型、连接、通道、消息和权限，再看输入、状态变化、输出结果和失败分支。","适用场景：RabbitMQ 概览常用于服务解耦、异步任务和流量缓冲。学习时把它放回RabbitMQ链路中观察，并结合前置知识基础概念判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，RabbitMQ 概览通常会和生产者、消费者、交换机和队列一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认AMQP 模型、连接、通道、消息和权限是否仍然成立。","常见误区与注意点：实践中容易把RabbitMQ 概览当成孤立概念处理，结果遗漏连接泄漏、权限边界、心跳超时和消息属性一致性。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考RabbitMQ 官方文档、AMQP 模型说明、Exchange 文档、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["RabbitMQ 概览在消息链路中负责什么","RabbitMQ 概览如何保证可靠性","RabbitMQ 概览堆积、重复消费或丢消息怎么处理"], useCases: ["服务解耦","异步任务","流量缓冲"], prerequisites: [], related: ["producer","consumer","exchange","queue"], order: 1 },
   /* <!-- KG_EXPLAINED: AMQP | 2026-05-23 | source_count=5 --> */
@@ -156,3 +156,200 @@ export const rabbitmqKnowledgePoints = [
   /* <!-- KG_EXPLAINED: RPC 模式 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["rabbitmq-docs","rabbitmq-amqp-concepts","rabbitmq-exchanges","javaguide","doocs-advanced-java"], id: "rpc-pattern", zh: "RPC 模式", en: "RPC Pattern", area: "pattern", difficulty: "medium", concept: "RPC 模式通过请求队列、响应队列和 correlationId 完成同步语义的远程调用。", explanation: ["核心概念：RPC 模式（RPC Pattern）聚焦RPC 模式通过请求队列、响应队列和 correlationId 完成同步语义的远程调用。。RabbitMQ 用 Broker、Exchange、Queue、Binding 和确认机制实现可靠异步消息投递；理解它时先抓住消息模式、架构取舍和业务流程，再看输入、状态变化、输出结果和失败分支。","适用场景：RPC 模式常用于内部低频管理调用和异步响应封装。学习时把它放回RabbitMQ链路中观察，并结合前置知识排他队列和消息属性判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，RPC 模式通常会和消息 ID和消费确认一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认消息模式、架构取舍和业务流程是否仍然成立。","常见误区与注意点：实践中容易把RPC 模式当成孤立概念处理，结果遗漏语义漂移、过度异步、补偿缺失和链路追踪。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考RabbitMQ 官方文档、AMQP 模型说明、Exchange 文档、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["RPC 模式在消息链路中负责什么","RPC 模式如何保证可靠性","RPC 模式堆积、重复消费或丢消息怎么处理"], useCases: ["内部低频管理调用","异步响应封装"], prerequisites: ["exclusive-queue","message-properties"], related: ["message-id","consumer-ack"], order: 77 },
 ] satisfies GraphKnowledgePoint[];
+
+const rabbitmqKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {
+  "rabbitmq-overview": {
+    related: ["amqp", "producer", "consumer", "exchange", "queue"],
+  },
+  amqp: {
+    prerequisites: ["rabbitmq-overview"],
+    related: ["connection", "channel", "message", "exchange", "queue"],
+  },
+  broker: {
+    prerequisites: ["rabbitmq-overview"],
+    related: ["connection", "exchange", "queue", "cluster"],
+  },
+  connection: {
+    prerequisites: ["broker"],
+    related: ["channel", "heartbeat", "consumer-recovery"],
+  },
+  channel: {
+    prerequisites: ["connection"],
+    related: ["publisher-confirm", "consumer-ack", "prefetch"],
+  },
+  message: {
+    prerequisites: ["amqp"],
+    related: ["message-properties", "message-id", "persistent-message", "ttl"],
+  },
+  "message-id": {
+    prerequisites: ["message"],
+    related: ["idempotency", "deduplication", "rpc-pattern"],
+  },
+  producer: {
+    prerequisites: ["rabbitmq-overview"],
+    related: ["exchange", "publisher-confirm", "publisher-return"],
+  },
+  consumer: {
+    prerequisites: ["rabbitmq-overview"],
+    related: ["queue", "consumer-ack", "prefetch"],
+  },
+  exchange: {
+    prerequisites: ["amqp"],
+    related: ["direct-exchange", "fanout-exchange", "topic-exchange", "binding"],
+  },
+  "direct-exchange": {
+    prerequisites: ["exchange"],
+    related: ["routing-key", "work-queue"],
+  },
+  "fanout-exchange": {
+    prerequisites: ["exchange"],
+    related: ["publish-subscribe"],
+  },
+  "topic-exchange": {
+    prerequisites: ["exchange"],
+    related: ["routing-key", "routing-pattern", "publish-subscribe"],
+  },
+  "headers-exchange": {
+    prerequisites: ["exchange"],
+    related: ["message-properties", "binding"],
+  },
+  queue: {
+    prerequisites: ["amqp"],
+    related: ["durable-queue", "quorum-queue", "binding", "queue-depth"],
+  },
+  "durable-queue": {
+    prerequisites: ["queue"],
+    related: ["persistent-message", "delivery-mode"],
+  },
+  "quorum-queue": {
+    prerequisites: ["queue"],
+    related: ["publisher-confirm", "cluster", "high-availability"],
+  },
+  binding: {
+    prerequisites: ["exchange", "queue"],
+    related: ["binding-key", "routing-key", "routing-pattern"],
+  },
+  "routing-key": {
+    prerequisites: ["binding"],
+    related: ["direct-exchange", "topic-exchange", "routing-pattern"],
+  },
+  "publisher-confirm": {
+    prerequisites: ["producer", "channel"],
+    related: ["persistent-message", "quorum-queue"],
+  },
+  "publisher-return": {
+    prerequisites: ["producer"],
+    related: ["mandatory", "unroutable-message", "alternate-exchange"],
+  },
+  "consumer-ack": {
+    prerequisites: ["consumer", "channel"],
+    related: ["manual-ack", "nack", "requeue"],
+  },
+  "manual-ack": {
+    prerequisites: ["consumer-ack"],
+    related: ["prefetch", "consumer-recovery"],
+  },
+  nack: {
+    prerequisites: ["consumer-ack"],
+    related: ["requeue", "dead-letter-exchange", "retry"],
+  },
+  prefetch: {
+    prerequisites: ["consumer"],
+    related: ["consumer-dispatch", "consumer-scaling", "queue-depth"],
+  },
+  "persistent-message": {
+    prerequisites: ["message"],
+    related: ["durable-queue", "delivery-mode", "publisher-confirm"],
+  },
+  ttl: {
+    prerequisites: ["message"],
+    related: ["dead-letter-exchange", "delay-queue"],
+  },
+  "dead-letter-exchange": {
+    prerequisites: ["queue"],
+    related: ["dead-letter-queue", "ttl", "nack"],
+  },
+  "dead-letter-queue": {
+    prerequisites: ["dead-letter-exchange"],
+    related: ["poison-message", "retry", "delay-queue"],
+  },
+  "poison-message": {
+    prerequisites: ["dead-letter-queue"],
+    related: ["retry-limit", "alerting"],
+  },
+  "delay-queue": {
+    prerequisites: ["ttl", "dead-letter-exchange"],
+    related: ["retry", "delayed-exchange-plugin"],
+  },
+  retry: {
+    prerequisites: ["dead-letter-queue"],
+    related: ["backoff-retry", "retry-limit", "poison-message"],
+  },
+  "backoff-retry": {
+    prerequisites: ["retry"],
+    related: ["retry-limit", "delay-queue"],
+  },
+  idempotency: {
+    prerequisites: ["consumer"],
+    related: ["message-id", "deduplication", "transactional-outbox"],
+  },
+  deduplication: {
+    prerequisites: ["message-id"],
+    related: ["idempotency", "redis-dedup"],
+  },
+  "transactional-outbox": {
+    prerequisites: ["producer", "idempotency"],
+    related: ["publisher-confirm"],
+  },
+  "order-consumption": {
+    prerequisites: ["queue"],
+    related: ["single-active-consumer", "partition-routing", "prefetch"],
+  },
+  "single-active-consumer": {
+    prerequisites: ["order-consumption"],
+    related: ["consumer-scaling"],
+  },
+  "peak-shaving": {
+    prerequisites: ["queue"],
+    related: ["queue-depth", "back-pressure", "rate-limit"],
+  },
+  "back-pressure": {
+    prerequisites: ["queue-depth"],
+    related: ["flow-control", "memory-alarm", "disk-alarm"],
+  },
+  "flow-control": {
+    prerequisites: ["back-pressure"],
+    related: ["memory-alarm", "disk-alarm", "rate-limit"],
+  },
+  monitoring: {
+    prerequisites: ["rabbitmq-overview"],
+    related: ["queue-depth", "consumer-lag", "alerting"],
+  },
+  "queue-depth": {
+    prerequisites: ["monitoring"],
+    related: ["consumer-lag", "peak-shaving", "back-pressure"],
+  },
+  "consumer-lag": {
+    prerequisites: ["queue-depth"],
+    related: ["consumer-scaling", "back-pressure"],
+  },
+  cluster: {
+    prerequisites: ["broker"],
+    related: ["quorum-queue", "network-partition", "high-availability"],
+  },
+  "high-availability": {
+    prerequisites: ["cluster", "quorum-queue"],
+    related: ["consumer-recovery", "network-partition"],
+  },
+  "consumer-recovery": {
+    prerequisites: ["consumer", "heartbeat"],
+    related: ["manual-ack", "high-availability"],
+  },
+};
+
+export const rabbitmqKnowledgePoints = rabbitmqKnowledgePointBase
+  .map((point) => ({
+    ...point,
+    ...rabbitmqKnowledgePointOverrides[point.id],
+  }))
+  .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) satisfies GraphKnowledgePoint[];

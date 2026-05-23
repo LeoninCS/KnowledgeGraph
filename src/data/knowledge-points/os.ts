@@ -1,6 +1,6 @@
 import type { GraphKnowledgePoint } from "./types.ts";
 
-export const operatingSystemKnowledgePoints = [
+const operatingSystemKnowledgePointBase = [
   /* <!-- KG_EXPLAINED: 操作系统概览 | 2026-05-23 | source_count=7 --> */
   { sourceRefs: ["linux-kernel-docs","linux-man-pages","posix-base-spec","gnu-bash-manual","cs-notes","javaguide","xiaolin-coding"], id: "os-overview", zh: "操作系统概览", en: "Operating System Overview", area: "foundation", difficulty: "easy", summary: "理解操作系统作为硬件资源管理者和应用运行环境的角色。", explanation: ["核心概念：操作系统概览（Operating System Overview）聚焦理解操作系统作为硬件资源管理者和应用运行环境的角色。。操作系统负责在硬件和应用之间管理 CPU、内存、文件、设备与权限；理解它时先抓住内核边界、系统调用、特权级和中断路径，再看输入、状态变化、输出结果和失败分支。","适用场景：操作系统概览常用于用户态进入内核、硬件事件打断执行、内核统一管理资源。学习时把它放回操作系统链路中观察，并结合前置知识基础概念判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，操作系统概览通常会和内核和系统调用一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认内核边界、系统调用、特权级和中断路径是否仍然成立。","常见误区与注意点：实践中容易把操作系统概览当成孤立概念处理，结果遗漏权限切换、异常处理、驱动交互和系统调用开销。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Linux Kernel 文档、Linux man-pages、POSIX/Open Group 规范、GNU Bash 手册以及 CS-Notes、JavaGuide、小林 coding，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["操作系统概览底层机制是什么","操作系统概览和相关概念如何区分","操作系统概览线上异常如何排查"], prerequisites: [], related: ["kernel","system-call"], learningPathPosition: 1 },
   /* <!-- KG_EXPLAINED: 内核 | 2026-05-23 | source_count=7 --> */
@@ -118,3 +118,206 @@ export const operatingSystemKnowledgePoints = [
   /* <!-- KG_EXPLAINED: Linux 用户与用户组 | 2026-05-23 | source_count=7 --> */
   { sourceRefs: ["linux-kernel-docs","linux-man-pages","posix-base-spec","gnu-bash-manual","cs-notes","javaguide","xiaolin-coding"], id: "linux-user-group", zh: "Linux 用户与用户组", en: "Linux Users and Groups", area: "linux", difficulty: "easy", summary: "管理用户身份、用户组和访问权限。", explanation: ["核心概念：Linux 用户与用户组（Linux Users and Groups）聚焦管理用户身份、用户组和访问权限。。操作系统负责在硬件和应用之间管理 CPU、内存、文件、设备与权限；理解它时先抓住Shell、命令、信号、用户组和进程工具，再看输入、状态变化、输出结果和失败分支。","适用场景：Linux 用户与用户组常用于日常运维、脚本自动化、日志排查、权限管理和进程治理。学习时把它放回操作系统链路中观察，并结合前置知识文件权限判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Linux 用户与用户组通常会和文件系统一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认Shell、命令、信号、用户组和进程工具是否仍然成立。","常见误区与注意点：实践中容易把Linux 用户与用户组当成孤立概念处理，结果遗漏管道退出码、信号处理、权限继承、环境变量和命令副作用。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Linux Kernel 文档、Linux man-pages、POSIX/Open Group 规范、GNU Bash 手册以及 CS-Notes、JavaGuide、小林 coding，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Linux 用户与用户组底层机制是什么","Linux 用户与用户组和相关概念如何区分","Linux 用户与用户组线上异常如何排查"], prerequisites: ["permission"], related: ["file-system"], learningPathPosition: 58 },
 ] satisfies GraphKnowledgePoint[];
+
+const operatingSystemKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {
+  "os-overview": {
+    order: 1,
+    related: ["kernel", "process", "memory-management"],
+  },
+  "kernel": {
+    order: 2,
+    prerequisites: ["os-overview"],
+    related: ["kernel-mode", "system-call", "interrupt"],
+  },
+  "kernel-mode": {
+    order: 3,
+    prerequisites: ["kernel"],
+    related: ["system-call"],
+  },
+  "system-call": {
+    order: 4,
+    prerequisites: ["kernel-mode"],
+    related: ["file-descriptor", "process"],
+  },
+  "process": {
+    order: 5,
+    prerequisites: ["os-overview"],
+    related: ["process-state", "thread"],
+  },
+  "process-state": {
+    order: 6,
+    prerequisites: ["process"],
+    related: ["scheduler", "context-switch"],
+  },
+  "thread": {
+    order: 7,
+    prerequisites: ["process"],
+    related: ["context-switch", "thread-safety"],
+  },
+  "context-switch": {
+    order: 8,
+    prerequisites: ["process-state", "thread"],
+    related: ["scheduler"],
+  },
+  "scheduler": {
+    order: 9,
+    prerequisites: ["process-state", "context-switch"],
+    related: ["time-slice", "priority-scheduling"],
+  },
+  "critical-section": {
+    order: 10,
+    prerequisites: ["thread"],
+    related: ["mutex", "semaphore"],
+  },
+  "mutex": {
+    order: 11,
+    prerequisites: ["critical-section"],
+    related: ["deadlock", "condition-variable"],
+  },
+  "semaphore": {
+    order: 12,
+    prerequisites: ["critical-section"],
+    related: ["deadlock"],
+  },
+  "condition-variable": {
+    order: 13,
+    prerequisites: ["mutex"],
+    related: ["thread-safety"],
+  },
+  "thread-safety": {
+    order: 14,
+    prerequisites: ["mutex", "critical-section"],
+    related: ["race-condition"],
+  },
+  "race-condition": {
+    order: 15,
+    prerequisites: ["thread-safety"],
+    related: ["deadlock", "atomic-operation"],
+  },
+  "deadlock": {
+    order: 16,
+    prerequisites: ["mutex", "semaphore"],
+    related: ["deadlock-conditions", "deadlock-prevention"],
+  },
+  "deadlock-conditions": {
+    order: 17,
+    prerequisites: ["deadlock"],
+    related: ["deadlock-prevention"],
+  },
+  "deadlock-prevention": {
+    order: 18,
+    prerequisites: ["deadlock-conditions"],
+    related: ["priority-inversion"],
+  },
+  "memory-management": {
+    order: 19,
+    prerequisites: ["kernel"],
+    related: ["virtual-memory", "heap-stack"],
+  },
+  "virtual-memory": {
+    order: 20,
+    prerequisites: ["memory-management"],
+    related: ["paging", "page-table"],
+  },
+  "paging": {
+    order: 21,
+    prerequisites: ["virtual-memory"],
+    related: ["page-table", "page-fault"],
+  },
+  "page-table": {
+    order: 22,
+    prerequisites: ["paging"],
+    related: ["tlb", "page-fault"],
+  },
+  "tlb": {
+    order: 23,
+    prerequisites: ["page-table"],
+    related: ["page-fault"],
+  },
+  "page-fault": {
+    order: 24,
+    prerequisites: ["paging", "page-table"],
+    related: ["swap"],
+  },
+  "heap-stack": {
+    order: 25,
+    prerequisites: ["memory-management"],
+    related: ["virtual-memory"],
+  },
+  "file-system": {
+    order: 26,
+    prerequisites: ["kernel"],
+    related: ["inode", "file-descriptor"],
+  },
+  "file-descriptor": {
+    order: 27,
+    prerequisites: ["system-call", "file-system"],
+    related: ["io", "socket", "pipe"],
+  },
+  "io": {
+    order: 28,
+    prerequisites: ["kernel", "file-descriptor"],
+    related: ["nonblocking-io", "buffer-cache"],
+  },
+  "nonblocking-io": {
+    order: 29,
+    prerequisites: ["io"],
+    related: ["io-multiplexing"],
+  },
+  "io-multiplexing": {
+    order: 30,
+    prerequisites: ["nonblocking-io", "file-descriptor"],
+    related: ["epoll"],
+  },
+  "epoll": {
+    order: 31,
+    prerequisites: ["io-multiplexing"],
+    related: ["socket"],
+  },
+  "socket": {
+    order: 32,
+    prerequisites: ["file-descriptor", "io"],
+    related: ["epoll"],
+  },
+  "linux-shell": {
+    order: 33,
+    prerequisites: ["os-overview"],
+    related: ["linux-command", "pipe"],
+  },
+  "linux-command": {
+    order: 34,
+    prerequisites: ["linux-shell"],
+    related: ["process-management", "file-system"],
+  },
+  "interrupt": { order: 41 },
+  "coroutine": { order: 42 },
+  "time-slice": { order: 43 },
+  "round-robin": { order: 44 },
+  "priority-scheduling": { order: 45 },
+  "priority-inversion": { order: 46 },
+  "producer-consumer": { order: 47 },
+  "atomic-operation": { order: 48 },
+  "swap": { order: 49 },
+  "inode": { order: 50 },
+  "hard-link": { order: 51 },
+  "soft-link": { order: 52 },
+  "permission": { order: 53 },
+  "blocking-io": { order: 54 },
+  "buffer-cache": { order: 55 },
+  "virtualization": { order: 56 },
+  "virtual-machine": { order: 57 },
+  "container": { order: 58 },
+  "namespace": { order: 59 },
+  "cgroup": { order: 60 },
+  "process-management": { order: 61 },
+  "signal-linux": { order: 62 },
+  "pipe": { order: 63 },
+  "linux-user-group": { order: 64 },
+};
+
+export const operatingSystemKnowledgePoints = operatingSystemKnowledgePointBase
+  .map((point) => ({
+    ...point,
+    ...operatingSystemKnowledgePointOverrides[point.id],
+  }))
+  .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) satisfies GraphKnowledgePoint[];

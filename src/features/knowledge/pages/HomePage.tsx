@@ -278,7 +278,7 @@ function buildSphereGraph(
         label: categoryLabel,
         categoryId: selectedCategory,
         categoryLabel,
-        count: graphBoard === "visual" ? boardPoints.length : hasSearch ? points.length : allPoints.length,
+        count: boardPoints.length,
         kind: "category",
         active: false,
         matched: true,

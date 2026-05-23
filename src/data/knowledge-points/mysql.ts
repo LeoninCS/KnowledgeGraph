@@ -1,6 +1,6 @@
 import type { GraphKnowledgePoint } from "./types.ts";
 
-export const mysqlKnowledgePoints = [
+const mysqlKnowledgePointBase = [
   /* <!-- KG_EXPLAINED: MySQL 概览 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "mysql-overview", zh: "MySQL 概览", en: "MySQL Overview", area: "foundation", difficulty: "easy", concept: "MySQL 是常用关系型数据库，核心能力包括 SQL、事务、索引、存储引擎和复制。", explanation: ["核心概念：MySQL 概览（MySQL Overview）聚焦MySQL 是常用关系型数据库，核心能力包括 SQL、事务、索引、存储引擎和复制。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：MySQL 概览常用于业务数据存储、后台系统数据库和OLTP 场景。学习时把它放回MySQL链路中观察，并结合前置知识基础概念判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，MySQL 概览通常会和SQL、InnoDB和事务一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把MySQL 概览当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["MySQL 概览执行原理是什么","MySQL 概览如何影响性能或一致性","MySQL 概览线上问题怎么排查"], useCases: ["业务数据存储","后台系统数据库","OLTP 场景"], prerequisites: [], related: ["sql","innodb","transaction"], order: 1 },
   /* <!-- KG_EXPLAINED: SQL | 2026-05-23 | source_count=5 --> */
@@ -12,7 +12,7 @@ export const mysqlKnowledgePoints = [
   /* <!-- KG_EXPLAINED: 反范式 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "denormalization", zh: "反范式", en: "Denormalization", area: "foundation", difficulty: "medium", concept: "反范式通过冗余字段减少关联查询，换取读取性能。", explanation: ["核心概念：反范式（Denormalization）聚焦反范式通过冗余字段减少关联查询，换取读取性能。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：反范式常用于高频列表查询、报表宽表和读多写少场景。学习时把它放回MySQL链路中观察，并结合前置知识范式判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，反范式通常会和SQL 优化一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把反范式当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["反范式执行原理是什么","反范式如何影响性能或一致性","反范式线上问题怎么排查"], useCases: ["高频列表查询","报表宽表","读多写少场景"], prerequisites: ["normalization"], related: ["sql-optimization"], order: 5 },
   /* <!-- KG_EXPLAINED: 数据类型 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "data-type", zh: "数据类型", en: "Data Type", area: "foundation", difficulty: "easy", concept: "数据类型决定字段存储方式、范围、比较规则和索引效率。", explanation: ["核心概念：数据类型（Data Type）聚焦数据类型决定字段存储方式、范围、比较规则和索引效率。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：数据类型常用于字段设计、空间优化和精度控制。学习时把它放回MySQL链路中观察，并结合前置知识表结构设计判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，数据类型通常会和varchar、datetime和decimal一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把数据类型当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["数据类型执行原理是什么","数据类型如何影响性能或一致性","数据类型线上问题怎么排查"], useCases: ["字段设计","空间优化","精度控制"], prerequisites: ["schema-design"], related: ["varchar","datetime","decimal"], order: 6 },
+  { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "data-type", zh: "数据类型", en: "Data Type", area: "foundation", difficulty: "easy", concept: "数据类型决定字段存储方式、范围、比较规则和索引效率。", explanation: ["核心概念：数据类型（Data Type）聚焦数据类型决定字段存储方式、范围、比较规则和索引效率。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：数据类型常用于字段设计、空间优化和精度控制。学习时把它放回MySQL链路中观察，并结合前置知识表结构设计判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，数据类型通常会和varchar、datetime和decimal一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把数据类型当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["数据类型执行原理是什么","数据类型如何影响性能或一致性","数据类型线上问题怎么排查"], useCases: ["字段设计","空间优化","精度控制"], prerequisites: ["schema-design"], related: ["mysql-index","sql-optimization"], order: 6 },
   /* <!-- KG_EXPLAINED: 主键 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "primary-key", zh: "主键", en: "Primary Key", area: "foundation", difficulty: "easy", concept: "主键唯一标识一行数据，InnoDB 中主键决定聚簇索引组织方式。", explanation: ["核心概念：主键（Primary Key）聚焦主键唯一标识一行数据，InnoDB 中主键决定聚簇索引组织方式。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：主键常用于业务实体标识、关联查询和数据去重。学习时把它放回MySQL链路中观察，并结合前置知识表结构设计判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，主键通常会和聚簇索引和自增 ID一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把主键当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["主键执行原理是什么","主键如何影响性能或一致性","主键线上问题怎么排查"], useCases: ["业务实体标识","关联查询","数据去重"], prerequisites: ["schema-design"], related: ["clustered-index","auto-increment"], order: 7 },
   /* <!-- KG_EXPLAINED: 自增 ID | 2026-05-23 | source_count=5 --> */
@@ -170,3 +170,196 @@ export const mysqlKnowledgePoints = [
   /* <!-- KG_EXPLAINED: 连接池 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "connection-pool", zh: "连接池", en: "Connection Pool", area: "operations", difficulty: "medium", concept: "连接池复用数据库连接，控制并发连接数量和等待时间。", explanation: ["核心概念：连接池（Connection Pool）聚焦连接池复用数据库连接，控制并发连接数量和等待时间。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住备份恢复、在线 DDL、连接池和性能观测，再看输入、状态变化、输出结果和失败分支。","适用场景：连接池常用于后端服务接入、连接数保护和性能调优。学习时把它放回MySQL链路中观察，并结合前置知识MySQL 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，连接池通常会和连接列表一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认备份恢复、在线 DDL、连接池和性能观测是否仍然成立。","常见误区与注意点：实践中容易把连接池当成孤立概念处理，结果遗漏元数据锁、备份一致性、连接耗尽和恢复演练。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["连接池执行原理是什么","连接池如何影响性能或一致性","连接池线上问题怎么排查"], useCases: ["后端服务接入","连接数保护","性能调优"], prerequisites: ["mysql-overview"], related: ["show-processlist"], order: 84 },
 ] satisfies GraphKnowledgePoint[];
+
+const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {
+  "mysql-overview": {
+    related: ["sql", "innodb", "transaction"],
+  },
+  "sql": {
+    prerequisites: ["mysql-overview"],
+    related: ["schema-design", "select", "sql-optimization"],
+  },
+  "schema-design": {
+    prerequisites: ["sql"],
+    related: ["data-type", "primary-key"],
+  },
+  "data-type": {
+    prerequisites: ["schema-design"],
+    related: ["mysql-index", "sql-optimization"],
+  },
+  "primary-key": {
+    prerequisites: ["schema-design"],
+    related: ["clustered-index", "auto-increment"],
+  },
+  "select": {
+    prerequisites: ["sql"],
+    related: ["where", "join", "limit-offset"],
+  },
+  "where": {
+    prerequisites: ["select"],
+    related: ["mysql-index", "range-query"],
+  },
+  "join": {
+    prerequisites: ["select"],
+    related: ["sql-optimization", "composite-index"],
+  },
+  "limit-offset": {
+    prerequisites: ["select"],
+    related: ["cursor-pagination", "sql-optimization"],
+  },
+  "innodb": {
+    prerequisites: ["mysql-overview"],
+    related: ["clustered-index", "buffer-pool", "transaction"],
+  },
+  "clustered-index": {
+    prerequisites: ["innodb", "primary-key"],
+    related: ["b-plus-tree", "secondary-index"],
+  },
+  "buffer-pool": {
+    prerequisites: ["innodb"],
+    related: ["dirty-page", "checkpoint", "page"],
+  },
+  "mysql-index": {
+    prerequisites: ["sql"],
+    related: ["b-plus-tree", "composite-index", "sql-optimization"],
+  },
+  "b-plus-tree": {
+    prerequisites: ["mysql-index"],
+    related: ["clustered-index", "range-query"],
+  },
+  "secondary-index": {
+    prerequisites: ["mysql-index", "clustered-index"],
+    related: ["back-to-table", "covering-index"],
+  },
+  "back-to-table": {
+    prerequisites: ["secondary-index"],
+    related: ["covering-index", "sql-optimization"],
+  },
+  "covering-index": {
+    prerequisites: ["secondary-index"],
+    related: ["back-to-table", "composite-index"],
+  },
+  "composite-index": {
+    prerequisites: ["mysql-index"],
+    related: ["leftmost-prefix", "covering-index"],
+  },
+  "leftmost-prefix": {
+    prerequisites: ["composite-index"],
+    related: ["range-query", "order-by"],
+  },
+  "range-query": {
+    prerequisites: ["b-plus-tree", "leftmost-prefix"],
+    related: ["gap-lock", "index-selectivity"],
+  },
+  "transaction": {
+    prerequisites: ["innodb"],
+    related: ["acid", "isolation-level", "redo-log"],
+  },
+  "acid": {
+    prerequisites: ["transaction"],
+    related: ["redo-log", "undo-log", "binlog"],
+  },
+  "isolation-level": {
+    prerequisites: ["transaction"],
+    related: ["repeatable-read", "mvcc"],
+  },
+  "repeatable-read": {
+    prerequisites: ["isolation-level"],
+    related: ["mvcc", "phantom-read", "gap-lock"],
+  },
+  "phantom-read": {
+    prerequisites: ["isolation-level"],
+    related: ["repeatable-read", "gap-lock", "next-key-lock"],
+  },
+  "mvcc": {
+    prerequisites: ["isolation-level", "undo-log"],
+    related: ["read-view", "repeatable-read"],
+  },
+  "read-view": {
+    prerequisites: ["mvcc"],
+    related: ["read-committed"],
+  },
+  "redo-log": {
+    prerequisites: ["transaction"],
+    related: ["two-phase-commit", "crash-recovery"],
+  },
+  "undo-log": {
+    prerequisites: ["transaction"],
+    related: ["mvcc", "crash-recovery"],
+  },
+  "binlog": {
+    prerequisites: ["transaction"],
+    related: ["two-phase-commit", "replication"],
+  },
+  "two-phase-commit": {
+    prerequisites: ["redo-log", "binlog"],
+    related: ["crash-recovery"],
+  },
+  "crash-recovery": {
+    prerequisites: ["redo-log", "undo-log", "binlog"],
+    related: ["checkpoint"],
+  },
+  "lock": {
+    prerequisites: ["transaction"],
+    related: ["row-lock", "next-key-lock"],
+  },
+  "row-lock": {
+    prerequisites: ["lock"],
+    related: ["record-lock", "gap-lock"],
+  },
+  "record-lock": {
+    prerequisites: ["row-lock"],
+    related: ["gap-lock", "next-key-lock"],
+  },
+  "gap-lock": {
+    prerequisites: ["row-lock", "repeatable-read"],
+    related: ["next-key-lock", "phantom-read"],
+  },
+  "next-key-lock": {
+    prerequisites: ["gap-lock"],
+    related: ["deadlock"],
+  },
+  "deadlock": {
+    prerequisites: ["lock"],
+    related: ["deadlock-log", "show-engine-innodb-status"],
+  },
+  "sql-optimization": {
+    prerequisites: ["sql", "mysql-index"],
+    related: ["explain", "slow-query-log"],
+  },
+  "explain": {
+    prerequisites: ["sql-optimization"],
+    related: ["access-type", "extra"],
+  },
+  "access-type": {
+    prerequisites: ["explain"],
+    related: ["index-selectivity"],
+  },
+  "slow-query-log": {
+    prerequisites: ["sql-optimization"],
+    related: ["explain", "show-processlist"],
+  },
+  "replication": {
+    prerequisites: ["binlog"],
+    related: ["read-write-splitting", "replication-lag"],
+  },
+  "read-write-splitting": {
+    prerequisites: ["replication"],
+    related: ["replication-lag"],
+  },
+  "replication-lag": {
+    prerequisites: ["replication"],
+    related: ["read-write-splitting", "gtid"],
+  },
+  "connection-pool": {
+    prerequisites: ["mysql-overview"],
+    related: ["show-processlist", "sql-optimization"],
+  },
+};
+
+export const mysqlKnowledgePoints = mysqlKnowledgePointBase
+  .map((point) => ({
+    ...point,
+    ...mysqlKnowledgePointOverrides[point.id],
+  }))
+  .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) satisfies GraphKnowledgePoint[];

@@ -1,6 +1,6 @@
 import type { GraphKnowledgePoint } from "./types.ts";
 
-export const networkKnowledgePoints = [
+const networkKnowledgePointBase = [
   /* <!-- KG_EXPLAINED: 网络基础概览 | 2026-05-23 | source_count=9 --> */
   /* ai-redone: 2026-05-22; sources=rfc1122-internet-layers,cloudflare-how-internet-works,mdn-how-internet-works,cisco-network-basics,microsoft-tcpip-networking,oracle-packet-encapsulation; diagram=network:network-overview */
   { sourceRefs: ["rfc1122-internet-layers", "cloudflare-how-internet-works", "mdn-how-internet-works", "cisco-network-basics", "microsoft-tcpip-networking", "oracle-packet-encapsulation", "cs-notes", "javaguide", "xiaolin-coding"], internalTags: ["ai-visualized:2026-05-23", "visual-source:rfc1122-internet-layers", "visual-source:cloudflare-how-internet-works", "visual-source:mdn-how-internet-works"], id: "network-overview", zh: "网络基础概览", en: "Network Overview", layer: "foundation", difficulty: "easy", summary: "用主机、链路、设备、协议分层和封装过程理解一次端到端通信。", explanation: ["概念定义：计算机网络把主机、交换机、路由器、链路和协议组织成可协作的通信系统。主机产生和消费数据，链路承载比特，网络设备在局域网或跨网段转发，协议规定地址、格式、顺序、差错处理和双方如何理解同一份数据。", "分层视角：RFC 1122 把互联网主机通信划分为应用层、传输层、互联网层和链路层。应用层表达业务语义，传输层用端口、连接或数据报服务进程，互联网层用 IP 完成跨网络寻址与路由，链路层把包交付到下一跳并最终变成物理信号。", "端到端流程：一次 Web 访问通常从 DNS 查询开始，浏览器拿到目标 IP 后构造 HTTP 请求；传输层选择 TCP、UDP 或 QUIC；IP 层决定目的地址和下一跳；链路层写入下一跳 MAC 并发出帧。沿途路由器逐跳转发，目标服务器按相反方向解封装并返回响应。", "流程图读法：本页流程图采用“输入 URL -> DNS 解析 -> 应用数据 -> 传输层 -> IP 路由 -> 链路投递 -> 目标解封装 -> 响应返回”的结构。看图时先确认数据从哪一层进入，再看每层新增的头部字段，最后看接收端如何逐层拆包。", "工程排查：排障时把现象映射到层次：链路灯、CRC、网卡速率属于链路与物理；IP、掩码、网关、路由表属于互联网层；端口监听、握手、重传属于传输层；状态码、Header、证书、业务响应属于应用层。常用工具包括 ping、traceroute、dig、curl、ss/netstat 和 tcpdump。", "参考来源：分层依据采用 RFC 1122 的通信层模型；互联网的网络互连与分组路径参考 Cloudflare 与 MDN 的入门说明；网络组成参考 Cisco 的 Networking Basics；TCP/IP 配置排查参考 Microsoft Learn；封装流程参考 Oracle Solaris 的 TCP/IP protocol stack 图解。"], typicalProblems: ["输入 URL 到页面展示经历哪些网络步骤","如何按网络分层定位线上访问失败","ping 通但 HTTP 访问失败怎么排查","网络里的主机、交换机、路由器和协议各自承担什么职责","抓包时如何把以太网、IP、TCP/UDP 与应用数据对应起来"], prerequisites: [], related: ["osi-model", "tcp-ip-model"], order: 1 },
@@ -103,6 +103,164 @@ export const networkKnowledgePoints = [
   /* <!-- KG_EXPLAINED: 网络可观测性 | 2026-05-23 | source_count=4 --> */
   { sourceRefs: ["opentelemetry-observability-primer", "prometheus-metric-naming", "cloudflare-latency", "microsoft-latency-throughput"], id: "observability", zh: "网络可观测性", en: "Network Observability", layer: "performance", difficulty: "medium", summary: "通过日志、指标、链路追踪定位网络问题。", explanation: ["核心概念：网络可观测性把请求路径中的日志、指标、链路追踪和抓包信号关联起来，让团队能定位 DNS、连接、TLS、代理、负载均衡、后端和外部依赖的耗时与错误。", "适用场景：线上接口慢、跨地域访问差、CDN 命中低、负载均衡 5xx、连接重置、重传增多、服务发布异常和容量规划都需要网络可观测性。核心指标包括请求量、错误率、延迟分位数、连接数、重传率、丢包、DNS 耗时、TLS 耗时和上游耗时。", "特殊场景：链路追踪能把一次请求跨服务的 span 串起来，日志提供具体错误上下文，指标提供趋势和告警，抓包提供协议级证据。客户端 RUM、Synthetic 探测和服务端指标可以覆盖不同视角。", "边界情况：采样、标签基数、隐私数据、跨层时间同步和代理层 Trace 透传都会影响分析质量。加密流量看不到应用内容时，仍可通过 SNI、证书、连接事件、状态码和端点日志定位。", "常见误区与注意点：只看单点日志容易漏掉网络路径问题。建设时统一 traceId、请求 ID、边缘日志、负载均衡日志和应用日志，指标命名保持稳定，告警绑定用户影响和处理手册。", "参考来源：日志、指标和追踪三类信号参考 OpenTelemetry Observability Primer；指标命名和标签基数参考 Prometheus 文档；延迟体验参考 Cloudflare；延迟吞吐关系参考 Microsoft Learn。"], typicalProblems: ["如何定位一次请求的网络瓶颈","哪些指标能反映网络质量","日志、指标、链路追踪如何配合"], prerequisites: ["latency-bandwidth", "http"], related: ["health-check"], order: 45 },
 ] satisfies GraphKnowledgePoint[];
+
+const networkKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {
+  "network-overview": {
+    order: 1,
+    related: ["tcp-ip-model", "dns", "http"],
+  },
+  "tcp-ip-model": {
+    order: 2,
+    prerequisites: ["network-overview"],
+    related: ["ip", "tcp", "http"],
+  },
+  "ip": {
+    order: 3,
+    prerequisites: ["tcp-ip-model"],
+    related: ["subnet", "routing", "icmp"],
+  },
+  "subnet": {
+    order: 4,
+    prerequisites: ["ip"],
+    related: ["gateway", "cidr"],
+  },
+  "gateway": {
+    order: 5,
+    prerequisites: ["subnet", "arp"],
+    related: ["routing", "nat"],
+  },
+  "routing": {
+    order: 6,
+    prerequisites: ["ip", "gateway"],
+    related: ["icmp", "nat"],
+  },
+  "mac-address": {
+    order: 7,
+    prerequisites: ["tcp-ip-model"],
+    related: ["arp", "ethernet-frame", "switch"],
+  },
+  "arp": {
+    order: 8,
+    prerequisites: ["ip"],
+    related: ["mac-address", "gateway"],
+  },
+  "nat": {
+    order: 9,
+    prerequisites: ["ip", "gateway", "port"],
+    related: ["tcp", "udp", "firewall"],
+  },
+  "port": {
+    order: 10,
+    prerequisites: ["ip"],
+    related: ["tcp", "udp", "nat"],
+  },
+  "tcp": {
+    order: 11,
+    prerequisites: ["ip", "port"],
+    related: ["tcp-handshake", "tcp-flow-control", "http"],
+  },
+  "tcp-handshake": {
+    order: 12,
+    prerequisites: ["tcp"],
+    related: ["tcp-state", "tls"],
+  },
+  "tcp-four-way-wave": {
+    order: 13,
+    prerequisites: ["tcp"],
+    related: ["tcp-state"],
+  },
+  "tcp-state": {
+    order: 14,
+    prerequisites: ["tcp-handshake", "tcp-four-way-wave"],
+    related: ["tcp-retransmission"],
+  },
+  "tcp-retransmission": {
+    order: 15,
+    prerequisites: ["tcp"],
+    related: ["tcp-congestion-control", "latency-bandwidth"],
+  },
+  "tcp-flow-control": {
+    order: 16,
+    prerequisites: ["tcp"],
+    related: ["tcp-congestion-control"],
+  },
+  "tcp-congestion-control": {
+    order: 17,
+    prerequisites: ["tcp-retransmission", "tcp-flow-control"],
+    related: ["latency-bandwidth"],
+  },
+  "udp": {
+    order: 18,
+    prerequisites: ["ip", "port"],
+    related: ["dns", "quic"],
+  },
+  "dns": {
+    order: 19,
+    prerequisites: ["udp", "ip"],
+    related: ["http", "cdn"],
+  },
+  "http": {
+    order: 20,
+    prerequisites: ["tcp", "dns"],
+    related: ["http-cache", "tls", "https"],
+  },
+  "http-cache": {
+    order: 21,
+    prerequisites: ["http"],
+    related: ["cdn"],
+  },
+  "tls": {
+    order: 22,
+    prerequisites: ["tcp-handshake"],
+    related: ["https", "certificate"],
+  },
+  "https": {
+    order: 23,
+    prerequisites: ["http", "tls"],
+    related: ["certificate", "load-balancing"],
+  },
+  "latency-bandwidth": {
+    order: 24,
+    prerequisites: ["tcp-congestion-control", "dns", "http"],
+    related: ["observability"],
+  },
+  "load-balancing": {
+    order: 25,
+    prerequisites: ["http", "tcp"],
+    related: ["health-check", "observability"],
+  },
+  "observability": {
+    order: 26,
+    prerequisites: ["latency-bandwidth", "http", "load-balancing"],
+    related: ["health-check"],
+  },
+  "osi-model": { order: 31 },
+  "signal": { order: 32 },
+  "ethernet-physical": { order: 33 },
+  "ethernet-frame": { order: 35 },
+  "switch": { order: 36 },
+  "vlan": { order: 37 },
+  "ipv4": { order: 38 },
+  "ipv6": { order: 39 },
+  "cidr": { order: 40 },
+  "icmp": { order: 41 },
+  "firewall": { order: 43 },
+  "certificate": { order: 44 },
+  "cdn": { order: 46 },
+  "http2": { order: 47 },
+  "http3": { order: 48 },
+  "websocket": { order: 49 },
+  "grpc": { order: 50 },
+  "protobuf": { order: 51 },
+  "health-check": { order: 52 },
+};
+
+export const networkKnowledgePoints = networkKnowledgePointBase
+  .map((point) => ({
+    ...point,
+    ...networkKnowledgePointOverrides[point.id],
+  }))
+  .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) satisfies GraphKnowledgePoint[];
 
 export const networkKnowledgeExplanations: Record<string, string[]> = {
   "network-overview": networkKnowledgePoints[0].explanation ?? [],

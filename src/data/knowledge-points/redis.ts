@@ -1,6 +1,6 @@
 import type { GraphKnowledgePoint } from "./types.ts";
 
-export const redisKnowledgePoints = [
+const redisKnowledgePointBase = [
   /* <!-- KG_EXPLAINED: Redis 概览 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-overview", zh: "Redis 概览", en: "Redis Overview", area: "foundation", difficulty: "easy", explanation: ["核心概念：Redis 概览（Redis Overview）聚焦Redis 概览是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住命令访问、连接工具和基础运行模型，再看输入、状态变化、输出结果和失败分支。","适用场景：Redis 概览常用于缓存、计数器、排行榜和分布式协调。学习时把它放回Redis链路中观察，并结合前置知识基础概念判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Redis 概览通常会和Redis 数据类型和缓存策略一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认命令访问、连接工具和基础运行模型是否仍然成立。","常见误区与注意点：实践中容易把Redis 概览当成孤立概念处理，结果遗漏危险命令、生产权限、连接数和慢查询。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Redis 概览适合什么使用场景","Redis 概览可能带来哪些性能或一致性问题","Redis 概览线上如何排查和治理"], useCases: ["缓存","计数器","排行榜","分布式协调"], prerequisites: [], related: ["redis-data-types","redis-cache"], commonIssues: ["容量规划","缓存与数据库一致性"] },
   /* <!-- KG_EXPLAINED: Redis 常用命令 | 2026-05-23 | source_count=5 --> */
@@ -10,7 +10,7 @@ export const redisKnowledgePoints = [
   /* <!-- KG_EXPLAINED: Redis 数据类型 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-data-types", zh: "Redis 数据类型", en: "Redis Data Types", area: "data-type", difficulty: "easy", explanation: ["核心概念：Redis 数据类型（Redis Data Types）聚焦Redis 数据类型是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：Redis 数据类型常用于按业务模型选择存储结构。学习时把它放回Redis链路中观察，并结合前置知识Redis 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Redis 数据类型通常会和String、Hash、List、Set和ZSet一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把Redis 数据类型当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Redis 数据类型适合什么使用场景","Redis 数据类型可能带来哪些性能或一致性问题","Redis 数据类型线上如何排查和治理"], useCases: ["按业务模型选择存储结构"], prerequisites: ["redis-overview"], related: ["redis-string","redis-hash","redis-list","redis-set","redis-zset"], commonIssues: ["类型选择不合理","结构过大导致访问变慢"] },
   /* <!-- KG_EXPLAINED: String | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-string", zh: "String", en: "String", area: "data-type", difficulty: "easy", explanation: ["核心概念：String聚焦String是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：String常用于缓存对象、计数器、分布式锁值和限流计数。学习时把它放回Redis链路中观察，并结合前置知识Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，String通常会和redis-counter和分布式锁一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把String当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["String适合什么使用场景","String可能带来哪些性能或一致性问题","String线上如何排查和治理"], useCases: ["缓存对象","计数器","分布式锁值","限流计数"], prerequisites: ["redis-data-types"], related: ["redis-counter","redis-lock"], commonIssues: ["value 过大","序列化格式不统一"] },
+  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-string", zh: "String", en: "String", area: "data-type", difficulty: "easy", explanation: ["核心概念：String聚焦String是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：String常用于缓存对象、计数器、分布式锁值和限流计数。学习时把它放回Redis链路中观察，并结合前置知识Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，String通常会和redis-counter和分布式锁一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把String当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["String适合什么使用场景","String可能带来哪些性能或一致性问题","String线上如何排查和治理"], useCases: ["缓存对象","计数器","分布式锁值","限流计数"], prerequisites: ["redis-data-types"], related: ["redis-lock","expire-policy"], commonIssues: ["value 过大","序列化格式不统一"] },
   /* <!-- KG_EXPLAINED: Hash | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-hash", zh: "Hash", en: "Hash", area: "data-type", difficulty: "easy", explanation: ["核心概念：Hash聚焦Hash是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：Hash常用于对象字段存储、用户信息缓存和配置缓存。学习时把它放回Redis链路中观察，并结合前置知识Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Hash通常会和String一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把Hash当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Hash适合什么使用场景","Hash可能带来哪些性能或一致性问题","Hash线上如何排查和治理"], useCases: ["对象字段存储","用户信息缓存","配置缓存"], prerequisites: ["redis-data-types"], related: ["redis-string"], commonIssues: ["field 数量过多","热 Hash 导致单 key 压力集中"] },
   /* <!-- KG_EXPLAINED: List | 2026-05-23 | source_count=5 --> */
@@ -18,7 +18,7 @@ export const redisKnowledgePoints = [
   /* <!-- KG_EXPLAINED: Set | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-set", zh: "Set", en: "Set", area: "data-type", difficulty: "easy", explanation: ["核心概念：Set聚焦Set是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：Set常用于去重、共同关注、标签集合和抽奖。学习时把它放回Redis链路中观察，并结合前置知识Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Set通常会和ZSet和Bitmap一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把Set当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Set适合什么使用场景","Set可能带来哪些性能或一致性问题","Set线上如何排查和治理"], useCases: ["去重","共同关注","标签集合","抽奖"], prerequisites: ["redis-data-types"], related: ["redis-zset","bitmap"], commonIssues: ["集合过大","交并差运算阻塞"] },
   /* <!-- KG_EXPLAINED: ZSet | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-zset", zh: "ZSet", en: "Sorted Set", area: "data-type", difficulty: "medium", explanation: ["核心概念：ZSet（Sorted Set）聚焦ZSet是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：ZSet常用于排行榜、延迟队列和带权重排序。学习时把它放回Redis链路中观察，并结合前置知识Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，ZSet通常会和skiplist和List一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把ZSet当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["ZSet适合什么使用场景","ZSet可能带来哪些性能或一致性问题","ZSet线上如何排查和治理"], useCases: ["排行榜","延迟队列","带权重排序"], prerequisites: ["redis-data-types"], related: ["skiplist","redis-list"], commonIssues: ["分数精度问题","大范围查询成本高"] },
+  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-zset", zh: "ZSet", en: "Sorted Set", area: "data-type", difficulty: "medium", explanation: ["核心概念：ZSet（Sorted Set）聚焦ZSet是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：ZSet常用于排行榜、延迟队列和带权重排序。学习时把它放回Redis链路中观察，并结合前置知识Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，ZSet通常会和skiplist和List一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把ZSet当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["ZSet适合什么使用场景","ZSet可能带来哪些性能或一致性问题","ZSet线上如何排查和治理"], useCases: ["排行榜","延迟队列","带权重排序"], prerequisites: ["redis-data-types"], related: ["redis-list","geo"], commonIssues: ["分数精度问题","大范围查询成本高"] },
   /* <!-- KG_EXPLAINED: Bitmap | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "bitmap", zh: "Bitmap", en: "Bitmap", area: "data-type", difficulty: "medium", explanation: ["核心概念：Bitmap聚焦Bitmap是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：Bitmap常用于签到、活跃用户统计和布尔状态压缩存储。学习时把它放回Redis链路中观察，并结合前置知识String判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Bitmap通常会和HyperLogLog一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把Bitmap当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Bitmap适合什么使用场景","Bitmap可能带来哪些性能或一致性问题","Bitmap线上如何排查和治理"], useCases: ["签到","活跃用户统计","布尔状态压缩存储"], prerequisites: ["redis-string"], related: ["hyperloglog"], commonIssues: ["offset 过大导致内存突增","统计语义设计错误"] },
   /* <!-- KG_EXPLAINED: HyperLogLog | 2026-05-23 | source_count=5 --> */
@@ -126,3 +126,250 @@ export const redisKnowledgePoints = [
   /* <!-- KG_EXPLAINED: 负载均衡 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "load-balancing", zh: "负载均衡", en: "Load Balancing", area: "operations", difficulty: "medium", explanation: ["核心概念：负载均衡（Load Balancing）聚焦负载均衡是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住负载、限流、容量和故障演练，再看输入、状态变化、输出结果和失败分支。","适用场景：负载均衡常用于分散读请求和治理热点访问。学习时把它放回Redis链路中观察，并结合前置知识主从复制和热 Key判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，负载均衡通常会和集群一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认负载、限流、容量和故障演练是否仍然成立。","常见误区与注意点：实践中容易把负载均衡当成孤立概念处理，结果遗漏变更风险、回滚、连接风暴和客户端配置。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["负载均衡适合什么使用场景","负载均衡可能带来哪些性能或一致性问题","负载均衡线上如何排查和治理"], useCases: ["分散读请求","治理热点访问"], prerequisites: ["redis-replication","hot-key"], related: ["redis-cluster"], commonIssues: ["读写一致性","客户端路由策略复杂"] },
 ] satisfies GraphKnowledgePoint[];
+
+const redisKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {
+  "redis-overview": {
+    order: 1,
+    related: ["redis-command", "redis-data-types", "redis-cache"],
+  },
+  "redis-command": {
+    order: 2,
+    prerequisites: ["redis-overview"],
+    related: ["redis-cli", "slowlog"],
+  },
+  "redis-cli": {
+    order: 3,
+    prerequisites: ["redis-command"],
+    related: ["redis-monitor", "slowlog"],
+  },
+  "redis-data-types": {
+    order: 4,
+    prerequisites: ["redis-overview"],
+    related: ["redis-string", "redis-hash", "redis-list", "redis-set", "redis-zset"],
+  },
+  "redis-string": {
+    order: 5,
+    prerequisites: ["redis-data-types"],
+    related: ["redis-lock", "expire-policy"],
+  },
+  "redis-hash": {
+    order: 6,
+    prerequisites: ["redis-data-types"],
+    related: ["redis-string", "big-key"],
+  },
+  "redis-list": {
+    order: 7,
+    prerequisites: ["redis-data-types"],
+    related: ["redis-stream", "redis-pubsub"],
+  },
+  "redis-set": {
+    order: 8,
+    prerequisites: ["redis-data-types"],
+    related: ["redis-zset", "bitmap"],
+  },
+  "redis-zset": {
+    order: 9,
+    prerequisites: ["redis-data-types"],
+    related: ["redis-list", "geo"],
+  },
+  "redis-persistence": {
+    order: 10,
+    prerequisites: ["redis-overview"],
+    related: ["rdb", "aof"],
+  },
+  "rdb": {
+    order: 11,
+    prerequisites: ["redis-persistence"],
+    related: ["aof", "fork-cow"],
+  },
+  "aof": {
+    order: 12,
+    prerequisites: ["redis-persistence"],
+    related: ["aof-rewrite", "rdb"],
+  },
+  "aof-rewrite": {
+    order: 13,
+    prerequisites: ["aof"],
+    related: ["fork-cow"],
+  },
+  "fork-cow": {
+    order: 14,
+    prerequisites: ["redis-persistence"],
+    related: ["rdb", "aof-rewrite", "big-key"],
+  },
+  "expire-policy": {
+    order: 15,
+    prerequisites: ["redis-string"],
+    related: ["lazy-expire", "active-expire"],
+  },
+  "lazy-expire": {
+    order: 16,
+    prerequisites: ["expire-policy"],
+    related: ["active-expire"],
+  },
+  "active-expire": {
+    order: 17,
+    prerequisites: ["expire-policy"],
+    related: ["expire-storm"],
+  },
+  "eviction-policy": {
+    order: 18,
+    prerequisites: ["redis-memory"],
+    related: ["lru", "lfu"],
+  },
+  "redis-memory": {
+    order: 19,
+    prerequisites: ["redis-overview"],
+    related: ["eviction-policy", "big-key", "hot-key"],
+  },
+  "big-key": {
+    order: 20,
+    prerequisites: ["redis-memory"],
+    related: ["slowlog", "fork-cow"],
+  },
+  "hot-key": {
+    order: 21,
+    prerequisites: ["redis-memory"],
+    related: ["cache-breakdown", "load-balancing"],
+  },
+  "redis-cache": {
+    order: 22,
+    prerequisites: ["redis-overview"],
+    related: ["cache-aside", "cache-consistency"],
+  },
+  "cache-aside": {
+    order: 23,
+    prerequisites: ["redis-cache"],
+    related: ["cache-consistency"],
+  },
+  "cache-consistency": {
+    order: 24,
+    prerequisites: ["cache-aside"],
+    related: ["delayed-double-delete"],
+  },
+  "cache-penetration": {
+    order: 25,
+    prerequisites: ["redis-cache"],
+    related: ["bloom-filter", "null-cache"],
+  },
+  "bloom-filter": {
+    order: 26,
+    prerequisites: ["cache-penetration"],
+    related: ["null-cache"],
+  },
+  "cache-breakdown": {
+    order: 27,
+    prerequisites: ["redis-cache"],
+    related: ["mutex-rebuild", "logical-expire", "hot-key"],
+  },
+  "mutex-rebuild": {
+    order: 28,
+    prerequisites: ["cache-breakdown"],
+    related: ["redis-lock"],
+  },
+  "cache-avalanche": {
+    order: 29,
+    prerequisites: ["redis-cache"],
+    related: ["expire-storm", "redis-replication"],
+  },
+  "redis-lock": {
+    order: 30,
+    prerequisites: ["redis-string"],
+    related: ["set-nx-ex", "lua-unlock"],
+  },
+  "set-nx-ex": {
+    order: 31,
+    prerequisites: ["redis-lock"],
+    related: ["lua-unlock"],
+  },
+  "lua-unlock": {
+    order: 32,
+    prerequisites: ["redis-lock"],
+    related: ["set-nx-ex"],
+  },
+  "redis-replication": {
+    order: 33,
+    prerequisites: ["redis-persistence"],
+    related: ["full-sync", "partial-sync", "replication-lag"],
+  },
+  "full-sync": {
+    order: 34,
+    prerequisites: ["redis-replication", "rdb"],
+    related: ["partial-sync"],
+  },
+  "partial-sync": {
+    order: 35,
+    prerequisites: ["redis-replication"],
+    related: ["replication-backlog"],
+  },
+  "replication-lag": {
+    order: 36,
+    prerequisites: ["redis-replication"],
+    related: ["redis-sentinel"],
+  },
+  "redis-sentinel": {
+    order: 37,
+    prerequisites: ["redis-replication"],
+    related: ["sentinel-failover", "quorum"],
+  },
+  "sentinel-failover": {
+    order: 38,
+    prerequisites: ["redis-sentinel"],
+    related: ["quorum"],
+  },
+  "redis-cluster": {
+    order: 39,
+    prerequisites: ["redis-replication", "redis-sentinel"],
+    related: ["hash-slot", "resharding"],
+  },
+  "hash-slot": {
+    order: 40,
+    prerequisites: ["redis-cluster"],
+    related: ["key-tag"],
+  },
+  "key-tag": {
+    order: 41,
+    prerequisites: ["hash-slot"],
+    related: ["redis-cluster"],
+  },
+  "slowlog": {
+    order: 42,
+    prerequisites: ["redis-command"],
+    related: ["redis-monitor", "big-key"],
+  },
+  "redis-monitor": {
+    order: 43,
+    prerequisites: ["redis-overview"],
+    related: ["slowlog", "hot-key"],
+  },
+  "load-balancing": {
+    order: 44,
+    prerequisites: ["redis-replication", "hot-key"],
+    related: ["redis-cluster"],
+  },
+  "expire-storm": { order: 51 },
+  "lru": { order: 52 },
+  "lfu": { order: 53 },
+  "delayed-double-delete": { order: 54 },
+  "null-cache": { order: 55 },
+  "logical-expire": { order: 56 },
+  "redlock": { order: 57 },
+  "replication-backlog": { order: 58 },
+  "quorum": { order: 59 },
+  "bitmap": { order: 60 },
+  "hyperloglog": { order: 61 },
+  "geo": { order: 62 },
+  "redis-stream": { order: 63 },
+  "consumer-group": { order: 64 },
+  "redis-pubsub": { order: 65 },
+  "redis-ack": { order: 66 },
+  "resharding": { order: 67 },
+  "moved-ask": { order: 68 },
+};
+
+export const redisKnowledgePoints = redisKnowledgePointBase
+  .map((point) => ({
+    ...point,
+    ...redisKnowledgePointOverrides[point.id],
+  }))
+  .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)) satisfies GraphKnowledgePoint[];
