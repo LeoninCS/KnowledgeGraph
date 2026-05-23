@@ -4,16 +4,16 @@ import { dirname, join } from "node:path";
 import {
   knowledgePointsByCategory,
   knowledgeSources,
-} from "../src/data/knowledge-points.ts";
+} from "../src/data/knowledge-points/index.ts";
 import {
   buildVisualSimulation,
   isPointVisualizable,
   visualPointIds,
-} from "../src/data/visual-simulations.ts";
+} from "../src/data/visual-simulations/index.ts";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(scriptDir, "..");
-const dataFile = join(rootDir, "src/data/knowledge-points.ts");
+const dataDir = join(rootDir, "src/data/knowledge-points");
 const stateFile = join(rootDir, ".visualization-progress.json");
 const claimsFile = join(rootDir, ".visualization-claims.json");
 const researchDir = join(rootDir, ".visualization-research");
@@ -32,6 +32,22 @@ const categoryArrays = {
   agent: "agentKnowledgePoints",
 };
 const categories = Object.keys(categoryArrays);
+const categoryFiles = {
+  network: "network.ts",
+  os: "os.ts",
+  algorithm: "algorithm.ts",
+  redis: "redis.ts",
+  mysql: "mysql.ts",
+  rabbitmq: "rabbitmq.ts",
+  backend: "backend.ts",
+  docker: "docker.ts",
+  kubernetes: "kubernetes.ts",
+  agent: "agent.ts",
+};
+
+function categoryFile(categoryId) {
+  return join(dataDir, categoryFiles[categoryId]);
+}
 
 function today() {
   return new Date().toISOString().slice(0, 10);
@@ -667,7 +683,8 @@ function addTagsToLine(line, tags) {
 }
 
 async function tagCompleted({ categoryId, id, date, sources }) {
-  const source = await readFile(dataFile, "utf8");
+  const sourcePath = categoryFile(categoryId);
+  const source = await readFile(sourcePath, "utf8");
   const block = findCategoryBlock(source, categoryId);
   const before = source.slice(0, block.start);
   const blockText = source.slice(block.start, block.end);
@@ -686,11 +703,11 @@ async function tagCompleted({ categoryId, id, date, sources }) {
     lines[lineIndex] = addTagsToLine(lines[lineIndex], tags);
   }
 
-  await writeFile(dataFile, `${before}${lines.join("\n")}${after}`);
+  await writeFile(sourcePath, `${before}${lines.join("\n")}${after}`);
 }
 
 async function assertCompletedTag({ categoryId, id, date }) {
-  const source = await readFile(dataFile, "utf8");
+  const source = await readFile(categoryFile(categoryId), "utf8");
   const block = findCategoryBlock(source, categoryId);
   const line = source
     .slice(block.start, block.end)

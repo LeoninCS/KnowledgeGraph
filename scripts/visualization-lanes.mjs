@@ -26,8 +26,8 @@ const infraPaths = [
   ".gitignore",
   "package.json",
   "scripts",
-  "docs/visualization-workflow.md",
-  "src/data/visual-simulations.ts",
+  "docs/workflows/visualization-workflow.md",
+  "src/data/visual-simulations",
 ];
 
 function printJson(value) {
