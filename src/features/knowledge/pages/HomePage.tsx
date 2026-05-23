@@ -5,6 +5,7 @@ import {
   type WheelEvent,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -81,6 +82,13 @@ type CanvasDrag = {
   startY: number;
   originX: number;
   originY: number;
+};
+
+type MinimapViewport = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 };
 
 const graphDimensions: Record<GraphMode, { width: number; height: number }> = {
@@ -414,6 +422,54 @@ function clampCanvasZoom(value: number) {
   return Math.min(maxCanvasZoom, Math.max(minCanvasZoom, value));
 }
 
+function clampValue(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getCanvasPanLimit(length: number, zoom: number) {
+  return Math.max(180, length * 0.32 + Math.max(0, zoom - 1) * length * 0.5);
+}
+
+function clampCanvasTransform(view: CanvasView, rect?: DOMRect | null): CanvasView {
+  const zoom = clampCanvasZoom(view.zoom);
+
+  if (!rect) {
+    return { ...view, zoom };
+  }
+
+  const maxX = getCanvasPanLimit(rect.width, zoom);
+  const maxY = getCanvasPanLimit(rect.height, zoom);
+
+  return {
+    x: clampValue(view.x, -maxX, maxX),
+    y: clampValue(view.y, -maxY, maxY),
+    zoom,
+  };
+}
+
+function getZoomedCanvasView(
+  view: CanvasView,
+  nextZoom: number,
+  point: { x: number; y: number },
+  rect: DOMRect,
+) {
+  const zoom = clampCanvasZoom(nextZoom);
+  const origin = { x: rect.width / 2, y: rect.height / 2 };
+  const local = {
+    x: origin.x + (point.x - origin.x - view.x) / view.zoom,
+    y: origin.y + (point.y - origin.y - view.y) / view.zoom,
+  };
+
+  return clampCanvasTransform(
+    {
+      x: point.x - origin.x - (local.x - origin.x) * zoom,
+      y: point.y - origin.y - (local.y - origin.y) * zoom,
+      zoom,
+    },
+    rect,
+  );
+}
+
 function isCanvasControlTarget(target: EventTarget | null) {
   return (
     target instanceof Element &&
@@ -561,6 +617,7 @@ export function HomePage({
   const [hoveredKnowledgeId, setHoveredKnowledgeId] = useState<string>();
   const [canvasView, setCanvasView] = useState<CanvasView>(defaultCanvasView);
   const [canvasDrag, setCanvasDrag] = useState<CanvasDrag>();
+  const graphStageRef = useRef<HTMLDivElement>(null);
   const hasSearch = normalizeSearch(searchQuery).length > 0;
   const visualizablePoints = useMemo(
     () => getVisualizablePoints(selectedCategory),
@@ -599,28 +656,98 @@ export function HomePage({
     (node) => node.kind === "knowledge" && node.matched,
   );
   const isEmptySearch = hasSearch && !hasResults;
+  const minimapNodeById = useMemo(() => getNodeById(graph.nodes), [graph.nodes]);
+  const minimapViewport = useMemo<MinimapViewport>(() => {
+    const width = Math.max(120, Math.min(graph.width - 36, graph.width / canvasView.zoom));
+    const height = Math.max(90, Math.min(graph.height - 36, graph.height / canvasView.zoom));
+    const rawX = (graph.width - width) / 2 - (canvasView.x / canvasView.zoom) * 1.3;
+    const rawY = (graph.height - height) / 2 - (canvasView.y / canvasView.zoom) * 1.3;
+    const maxX = graph.width - width - 18;
+    const maxY = graph.height - height - 18;
+
+    return {
+      x: maxX <= 18 ? (graph.width - width) / 2 : clampValue(rawX, 18, maxX),
+      y: maxY <= 18 ? (graph.height - height) / 2 : clampValue(rawY, 18, maxY),
+      width,
+      height,
+    };
+  }, [canvasView.x, canvasView.y, canvasView.zoom, graph.height, graph.width]);
+  const canvasSurfaceStyle = useMemo(
+    () =>
+      ({
+        "--canvas-x": `${canvasView.x}px`,
+        "--canvas-y": `${canvasView.y}px`,
+        "--grid-step": `${Math.max(18, Math.round(34 * canvasView.zoom))}px`,
+        "--grid-major": `${Math.max(94, Math.round(170 * canvasView.zoom))}px`,
+      }) as CSSProperties,
+    [canvasView.x, canvasView.y, canvasView.zoom],
+  );
+  const zoomPercent = `${Math.round(canvasView.zoom * 100)}%`;
 
   useEffect(() => {
     setCanvasView(defaultCanvasView);
     setCanvasDrag(undefined);
   }, [selectedCategory, graphMode, graphBoard, searchQuery, locale]);
 
-  function zoomCanvas(delta: number) {
-    setCanvasView((view) => ({
-      ...view,
-      zoom: clampCanvasZoom(view.zoom + delta),
-    }));
+  function resetCanvasView() {
+    setCanvasView(defaultCanvasView);
+    setCanvasDrag(undefined);
+  }
+
+  function zoomCanvas(multiplier: number) {
+    const rect = graphStageRef.current?.getBoundingClientRect();
+
+    setCanvasView((view) => {
+      if (!rect) {
+        return {
+          ...view,
+          zoom: clampCanvasZoom(view.zoom * multiplier),
+        };
+      }
+
+      return getZoomedCanvasView(
+        view,
+        view.zoom * multiplier,
+        { x: rect.width / 2, y: rect.height / 2 },
+        rect,
+      );
+    });
   }
 
   function handleCanvasWheel(event: WheelEvent<HTMLDivElement>) {
     event.preventDefault();
 
-    const direction = event.deltaY > 0 ? -1 : 1;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const isPanGesture = event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.35;
 
-    zoomCanvas(direction * 0.1);
+    if (isPanGesture) {
+      setCanvasView((view) =>
+        clampCanvasTransform(
+          {
+            ...view,
+            x: view.x - event.deltaX,
+            y: view.y - event.deltaY,
+          },
+          rect,
+        ),
+      );
+      return;
+    }
+
+    const zoomFactor = Math.exp(-event.deltaY * (event.deltaMode === 1 ? 0.045 : 0.0012));
+    const point = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+
+    setCanvasView((view) => getZoomedCanvasView(view, view.zoom * zoomFactor, point, rect));
   }
 
   function handleCanvasPointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
     if (isCanvasControlTarget(event.target)) {
       return;
     }
@@ -640,10 +767,17 @@ export function HomePage({
       return;
     }
 
+    const rect = event.currentTarget.getBoundingClientRect();
+
     setCanvasView((view) => ({
-      ...view,
-      x: canvasDrag.originX + event.clientX - canvasDrag.startX,
-      y: canvasDrag.originY + event.clientY - canvasDrag.startY,
+      ...clampCanvasTransform(
+        {
+          ...view,
+          x: canvasDrag.originX + event.clientX - canvasDrag.startX,
+          y: canvasDrag.originY + event.clientY - canvasDrag.startY,
+        },
+        rect,
+      ),
     }));
   }
 
@@ -665,6 +799,7 @@ export function HomePage({
       <section
         className={`graph-canvas ${canvasDrag ? "is-panning" : ""}`}
         aria-label={t.navGraph}
+        style={canvasSurfaceStyle}
       >
         <div className="mobile-category-tabs" aria-label={t.learningPath}>
           {t.categories.map(([id, name], index) => {
@@ -728,13 +863,14 @@ export function HomePage({
           </div>
         ) : (
           <div
+            ref={graphStageRef}
             className="sphere-graph-stage"
             onWheel={handleCanvasWheel}
             onPointerDown={handleCanvasPointerDown}
             onPointerMove={handleCanvasPointerMove}
             onPointerUp={handleCanvasPointerUp}
             onPointerCancel={handleCanvasPointerUp}
-            onDoubleClick={() => setCanvasView(defaultCanvasView)}
+            onDoubleClick={resetCanvasView}
           >
             <div
               className="sphere-graph-world"
@@ -751,17 +887,76 @@ export function HomePage({
             </div>
           </div>
         )}
+        <div className="canvas-minimap" aria-hidden="true">
+          <svg viewBox={`0 0 ${graph.width} ${graph.height}`}>
+            <g>
+              {graph.edges
+                .filter((edge) => edge.relation === "category" || edge.relation === "group")
+                .map((edge) => {
+                  const source = minimapNodeById.get(edge.source);
+                  const target = minimapNodeById.get(edge.target);
+
+                  if (!source || !target) {
+                    return null;
+                  }
+
+                  return (
+                    <line
+                      key={edge.id}
+                      x1={source.x}
+                      y1={source.y}
+                      x2={target.x}
+                      y2={target.y}
+                    />
+                  );
+                })}
+            </g>
+            <g>
+              {graph.nodes.map((node) => (
+                <circle
+                  key={node.id}
+                  className={node.active ? "active" : ""}
+                  cx={node.x}
+                  cy={node.y}
+                  r={node.kind === "category" ? 20 : node.kind === "group" ? 13 : 8}
+                />
+              ))}
+            </g>
+            <rect
+              className="canvas-minimap-viewport"
+              x={minimapViewport.x}
+              y={minimapViewport.y}
+              width={minimapViewport.width}
+              height={minimapViewport.height}
+              rx="46"
+            />
+          </svg>
+        </div>
         <div className="graph-canvas-controls" aria-label={t.canvasControls}>
-          <button type="button" onClick={() => zoomCanvas(0.12)} title={t.zoomIn}>
-            <Plus size={19} />
-          </button>
-          <button type="button" onClick={() => zoomCanvas(-0.12)} title={t.zoomOut}>
+          <button
+            type="button"
+            onClick={() => zoomCanvas(0.86)}
+            title={t.zoomOut}
+            aria-label={t.zoomOut}
+          >
             <Minus size={19} />
+          </button>
+          <output className="canvas-zoom-readout" aria-live="polite">
+            {zoomPercent}
+          </output>
+          <button
+            type="button"
+            onClick={() => zoomCanvas(1.16)}
+            title={t.zoomIn}
+            aria-label={t.zoomIn}
+          >
+            <Plus size={19} />
           </button>
           <button
             type="button"
-            onClick={() => setCanvasView(defaultCanvasView)}
+            onClick={resetCanvasView}
             title={t.resetView}
+            aria-label={t.resetView}
           >
             <RotateCcw size={18} />
           </button>

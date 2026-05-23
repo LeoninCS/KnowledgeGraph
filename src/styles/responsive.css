@@ -133,6 +133,25 @@
     inset: 118px -30px 106px;
   }
 
+  .canvas-minimap {
+    display: none;
+  }
+
+  .graph-canvas-controls {
+    right: 18px;
+    bottom: 18px;
+  }
+
+  .graph-canvas-controls button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .canvas-zoom-readout {
+    width: 56px;
+    height: 44px;
+  }
+
   .graph-toolbar {
     top: 66px;
     left: 16px;
