@@ -2670,6 +2670,40 @@ function k8sCluster(point: GraphKnowledgePoint) {
   );
 }
 
+function k8sScheduler(point: GraphKnowledgePoint) {
+  return flow(
+    "kubernetes",
+    point,
+    ["Pod 调度流水线", "Pod scheduling pipeline"],
+    ["把一个 Pending Pod 拆成入队、过滤、打分、绑定、节点接管和失败重试六段。", "Split one Pending Pod into enqueue, filter, score, bind, node handoff, and retry paths."],
+    [
+      ["pod", "Pending Pod", "Pending Pod", "携带资源、亲和性、容忍和优先级", "Carries resources, affinity, tolerations, and priority", "data"],
+      ["queue", "调度队列", "Scheduling queue", "按优先级和重试组织待调度 Pod", "Orders Pods by priority and retry state", "queue"],
+      ["filter", "过滤插件", "Filter plugins", "筛出满足硬约束的节点", "Keeps nodes that satisfy hard constraints", "cluster"],
+      ["score", "打分插件", "Score plugins", "合并权重并选择最佳节点", "Weights signals and selects the best node", "cpu"],
+      ["api", "API Server/Binding", "API Server / binding", "写回 pod.spec.nodeName 或 Binding", "Writes pod.spec.nodeName or Binding", "server"],
+      ["node", "Node/kubelet", "Node / kubelet", "读取 PodSpec 并启动容器", "Reads PodSpec and starts containers", "container"],
+    ],
+    {
+      pod: tx("未绑定", "Unbound"),
+      queue: tx("等待入队", "Awaiting enqueue"),
+      filter: tx("节点待筛选", "Nodes pending filter"),
+      score: tx("等待评分", "Awaiting score"),
+      api: tx("等待绑定", "Awaiting bind"),
+      node: tx("等待 PodSpec", "Awaiting PodSpec"),
+    },
+    [
+      ["发现待调度 Pod", "Find unscheduled Pod", "watch 未绑定 Pod", "Watch unbound Pod", "pod", "queue", "QueueSort", "QueueSort", "调度器通过 API 观察新 Pod，把尚未设置 nodeName 的 Pod 放入队列，并按优先级、退避和重试状态排序。", "The scheduler watches the API, queues Pods without nodeName, and orders them by priority, backoff, and retry state.", "排查入口是 Pod 是否进入调度队列以及是否被高优先级任务压后。", "The first check is whether the Pod reaches the queue and how priority affects ordering.", { pod: tx("已进入队列", "Queued"), queue: tx("按优先级排序", "Priority ordered") }],
+      ["过滤可行节点", "Filter feasible nodes", "资源/标签/污点/拓扑", "Resources / labels / taints / topology", "queue", "filter", "Filter", "Filter", "过滤阶段检查 CPU/内存请求、nodeSelector、required 亲和性、污点容忍、卷拓扑和节点状态，留下可运行该 Pod 的节点。", "The filter phase checks CPU and memory requests, nodeSelector, required affinity, taints and tolerations, volume topology, and node state to keep feasible nodes.", "FailedScheduling 事件通常直接指出第一个硬约束瓶颈。", "FailedScheduling events usually point to the hard constraint bottleneck.", { queue: tx("Pod 已取出", "Pod dequeued"), filter: tx("可行节点已生成", "Feasible nodes found") }, "teal"],
+      ["选择最佳节点", "Pick best node", "Score + normalize", "Score + normalize", "filter", "score", "Score", "Score", "打分阶段对可行节点叠加资源均衡、偏好亲和性、拓扑分散和镜像本地性等信号，按权重得到最高分节点。", "The score phase combines resource balance, preferred affinity, topology spread, image locality, and other signals to find the highest-scoring node.", "调度策略优化看插件权重、资源碎片和跨域分布。", "Scheduling tuning looks at plugin weights, resource fragmentation, and topology distribution.", { filter: tx("候选节点可用", "Candidates ready"), score: tx("最佳节点已选", "Best node selected") }, "warning"],
+      ["写回绑定", "Write binding", "Bind cycle", "Bind cycle", "score", "api", "Binding", "Binding", "绑定周期通过 API Server 写入调度决定，常见形式是 Binding 子资源或更新 Pod 的 nodeName。", "The binding cycle writes the scheduling decision through the API Server, commonly via the Binding subresource or pod nodeName update.", "绑定失败会让 Pod 回到队列并重新调度。", "Binding failure returns the Pod to the queue for another scheduling attempt.", { score: tx("调度决定完成", "Decision ready"), api: tx("绑定已提交", "Binding submitted") }, "brand"],
+      ["节点接管", "Node handoff", "kubelet 读取 PodSpec", "kubelet reads PodSpec", "api", "node", "PodSpec", "PodSpec", "目标节点 kubelet 看到绑定后的 Pod，创建 sandbox、拉镜像、启动容器，并把 PodStatus 和事件回写 API。", "The target node's kubelet sees the bound Pod, creates the sandbox, pulls images, starts containers, and reports PodStatus and events back to the API.", "调度成功后仍需继续看镜像、探针、资源压力和运行时事件。", "After scheduling succeeds, continue with image, probe, pressure, and runtime events.", { api: tx("Pod 已绑定", "Pod bound"), node: tx("启动中", "Starting") }, "success"],
+      ["约束失败重试", "Retry constraints", "Pending + Events", "Pending + events", "filter", "queue", "Unschedulable", "Unschedulable", "当没有节点通过过滤或抢占无法解决约束时，Pod 保持 Pending，事件记录资源不足、亲和性不匹配、污点未容忍或卷拓扑冲突。", "When no node passes filtering or preemption cannot resolve constraints, the Pod stays Pending and events record insufficient resources, affinity mismatch, untolerated taints, or volume topology conflicts.", "修复策略是补资源、改约束、加容忍、调优优先级或扩容节点池。", "Fixes include adding capacity, changing constraints, adding tolerations, tuning priority, or scaling the node pool.", { filter: tx("无可行节点", "No feasible node"), queue: tx("等待重试", "Awaiting retry") }, "danger"],
+    ],
+    [["QueueSort", "QueueSort"], ["Filter", "Filter"], ["Score", "Score"], ["Bind", "Bind"], ["Pending Events", "Pending events"]],
+  );
+}
+
 function buildAgentSpecific(point: GraphKnowledgePoint) {
   const area = getAreaKey(point);
 
@@ -3174,6 +3208,7 @@ const customBuilders: Record<string, Builder> = {
   "network:http-cache": httpCache,
   "network:load-balancing": loadBalancing,
   "kubernetes:cluster": k8sCluster,
+  "kubernetes:scheduler": k8sScheduler,
   "mysql:b-plus-tree": bPlusTree,
   "kubernetes:deployment": k8sDeployment,
   "kubernetes:rolling-update": k8sDeployment,
