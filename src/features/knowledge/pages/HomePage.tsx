@@ -1,18 +1,12 @@
+import { Minus, Plus, PlayCircle, RotateCcw, Search, Zap } from "lucide-react";
 import {
-  Background,
-  Controls,
-  Handle,
-  Position,
-  ReactFlow,
-  ReactFlowProvider,
-  type Edge,
-  type Node,
-  type NodeProps,
-  type NodeTypes,
-} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
-import { PlayCircle, Search, Zap } from "lucide-react";
-import { type CSSProperties, useMemo, useState } from "react";
+  type CSSProperties,
+  type PointerEvent,
+  type WheelEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   categoryColors,
   knowledgePointsByCategory,
@@ -22,6 +16,7 @@ import type { CategoryId, Difficulty } from "../../../data/types";
 import type { Copy } from "../../../app/copy";
 import type { GraphBoard, GraphMode, Locale, PointPriority } from "../../../app/ui-types";
 import {
+  categoryIcons,
   getAreaKey,
   getAreaLabel,
   getCategoryLabel,
@@ -37,7 +32,8 @@ import { LearningSidebar } from "../components/LearningSidebar";
 type KnowledgeGraphNodeKind = "category" | "group" | "knowledge";
 type KnowledgeGraphRelation = "category" | "group" | "prerequisite" | "related";
 
-type KnowledgeGraphNodeData = {
+type SphereNode = {
+  id: string;
   label: string;
   categoryId: CategoryId;
   categoryLabel: string;
@@ -51,220 +47,183 @@ type KnowledgeGraphNodeData = {
   graphMode: GraphMode;
   hasSearch: boolean;
   visualizable: boolean;
-  focusedLabel: string;
-  onOpenDetail?: (categoryId: CategoryId, pointId: string) => void;
+  radius: number;
+  x: number;
+  y: number;
+  anchorX: number;
+  anchorY: number;
 };
 
-type KnowledgeGraphNode = Node<KnowledgeGraphNodeData, "knowledgeGraph">;
-type KnowledgeGraphEdge = Edge<
-  {
-    categoryId: CategoryId;
-    relation: KnowledgeGraphRelation;
-  }
->;
-
-const knowledgeNodeDimensions: Record<KnowledgeGraphNodeKind, { width: number; height: number }> = {
-  category: { width: 96, height: 96 },
-  group: { width: 70, height: 70 },
-  knowledge: { width: 62, height: 62 },
+type SphereEdge = {
+  id: string;
+  source: string;
+  target: string;
+  relation: KnowledgeGraphRelation;
+  categoryId: CategoryId;
 };
 
-export const graphNodeTypes: NodeTypes = {
-  knowledgeGraph: KnowledgeGraphNodeView,
+type SphereGraph = {
+  nodes: SphereNode[];
+  edges: SphereEdge[];
+  width: number;
+  height: number;
 };
 
-function KnowledgeGraphNodeView({ id, data }: NodeProps<KnowledgeGraphNode>) {
-  const classes = [
-    "graph-node",
-    data.kind,
-    data.kind === "knowledge" ? data.difficulty : "",
-    data.kind === "knowledge" ? data.priority : "",
-    data.graphMode === "core" ? "core-mode" : "all-mode",
-    data.active ? "active" : "",
-    data.kind === "knowledge" && data.hasSearch && data.matched ? "matched" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-  const canOpen = data.kind === "knowledge";
+type CanvasView = {
+  x: number;
+  y: number;
+  zoom: number;
+};
 
-  return (
-    <button
-      className={classes}
-      style={{ "--category-color": categoryColors[data.categoryId] } as CSSProperties}
-      title={data.categoryLabel}
-      onClick={() => canOpen && data.onOpenDetail?.(data.categoryId, id)}
-    >
-      {["top", "right", "bottom", "left"].map((handlePosition) => (
-        <Handle
-          key={`target-${handlePosition}`}
-          id={`target-${handlePosition}`}
-          type="target"
-          position={handlePositionToReactFlowPosition(handlePosition)}
-        />
-      ))}
-      {["top", "right", "bottom", "left"].map((handlePosition) => (
-        <Handle
-          key={`source-${handlePosition}`}
-          id={`source-${handlePosition}`}
-          type="source"
-          position={handlePositionToReactFlowPosition(handlePosition)}
-        />
-      ))}
-      {data.visualizable && (
-        <span className="visual-node-badge">
-          <PlayCircle size={13} fill="currentColor" />
-        </span>
-      )}
-      <span>{data.label}</span>
-      {(data.kind === "category" || data.kind === "group") && <small>{data.count}</small>}
-      {data.active && (
-        <>
-          <span className="node-badge">
-            <Zap size={16} fill="currentColor" />
-          </span>
-          <strong>{data.focusedLabel}</strong>
-        </>
-      )}
-    </button>
-  );
-}
+type CanvasDrag = {
+  pointerId: number;
+  startX: number;
+  startY: number;
+  originX: number;
+  originY: number;
+};
 
-function handlePositionToReactFlowPosition(handlePosition: string) {
-  const positions: Record<string, Position> = {
-    top: Position.Top,
-    right: Position.Right,
-    bottom: Position.Bottom,
-    left: Position.Left,
-  };
+const graphDimensions: Record<GraphMode, { width: number; height: number }> = {
+  core: { width: 1320, height: 980 },
+  all: { width: 1560, height: 1140 },
+};
 
-  return positions[handlePosition] ?? Position.Right;
-}
+const defaultCanvasView: CanvasView = { x: 0, y: -50, zoom: 0.86 };
+const minCanvasZoom = 0.56;
+const maxCanvasZoom = 1.85;
 
-function toNodeTopLeft(
-  kind: KnowledgeGraphNodeKind,
+const sphereRadii: Record<GraphMode, Record<KnowledgeGraphNodeKind, number>> = {
+  core: {
+    category: 68,
+    group: 50,
+    knowledge: 40,
+  },
+  all: {
+    category: 62,
+    group: 42,
+    knowledge: 28,
+  },
+};
+
+function makeSphereNode(
+  node: Omit<SphereNode, "x" | "y" | "anchorX" | "anchorY">,
   center: { x: number; y: number },
-) {
-  const dimensions = knowledgeNodeDimensions[kind];
-
+): SphereNode {
   return {
-    x: center.x - dimensions.width / 2,
-    y: center.y - dimensions.height / 2,
-  };
-}
-
-function layoutKnowledgeGraph(nodes: KnowledgeGraphNode[]) {
-  const categoryNode = nodes.find((node) => node.data.kind === "category");
-  const groupNodes = nodes.filter((node) => node.data.kind === "group");
-  const pointNodes = nodes.filter((node) => node.data.kind === "knowledge");
-  const pointsByArea = new Map<string, KnowledgeGraphNode[]>();
-
-  pointNodes.forEach((node) => {
-    const area = node.data.area ?? "foundation";
-    const group = pointsByArea.get(area) ?? [];
-
-    group.push(node);
-    pointsByArea.set(area, group);
-  });
-
-  const center = { x: 680, y: 480 };
-  const groupRadius = groupNodes.length > 8 ? 360 : 330;
-  const positions = new Map<string, { x: number; y: number }>();
-
-  if (categoryNode) {
-    positions.set(categoryNode.id, toNodeTopLeft("category", center));
-  }
-
-  groupNodes.forEach((groupNode, groupIndex) => {
-    const groupAngle =
-      (-92 + (360 / Math.max(groupNodes.length, 1)) * groupIndex) * (Math.PI / 180);
-    const groupCenter = {
-      x: center.x + Math.cos(groupAngle) * groupRadius,
-      y: center.y + Math.sin(groupAngle) * groupRadius,
-    };
-    const areaPoints = pointsByArea.get(groupNode.data.area ?? "foundation") ?? [];
-
-    positions.set(groupNode.id, toNodeTopLeft("group", groupCenter));
-    areaPoints.forEach((pointNode, index) => {
-      const ring = index < 4 ? 0 : 1;
-      const ringStart = ring === 0 ? 0 : 4;
-      const ringCount = Math.min(ring === 0 ? 4 : 8, areaPoints.length - ringStart);
-      const indexInRing = index - ringStart;
-      const spread = Math.min(Math.PI * 0.92, Math.PI * (0.34 + ringCount * 0.1));
-      const pointAngle =
-        ringCount <= 1
-          ? groupAngle
-          : groupAngle - spread / 2 + (spread / (ringCount - 1)) * indexInRing;
-      const pointRadius = 108 + ring * 92;
-      const pointCenter = {
-        x: groupCenter.x + Math.cos(pointAngle) * pointRadius,
-        y: groupCenter.y + Math.sin(pointAngle) * pointRadius,
-      };
-
-      positions.set(pointNode.id, toNodeTopLeft("knowledge", pointCenter));
-    });
-  });
-
-  return nodes.map((node) => ({
     ...node,
-    position: positions.get(node.id) ?? node.position,
-  }));
-}
-
-function getNodeCenter(node: KnowledgeGraphNode) {
-  const dimensions = knowledgeNodeDimensions[node.data.kind];
-
-  return {
-    x: node.position.x + dimensions.width / 2,
-    y: node.position.y + dimensions.height / 2,
+    x: center.x,
+    y: center.y,
+    anchorX: center.x,
+    anchorY: center.y,
   };
 }
 
-function getDirectionalHandle(deltaX: number, deltaY: number) {
-  if (Math.abs(deltaX) > Math.abs(deltaY)) {
-    return deltaX >= 0 ? "right" : "left";
+function getRingMeta(index: number, graphMode: GraphMode) {
+  const baseCapacity = graphMode === "core" ? 4 : 7;
+  let remaining = index;
+  let ring = 0;
+  let capacity = baseCapacity;
+
+  while (remaining >= capacity) {
+    remaining -= capacity;
+    ring += 1;
+    capacity = baseCapacity + ring * 4;
   }
 
-  return deltaY >= 0 ? "bottom" : "top";
-}
-
-function getOppositeHandle(handle: string) {
-  const opposites: Record<string, string> = {
-    top: "bottom",
-    right: "left",
-    bottom: "top",
-    left: "right",
+  return {
+    ring,
+    indexInRing: remaining,
+    capacity,
   };
-
-  return opposites[handle] ?? "left";
 }
 
-function attachEdgeHandles(nodes: KnowledgeGraphNode[], edges: KnowledgeGraphEdge[]) {
-  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+function placeAreaPoint(
+  groupCenter: { x: number; y: number },
+  groupAngle: number,
+  pointIndex: number,
+  pointCount: number,
+  graphMode: GraphMode,
+) {
+  const { ring, indexInRing, capacity } = getRingMeta(pointIndex, graphMode);
+  let pointsBeforeRing = 0;
 
-  return edges.map((edge) => {
-    const sourceNode = nodeById.get(edge.source);
-    const targetNode = nodeById.get(edge.target);
+  for (let ringIndex = 0; ringIndex < ring; ringIndex += 1) {
+    pointsBeforeRing += (graphMode === "core" ? 4 : 7) + ringIndex * 4;
+  }
 
-    if (!sourceNode || !targetNode) {
-      return edge;
+  const ringCount = Math.min(capacity, pointCount - pointsBeforeRing);
+  const spread = Math.min(
+    Math.PI * (graphMode === "core" ? 0.92 : 1.08),
+    Math.PI * (0.42 + ringCount * 0.11),
+  );
+  const angle =
+    ringCount <= 1
+      ? groupAngle
+      : groupAngle - spread / 2 + (spread / (ringCount - 1)) * indexInRing;
+  const distance = (graphMode === "core" ? 118 : 92) + ring * (graphMode === "core" ? 82 : 66);
+
+  return {
+    x: groupCenter.x + Math.cos(angle) * distance,
+    y: groupCenter.y + Math.sin(angle) * distance,
+  };
+}
+
+function resolveSphereCollisions(nodes: SphereNode[], width: number, height: number) {
+  const padding = 42;
+
+  for (let iteration = 0; iteration < 260; iteration += 1) {
+    nodes.forEach((node) => {
+      if (node.kind === "category") {
+        return;
+      }
+
+      node.x += (node.anchorX - node.x) * 0.012;
+      node.y += (node.anchorY - node.y) * 0.012;
+    });
+
+    for (let aIndex = 0; aIndex < nodes.length; aIndex += 1) {
+      for (let bIndex = aIndex + 1; bIndex < nodes.length; bIndex += 1) {
+        const a = nodes[aIndex];
+        const b = nodes[bIndex];
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const distance = Math.hypot(dx, dy) || 1;
+        const gap = a.kind === "knowledge" && b.kind === "knowledge" ? 14 : 18;
+        const minDistance = a.radius + b.radius + gap;
+
+        if (distance >= minDistance) {
+          continue;
+        }
+
+        const push = (minDistance - distance) / 2;
+        const nx = dx / distance;
+        const ny = dy / distance;
+        const aFixed = a.kind === "category";
+        const bFixed = b.kind === "category";
+
+        if (aFixed) {
+          b.x += nx * push * 2;
+          b.y += ny * push * 2;
+        } else if (bFixed) {
+          a.x -= nx * push * 2;
+          a.y -= ny * push * 2;
+        } else {
+          a.x -= nx * push;
+          a.y -= ny * push;
+          b.x += nx * push;
+          b.y += ny * push;
+        }
+      }
     }
 
-    const sourceCenter = getNodeCenter(sourceNode);
-    const targetCenter = getNodeCenter(targetNode);
-    const sourceHandle = getDirectionalHandle(
-      targetCenter.x - sourceCenter.x,
-      targetCenter.y - sourceCenter.y,
-    );
-
-    return {
-      ...edge,
-      sourceHandle: `source-${sourceHandle}`,
-      targetHandle: `target-${getOppositeHandle(sourceHandle)}`,
-    };
-  });
+    nodes.forEach((node) => {
+      node.x = Math.min(width - padding - node.radius, Math.max(padding + node.radius, node.x));
+      node.y = Math.min(height - padding - node.radius, Math.max(padding + node.radius, node.y));
+    });
+  }
 }
 
-export function buildGraphItems(
+function buildSphereGraph(
   t: Copy,
   locale: Locale,
   selectedCategory: CategoryId,
@@ -273,8 +232,10 @@ export function buildGraphItems(
   graphBoard: GraphBoard,
   searchQuery: string,
   visualizableIdSet: Set<string>,
-  onOpenDetail: (categoryId: CategoryId, pointId: string) => void,
+  relationFocusId: string | undefined,
 ) {
+  const dimensions = graphDimensions[graphMode];
+  const radii = sphereRadii[graphMode];
   const categoryLabel = getCategoryLabel(t, selectedCategory);
   const allPoints = knowledgePointsByCategory[selectedCategory];
   const hasSearch = normalizeSearch(searchQuery).length > 0;
@@ -300,85 +261,39 @@ export function buildGraphItems(
   });
 
   const groupEntries = Array.from(groups.entries());
-  const categoryNode: KnowledgeGraphNode = {
-    id: `category-${selectedCategory}`,
-    type: "knowledgeGraph",
-    position: { x: 0, y: 0 },
-    data: {
-      label: categoryLabel,
-      categoryId: selectedCategory,
-      categoryLabel,
-      count: graphBoard === "visual" ? boardPoints.length : hasSearch ? points.length : allPoints.length,
-      kind: "category",
-      active: false,
-      matched: true,
-      graphMode,
-      hasSearch,
-      visualizable: false,
-      focusedLabel: t.focused,
-    },
-  };
-  const groupNodes: KnowledgeGraphNode[] = groupEntries.map(([area, group]) => (
-    {
-      id: `group-${area}`,
-      type: "knowledgeGraph",
-      position: { x: 0, y: 0 },
-      data: {
-        label: getAreaLabel(area, locale),
+  const center = { x: dimensions.width / 2, y: dimensions.height / 2 - 42 };
+  const groupRadius =
+    graphMode === "core"
+      ? groupEntries.length > 8
+        ? 330
+        : 300
+      : groupEntries.length > 10
+        ? 380
+        : 340;
+  const nodes: SphereNode[] = [
+    makeSphereNode(
+      {
+        id: `category-${selectedCategory}`,
+        label: categoryLabel,
         categoryId: selectedCategory,
         categoryLabel,
-        count: group.length,
-        kind: "group",
-        area,
+        count: graphBoard === "visual" ? boardPoints.length : hasSearch ? points.length : allPoints.length,
+        kind: "category",
         active: false,
         matched: true,
         graphMode,
         hasSearch,
         visualizable: false,
-        focusedLabel: t.focused,
+        radius: radii.category,
       },
-    }
-  ));
-  const pointNodes: KnowledgeGraphNode[] = groupEntries.flatMap(([area, group]) =>
-    group.map((point) => (
-      {
-        id: point.id,
-        type: "knowledgeGraph",
-        position: { x: 0, y: 0 },
-        data: {
-          label: getKnowledgeLabel(point, locale),
-          categoryId: selectedCategory,
-          categoryLabel,
-          difficulty: point.difficulty,
-          priority: getPointPriority(selectedCategory, point, selectedKnowledgeId),
-          kind: "knowledge",
-          area,
-          active: point.id === selectedKnowledgeId,
-          matched: hasSearch ? points.includes(point) : true,
-          graphMode,
-          hasSearch,
-          visualizable: visualizableIdSet.has(point.id),
-          focusedLabel: t.focused,
-          onOpenDetail,
-        },
-      }
-    )),
-  );
-  const nodes = [categoryNode, ...groupNodes, ...pointNodes];
-  const groupNodeByArea = new Map(groupNodes.map((node) => [node.data.area, node]));
-  const nodeById = new Map(pointNodes.map((node) => [node.id, node]));
+      center,
+    ),
+  ];
+  const edges: SphereEdge[] = [];
   const edgeKeys = new Set<string>();
-  const edges: KnowledgeGraphEdge[] = [];
-  const addEdge = (
-    sourceId: string,
-    targetId: string,
-    relation: KnowledgeGraphRelation,
-  ) => {
-    const orderedKey =
-      relation === "related"
-        ? [sourceId, targetId].sort().join("::")
-        : `${sourceId}->${targetId}`;
-    const key = `${relation}:${orderedKey}`;
+  const addEdge = (source: string, target: string, relation: KnowledgeGraphRelation) => {
+    const pairKey = relation === "related" ? [source, target].sort().join("::") : `${source}->${target}`;
+    const key = `${relation}:${pairKey}`;
 
     if (edgeKeys.has(key)) {
       return;
@@ -387,68 +302,238 @@ export function buildGraphItems(
     edgeKeys.add(key);
     edges.push({
       id: key,
-      source: sourceId,
-      target: targetId,
-      type: "straight",
-      data: {
-        categoryId: selectedCategory,
-        relation,
-      },
-      animated: false,
-      style: {
-        "--category-color": categoryColors[selectedCategory],
-      } as CSSProperties,
-      className: `graph-edge ${relation}`,
+      source,
+      target,
+      relation,
+      categoryId: selectedCategory,
     });
   };
 
-  groupEntries.forEach(([area, group]) => {
-    const groupNode = groupNodeByArea.get(area);
+  groupEntries.forEach(([area, group], groupIndex) => {
+    const angle =
+      (-92 + (360 / Math.max(groupEntries.length, 1)) * groupIndex) * (Math.PI / 180);
+    const groupCenter = {
+      x: center.x + Math.cos(angle) * groupRadius,
+      y: center.y + Math.sin(angle) * groupRadius,
+    };
+    const groupNodeId = `group-${area}`;
 
-    if (!groupNode) {
-      return;
-    }
+    nodes.push(
+      makeSphereNode(
+        {
+          id: groupNodeId,
+          label: getAreaLabel(area, locale),
+          categoryId: selectedCategory,
+          categoryLabel,
+          count: group.length,
+          kind: "group",
+          area,
+          active: false,
+          matched: true,
+          graphMode,
+          hasSearch,
+          visualizable: false,
+          radius: radii.group,
+        },
+        groupCenter,
+      ),
+    );
+    addEdge(`category-${selectedCategory}`, groupNodeId, "category");
 
-    addEdge(categoryNode.id, groupNode.id, "category");
-    group.forEach((point) => {
-      const pointNode = nodeById.get(point.id);
+    group.forEach((point, pointIndex) => {
+      const pointCenter = placeAreaPoint(
+        groupCenter,
+        angle,
+        pointIndex,
+        group.length,
+        graphMode,
+      );
 
-      if (pointNode) {
-        addEdge(groupNode.id, pointNode.id, "group");
-      }
+      nodes.push(
+        makeSphereNode(
+          {
+            id: point.id,
+            label: getKnowledgeLabel(point, locale),
+            categoryId: selectedCategory,
+            categoryLabel,
+            difficulty: point.difficulty,
+            priority: getPointPriority(selectedCategory, point, selectedKnowledgeId),
+            kind: "knowledge",
+            area,
+            active: point.id === selectedKnowledgeId,
+            matched: hasSearch ? points.includes(point) : true,
+            graphMode,
+            hasSearch,
+            visualizable: visualizableIdSet.has(point.id),
+            radius: radii.knowledge,
+          },
+          pointCenter,
+        ),
+      );
+      addEdge(groupNodeId, point.id, "group");
     });
   });
 
-  boardPoints.forEach((point) => {
-    const target = nodeById.get(point.id);
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const pointById = new Map(boardPoints.map((point) => [point.id, point]));
+  const focusPoint = relationFocusId ? pointById.get(relationFocusId) : undefined;
 
-    if (!target) {
-      return;
-    }
-
-    point.prerequisites.forEach((sourceId) => {
-      const source = nodeById.get(sourceId);
-
-      if (source) {
-        addEdge(source.id, target.id, "prerequisite");
+  if (focusPoint) {
+    focusPoint.prerequisites.forEach((sourceId) => {
+      if (nodeById.has(sourceId)) {
+        addEdge(sourceId, focusPoint.id, "prerequisite");
       }
     });
-
-    point.related.slice(0, 2).forEach((relatedId) => {
-      const related = nodeById.get(relatedId);
-
-      if (related) {
-        addEdge(target.id, related.id, "related");
+    focusPoint.related.slice(0, 2).forEach((relatedId) => {
+      if (nodeById.has(relatedId)) {
+        addEdge(focusPoint.id, relatedId, "related");
       }
     });
-  });
+    boardPoints.forEach((point) => {
+      if (point.prerequisites.includes(focusPoint.id)) {
+        addEdge(focusPoint.id, point.id, "prerequisite");
+      }
+    });
+  }
 
-  const layoutedNodes = layoutKnowledgeGraph(nodes);
+  resolveSphereCollisions(nodes, dimensions.width, dimensions.height);
 
   return {
-    nodes: layoutedNodes,
-    edges: attachEdgeHandles(layoutedNodes, edges),
+    nodes,
+    edges,
+    width: dimensions.width,
+    height: dimensions.height,
   };
+}
+
+function getNodeById(nodes: SphereNode[]) {
+  return new Map(nodes.map((node) => [node.id, node]));
+}
+
+function clampCanvasZoom(value: number) {
+  return Math.min(maxCanvasZoom, Math.max(minCanvasZoom, value));
+}
+
+function isCanvasControlTarget(target: EventTarget | null) {
+  return (
+    target instanceof Element &&
+    Boolean(
+      target.closest(
+        ".sphere-node, .graph-toolbar, .mobile-category-tabs, .search-status, .graph-canvas-controls",
+      ),
+    )
+  );
+}
+
+function SphereGraphView({
+  graph,
+  focusedLabel,
+  onOpenDetail,
+  onHoverKnowledge,
+}: {
+  graph: SphereGraph;
+  focusedLabel: string;
+  onOpenDetail: (categoryId: CategoryId, pointId: string) => void;
+  onHoverKnowledge: (pointId?: string) => void;
+}) {
+  const nodeById = getNodeById(graph.nodes);
+
+  return (
+    <svg
+      className="sphere-graph"
+      viewBox={`0 0 ${graph.width} ${graph.height}`}
+      role="img"
+      aria-label="knowledge graph"
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <defs>
+        <filter id="sphereLineGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="1.8" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <g className="sphere-edge-layer">
+        {graph.edges.map((edge) => {
+          const source = nodeById.get(edge.source);
+          const target = nodeById.get(edge.target);
+
+          if (!source || !target) {
+            return null;
+          }
+
+          return (
+            <line
+              key={edge.id}
+              className={`sphere-edge ${edge.relation}`}
+              x1={source.x}
+              y1={source.y}
+              x2={target.x}
+              y2={target.y}
+              style={{ "--category-color": categoryColors[edge.categoryId] } as CSSProperties}
+            />
+          );
+        })}
+      </g>
+      <g className="sphere-node-layer">
+        {graph.nodes.map((node) => {
+          const canOpen = node.kind === "knowledge";
+          const classes = [
+            "sphere-node",
+            node.kind,
+            node.difficulty ?? "",
+            node.priority ?? "",
+            node.graphMode === "core" ? "core-mode" : "all-mode",
+            node.active ? "active" : "",
+            node.kind === "knowledge" && node.hasSearch && node.matched ? "matched" : "",
+          ]
+            .filter(Boolean)
+            .join(" ");
+
+          return (
+            <foreignObject
+              key={node.id}
+              x={node.x - node.radius}
+              y={node.y - node.radius}
+              width={node.radius * 2}
+              height={node.radius * 2}
+              className="sphere-node-shell"
+            >
+              <button
+                className={classes}
+                style={{ "--category-color": categoryColors[node.categoryId] } as CSSProperties}
+                title={node.label}
+                type="button"
+                onClick={() => canOpen && onOpenDetail(node.categoryId, node.id)}
+                onMouseEnter={() => canOpen && onHoverKnowledge(node.id)}
+                onMouseLeave={() => canOpen && onHoverKnowledge()}
+                onFocus={() => canOpen && onHoverKnowledge(node.id)}
+                onBlur={() => canOpen && onHoverKnowledge()}
+              >
+                {node.visualizable && (
+                  <span className="visual-node-badge">
+                    <PlayCircle size={13} fill="currentColor" />
+                  </span>
+                )}
+                {node.active && (
+                  <span className="node-badge">
+                    <Zap size={14} fill="currentColor" />
+                  </span>
+                )}
+                <span className="sphere-label">{node.label}</span>
+                {(node.kind === "category" || node.kind === "group") && (
+                  <small>{node.count}</small>
+                )}
+                {node.active && <strong>{focusedLabel}</strong>}
+              </button>
+            </foreignObject>
+          );
+        })}
+      </g>
+    </svg>
+  );
 }
 
 export function HomePage({
@@ -473,6 +558,9 @@ export function HomePage({
   onOpenDetail: (categoryId: CategoryId, pointId: string) => void;
 }) {
   const [graphMode, setGraphMode] = useState<GraphMode>("core");
+  const [hoveredKnowledgeId, setHoveredKnowledgeId] = useState<string>();
+  const [canvasView, setCanvasView] = useState<CanvasView>(defaultCanvasView);
+  const [canvasDrag, setCanvasDrag] = useState<CanvasDrag>();
   const hasSearch = normalizeSearch(searchQuery).length > 0;
   const visualizablePoints = useMemo(
     () => getVisualizablePoints(selectedCategory),
@@ -484,7 +572,7 @@ export function HomePage({
   );
   const graph = useMemo(
     () =>
-      buildGraphItems(
+      buildSphereGraph(
         t,
         locale,
         selectedCategory,
@@ -493,7 +581,7 @@ export function HomePage({
         graphBoard,
         searchQuery,
         visualizableIdSet,
-        onOpenDetail,
+        hoveredKnowledgeId ?? selectedKnowledgeId,
       ),
     [
       t,
@@ -504,13 +592,68 @@ export function HomePage({
       graphBoard,
       searchQuery,
       visualizableIdSet,
-      onOpenDetail,
+      hoveredKnowledgeId,
     ],
   );
   const hasResults = graph.nodes.some(
-    (node) => node.data.kind === "knowledge" && node.data.matched,
+    (node) => node.kind === "knowledge" && node.matched,
   );
   const isEmptySearch = hasSearch && !hasResults;
+
+  useEffect(() => {
+    setCanvasView(defaultCanvasView);
+    setCanvasDrag(undefined);
+  }, [selectedCategory, graphMode, graphBoard, searchQuery, locale]);
+
+  function zoomCanvas(delta: number) {
+    setCanvasView((view) => ({
+      ...view,
+      zoom: clampCanvasZoom(view.zoom + delta),
+    }));
+  }
+
+  function handleCanvasWheel(event: WheelEvent<HTMLDivElement>) {
+    event.preventDefault();
+
+    const direction = event.deltaY > 0 ? -1 : 1;
+
+    zoomCanvas(direction * 0.1);
+  }
+
+  function handleCanvasPointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (isCanvasControlTarget(event.target)) {
+      return;
+    }
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setCanvasDrag({
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: canvasView.x,
+      originY: canvasView.y,
+    });
+  }
+
+  function handleCanvasPointerMove(event: PointerEvent<HTMLDivElement>) {
+    if (!canvasDrag || canvasDrag.pointerId !== event.pointerId) {
+      return;
+    }
+
+    setCanvasView((view) => ({
+      ...view,
+      x: canvasDrag.originX + event.clientX - canvasDrag.startX,
+      y: canvasDrag.originY + event.clientY - canvasDrag.startY,
+    }));
+  }
+
+  function handleCanvasPointerUp(event: PointerEvent<HTMLDivElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    setCanvasDrag(undefined);
+  }
 
   return (
     <main className="home-layout page-with-topbar">
@@ -519,7 +662,27 @@ export function HomePage({
         active={selectedCategory}
         onSelect={onSelectCategory}
       />
-      <section className="graph-canvas" aria-label={t.navGraph}>
+      <section
+        className={`graph-canvas ${canvasDrag ? "is-panning" : ""}`}
+        aria-label={t.navGraph}
+      >
+        <div className="mobile-category-tabs" aria-label={t.learningPath}>
+          {t.categories.map(([id, name], index) => {
+            const categoryId = id as CategoryId;
+            const Icon = categoryIcons[index];
+
+            return (
+              <button
+                key={id}
+                className={selectedCategory === id ? "active" : ""}
+                onClick={() => onSelectCategory(categoryId)}
+              >
+                <Icon size={16} />
+                <span>{name}</span>
+              </button>
+            );
+          })}
+        </div>
         {hasSearch && (
           <div className="search-status">
             <Search size={16} />
@@ -557,37 +720,52 @@ export function HomePage({
             </button>
           </div>
         </div>
-        <div className="graph-hint">
-          {graphBoard === "visual" ? t.visualGraphHint : t.graphHint}
-        </div>
-        <ReactFlowProvider>
-          {isEmptySearch ? (
-            <div className="graph-empty-state">
-              <Search size={28} />
-              <h2>{t.noSearchResult}</h2>
-              <p>{searchQuery}</p>
-            </div>
-          ) : (
-            <ReactFlow
-              key={`${selectedCategory}-${graphMode}-${graphBoard}-${searchQuery}-${selectedKnowledgeId}-${locale}`}
-              nodes={graph.nodes}
-              edges={graph.edges}
-              nodeTypes={graphNodeTypes}
-              fitView
-              fitViewOptions={{ padding: 0.2, minZoom: 0.32, maxZoom: 1.24 }}
-              minZoom={0.2}
-              maxZoom={1.8}
-              nodesDraggable={false}
-              nodesConnectable={false}
-              elementsSelectable
-              selectNodesOnDrag={false}
-              proOptions={{ hideAttribution: true }}
+        {isEmptySearch ? (
+          <div className="graph-empty-state">
+            <Search size={28} />
+            <h2>{t.noSearchResult}</h2>
+            <p>{searchQuery}</p>
+          </div>
+        ) : (
+          <div
+            className="sphere-graph-stage"
+            onWheel={handleCanvasWheel}
+            onPointerDown={handleCanvasPointerDown}
+            onPointerMove={handleCanvasPointerMove}
+            onPointerUp={handleCanvasPointerUp}
+            onPointerCancel={handleCanvasPointerUp}
+            onDoubleClick={() => setCanvasView(defaultCanvasView)}
+          >
+            <div
+              className="sphere-graph-world"
+              style={{
+                transform: `translate3d(${canvasView.x}px, ${canvasView.y}px, 0) scale(${canvasView.zoom})`,
+              }}
             >
-              <Background color="var(--line)" gap={30} size={1} />
-              <Controls position="bottom-right" showInteractive={false} />
-            </ReactFlow>
-          )}
-        </ReactFlowProvider>
+              <SphereGraphView
+                graph={graph}
+                focusedLabel={t.focused}
+                onOpenDetail={onOpenDetail}
+                onHoverKnowledge={setHoveredKnowledgeId}
+              />
+            </div>
+          </div>
+        )}
+        <div className="graph-canvas-controls" aria-label={t.canvasControls}>
+          <button type="button" onClick={() => zoomCanvas(0.12)} title={t.zoomIn}>
+            <Plus size={19} />
+          </button>
+          <button type="button" onClick={() => zoomCanvas(-0.12)} title={t.zoomOut}>
+            <Minus size={19} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setCanvasView(defaultCanvasView)}
+            title={t.resetView}
+          >
+            <RotateCcw size={18} />
+          </button>
+        </div>
       </section>
     </main>
   );

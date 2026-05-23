@@ -75,6 +75,30 @@
   line-height: 1.6;
 }
 
+.hero-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.hero-facts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  border-radius: 999px;
+  background: var(--surface-low);
+  color: var(--muted);
+  padding: 0 11px;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.hero-facts svg {
+  color: var(--brand);
+}
+
 .info-section {
   overflow: hidden;
 }
@@ -109,14 +133,24 @@
 
 .explanation-flow {
   display: grid;
-  gap: 14px;
+  gap: 0;
 }
 
 .explanation-card {
-  border-left: 3px solid color-mix(in srgb, var(--brand) 56%, var(--border));
-  background: color-mix(in srgb, var(--brand-soft) 34%, transparent);
-  border-radius: 8px;
-  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  background: transparent;
+  border-radius: 0;
+  padding: 16px 4px 18px 14px;
+}
+
+.explanation-card:first-child {
+  padding-top: 2px;
+}
+
+.explanation-card:last-child {
+  border-bottom: 0;
+  padding-bottom: 2px;
 }
 
 .explanation-card h3 {
@@ -282,6 +316,10 @@ td {
   top: calc(var(--topbar-height) + 28px);
   display: grid;
   gap: 14px;
+}
+
+.mobile-detail-cta {
+  display: none;
 }
 
 .cta-panel {

@@ -92,18 +92,24 @@ export function DetailPage({
               </div>
               <h1>{pointTitle}</h1>
               <p>{pointSummary}</p>
-            </header>
-            <InfoSection title={t.detailInfo}>
-              <div className="summary-strip">
-                <Network size={20} />
-                <p>{pointSummary}</p>
-              </div>
-              <div className="mini-facts">
-                <span>{categoryLabel}</span>
+              <div className="hero-facts">
+                <span>
+                  <Network size={17} />
+                  {categoryLabel}
+                </span>
                 <span>{areaLabel}</span>
                 {point?.en && <span>{point.en}</span>}
               </div>
-            </InfoSection>
+            </header>
+            {point && simulation && (
+              <SimulationCta
+                className="mobile-detail-cta"
+                t={t}
+                locale={locale}
+                simulation={simulation}
+                onOpen={() => onOpenSimulator(activeCategory, point.id)}
+              />
+            )}
             {explanationItems.length > 0 && (
               <InfoSection title={t.explanation}>
                 <div className="explanation-flow">
@@ -166,19 +172,12 @@ export function DetailPage({
           </article>
           <aside className="detail-aside">
             {point && simulation && (
-              <div className="cta-panel">
-                <PlayCircle size={34} />
-                <h2>{readLocalizedText(simulation.title, locale)}</h2>
-                <p>{readLocalizedText(simulation.subtitle, locale)}</p>
-                <div className="simulation-meta-list">
-                  <span>{t.visualPattern}</span>
-                  <strong>{readLocalizedText(simulation.pattern, locale)}</strong>
-                </div>
-                <button onClick={() => onOpenSimulator(activeCategory, point.id)}>
-                  {readLocalizedText(simulation.entryLabel, locale)}
-                  <ArrowRight size={17} />
-                </button>
-              </div>
+              <SimulationCta
+                t={t}
+                locale={locale}
+                simulation={simulation}
+                onOpen={() => onOpenSimulator(activeCategory, point.id)}
+              />
             )}
             {simulation && (
               <div className="contents-panel simulation-signals">
@@ -222,6 +221,36 @@ export function DetailPage({
         </footer>
       </div>
     </main>
+  );
+}
+
+function SimulationCta({
+  t,
+  locale,
+  simulation,
+  onOpen,
+  className = "",
+}: {
+  t: Copy;
+  locale: Locale;
+  simulation: NonNullable<ReturnType<typeof buildVisualSimulation>>;
+  onOpen: () => void;
+  className?: string;
+}) {
+  return (
+    <div className={`cta-panel ${className}`.trim()}>
+      <PlayCircle size={34} />
+      <h2>{readLocalizedText(simulation.title, locale)}</h2>
+      <p>{readLocalizedText(simulation.subtitle, locale)}</p>
+      <div className="simulation-meta-list">
+        <span>{t.visualPattern}</span>
+        <strong>{readLocalizedText(simulation.pattern, locale)}</strong>
+      </div>
+      <button onClick={onOpen}>
+        {readLocalizedText(simulation.entryLabel, locale)}
+        <ArrowRight size={17} />
+      </button>
+    </div>
   );
 }
 

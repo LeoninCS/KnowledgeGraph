@@ -15,19 +15,66 @@
   .detail-aside {
     position: static;
   }
+
+  .detail-aside .cta-panel {
+    display: none;
+  }
+
+  .mobile-detail-cta {
+    display: block;
+  }
+
+  .mobile-category-tabs {
+    position: absolute;
+    top: 18px;
+    left: 16px;
+    right: 16px;
+    z-index: 7;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .mobile-category-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-category-tabs button {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    color: var(--muted);
+    padding: 0 12px;
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(12px);
+  }
+
+  .mobile-category-tabs .active {
+    border-color: color-mix(in srgb, var(--brand) 36%, var(--border));
+    background: var(--brand-soft);
+    color: var(--brand);
+  }
 }
 
 @media (max-width: 900px) {
   .top-nav {
-    height: auto;
-    min-height: var(--topbar-height);
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 11px 16px;
+    height: 64px;
+    min-height: 64px;
+    gap: 12px;
+    padding: 0 12px;
   }
 
   .page-with-topbar {
-    padding-top: 108px;
+    padding-top: 64px;
   }
 
   .primary-nav,
@@ -35,13 +82,68 @@
     display: none;
   }
 
+  .brand-area {
+    gap: 10px;
+  }
+
+  .brand {
+    font-size: 17px;
+  }
+
+  .top-actions {
+    gap: 6px;
+  }
+
+  .mobile-icon-button,
+  .mobile-search-button {
+    display: inline-grid;
+  }
+
+  .mobile-search-panel {
+    display: grid;
+  }
+
+  .icon-text-button {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+  }
+
+  .icon-text-button > span:not(.language-mark) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
   .home-layout {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .graph-canvas {
-    height: 720px;
-    min-height: 720px;
+    height: calc(100vh - 64px);
+    min-height: 680px;
+  }
+
+  .sphere-graph-stage {
+    inset: 118px -30px 106px;
+  }
+
+  .graph-toolbar {
+    top: 66px;
+    left: 16px;
+    max-width: calc(100vw - 32px);
+    overflow-x: auto;
+  }
+
+  .search-status {
+    top: 116px;
+    left: 16px;
+    max-width: calc(100vw - 32px);
   }
 
   .simulator-shell {
@@ -197,44 +299,11 @@
 }
 
 @media (max-width: 640px) {
-  .top-actions {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .icon-text-button {
-    min-width: 0;
-    justify-content: center;
-    padding: 0 10px;
-  }
-
-  .icon-text-button span:last-child {
-    min-width: 0;
+  .brand span {
+    max-width: 178px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  .graph-node.category {
-    width: 88px;
-    height: 88px;
-  }
-
-  .graph-node.category span,
-  .graph-node.group span {
-    max-width: 76px;
-  }
-
-  .graph-node.group {
-    width: 66px;
-    height: 66px;
-  }
-
-  .graph-node.knowledge {
-    width: 58px;
-    height: 58px;
-    font-size: 8px;
   }
 
   .detail-list {
@@ -255,6 +324,16 @@
   .cta-panel,
   .contents-panel {
     padding: 19px;
+  }
+
+  .hero-facts {
+    gap: 7px;
+  }
+
+  .hero-facts span {
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .timeline {

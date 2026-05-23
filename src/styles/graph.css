@@ -6,10 +6,19 @@
   overflow: hidden;
   cursor: default;
   background:
-    radial-gradient(color-mix(in srgb, var(--line) 58%, transparent) 1px, transparent 1px),
+    radial-gradient(color-mix(in srgb, var(--line) 50%, transparent) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--brand-soft) 32%, transparent), transparent 32%),
     var(--bg);
-  background-size: 30px 30px, 100% 100%;
+  background-size: 30px 30px, 100% 100%, 100% 100%;
   user-select: none;
+}
+
+.graph-canvas.is-panning {
+  cursor: grabbing;
+}
+
+.mobile-category-tabs {
+  display: none;
 }
 
 .search-status {
@@ -38,18 +47,6 @@
   color: var(--text);
 }
 
-.icon-button {
-  display: inline-grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--muted);
-  box-shadow: var(--shadow-sm);
-}
-
 .graph-toolbar {
   position: absolute;
   top: 24px;
@@ -57,11 +54,6 @@
   z-index: 6;
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.graph-mode-switch {
-  display: inline-flex;
   gap: 4px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -71,14 +63,34 @@
   backdrop-filter: blur(12px);
 }
 
+.graph-mode-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 0;
+}
+
 .scope-switch {
-  position: static;
+  position: relative;
+  padding-left: 5px;
+  margin-left: 3px;
+}
+
+.scope-switch::before {
+  position: absolute;
+  left: 0;
+  top: 5px;
+  bottom: 5px;
+  width: 1px;
+  background: var(--border);
+  content: "";
 }
 
 .graph-mode-switch button {
   min-width: 58px;
   min-height: 32px;
+  border: 0;
   border-radius: var(--radius-sm);
+  background: transparent;
   color: var(--muted);
   font-weight: 800;
 }
@@ -86,30 +98,6 @@
 .graph-mode-switch button.active {
   background: var(--brand-soft);
   color: var(--brand);
-}
-
-.graph-hint {
-  position: absolute;
-  left: 50%;
-  bottom: 30px;
-  z-index: 5;
-  transform: translateX(-50%);
-  min-height: 34px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--surface) 90%, transparent);
-  color: var(--muted);
-  padding: 7px 13px;
-  font-size: 12px;
-  font-weight: 700;
-  box-shadow: var(--shadow-sm);
-  pointer-events: none;
-  backdrop-filter: blur(10px);
-}
-
-.graph-canvas .react-flow {
-  width: 100%;
-  height: 100%;
 }
 
 .graph-empty-state {
@@ -142,233 +130,241 @@
   overflow-wrap: anywhere;
 }
 
-.graph-canvas .react-flow__pane {
+.sphere-graph-stage {
+  position: absolute;
+  inset: 58px 34px 106px;
+  display: grid;
+  place-items: center;
   cursor: grab;
+  touch-action: none;
 }
 
-.graph-canvas .react-flow__pane.dragging {
-  cursor: grabbing;
+.sphere-graph {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: auto;
 }
 
-.graph-canvas .react-flow__controls {
+.sphere-graph-world {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  transition: transform 120ms ease-out;
+  will-change: transform;
+}
+
+.graph-canvas.is-panning .sphere-graph-world {
+  transition: none;
+}
+
+.sphere-edge {
+  stroke: color-mix(in srgb, var(--category-color) 28%, var(--line));
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  opacity: 0.62;
+}
+
+.sphere-edge.category {
+  stroke: color-mix(in srgb, var(--category-color) 44%, var(--line));
+  stroke-width: 1.4;
+  opacity: 0.78;
+}
+
+.sphere-edge.group {
+  opacity: 0.48;
+}
+
+.sphere-edge.prerequisite {
+  stroke: color-mix(in srgb, var(--brand) 62%, var(--line));
+  stroke-width: 1.7;
+  opacity: 0.84;
+  filter: url(#sphereLineGlow);
+}
+
+.sphere-edge.related {
+  stroke: color-mix(in srgb, var(--category-color) 52%, var(--line));
+  stroke-width: 1.25;
+  stroke-dasharray: 5 8;
+  opacity: 0.72;
+}
+
+.sphere-node-shell {
+  overflow: visible;
+}
+
+.sphere-node {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border: 1px solid color-mix(in srgb, var(--category-color) 42%, var(--border));
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 34% 25%, rgb(255 255 255 / 0.92), rgb(255 255 255 / 0.38) 18%, transparent 36%),
+    radial-gradient(circle at 58% 72%, color-mix(in srgb, var(--category-color) 62%, #0f172a), transparent 72%),
+    color-mix(in srgb, var(--category-color) 30%, var(--surface));
+  color: color-mix(in srgb, var(--text) 78%, var(--category-color));
+  text-align: center;
+  font-weight: 850;
+  line-height: 1.18;
+  cursor: pointer;
+  box-shadow:
+    inset -9px -13px 18px color-mix(in srgb, var(--category-color) 24%, rgb(0 0 0 / 0.26)),
+    inset 8px 9px 14px rgb(255 255 255 / 0.34),
+    0 13px 0 color-mix(in srgb, var(--category-color) 38%, #596476),
+    0 18px 26px rgb(23 32 51 / 0.18);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    filter 160ms ease;
+}
+
+.graph-canvas-controls {
+  position: absolute;
+  right: 20px;
+  bottom: 22px;
+  z-index: 8;
+  display: grid;
+  overflow: hidden;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--surface) 94%, transparent);
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  backdrop-filter: blur(12px);
 }
 
-.graph-canvas .react-flow__controls-button {
-  width: 38px;
-  height: 38px;
-  border-color: var(--border);
-  background: var(--surface);
-  color: var(--muted);
-}
-
-.graph-canvas .react-flow__controls-button:hover {
-  color: var(--brand);
-  background: var(--brand-soft);
-}
-
-.graph-canvas .react-flow__background {
-  background-color: var(--bg);
-}
-
-.graph-canvas .react-flow__edge-path {
-  stroke: color-mix(in srgb, var(--category-color) 32%, var(--line));
-  stroke-width: 1.05;
-  stroke-linecap: round;
-  opacity: 0.72;
-}
-
-.graph-canvas .react-flow__edge.category .react-flow__edge-path {
-  stroke: color-mix(in srgb, var(--category-color) 42%, var(--line));
-  stroke-width: 1.2;
-  opacity: 0.86;
-}
-
-.graph-canvas .react-flow__edge.group .react-flow__edge-path {
-  stroke: color-mix(in srgb, var(--category-color) 30%, var(--line));
-  stroke-width: 1;
-}
-
-.graph-canvas .react-flow__edge.related .react-flow__edge-path {
-  stroke: color-mix(in srgb, var(--category-color) 24%, var(--line));
-  stroke-width: 0.9;
-  stroke-dasharray: 3 6;
-  opacity: 0.58;
-}
-
-.graph-canvas .react-flow__handle {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.graph-node {
-  z-index: 2;
-  display: inline-grid;
+.graph-canvas-controls button {
+  display: grid;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--category-color) 26%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--surface) 72%, var(--category-color));
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
   color: var(--muted);
-  text-align: center;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow:
-    inset 0 -9px 14px rgb(23 32 51 / 0.08),
-    0 9px 18px rgb(23 32 51 / 0.11);
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    box-shadow 160ms ease;
 }
 
-.graph-node:hover {
-  transform: scale(1.08);
-  border-color: var(--category-color);
+.graph-canvas-controls button:last-child {
+  border-bottom: 0;
+}
+
+.graph-canvas-controls button:hover {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.sphere-node:hover,
+.sphere-node:focus-visible {
+  transform: translateY(-3px) scale(1.05);
+  border-color: color-mix(in srgb, var(--category-color) 82%, var(--surface));
+  filter: saturate(1.08);
+  box-shadow:
+    inset -9px -13px 18px color-mix(in srgb, var(--category-color) 24%, rgb(0 0 0 / 0.26)),
+    inset 8px 9px 14px rgb(255 255 255 / 0.34),
+    0 10px 0 color-mix(in srgb, var(--category-color) 38%, #596476),
+    0 22px 32px color-mix(in srgb, var(--category-color) 20%, transparent);
+}
+
+.sphere-node.category {
   color: var(--category-color);
-  box-shadow:
-    inset 0 -8px 12px rgb(23 32 51 / 0.08),
-    0 12px 24px color-mix(in srgb, var(--category-color) 18%, transparent);
-}
-
-.graph-node.knowledge {
-  width: 62px;
-  height: 62px;
-  padding: 8px;
-  background: color-mix(in srgb, var(--surface) 66%, var(--category-color));
-  color: color-mix(in srgb, var(--text) 74%, var(--category-color));
-  font-size: 8.4px;
-  line-height: 1.15;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-.graph-node.knowledge.secondary {
-  opacity: 0.82;
-  background: color-mix(in srgb, var(--surface) 78%, var(--category-color));
-  color: color-mix(in srgb, var(--muted) 70%, var(--category-color));
-  box-shadow:
-    inset 0 -7px 11px rgb(23 32 51 / 0.06),
-    0 7px 14px rgb(23 32 51 / 0.08);
-}
-
-.graph-node.knowledge.secondary:hover {
-  opacity: 1;
-}
-
-.graph-node.knowledge.primary {
-  border-width: 1px;
-  background: color-mix(in srgb, var(--surface) 56%, var(--category-color));
-  color: color-mix(in srgb, var(--text) 80%, var(--category-color));
-}
-
-.graph-node.knowledge.core-mode.primary {
-  font-size: 8.8px;
-}
-
-.graph-node.knowledge.all-mode.secondary {
-  font-size: 8px;
-}
-
-.graph-node.knowledge.easy {
-  background: color-mix(in srgb, var(--surface) 82%, var(--category-color));
-}
-
-.graph-node.knowledge.medium {
-  background: color-mix(in srgb, var(--surface) 76%, var(--category-color));
-}
-
-.graph-node.knowledge.hard {
-  background: color-mix(in srgb, var(--surface) 70%, var(--category-color));
-}
-
-.graph-node.category {
-  z-index: 3;
-  width: 96px;
-  height: 96px;
-  padding: 13px;
-  color: var(--category-color);
-  border-color: color-mix(in srgb, var(--category-color) 58%, var(--border));
-  background: color-mix(in srgb, var(--category-color) 18%, var(--surface));
-  font-size: 11px;
-  box-shadow:
-    0 0 0 5px color-mix(in srgb, var(--category-color) 9%, transparent),
-    inset 0 -10px 18px color-mix(in srgb, var(--category-color) 10%, transparent),
-    0 14px 30px color-mix(in srgb, var(--category-color) 14%, transparent);
-}
-
-.graph-node.group {
-  z-index: 3;
-  width: 70px;
-  height: 70px;
-  padding: 9px;
-  color: #ffffff;
-  border-color: color-mix(in srgb, var(--category-color) 68%, var(--surface));
+  font-size: 13px;
   background:
-    radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.28), transparent 34%),
-    color-mix(in srgb, var(--category-color) 82%, #14213d);
-  font-size: 9.2px;
-  box-shadow:
-    inset 0 -10px 15px rgb(0 0 0 / 0.18),
-    0 10px 22px color-mix(in srgb, var(--category-color) 24%, transparent);
+    radial-gradient(circle at 34% 24%, rgb(255 255 255 / 0.98), rgb(255 255 255 / 0.4) 18%, transparent 36%),
+    radial-gradient(circle at 56% 68%, color-mix(in srgb, var(--category-color) 42%, var(--surface)), transparent 72%),
+    color-mix(in srgb, var(--category-color) 14%, var(--surface));
 }
 
-.graph-node.category span,
-.graph-node.group span {
-  max-width: 82px;
-  line-height: 1.2;
+.sphere-node.group {
+  border-color: color-mix(in srgb, var(--category-color) 74%, var(--surface));
+  background:
+    radial-gradient(circle at 34% 24%, rgb(255 255 255 / 0.62), transparent 30%),
+    radial-gradient(circle at 58% 70%, color-mix(in srgb, var(--category-color) 72%, #101827), transparent 76%),
+    color-mix(in srgb, var(--category-color) 84%, #10213f);
+  color: #ffffff;
+  font-size: 11px;
+}
+
+.sphere-node.knowledge {
+  padding: 0 8px;
+  font-size: 10.2px;
+}
+
+.sphere-node.knowledge.all-mode {
+  font-size: 8.2px;
+}
+
+.sphere-node.knowledge.secondary {
+  opacity: 0.86;
+  filter: saturate(0.86);
+}
+
+.sphere-node.knowledge.active,
+.sphere-node.knowledge.matched {
+  opacity: 1;
+  border-color: var(--category-color);
+  color: color-mix(in srgb, var(--text) 70%, var(--category-color));
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--category-color) 18%, transparent),
+    inset -9px -13px 18px color-mix(in srgb, var(--category-color) 24%, rgb(0 0 0 / 0.26)),
+    inset 8px 9px 14px rgb(255 255 255 / 0.34),
+    0 11px 0 color-mix(in srgb, var(--category-color) 46%, #596476),
+    0 20px 34px color-mix(in srgb, var(--category-color) 24%, transparent);
+}
+
+.sphere-label {
+  display: -webkit-box;
+  max-width: 82%;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
   overflow-wrap: anywhere;
 }
 
-.graph-node.category small,
-.graph-node.group small {
+.sphere-node.all-mode .sphere-label {
+  max-width: 86%;
+  -webkit-line-clamp: 2;
+}
+
+.sphere-node.category .sphere-label,
+.sphere-node.group .sphere-label {
+  max-width: 78%;
+}
+
+.sphere-node small {
   position: absolute;
-  right: 12px;
+  right: 13px;
   bottom: 10px;
   color: currentColor;
   font-size: 9px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
-.graph-node.group small {
-  color: rgb(255 255 255 / 0.84);
+.sphere-node.group small {
+  color: rgb(255 255 255 / 0.88);
 }
 
-.graph-node.active {
-  color: var(--category-color);
-  border-color: var(--category-color);
-  background: color-mix(in srgb, var(--category-color) 24%, var(--surface));
-  box-shadow:
-    0 0 0 4px color-mix(in srgb, var(--category-color) 16%, transparent),
-    inset 0 -8px 13px color-mix(in srgb, var(--category-color) 10%, transparent),
-    0 12px 26px color-mix(in srgb, var(--category-color) 18%, transparent);
-}
-
-.graph-node.matched {
-  border-color: var(--category-color);
-  box-shadow:
-    0 0 0 4px color-mix(in srgb, var(--category-color) 12%, transparent),
-    0 12px 24px color-mix(in srgb, var(--category-color) 16%, transparent);
-}
-
-.graph-node strong {
+.sphere-node strong {
   position: absolute;
-  bottom: -25px;
+  left: 50%;
+  bottom: -22px;
+  transform: translateX(-50%);
   white-space: nowrap;
   border-radius: 999px;
   background: color-mix(in srgb, var(--category-color) 12%, var(--surface));
   color: var(--category-color);
   padding: 2px 8px;
   font-size: 9px;
+  box-shadow: var(--shadow-sm);
 }
 
 .node-badge {
   position: absolute;
-  top: -5px;
+  top: -3px;
   right: -2px;
   display: inline-grid;
   place-items: center;
@@ -386,8 +382,8 @@
   left: -1px;
   display: inline-grid;
   place-items: center;
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--category-color) 88%, var(--surface));
   color: #ffffff;
@@ -395,7 +391,7 @@
 }
 
 .visual-node-badge svg {
-  width: 9px;
-  height: 9px;
+  width: 11px;
+  height: 11px;
   stroke-width: 2.4;
 }

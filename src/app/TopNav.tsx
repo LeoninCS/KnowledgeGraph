@@ -1,4 +1,5 @@
-import { ArrowLeft, Moon, Search, Sun, Waypoints } from "lucide-react";
+import { ArrowLeft, Moon, Search, Sun, Waypoints, X } from "lucide-react";
+import { useState } from "react";
 import type { Copy } from "./copy";
 import type { Locale, Page, Theme } from "./ui-types";
 
@@ -24,72 +25,106 @@ export function TopNav({
   t: Copy;
 }) {
   const themeLabel = theme === "light" ? t.themeLight : t.themeDark;
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const showSearch = page !== "simulator";
 
   return (
-    <header className="top-nav">
-      <div className="brand-area">
-        <button className="brand" onClick={() => setPage("home")}>
-          <Waypoints size={22} />
-          <span>{t.appName}</span>
-        </button>
-        {page === "simulator" ? (
-          <button className="nav-link inline-back" onClick={() => setPage("detail")}>
-            <ArrowLeft size={16} />
-            {t.backDetail}
+    <>
+      <header className="top-nav">
+        <div className="brand-area">
+          <button className="brand" onClick={() => setPage("home")}>
+            <Waypoints size={22} />
+            <span>{t.appName}</span>
           </button>
-        ) : (
-          <nav className="primary-nav">
-            <button
-              className={page === "home" ? "active" : ""}
-              onClick={() => setPage("home")}
-            >
-              {t.navGraph}
+          {page === "simulator" ? (
+            <button className="nav-link inline-back" onClick={() => setPage("detail")}>
+              <ArrowLeft size={16} />
+              {t.backDetail}
             </button>
-            <a
-              href="https://github.com/LeoninCS/KnowledgeGraph"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {t.github}
-            </a>
-            <button
-              className={page === "about" ? "active" : ""}
-              onClick={() => setPage("about")}
-            >
-              {t.about}
-            </button>
-          </nav>
-        )}
-      </div>
-      <div className="top-actions">
-        {page !== "simulator" && (
-          <label className="search-box">
-            <Search size={16} />
+          ) : (
+            <nav className="primary-nav">
+              <button
+                className={page === "home" ? "active" : ""}
+                onClick={() => setPage("home")}
+              >
+                {t.navGraph}
+              </button>
+              <a
+                href="https://github.com/LeoninCS/KnowledgeGraph"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {t.github}
+              </a>
+              <button
+                className={page === "about" ? "active" : ""}
+                onClick={() => setPage("about")}
+              >
+                {t.about}
+              </button>
+            </nav>
+          )}
+        </div>
+        <div className="top-actions">
+          {showSearch && (
+            <>
+              <label className="search-box">
+                <Search size={16} />
+                <input
+                  id="knowledge-search"
+                  name="knowledge-search"
+                  value={searchQuery}
+                  onInput={(event) => setSearchQuery(event.currentTarget.value)}
+                  placeholder={t.searchPlaceholder}
+                />
+              </label>
+              <button
+                className="mobile-icon-button mobile-search-button"
+                onClick={() => setMobileSearchOpen(true)}
+                title={t.search}
+              >
+                <Search size={18} />
+              </button>
+            </>
+          )}
+          <button
+            className="icon-text-button"
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            title={themeLabel}
+          >
+            {theme === "light" ? <Sun size={17} /> : <Moon size={17} />}
+            <span>{themeLabel}</span>
+          </button>
+          <button
+            className="icon-text-button"
+            onClick={() => setLocale(locale === "zh" ? "en" : "zh")}
+            title={t.lang}
+          >
+            <span className="language-mark">{locale === "zh" ? "中" : "EN"}</span>
+            <span>{t.lang}</span>
+          </button>
+        </div>
+      </header>
+      {showSearch && mobileSearchOpen && (
+        <div className="mobile-search-panel">
+          <label className="mobile-search-field">
+            <Search size={17} />
             <input
-              id="knowledge-search"
-              name="knowledge-search"
+              autoFocus
               value={searchQuery}
               onInput={(event) => setSearchQuery(event.currentTarget.value)}
               placeholder={t.searchPlaceholder}
             />
           </label>
-        )}
-        <button
-          className="icon-text-button"
-          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-          title={themeLabel}
-        >
-          {theme === "light" ? <Sun size={17} /> : <Moon size={17} />}
-          <span>{themeLabel}</span>
-        </button>
-        <button
-          className="icon-text-button"
-          onClick={() => setLocale(locale === "zh" ? "en" : "zh")}
-        >
-          <span className="language-mark">{locale === "zh" ? "中" : "EN"}</span>
-          <span>{t.lang}</span>
-        </button>
-      </div>
-    </header>
+          <button
+            className="mobile-icon-button"
+            onClick={() => setMobileSearchOpen(false)}
+            title={t.search}
+          >
+            <X size={18} />
+          </button>
+        </div>
+      )}
+    </>
   );
 }
