@@ -9,3 +9,5 @@ dist/
 .visualization-implementation-lock/
 .kg-explain-progress.json
 .kg-explain-lock/
+.kg-review-progress.json
+.kg-review-lock/
