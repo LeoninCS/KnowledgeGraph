@@ -23,8 +23,8 @@ export function App() {
   const [page, setPage] = useState<Page>("home");
   const [theme, setTheme] = useState<Theme>("light");
   const [locale, setLocale] = useState<Locale>("zh");
-  const [selectedCategory, setSelectedCategory] = useState<CategoryId>("network");
-  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState("tcp-handshake");
+  const [selectedCategory, setSelectedCategory] = useState<CategoryId>("go");
+  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState("go-overview");
   const [graphBoard, setGraphBoard] = useState<GraphBoard>("knowledge");
   const [searchQuery, setSearchQuery] = useState("");
   const t = copy[locale];

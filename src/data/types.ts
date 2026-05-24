@@ -1,4 +1,5 @@
 export type CategoryId =
+  | "go"
   | "network"
   | "os"
   | "algorithm"

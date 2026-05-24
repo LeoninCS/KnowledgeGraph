@@ -1,6 +1,34 @@
 import type { CategoryId } from "../types.ts";
 
 export const knowledgeSources = {
+  "go-docs": {
+    title: "Go Documentation",
+    url: "https://go.dev/doc/",
+  },
+  "go-spec": {
+    title: "The Go Programming Language Specification",
+    url: "https://go.dev/ref/spec",
+  },
+  "go-effective-go": {
+    title: "Effective Go",
+    url: "https://go.dev/doc/effective_go",
+  },
+  "go-modules-reference": {
+    title: "Go Modules Reference",
+    url: "https://go.dev/ref/mod",
+  },
+  "go-std-lib": {
+    title: "Go Standard Library",
+    url: "https://pkg.go.dev/std",
+  },
+  "go-diagnostics": {
+    title: "Go Diagnostics",
+    url: "https://go.dev/doc/diagnostics",
+  },
+  "go-concurrency-pipelines": {
+    title: "Go Blog: Pipelines and cancellation",
+    url: "https://go.dev/blog/pipelines",
+  },
   "cs-notes": {
     title: "CS-Notes 技术面试必备基础知识",
     url: "https://github.com/CyC2018/CS-Notes",
@@ -84,6 +112,10 @@ export const knowledgeSources = {
   "xiaolin-coding": {
     title: "小林 coding 图解网络与操作系统",
     url: "https://xiaolincoding.com/",
+  },
+  "xiaolin-what-happen-url": {
+    title: "小林 coding：键入网址到网页显示，期间发生了什么？",
+    url: "https://xiaolincoding.com/network/1_base/what_happen_url.html",
   },
   "rfc1122-internet-layers": {
     title: "RFC 1122 Requirements for Internet Hosts: Communication Layers",
@@ -634,6 +666,7 @@ export const knowledgeSources = {
 export type KnowledgeSourceId = keyof typeof knowledgeSources;
 
 export const categoryColors: Record<CategoryId, string> = {
+  go: "#0f766e",
   network: "#2563eb",
   os: "#7c3aed",
   algorithm: "#ea580c",
@@ -647,6 +680,7 @@ export const categoryColors: Record<CategoryId, string> = {
 };
 
 export const categorySourceRefs: Record<CategoryId, KnowledgeSourceId[]> = {
+  go: ["go-docs", "go-spec", "go-effective-go", "go-modules-reference"],
   network: ["cs-notes", "javaguide", "xiaolin-coding"],
   os: ["cs-notes", "javaguide", "xiaolin-coding"],
   algorithm: ["cs-notes", "javaguide"],

@@ -71,6 +71,17 @@ export function getSimulationKey(categoryId: CategoryId, pointId: string) {
 }
 
 const visualAreas: Record<CategoryId, string[]> = {
+  go: [
+    "syntax",
+    "type-system",
+    "function",
+    "concurrency",
+    "runtime",
+    "testing",
+    "performance",
+    "web",
+    "tooling",
+  ],
   network: [
     "data-link",
     "network",
@@ -181,6 +192,27 @@ const visualAreas: Record<CategoryId, string[]> = {
 };
 
 export const visualPointIds: Partial<Record<CategoryId, string[]>> = {
+  go: [
+    "go-module",
+    "array-slice",
+    "map",
+    "interface",
+    "goroutine",
+    "channel",
+    "select",
+    "context",
+    "mutex",
+    "waitgroup",
+    "pipeline",
+    "go-runtime",
+    "scheduler",
+    "gc",
+    "go-test",
+    "benchmark",
+    "pprof",
+    "http-server",
+    "database-sql",
+  ],
   network: [
     "network-overview",
     "osi-model",

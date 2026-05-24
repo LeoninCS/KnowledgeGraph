@@ -1,5 +1,6 @@
 import type { CategoryId } from "../types.ts";
 import type { GraphKnowledgePoint } from "./types.ts";
+import { goKnowledgePoints } from "./go.ts";
 import { networkKnowledgePoints } from "./network.ts";
 import { operatingSystemKnowledgePoints } from "./os.ts";
 import { dsaKnowledgePoints } from "./algorithm.ts";
@@ -13,6 +14,7 @@ import { agentKnowledgePoints } from "./agent.ts";
 
 export { categoryColors, categorySourceRefs, knowledgeSources, type KnowledgeSourceId } from "./sources.ts";
 export type { GraphKnowledgePoint } from "./types.ts";
+export { goKnowledgePoints } from "./go.ts";
 export { networkKnowledgeExplanations, networkKnowledgePoints } from "./network.ts";
 export { operatingSystemKnowledgePoints } from "./os.ts";
 export { dsaKnowledgePoints } from "./algorithm.ts";
@@ -25,6 +27,7 @@ export { kubernetesKnowledgePoints } from "./kubernetes.ts";
 export { agentKnowledgePoints } from "./agent.ts";
 
 export const knowledgePointsByCategory: Record<CategoryId, GraphKnowledgePoint[]> = {
+  go: goKnowledgePoints,
   network: networkKnowledgePoints,
   os: operatingSystemKnowledgePoints,
   algorithm: dsaKnowledgePoints,

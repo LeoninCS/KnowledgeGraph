@@ -23,6 +23,7 @@ export const copy = {
     learningPath: "所需知识",
     fundamentals: "分类总览",
     categories: [
+      ["go", "Go 语言"],
       ["network", "计算机网络"],
       ["os", "操作系统"],
       ["algorithm", "数据结构与算法"],
@@ -194,6 +195,7 @@ export const copy = {
     learningPath: "Required Knowledge",
     fundamentals: "Category Overview",
     categories: [
+      ["go", "Go Language"],
       ["network", "Computer Networks"],
       ["os", "Operating Systems"],
       ["algorithm", "Data Structures & Algorithms"],

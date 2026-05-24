@@ -257,6 +257,28 @@ function buildCategoryGeneric(categoryId: CategoryId, point: GraphKnowledgePoint
     metrics: LocalizedText[];
     steps: SimulationStep[];
   }> = {
+    go: {
+      pattern: tx("Go 工程链路", "Go engineering path"),
+      subtitle: tx("观察源码、工具链、运行时和诊断信号如何串成可运行服务。", "Observe how source, toolchain, runtime, and diagnostics form a runnable service."),
+      actors: [
+        actor("source", "源码/模块", "Source / module", "package、go.mod、类型和函数", "Package, go.mod, types, and functions", "data"),
+        actor("toolchain", "工具链", "Toolchain", "格式化、测试、构建", "Formats, tests, and builds", "tool"),
+        actor("runtime", "运行时", "Runtime", "调度、GC、网络轮询", "Scheduling, GC, netpoll", "cpu"),
+        actor("diagnostics", "诊断", "Diagnostics", "race、pprof、日志和指标", "Race, pprof, logs, and metrics", "data"),
+      ],
+      states: {
+        source: tx("待解析", "Ready to parse"),
+        toolchain: tx("等待命令", "Awaiting command"),
+        runtime: tx("待启动", "Ready to start"),
+        diagnostics: tx("待采样", "Ready to sample"),
+      },
+      metrics: [tx("构建/测试", "Build / test"), tx("并发状态", "Concurrency state"), tx("性能剖面", "Profiles")],
+      steps: [
+        step("组织源码", "Organize source", `定位 ${titleZh}`, `Locate ${titleEn}`, "source", "toolchain", "package/module", "package / module", "Go 代码先通过包、模块、类型和函数形成清晰边界。", "Go code first forms clear boundaries through packages, modules, types, and functions.", "先看包职责、依赖方向和公开 API。", "Start with package responsibility, dependency direction, and exported API.", { source: tx("边界已明确", "Boundary clear"), toolchain: tx("准备分析", "Ready to analyze") }),
+        step("执行工具链", "Run toolchain", "格式化/测试/构建", "Format / test / build", "toolchain", "runtime", "go command", "go command", "go 命令负责格式化、依赖解析、编译、测试和基准测试。", "The go command handles formatting, dependency resolution, compilation, tests, and benchmarks.", "工程可靠性来自 gofmt、go test、go vet 和模块校验。", "Engineering reliability comes from gofmt, go test, go vet, and module checks.", { toolchain: tx("命令完成", "Command complete"), runtime: tx("程序启动", "Program started") }, "teal"),
+        step("运行与诊断", "Run and diagnose", "观察运行信号", "Observe runtime signals", "runtime", "diagnostics", "runtime signals", "runtime signals", "运行时承接 goroutine 调度、GC、网络轮询和内存管理，诊断工具记录竞态、性能和错误信号。", "The runtime handles goroutine scheduling, GC, netpoll, and memory management while diagnostic tools record race, performance, and error signals.", "排查时把 race、pprof、日志、指标和上下文取消放在同一条链路里看。", "Debug by reading race, pprof, logs, metrics, and context cancellation in one chain.", { runtime: tx("状态可观测", "Observable"), diagnostics: tx("信号已记录", "Signals recorded") }, "success"),
+      ],
+    },
     network: {
       pattern: tx("网络路径", "Network path"),
       subtitle: tx("按请求、寻址、转发、确认观察协议过程。", "Observe request, addressing, forwarding, and confirmation."),
@@ -3179,6 +3201,7 @@ const customBuilders: Record<string, Builder> = {
 };
 
 const categoryBuilders: Record<CategoryId, Builder> = {
+  go: (point) => buildCategoryGeneric("go", point),
   network: buildNetworkSpecific,
   os: buildOsSpecific,
   algorithm: buildAlgorithmSpecific,

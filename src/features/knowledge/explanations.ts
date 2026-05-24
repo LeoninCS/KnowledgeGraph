@@ -43,6 +43,19 @@ const categoryExplanationFrames: Record<
     practice: string;
   }
 > = {
+  go: {
+    scope: "关注源码如何经过包、模块、类型系统、工具链和运行时变成可运行服务。",
+    mechanism:
+      "分析时从 go.mod 和 package 边界开始，看类型、函数、错误、并发、运行时、测试和性能工具如何协作。",
+    interview:
+      "面试回答适合把语法语义、并发模型、运行时机制、工程工具和线上排查串成一条服务开发链路。",
+    specialCases:
+      "特殊情况要覆盖 nil、变量遮蔽、切片共享、map 并发读写、goroutine 泄漏、channel 关闭、context 取消、GC 压力、竞态和依赖版本。",
+    answerPattern:
+      "标准答法按“语言特性 -> 使用场景 -> 底层机制 -> 边界问题 -> 工具验证 -> 工程实践”展开。",
+    practice:
+      "工程排查常用 go test、go test -race、go vet、go test -bench、go tool pprof、go build -gcflags=-m 和运行时 GODEBUG 指标。",
+  },
   network: {
     scope: "关注数据从应用产生到链路传输的完整路径，核心线索是分层、封装、寻址、连接状态和错误恢复。",
     mechanism:
