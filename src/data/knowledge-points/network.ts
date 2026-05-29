@@ -237,7 +237,7 @@ const networkKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint
   "udp": {
     order: 18,
     prerequisites: ["ip", "port"],
-    related: ["dns", "quic"],
+    related: ["dns", "http3"],
   },
   "dns": {
     order: 19,
@@ -293,10 +293,17 @@ const networkKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint
   "certificate": { order: 44 },
   "cdn": { order: 46 },
   "http2": { order: 47 },
-  "http3": { order: 48 },
+  "http3": {
+    order: 48,
+    prerequisites: ["http2", "udp"],
+  },
   "websocket": { order: 49 },
   "grpc": { order: 50 },
-  "protobuf": { order: 51 },
+  "protobuf": {
+    order: 51,
+    prerequisites: ["grpc"],
+    related: ["grpc"],
+  },
   "health-check": { order: 52 },
 };
 

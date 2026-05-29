@@ -1,4 +1,4 @@
-import type { GraphKnowledgePoint } from "./knowledge-points";
+import type { GraphKnowledgePoint } from "./knowledge-points/types";
 
 type LocalizedText = {
   zh: string;

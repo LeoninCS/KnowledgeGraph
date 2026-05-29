@@ -1,8 +1,5 @@
-import {
-  knowledgePointsByCategory,
-  networkKnowledgeExplanations,
-  type GraphKnowledgePoint,
-} from "../../data/knowledge-points";
+import { networkKnowledgeExplanations } from "../../data/knowledge-points/network";
+import type { GraphKnowledgePoint } from "../../data/knowledge-points/types";
 import type { CategoryId } from "../../data/types";
 import type { Copy } from "../../app/copy";
 import type { Locale } from "../../app/ui-types";
@@ -255,6 +252,7 @@ export function buildDetailedExplanationItems(
   activeCategory: CategoryId,
   locale: Locale,
   t: Copy,
+  points: GraphKnowledgePoint[],
 ) {
   if (locale === "zh" && point.explanation?.length) {
     return point.explanation.map((body, index) => {
@@ -270,7 +268,6 @@ export function buildDetailedExplanationItems(
     });
   }
 
-  const points = knowledgePointsByCategory[activeCategory];
   const frame = categoryExplanationFrames[activeCategory];
   const categoryLabel = getCategoryLabel(t, activeCategory);
   const pointTitle = getKnowledgeLabel(point, locale);

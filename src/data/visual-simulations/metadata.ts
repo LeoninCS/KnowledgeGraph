@@ -1,5 +1,6 @@
 import type { CategoryId } from "../types.ts";
-import type { GraphKnowledgePoint } from "../knowledge-points/index.ts";
+import type { GraphKnowledgePoint } from "../knowledge-points/types.ts";
+import { filterCoreKnowledgePointIds } from "../knowledge-points/core.ts";
 
 export type LocalizedText = {
   zh: string;
@@ -191,7 +192,7 @@ const visualAreas: Record<CategoryId, string[]> = {
   ],
 };
 
-export const visualPointIds: Partial<Record<CategoryId, string[]>> = {
+const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
   go: [
     "go-module",
     "array-slice",
@@ -412,6 +413,13 @@ export const visualPointIds: Partial<Record<CategoryId, string[]>> = {
     "rate-limit",
   ],
 };
+
+export const visualPointIds = Object.fromEntries(
+  Object.entries(rawVisualPointIds).map(([categoryId, ids]) => [
+    categoryId,
+    filterCoreKnowledgePointIds(categoryId as CategoryId, ids ?? []),
+  ]),
+) as Partial<Record<CategoryId, string[]>>;
 
 export function getAreaKey(point: GraphKnowledgePoint) {
   return point.area ?? point.layer ?? "foundation";

@@ -1,6 +1,6 @@
-import { knowledgePointsByCategory } from "../../../data/knowledge-points";
 import type { CategoryId } from "../../../data/types";
 import type { Copy } from "../../../app/copy";
+import { knowledgePointCounts } from "../../../data/knowledge-points/metadata";
 import { categoryIcons } from "../knowledge-ui";
 
 export function LearningSidebar({
@@ -23,7 +23,7 @@ export function LearningSidebar({
           const categoryId = id as CategoryId;
           const Icon = categoryIcons[index];
           const isActive = active === id;
-          const count = knowledgePointsByCategory[categoryId].length;
+          const count = knowledgePointCounts[categoryId];
 
           return (
             <button

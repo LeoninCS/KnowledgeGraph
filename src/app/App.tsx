@@ -1,9 +1,9 @@
-import { lazy, Suspense, useEffect, useState } from "react";
-import { knowledgePointsByCategory } from "../data/knowledge-points";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import type { CategoryId } from "../data/types";
-import { findFirstSearchMatch } from "../features/knowledge/knowledge-ui";
+import { findBestSearchMatch } from "../features/knowledge/knowledge-ui";
 import { AboutPage } from "../features/knowledge/pages/AboutPage";
 import { HomePage } from "../features/knowledge/pages/HomePage";
+import { useKnowledgeCatalog } from "../features/knowledge/useKnowledgeCatalog";
 import { copy } from "./copy";
 import { TopNav } from "./TopNav";
 import type { GraphBoard, Locale, Page, Theme } from "./ui-types";
@@ -27,13 +27,25 @@ export function App() {
   const [selectedKnowledgeId, setSelectedKnowledgeId] = useState("go-overview");
   const [graphBoard, setGraphBoard] = useState<GraphBoard>("knowledge");
   const [searchQuery, setSearchQuery] = useState("");
+  const searchRequestRef = useRef(0);
   const t = copy[locale];
+  const {
+    activePoints,
+    categoryCache,
+    isCategoryLoading,
+  } = useKnowledgeCatalog(selectedCategory);
+
+  useEffect(() => {
+    if (
+      activePoints.length > 0 &&
+      !activePoints.some((point) => point.id === selectedKnowledgeId)
+    ) {
+      setSelectedKnowledgeId(activePoints[0].id);
+    }
+  }, [activePoints, selectedKnowledgeId]);
 
   function showCategoryGraph(categoryId: CategoryId) {
     setSelectedCategory(categoryId);
-    setSelectedKnowledgeId(
-      knowledgePointsByCategory[categoryId][0]?.id ?? selectedKnowledgeId,
-    );
     setPage("home");
   }
 
@@ -49,12 +61,19 @@ export function App() {
     setPage("simulator");
   }
 
-  function handleSearch(query: string) {
+  async function handleSearch(query: string) {
+    const requestId = searchRequestRef.current + 1;
+    searchRequestRef.current = requestId;
     setSearchQuery(query);
-    const matchCategory = findFirstSearchMatch(t, query);
+    const match = await findBestSearchMatch(t, query, categoryCache);
 
-    if (matchCategory) {
-      setSelectedCategory(matchCategory);
+    if (requestId !== searchRequestRef.current) {
+      return;
+    }
+
+    if (match) {
+      setSelectedCategory(match.categoryId);
+      setSelectedKnowledgeId(match.pointId);
     }
 
     setPage("home");
@@ -84,6 +103,8 @@ export function App() {
           locale={locale}
           selectedCategory={selectedCategory}
           selectedKnowledgeId={selectedKnowledgeId}
+          points={activePoints}
+          isLoading={isCategoryLoading}
           graphBoard={graphBoard}
           searchQuery={searchQuery}
           onChangeGraphBoard={setGraphBoard}
@@ -99,6 +120,8 @@ export function App() {
             locale={locale}
             activeCategory={selectedCategory}
             selectedKnowledgeId={selectedKnowledgeId}
+            points={activePoints}
+            isLoading={isCategoryLoading}
             onSelectCategory={showCategoryGraph}
             onOpenDetail={openKnowledgeDetail}
             onOpenSimulator={openSimulator}
@@ -113,6 +136,8 @@ export function App() {
             locale={locale}
             activeCategory={selectedCategory}
             selectedKnowledgeId={selectedKnowledgeId}
+            points={activePoints}
+            isLoading={isCategoryLoading}
           />
         </Suspense>
       )}

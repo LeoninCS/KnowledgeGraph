@@ -1,4 +1,4 @@
-import type { GraphKnowledgePoint } from "../data/knowledge-points";
+import type { GraphKnowledgePoint } from "../data/knowledge-points/types";
 
 export type Locale = "zh" | "en";
 export type Theme = "light" | "dark";

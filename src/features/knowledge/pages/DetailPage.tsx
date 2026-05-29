@@ -1,7 +1,7 @@
 import { ArrowRight, ExternalLink, GitCommitHorizontal, Network, PlayCircle } from "lucide-react";
 import type { ReactNode } from "react";
 import { getAlgorithmExampleProblems } from "../../../data/algorithm-example-problems";
-import { knowledgePointsByCategory } from "../../../data/knowledge-points";
+import type { GraphKnowledgePoint } from "../../../data/knowledge-points/types";
 import type { CategoryId } from "../../../data/types";
 import { readLocalizedText } from "../../../data/visual-simulations/metadata";
 import { buildVisualSimulation } from "../../../data/visual-simulations";
@@ -29,6 +29,8 @@ export function DetailPage({
   locale,
   activeCategory,
   selectedKnowledgeId,
+  points,
+  isLoading,
   onSelectCategory,
   onOpenDetail,
   onOpenSimulator,
@@ -38,18 +40,19 @@ export function DetailPage({
   locale: Locale;
   activeCategory: CategoryId;
   selectedKnowledgeId: string;
+  points: GraphKnowledgePoint[];
+  isLoading: boolean;
   onSelectCategory: (categoryId: CategoryId) => void;
   onOpenDetail: (categoryId: CategoryId, pointId: string) => void;
   onOpenSimulator: (categoryId: CategoryId, pointId: string) => void;
 }) {
-  const points = knowledgePointsByCategory[activeCategory];
   const point =
     points.find((item) => item.id === selectedKnowledgeId) ?? points[0];
   const categoryLabel = getCategoryLabel(t, activeCategory);
   const pointTitle = point ? getKnowledgeLabel(point, locale) : categoryLabel;
   const pointSummary = point ? getPointCoreText(point, t) : t.sourceDescription;
   const explanationItems = point
-    ? buildDetailedExplanationItems(point, activeCategory, locale, t)
+    ? buildDetailedExplanationItems(point, activeCategory, locale, t, points)
     : [];
   const areaLabel = point ? getAreaLabel(getAreaKey(point), locale) : categoryLabel;
   const pointSources = resolvePointSources(activeCategory, point);
@@ -62,6 +65,10 @@ export function DetailPage({
     activeCategory === "algorithm" && point ? getAlgorithmExampleProblems(point) : [];
   const learningOrder = point?.order ?? point?.learningPathPosition;
   const simulation = point ? buildVisualSimulation(activeCategory, point) : undefined;
+
+  if (isLoading || !point) {
+    return <main className="page-fallback page-with-topbar" />;
+  }
 
   return (
     <main className="detail-shell page-with-topbar">

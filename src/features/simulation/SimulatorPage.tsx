@@ -8,7 +8,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { knowledgePointsByCategory } from "../../data/knowledge-points";
+import type { GraphKnowledgePoint } from "../../data/knowledge-points/types";
 import type { CategoryId } from "../../data/types";
 import { readLocalizedText } from "../../data/visual-simulations/metadata";
 import { buildVisualSimulation } from "../../data/visual-simulations";
@@ -22,16 +22,19 @@ export function SimulatorPage({
   locale,
   activeCategory,
   selectedKnowledgeId,
+  points,
+  isLoading,
 }: {
   setPage: (page: Page) => void;
   t: Copy;
   locale: Locale;
   activeCategory: CategoryId;
   selectedKnowledgeId: string;
+  points: GraphKnowledgePoint[];
+  isLoading: boolean;
 }) {
-  const points = knowledgePointsByCategory[activeCategory];
   const point = points.find((item) => item.id === selectedKnowledgeId) ?? points[0];
-  const simulation = buildVisualSimulation(activeCategory, point);
+  const simulation = point ? buildVisualSimulation(activeCategory, point) : undefined;
   const [step, setStep] = useState<Step>(0);
   const [error, setError] = useState(false);
 
@@ -39,6 +42,10 @@ export function SimulatorPage({
     setStep(0);
     setError(false);
   }, [simulation?.key]);
+
+  if (isLoading || !point) {
+    return <main className="page-fallback page-with-topbar" />;
+  }
 
   if (!simulation) {
     return (

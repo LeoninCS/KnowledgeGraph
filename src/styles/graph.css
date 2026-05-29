@@ -5,7 +5,12 @@
   min-height: 720px;
   overflow: hidden;
   cursor: default;
-  background: var(--bg);
+  background:
+    linear-gradient(color-mix(in srgb, var(--line) 38%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--line) 38%, transparent) 1px, transparent 1px),
+    radial-gradient(circle at 18% 20%, color-mix(in srgb, var(--brand) 8%, transparent), transparent 28%),
+    var(--bg);
+  background-size: 32px 32px, 32px 32px, auto, auto;
   user-select: none;
 }
 
@@ -176,9 +181,11 @@
 }
 
 .sphere-edge {
+  fill: none;
   stroke: color-mix(in srgb, var(--category-color) 28%, var(--line));
   stroke-width: 1.25;
   stroke-linecap: round;
+  stroke-linejoin: round;
   opacity: 0.54;
 }
 
@@ -425,4 +432,225 @@
   width: 11px;
   height: 11px;
   stroke-width: 2.4;
+}
+
+.flow-lane-layer {
+  pointer-events: none;
+}
+
+.flow-lane rect {
+  fill: color-mix(in srgb, var(--surface-low) 58%, transparent);
+  stroke: color-mix(in srgb, var(--border) 62%, transparent);
+  stroke-width: 1;
+}
+
+.flow-lane text {
+  fill: var(--faint);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-edge {
+  stroke: color-mix(in srgb, var(--line) 86%, var(--category-color));
+  stroke-width: 1.5;
+  opacity: 0.5;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-edge.category {
+  stroke: color-mix(in srgb, var(--category-color) 22%, var(--line));
+  opacity: 0.32;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-edge.group {
+  stroke: color-mix(in srgb, var(--category-color) 28%, var(--line));
+  stroke-dasharray: 4 8;
+  opacity: 0.28;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-edge.prerequisite {
+  marker-end: url(#flowArrow);
+  stroke: color-mix(in srgb, var(--category-color) 68%, var(--brand));
+  stroke-width: 2;
+  opacity: 0.86;
+  filter: none;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-edge.related {
+  marker-end: url(#flowArrow);
+  stroke: color-mix(in srgb, var(--muted) 58%, var(--line));
+  stroke-dasharray: 5 7;
+  opacity: 0.52;
+}
+
+#flowArrow path {
+  fill: color-mix(in srgb, var(--brand) 76%, var(--line));
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node-shell {
+  overflow: visible;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  align-items: start;
+  justify-items: stretch;
+  gap: 5px;
+  border-color: color-mix(in srgb, var(--category-color) 34%, var(--border));
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--category-color) 88%, var(--brand)) 0 4px, transparent 4px),
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 98%, transparent), color-mix(in srgb, var(--surface-low) 92%, transparent));
+  color: var(--text);
+  padding: 12px 13px 10px 16px;
+  text-align: left;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.65) inset,
+    0 14px 26px rgb(23 32 51 / 0.1);
+}
+
+:root[data-theme="dark"] .sphere-graph:has(.flow-lane-layer) .sphere-node {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--category-color) 88%, var(--brand)) 0 4px, transparent 4px),
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-low) 92%, transparent), color-mix(in srgb, var(--surface) 96%, transparent));
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.06) inset,
+    0 16px 30px rgb(0 0 0 / 0.3);
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node:hover,
+.sphere-graph:has(.flow-lane-layer) .sphere-node:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--category-color) 72%, var(--border));
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--category-color) 14%, transparent),
+    0 18px 34px color-mix(in srgb, var(--category-color) 14%, rgb(23 32 51 / 0.14));
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node.category {
+  grid-template-rows: auto 1fr auto;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--category-color) 92%, #0f172a), color-mix(in srgb, var(--category-color) 54%, var(--surface)));
+  color: #ffffff;
+  border-color: color-mix(in srgb, var(--category-color) 72%, transparent);
+  padding: 18px 20px;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node.group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-color: color-mix(in srgb, var(--category-color) 22%, var(--border));
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--muted);
+  padding: 0 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node.knowledge.secondary {
+  opacity: 0.76;
+  filter: saturate(0.86);
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node.knowledge.active,
+.sphere-graph:has(.flow-lane-layer) .sphere-node.knowledge.matched {
+  border-color: color-mix(in srgb, var(--category-color) 82%, var(--brand));
+  color: var(--text);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--category-color) 16%, transparent),
+    0 18px 34px color-mix(in srgb, var(--category-color) 22%, transparent);
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-label {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node.all-mode .sphere-label {
+  max-width: 100%;
+  font-size: 12.5px;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node.category .sphere-label {
+  max-width: 100%;
+  font-size: 20px;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node.group .sphere-label {
+  max-width: 100%;
+  color: var(--text);
+  font-size: 12px;
+}
+
+.sphere-summary {
+  display: none;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-summary {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node.category .sphere-summary {
+  color: rgb(255 255 255 / 0.74);
+  font-size: 13px;
+}
+
+.flow-node-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.flow-node-meta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  border: 1px solid color-mix(in srgb, var(--category-color) 22%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--category-color) 9%, var(--surface));
+  color: color-mix(in srgb, var(--category-color) 72%, var(--text));
+  padding: 0 7px;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node small {
+  position: static;
+  margin-left: auto;
+  color: currentColor;
+  font-size: 11px;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node strong {
+  left: auto;
+  right: 10px;
+  bottom: 8px;
+  transform: none;
+}
+
+.sphere-graph:has(.flow-lane-layer) .node-badge {
+  top: -7px;
+  right: -7px;
+}
+
+.sphere-graph:has(.flow-lane-layer) .visual-node-badge {
+  top: -7px;
+  left: -7px;
 }

@@ -1,5 +1,5 @@
 import type { CategoryId } from "../types.ts";
-import type { GraphKnowledgePoint } from "../knowledge-points/index.ts";
+import type { GraphKnowledgePoint } from "../knowledge-points/types.ts";
 import {
   getSimulationKey,
   getAreaKey,
