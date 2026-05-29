@@ -7,6 +7,9 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
+    "test": "npm run test:data && npm run test:e2e",
+    "test:data": "playwright test -c playwright.data.config.ts",
+    "test:e2e": "playwright test --project=chromium",
     "kg:review:status": "node scripts/kg-review-queue.mjs status",
     "kg:review:start": "node scripts/kg-review-queue.mjs start",
     "kg:review:batch": "node scripts/kg-review-queue.mjs batch",
@@ -27,6 +30,7 @@
     "vite": "^6.0.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3"
   }

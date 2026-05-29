@@ -2,6 +2,7 @@ import { mkdir, readFile, rmdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  coreKnowledgePointIdsByCategory,
   knowledgePointsByCategory,
   knowledgeSources,
 } from "../src/data/knowledge-points/index.ts";
@@ -596,9 +597,52 @@ async function handoff(args = {}) {
 
 async function validate(args = {}) {
   const queue = await buildQueue(args);
+  const essentialKnowledgeIds = coreKnowledgePointIdsByCategory;
   const sourceIds = new Set(Object.keys(knowledgeSources));
   const issues = [];
   const seenIds = new Map();
+  const pointIdSets = Object.fromEntries(
+    categoryOrder.map((categoryId) => [
+      categoryId,
+      new Set(knowledgePointsByCategory[categoryId].map((point) => point.id)),
+    ]),
+  );
+  const queueByGlobalId = new Map(queue.map((item) => [`${item.categoryId}/${item.id}`, item]));
+
+  for (const categoryId of categoryOrder) {
+    const knownIds = pointIdSets[categoryId] ?? new Set();
+    const essentialIds = essentialKnowledgeIds[categoryId] ?? [];
+
+    if (essentialIds.length === 0) {
+      issues.push({ type: "missing-essential-id-list", categoryId });
+    }
+
+    for (const id of essentialIds) {
+      const globalId = `${categoryId}/${id}`;
+      const item = queueByGlobalId.get(globalId);
+
+      if (!knownIds.has(id)) {
+        issues.push({ type: "unknown-essential-id", item: globalId });
+        continue;
+      }
+
+      if (!item) {
+        continue;
+      }
+
+      if (item.sourceRefs.length === 0) {
+        issues.push({ type: "core-source-refs-missing", item: globalId });
+      }
+
+      if (item.explanationCount < 5) {
+        issues.push({ type: "core-explanation-too-short", item: globalId, explanationCount: item.explanationCount });
+      }
+
+      if (item.typicalProblemCount < 3) {
+        issues.push({ type: "core-interview-questions-too-few", item: globalId, typicalProblemCount: item.typicalProblemCount });
+      }
+    }
+  }
 
   for (const item of queue) {
     const globalId = `${item.categoryId}/${item.id}`;
@@ -610,6 +654,21 @@ async function validate(args = {}) {
     for (const sourceRef of item.sourceRefs) {
       if (!sourceIds.has(sourceRef)) {
         issues.push({ type: "unknown-source-ref", item: globalId, sourceRef });
+      }
+    }
+
+    const point = knowledgePointsByCategory[item.categoryId].find((candidate) => candidate.id === item.id);
+    const knownIds = pointIdSets[item.categoryId] ?? new Set();
+
+    for (const prerequisiteId of point?.prerequisites ?? []) {
+      if (!knownIds.has(prerequisiteId)) {
+        issues.push({ type: "unknown-prerequisite-ref", item: globalId, prerequisiteId });
+      }
+    }
+
+    for (const relatedId of point?.related ?? []) {
+      if (!knownIds.has(relatedId)) {
+        issues.push({ type: "unknown-related-ref", item: globalId, relatedId });
       }
     }
 

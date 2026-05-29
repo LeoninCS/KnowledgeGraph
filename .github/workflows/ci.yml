@@ -28,5 +28,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate knowledge content
+        run: npm run kg:review:validate
+
+      - name: Run data tests
+        run: npm run test:data
+
       - name: Build
         run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser smoke tests
+        run: npm run test:e2e
