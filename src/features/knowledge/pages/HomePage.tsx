@@ -20,7 +20,7 @@ import {
 import { LearningSidebar } from "../components/LearningSidebar";
 import { SphereGraphView } from "../components/SphereGraphView";
 import { buildSphereGraphLayout, withFocusedRelations } from "../graph-layout";
-import type { CanvasView } from "../graph-types";
+import type { CanvasView, SphereGraph } from "../graph-types";
 
 type CanvasDrag = {
   pointerId: number;
@@ -29,6 +29,7 @@ type CanvasDrag = {
   originX: number;
   originY: number;
   moved: boolean;
+  deferCapture: boolean;
 };
 
 type ActiveCanvasPointer = {
@@ -43,7 +44,8 @@ type CanvasPinchGesture = {
   originView: CanvasView;
 };
 
-const defaultCanvasView: CanvasView = { x: -110, y: -50, zoom: 0.86 };
+const defaultCanvasZoom = 0.86;
+const defaultCanvasView: CanvasView = { x: 0, y: 0, zoom: defaultCanvasZoom };
 const minCanvasZoom = 0.56;
 const maxCanvasZoom = 1.85;
 
@@ -51,28 +53,63 @@ function clampCanvasZoom(value: number) {
   return Math.min(maxCanvasZoom, Math.max(minCanvasZoom, value));
 }
 
-function clampValue(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function getCanvasPanLimit(length: number, zoom: number) {
-  return Math.max(180, length * 0.32 + Math.max(0, zoom - 1) * length * 0.5);
-}
-
-function clampCanvasTransform(view: CanvasView, rect?: DOMRect | null): CanvasView {
-  const zoom = clampCanvasZoom(view.zoom);
+function getDefaultCanvasView(
+  rect: DOMRect | undefined | null,
+  graph: Pick<SphereGraph, "width" | "height" | "nodes">,
+  focusPointId?: string,
+): CanvasView {
+  const zoom = defaultCanvasZoom;
+  const focusedNode = graph.nodes.find((node) => node.id === focusPointId && node.kind === "knowledge");
 
   if (!rect) {
-    return { ...view, zoom };
+    return { x: 28, y: 26, zoom };
   }
 
-  const maxX = getCanvasPanLimit(rect.width, zoom);
-  const maxY = getCanvasPanLimit(rect.height, zoom);
+  const scaledWidth = graph.width * zoom;
+  const scaledHeight = graph.height * zoom;
+  let targetLeft = scaledWidth < rect.width ? (rect.width - scaledWidth) / 2 : 28;
+  let targetTop = scaledHeight < rect.height ? (rect.height - scaledHeight) / 2 : 26;
+
+  if (focusedNode) {
+    targetLeft = rect.width / 2 - (focusedNode.x + (focusedNode.width ?? 0) / 2) * zoom;
+    targetTop = rect.height / 2 - (focusedNode.y + (focusedNode.height ?? 0) / 2) * zoom;
+  }
 
   return {
-    x: clampValue(view.x, -maxX, maxX),
-    y: clampValue(view.y, -maxY, maxY),
+    x: targetLeft,
+    y: targetTop,
     zoom,
+  };
+}
+
+function getWheelPanUnit(deltaMode: number, rect: DOMRect) {
+  if (deltaMode === 1) {
+    return 18;
+  }
+
+  if (deltaMode === 2) {
+    return rect.height;
+  }
+
+  return 1;
+}
+
+function getWheelZoomDelta(event: WheelEvent<HTMLDivElement>) {
+  if (event.deltaMode === 1) {
+    return event.deltaY * 0.045;
+  }
+
+  if (event.deltaMode === 2) {
+    return event.deltaY * 0.35;
+  }
+
+  return event.deltaY * 0.0012;
+}
+
+function clampCanvasTransform(view: CanvasView): CanvasView {
+  return {
+    ...view,
+    zoom: clampCanvasZoom(view.zoom),
   };
 }
 
@@ -83,19 +120,17 @@ function getZoomedCanvasView(
   rect: DOMRect,
 ) {
   const zoom = clampCanvasZoom(nextZoom);
-  const origin = { x: rect.width / 2, y: rect.height / 2 };
   const local = {
-    x: origin.x + (point.x - origin.x - view.x) / view.zoom,
-    y: origin.y + (point.y - origin.y - view.y) / view.zoom,
+    x: (point.x - view.x) / view.zoom,
+    y: (point.y - view.y) / view.zoom,
   };
 
   return clampCanvasTransform(
     {
-      x: point.x - origin.x - (local.x - origin.x) * zoom,
-      y: point.y - origin.y - (local.y - origin.y) * zoom,
+      x: point.x - local.x * zoom,
+      y: point.y - local.y * zoom,
       zoom,
     },
-    rect,
   );
 }
 
@@ -107,19 +142,17 @@ function getPinchedCanvasView(
   rect: DOMRect,
 ) {
   const zoom = clampCanvasZoom(nextZoom);
-  const origin = { x: rect.width / 2, y: rect.height / 2 };
   const local = {
-    x: origin.x + (startPoint.x - origin.x - view.x) / view.zoom,
-    y: origin.y + (startPoint.y - origin.y - view.y) / view.zoom,
+    x: (startPoint.x - view.x) / view.zoom,
+    y: (startPoint.y - view.y) / view.zoom,
   };
 
   return clampCanvasTransform(
     {
-      x: currentPoint.x - origin.x - (local.x - origin.x) * zoom,
-      y: currentPoint.y - origin.y - (local.y - origin.y) * zoom,
+      x: currentPoint.x - local.x * zoom,
+      y: currentPoint.y - local.y * zoom,
       zoom,
     },
-    rect,
   );
 }
 
@@ -148,10 +181,14 @@ function isCanvasControlTarget(target: EventTarget | null) {
     target instanceof Element &&
     Boolean(
       target.closest(
-        ".sphere-node, .graph-toolbar, .mobile-category-tabs, .search-status, .graph-canvas-controls",
+        ".graph-toolbar, .mobile-category-tabs, .search-status, .graph-canvas-controls",
       ),
     )
   );
+}
+
+function isCanvasNodeTarget(target: EventTarget | null) {
+  return target instanceof Element && Boolean(target.closest(".sphere-node"));
 }
 
 export function HomePage({
@@ -242,10 +279,14 @@ export function HomePage({
   useEffect(() => {
     activePointersRef.current.clear();
     pinchGestureRef.current = null;
-    setCanvasView(defaultCanvasView);
+    setCanvasView(getDefaultCanvasView(
+      graphStageRef.current?.getBoundingClientRect(),
+      graph,
+      selectedKnowledgeId,
+    ));
     setCanvasDrag(undefined);
     setIsCanvasGestureActive(false);
-  }, [selectedCategory, graphMode, graphBoard, searchQuery, locale]);
+  }, [graph.width, graph.height, selectedCategory, selectedKnowledgeId, graphMode, graphBoard, searchQuery, locale]);
 
   useEffect(
     () => () => {
@@ -259,7 +300,11 @@ export function HomePage({
   function resetCanvasView() {
     activePointersRef.current.clear();
     pinchGestureRef.current = null;
-    setCanvasView(defaultCanvasView);
+    setCanvasView(getDefaultCanvasView(
+      graphStageRef.current?.getBoundingClientRect(),
+      graph,
+      selectedKnowledgeId,
+    ));
     setCanvasDrag(undefined);
     setIsCanvasGestureActive(false);
   }
@@ -316,23 +361,26 @@ export function HomePage({
     event.preventDefault();
 
     const rect = event.currentTarget.getBoundingClientRect();
-    const isPanGesture = event.shiftKey || Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.35;
+    const isZoomGesture = event.ctrlKey || event.metaKey;
 
-    if (isPanGesture) {
+    if (!isZoomGesture) {
+      const panUnit = getWheelPanUnit(event.deltaMode, rect);
+      const panX = event.shiftKey && Math.abs(event.deltaX) < 1 ? event.deltaY : event.deltaX;
+      const panY = event.shiftKey && Math.abs(event.deltaX) < 1 ? 0 : event.deltaY;
+
       setCanvasView((view) =>
         clampCanvasTransform(
           {
             ...view,
-            x: view.x - event.deltaX,
-            y: view.y - event.deltaY,
+            x: view.x - panX * panUnit,
+            y: view.y - panY * panUnit,
           },
-          rect,
         ),
       );
       return;
     }
 
-    const zoomFactor = Math.exp(-event.deltaY * (event.deltaMode === 1 ? 0.045 : 0.0012));
+    const zoomFactor = Math.exp(-getWheelZoomDelta(event));
     const point = {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top,
@@ -350,7 +398,12 @@ export function HomePage({
       return;
     }
 
-    event.currentTarget.setPointerCapture(event.pointerId);
+    const deferCapture = isCanvasNodeTarget(event.target);
+
+    if (!deferCapture) {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+
     activePointersRef.current.set(event.pointerId, {
       x: event.clientX,
       y: event.clientY,
@@ -371,6 +424,7 @@ export function HomePage({
       originX: canvasView.x,
       originY: canvasView.y,
       moved: false,
+      deferCapture,
     });
   }
 
@@ -424,9 +478,15 @@ export function HomePage({
     const dy = event.clientY - canvasDrag.startY;
     const moved = canvasDrag.moved || Math.hypot(dx, dy) > 4;
 
-    if (moved) {
-      suppressCanvasClickRef.current = true;
-      setIsCanvasGestureActive(true);
+    if (!moved) {
+      return;
+    }
+
+    suppressCanvasClickRef.current = true;
+    setIsCanvasGestureActive(true);
+
+    if (canvasDrag.deferCapture && !event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.setPointerCapture(event.pointerId);
     }
 
     setCanvasView((view) => ({
@@ -436,7 +496,6 @@ export function HomePage({
           x: canvasDrag.originX + dx,
           y: canvasDrag.originY + dy,
         },
-        rect,
       ),
     }));
 
@@ -468,6 +527,7 @@ export function HomePage({
         originX: canvasViewRef.current.x,
         originY: canvasViewRef.current.y,
         moved: true,
+        deferCapture: false,
       });
       setIsCanvasGestureActive(true);
       return;
@@ -579,12 +639,15 @@ export function HomePage({
             <div
               className="sphere-graph-world"
               style={{
+                width: `${graph.width}px`,
+                height: `${graph.height}px`,
                 transform: `translate3d(${canvasView.x}px, ${canvasView.y}px, 0) scale(${canvasView.zoom})`,
               }}
             >
               <SphereGraphView
                 graph={graph}
                 focusedLabel={t.focused}
+                highlightedKnowledgeId={hoveredKnowledgeId}
                 onOpenDetail={onOpenDetail}
                 onHoverKnowledge={setHoveredKnowledgeId}
               />

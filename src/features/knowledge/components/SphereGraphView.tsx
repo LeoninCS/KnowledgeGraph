@@ -64,11 +64,13 @@ function getSummaryText(summary: string | undefined) {
 export function SphereGraphView({
   graph,
   focusedLabel,
+  highlightedKnowledgeId,
   onOpenDetail,
   onHoverKnowledge,
 }: {
   graph: SphereGraph;
   focusedLabel: string;
+  highlightedKnowledgeId?: string;
   onOpenDetail: (categoryId: CategoryId, pointId: string) => void;
   onHoverKnowledge: (pointId?: string) => void;
 }) {
@@ -123,10 +125,15 @@ export function SphereGraphView({
             return null;
           }
 
+          const isHoveredRelation = Boolean(
+            highlightedKnowledgeId &&
+              (edge.source === highlightedKnowledgeId || edge.target === highlightedKnowledgeId),
+          );
+
           return (
             <path
               key={edge.id}
-              className={`sphere-edge ${edge.relation}`}
+              className={`sphere-edge ${edge.relation} ${isHoveredRelation ? "is-hovered-relation" : ""}`}
               d={getEdgePath(edge, source, target)}
               style={{ "--category-color": categoryColors[edge.categoryId] } as CSSProperties}
             />
@@ -149,6 +156,7 @@ export function SphereGraphView({
             .join(" ");
           const box = getNodeBox(node);
           const summary = getSummaryText(node.summary);
+          const accessibleLabel = node.active ? `${node.label} ${focusedLabel}` : node.label;
 
           return (
             <foreignObject
@@ -161,6 +169,7 @@ export function SphereGraphView({
             >
               <button
                 className={classes}
+                aria-label={accessibleLabel}
                 style={{ "--category-color": categoryColors[node.categoryId] } as CSSProperties}
                 title={node.label}
                 type="button"
