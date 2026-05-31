@@ -10,7 +10,6 @@ import type { Locale, Page } from "../../../app/ui-types";
 import {
   buildDetailedExplanationItems,
   getPointCoreText,
-  getPointLabelsByIds,
   getPointScenarioItems,
 } from "../explanations";
 import {
@@ -56,10 +55,6 @@ export function DetailPage({
     : [];
   const areaLabel = point ? getAreaLabel(getAreaKey(point), locale) : categoryLabel;
   const pointSources = resolvePointSources(activeCategory, point);
-  const prerequisiteLabels = point
-    ? getPointLabelsByIds(point.prerequisites, points, locale)
-    : [];
-  const relatedLabels = point ? getPointLabelsByIds(point.related, points, locale) : [];
   const scenarioItems = point ? getPointScenarioItems(point) : [];
   const exampleProblems =
     activeCategory === "algorithm" && point ? getAlgorithmExampleProblems(point) : [];
@@ -131,16 +126,38 @@ export function DetailPage({
             )}
             <InfoSection title={t.prerequisites}>
               <div className="chip-list">
-                {(prerequisiteLabels.length ? prerequisiteLabels : [categoryLabel]).map((label) => (
-                  <span key={label}>{label}</span>
-                ))}
+                {point.prerequisites.length ? (
+                  point.prerequisites.map((id) => (
+                    <KnowledgeChip
+                      key={id}
+                      id={id}
+                      fallback={categoryLabel}
+                      locale={locale}
+                      points={points}
+                      onOpenDetail={() => onOpenDetail(activeCategory, id)}
+                    />
+                  ))
+                ) : (
+                  <span>{categoryLabel}</span>
+                )}
               </div>
             </InfoSection>
             <InfoSection title={t.related}>
               <div className="chip-list">
-                {(relatedLabels.length ? relatedLabels : [areaLabel]).map((label) => (
-                  <span key={label}>{label}</span>
-                ))}
+                {point.related.length ? (
+                  point.related.map((id) => (
+                    <KnowledgeChip
+                      key={id}
+                      id={id}
+                      fallback={areaLabel}
+                      locale={locale}
+                      points={points}
+                      onOpenDetail={() => onOpenDetail(activeCategory, id)}
+                    />
+                  ))
+                ) : (
+                  <span>{areaLabel}</span>
+                )}
               </div>
             </InfoSection>
             {scenarioItems.length > 0 && (
@@ -228,6 +245,33 @@ export function DetailPage({
         </footer>
       </div>
     </main>
+  );
+}
+
+function KnowledgeChip({
+  id,
+  fallback,
+  locale,
+  points,
+  onOpenDetail,
+}: {
+  id: string;
+  fallback: string;
+  locale: Locale;
+  points: GraphKnowledgePoint[];
+  onOpenDetail: () => void;
+}) {
+  const point = points.find((item) => item.id === id);
+
+  if (!point) {
+    return <span>{fallback}</span>;
+  }
+
+  return (
+    <button type="button" className="knowledge-chip" onClick={onOpenDetail}>
+      {getKnowledgeLabel(point, locale)}
+      <ArrowRight size={13} />
+    </button>
   );
 }
 
