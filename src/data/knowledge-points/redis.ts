@@ -1,192 +1,2161 @@
 import type { GraphKnowledgePoint } from "./types.ts";
 
 const redisKnowledgePointBase = [
-  /* <!-- KG_REVIEWED: Redis 概览 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: Redis 概览 | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: Redis 概览 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-overview", zh: "Redis 概览", en: "Redis Overview", area: "foundation", difficulty: "easy", explanation: ["核心概念：Redis 概览（Redis Overview）聚焦Redis 概览是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住命令访问、连接工具和基础运行模型，再看输入、状态变化、输出结果和失败分支。","适用场景：Redis 概览常用于缓存、计数器、排行榜和分布式协调。学习时把它放回Redis链路中观察，并结合前置知识基础概念判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Redis 概览通常会和Redis 数据类型和缓存策略一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认命令访问、连接工具和基础运行模型是否仍然成立。","常见误区与注意点：实践中容易把Redis 概览当成孤立概念处理，结果遗漏危险命令、生产权限、连接数和慢查询。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Redis 概览适合什么使用场景","Redis 概览可能带来哪些性能或一致性问题","Redis 概览线上如何排查和治理"], useCases: ["缓存","计数器","排行榜","分布式协调"], prerequisites: [], related: ["redis-data-types","redis-cache"], commonIssues: ["容量规划","缓存与数据库一致性"] },
-  /* <!-- KG_REVIEWED: Redis 常用命令 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-about", "redis-data-types-docs", "redis-persistence-docs", "redis-replication-docs", "redis-commands", "xiaolin-redis"],
+    id: "redis-overview",
+    zh: "Redis 概览",
+    en: "Redis Overview",
+    area: "foundation",
+    difficulty: "easy",
+    summary: "Redis 是以内存数据结构为核心的高性能数据服务，常用于缓存、计数、排行榜、会话和轻量消息场景。",
+    explanation: [
+      "核心概念：Redis 是内存优先的数据结构服务器，客户端通过命令读写 String、Hash、List、Set、Sorted Set、Stream、Bitmap、HyperLogLog、Geo 等结构。它的优势来自内存访问、紧凑数据结构和事件驱动执行模型。",
+      "典型场景：Redis 常用于热点缓存、计数器、限流、排行榜、会话存储、分布式锁、简单队列、延迟任务和实时统计。选择场景时要同时看访问模式、数据规模、过期策略、一致性要求和恢复成本。",
+      "运行模型：Redis 接收客户端命令后在服务器内更新内存数据，并按配置写入 AOF 或 RDB 以支持恢复。主从复制、哨兵和集群分别解决读扩展、故障切换和水平分片问题。",
+      "边界情况：Redis 把热点数据放在内存中，容量、Big Key、Hot Key、慢命令、网络抖动、客户端连接数和持久化开销都会影响延迟。写入成功和落盘成功之间存在策略差异，需要根据业务容忍度选择持久化配置。",
+      "工程治理：生产使用要限制危险命令、设置内存上限和淘汰策略、规划 key 命名与 TTL、监控慢查询和延迟、演练备份恢复与故障切换。缓存场景还要处理穿透、击穿、雪崩和数据库一致性。",
+      "参考来源：Redis 定位和基础能力参考官方 About Redis；数据结构参考官方 Data types；持久化和复制参考官方 Persistence 与 Replication；命令语义参考 Redis Commands；中文面试与工程案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Redis 适合解决哪些高频访问问题",
+      "Redis 为什么能提供很低的访问延迟",
+      "Redis 常见数据类型如何影响建模选择",
+      "RDB、AOF、复制、哨兵和集群分别解决什么问题",
+      "Redis 用作缓存时有哪些一致性和雪崩风险",
+      "线上 Redis 延迟升高应该先看哪些指标",
+    ],
+    useCases: ["缓存", "计数器", "排行榜", "分布式协调"],
+    prerequisites: [],
+    related: ["redis-data-types", "redis-cache", "redis-persistence", "redis-replication", "redis-monitor"],
+    commonIssues: ["容量规划", "缓存与数据库一致性", "Big Key", "Hot Key"],
+  },
+  /* <!-- KG_REVIEWED: Redis 常用命令 | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: Redis 常用命令 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-command", zh: "Redis 常用命令", en: "Redis Commands", area: "foundation", difficulty: "easy", explanation: ["核心概念：Redis 常用命令（Redis Commands）聚焦Redis 常用命令是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住命令访问、连接工具和基础运行模型，再看输入、状态变化、输出结果和失败分支。","适用场景：Redis 常用命令常用于日常调试、数据读写和排查线上问题。学习时把它放回Redis链路中观察，并结合前置知识Redis 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Redis 常用命令通常会和redis-cli和Redis 数据类型一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认命令访问、连接工具和基础运行模型是否仍然成立。","常见误区与注意点：实践中容易把Redis 常用命令当成孤立概念处理，结果遗漏危险命令、生产权限、连接数和慢查询。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Redis 常用命令适合什么使用场景","Redis 常用命令可能带来哪些性能或一致性问题","Redis 常用命令线上如何排查和治理"], useCases: ["日常调试","数据读写","排查线上问题"], prerequisites: ["redis-overview"], related: ["redis-cli","redis-data-types"], commonIssues: ["危险命令误用","大 Key 查询阻塞"] },
-  /* <!-- KG_REVIEWED: redis-cli | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-commands", "redis-acl-docs", "redis-scan-command", "redis-docs", "xiaolin-redis", "javaguide"],
+    id: "redis-command",
+    zh: "Redis 常用命令",
+    en: "Redis Commands",
+    area: "foundation",
+    difficulty: "easy",
+    summary: "Redis 命令是访问数据结构、管理实例和排查问题的统一入口，使用时要关注复杂度、权限和生产风险。",
+    explanation: [
+      "核心概念：Redis 命令按数据结构和管理能力组织，例如 GET/SET 操作 String，HGET/HSET 操作 Hash，LPUSH/BRPOP 操作 List，ZADD/ZRANGE 操作 Sorted Set，INFO/SLOWLOG/SCAN 用于观察和排查。",
+      "读写模型：客户端发送命令，Redis 在内存中执行并返回结果。学习命令时要同时看参数、返回值、时间复杂度、是否阻塞、是否访问多个 key、是否依赖 key 所在槽位。",
+      "生产风险：KEYS、FLUSHALL、FLUSHDB、MONITOR、大范围 LRANGE/SMEMBERS/ZRANGE 等命令可能造成阻塞、数据清空或网络放大。生产环境要用 ACL、只读账号、命令重命名或运维审批限制高风险操作。",
+      "遍历方式：线上扫描 key 优先使用 SCAN 系列命令分批遍历，并控制 COUNT、MATCH 和执行频率。SCAN 是渐进式游标遍历，适合降低单次阻塞风险，结果可能出现重复，需要客户端去重或幂等处理。",
+      "排查用法：INFO 看实例状态，SLOWLOG 看慢命令，CLIENT LIST 看连接，MEMORY USAGE 估算 key 大小，TTL/PTTL 看过期时间，TYPE/OBJECT 看对象信息。排查时把命令耗时、网络耗时、慢日志和客户端超时放在一起看。",
+      "参考来源：命令语义和复杂度参考 Redis Commands；ACL 分类和权限控制参考 Redis ACL 文档；SCAN 游标行为参考官方 SCAN 文档；中文工程风险和面试资料参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "学习 Redis 命令时为什么要看时间复杂度",
+      "KEYS 和 SCAN 在线上使用有什么差异",
+      "哪些命令属于生产高风险命令",
+      "ACL 如何限制危险命令和账号权限",
+      "排查慢请求常用哪些 Redis 命令",
+      "多 key 命令在集群模式下要注意什么",
+    ],
+    useCases: ["日常调试", "数据读写", "排查线上问题"],
+    prerequisites: ["redis-overview"],
+    related: ["redis-cli", "redis-data-types", "slowlog", "redis-monitor", "big-key"],
+    commonIssues: ["危险命令误用", "大 Key 查询阻塞", "权限过大", "集群跨槽限制"],
+  },
+  /* <!-- KG_REVIEWED: redis-cli | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: redis-cli | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-cli", zh: "redis-cli", en: "redis-cli", area: "foundation", difficulty: "easy", explanation: ["核心概念：redis-cli聚焦redis-cli是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住命令访问、连接工具和基础运行模型，再看输入、状态变化、输出结果和失败分支。","适用场景：redis-cli常用于连接实例、执行命令和监控和排障。学习时把它放回Redis链路中观察，并结合前置知识Redis 常用命令判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，redis-cli通常会和Redis 监控和慢查询日志一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认命令访问、连接工具和基础运行模型是否仍然成立。","常见误区与注意点：实践中容易把redis-cli当成孤立概念处理，结果遗漏危险命令、生产权限、连接数和慢查询。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["redis-cli适合什么使用场景","redis-cli可能带来哪些性能或一致性问题","redis-cli线上如何排查和治理"], useCases: ["连接实例","执行命令","监控和排障"], prerequisites: ["redis-command"], related: ["redis-monitor","slowlog"], commonIssues: ["误连生产实例","monitor 命令影响性能"] },
-  /* <!-- KG_REVIEWED: Redis 数据类型 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-cli-docs", "redis-commands", "redis-acl-docs", "redis-scan-command", "xiaolin-redis"],
+    id: "redis-cli",
+    zh: "redis-cli",
+    en: "redis-cli",
+    area: "foundation",
+    difficulty: "easy",
+    summary: "redis-cli 是 Redis 官方命令行工具，用于连接实例、执行命令、扫描数据、观察延迟和排查问题。",
+    explanation: [
+      "核心概念：redis-cli 是 Redis 官方 CLI 工具，可以连接本地或远程 Redis，执行普通命令、批量输入、集群命令和多种诊断模式。它适合快速验证命令行为，也常用于线上排障。",
+      "连接方式：常见参数包括 host、port、user、pass、db、TLS 和 cluster 模式。生产环境应避免把密码直接暴露在 shell 历史或进程列表中，优先使用安全输入方式、受限账号和堡垒机审计。",
+      "常用模式：交互模式适合调试，管道输入适合批量操作，--scan 基于 SCAN 进行渐进式遍历，--latency/--latency-history 用于观察延迟，--bigkeys 用于抽样发现大 key，--stat 可以快速查看实例运行变化。",
+      "集群场景：连接 Redis Cluster 时通常使用 cluster-aware 模式，让客户端处理 MOVED/ASK 重定向。多 key 命令需要关注 hash slot，运维时要确认命令发往目标节点和目标数据库。",
+      "生产风险：MONITOR、KEYS、FLUSHALL、FLUSHDB、大范围读取和误选数据库都可能造成性能或数据风险。线上执行前要确认实例、账号、库编号、命令复杂度、输出规模和回滚方案。",
+      "排查建议：慢请求排查常结合 INFO、SLOWLOG、CLIENT LIST、LATENCY DOCTOR、MEMORY USAGE、TTL/PTTL 与业务日志。redis-cli 看到的是实例侧信息，还要结合客户端超时、网络 RTT 和应用连接池判断。",
+      "参考来源：redis-cli 连接、扫描、延迟和诊断模式参考 Redis CLI 官方文档；命令语义参考 Redis Commands；权限控制参考 Redis ACL 文档；SCAN 行为参考官方 SCAN 文档；中文排查经验参考小林 coding。"
+    ],
+    typicalProblems: [
+      "redis-cli 常用连接参数有哪些",
+      "生产环境如何安全输入密码和限制权限",
+      "--scan、--bigkeys、--latency 分别适合什么排查场景",
+      "连接 Redis Cluster 时为什么要关注 MOVED/ASK",
+      "MONITOR 和 KEYS 在线上有什么风险",
+      "redis-cli 排查慢请求时要结合哪些服务端和客户端指标",
+    ],
+    useCases: ["连接实例", "执行命令", "监控和排障"],
+    prerequisites: ["redis-command"],
+    related: ["redis-monitor", "slowlog", "big-key", "moved-ask"],
+    commonIssues: ["误连生产实例", "monitor 命令影响性能", "密码暴露", "输出过大拖慢终端"],
+  },
+  /* <!-- KG_REVIEWED: Redis 数据类型 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: Redis 数据类型 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-data-types", zh: "Redis 数据类型", en: "Redis Data Types", area: "data-type", difficulty: "easy", explanation: ["核心概念：Redis 数据类型（Redis Data Types）聚焦Redis 数据类型是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：Redis 数据类型常用于按业务模型选择存储结构。学习时把它放回Redis链路中观察，并结合前置知识Redis 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Redis 数据类型通常会和String、Hash、List、Set和ZSet一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把Redis 数据类型当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Redis 数据类型适合什么使用场景","Redis 数据类型可能带来哪些性能或一致性问题","Redis 数据类型线上如何排查和治理"], useCases: ["按业务模型选择存储结构"], prerequisites: ["redis-overview"], related: ["redis-string","redis-hash","redis-list","redis-set","redis-zset"], commonIssues: ["类型选择不合理","结构过大导致访问变慢"] },
-  /* <!-- KG_REVIEWED: String | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-data-types-docs", "redis-compare-data-types", "redis-commands", "redis-docs", "xiaolin-redis"],
+    id: "redis-data-types",
+    zh: "Redis 数据类型",
+    en: "Redis Data Types",
+    area: "data-type",
+    difficulty: "easy",
+    summary: "Redis 数据类型决定数据建模方式、命令复杂度、内存成本和线上风险。",
+    explanation: [
+      "核心概念：Redis 提供多种内置数据类型，常见核心类型包括 String、Hash、List、Set、Sorted Set、Stream、Bitmap、Bitfield、HyperLogLog 和 Geospatial。每种类型都对应一组命令和适合的访问模式。",
+      "选择主线：按业务问题选结构。简单键值和计数用 String，对象字段用 Hash，队列和时间线用 List 或 Stream，去重集合用 Set，排行榜和按分数排序用 Sorted Set，海量布尔状态用 Bitmap，近似去重计数用 HyperLogLog。",
+      "复杂度意识：Redis 很快，但每个命令仍有时间复杂度。按成员数量、范围大小或返回结果规模增长的命令会增加主线程执行时间和网络输出，集合过大时容易形成 Big Key。",
+      "特殊场景：同一业务可以用不同类型实现，例如消息队列可用 List 或 Stream，排行榜可用 Sorted Set，签到可用 Bitmap 或 String 位操作。选择时要看是否需要消费组、确认机制、排序、去重、分页和历史保留。",
+      "工程边界：类型选错会带来内存浪费、操作复杂、迁移困难和阻塞风险。大集合遍历要用 SCAN 类命令分批处理，大范围读取要限制返回量，删除大结构要关注异步释放能力和延迟抖动。",
+      "参考来源：类型定义和典型用途参考 Redis 官方 Data types；类型对比参考官方 Compare data types；命令复杂度参考 Redis Commands；中文面试与工程案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Redis 常见数据类型分别适合什么业务场景",
+      "String、Hash、List、Set、Sorted Set 如何选择",
+      "List 和 Stream 做队列有什么取舍",
+      "为什么要关注命令时间复杂度和返回结果规模",
+      "大集合和大范围读取会带来哪些风险",
+      "数据类型选错后线上迁移要注意什么",
+    ],
+    useCases: ["按业务模型选择存储结构"],
+    prerequisites: ["redis-overview"],
+    related: ["redis-string", "redis-hash", "redis-list", "redis-set", "redis-zset", "redis-stream", "big-key"],
+    commonIssues: ["类型选择不合理", "结构过大导致访问变慢", "大范围命令阻塞", "迁移成本高"],
+  },
+  /* <!-- KG_REVIEWED: String | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: String | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-string", zh: "String", en: "String", area: "data-type", difficulty: "easy", explanation: ["核心概念：String聚焦String是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：String常用于缓存对象、计数器、分布式锁值和限流计数。学习时把它放回Redis链路中观察，并结合前置知识Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，String通常会和redis-counter和分布式锁一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把String当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["String适合什么使用场景","String可能带来哪些性能或一致性问题","String线上如何排查和治理"], useCases: ["缓存对象","计数器","分布式锁值","限流计数"], prerequisites: ["redis-data-types"], related: ["redis-lock","expire-policy"], commonIssues: ["value 过大","序列化格式不统一"] },
-  /* <!-- KG_REVIEWED: Hash | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-strings-docs", "redis-set-command", "redis-incr-command", "redis-commands", "redis-data-types-docs", "xiaolin-redis"],
+    id: "redis-string",
+    zh: "String",
+    en: "String",
+    area: "data-type",
+    difficulty: "easy",
+    summary: "String 是 Redis 最基础的二进制安全值类型，适合缓存对象、计数、锁值和位操作。",
+    explanation: [
+      "核心概念：Redis String 存储的是二进制安全的字节序列，可以保存文本、JSON、序列化对象、数字字符串或位图数据。它是 Redis 中最基础的数据类型，很多业务缓存都从 String 开始建模。",
+      "常见命令：GET/SET 负责读写，MGET/MSET 批量处理，INCR/DECR 做原子计数，SETEX/PSETEX 或 SET EX/PX 处理过期，SET NX/XX 控制写入条件，GETSET 或 SET GET 可用于原子替换并取旧值。",
+      "典型场景：对象缓存适合用 String 保存序列化结果，计数器适合用 INCR 系列命令，限流可结合 INCR 与 EXPIRE，分布式锁值常用唯一 token 配合 SET NX EX。",
+      "边界情况：String value 过大会形成 Big Key，读取会放大网络传输和主线程处理时间。数字操作要求值能按整数解释；序列化格式变化要考虑兼容；过期时间和写入条件要在同一条原子命令中设置。",
+      "工程注意：缓存对象要控制大小和字段粒度，计数器要考虑溢出、重置和过期窗口，锁值要保存唯一标识并用 Lua 校验后删除。热 String 会让单 key 请求集中，需要本地缓存、分片 key 或请求合并治理。",
+      "参考来源：String 类型定义和命令用法参考 Redis 官方 Strings；SET 的 NX/XX/EX/PX/GET 语义参考官方 SET 命令；INCR 原子计数参考官方 INCR 命令；命令复杂度参考 Redis Commands；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Redis String 为什么可以保存对象、数字和位图",
+      "SET NX EX 为什么常用于锁值写入",
+      "INCR 如何实现原子计数器",
+      "String value 过大会带来哪些性能问题",
+      "缓存对象用 String 和 Hash 如何选择",
+      "热 String key 如何治理",
+    ],
+    useCases: ["缓存对象", "计数器", "分布式锁值", "限流计数"],
+    prerequisites: ["redis-data-types"],
+    related: ["redis-lock", "expire-policy", "big-key", "hot-key", "bitmap"],
+    commonIssues: ["value 过大", "序列化格式不统一", "过期与写入分开导致竞态", "热 key 压力集中"],
+  },
+  /* <!-- KG_REVIEWED: Hash | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: Hash | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-hash", zh: "Hash", en: "Hash", area: "data-type", difficulty: "easy", explanation: ["核心概念：Hash聚焦Hash是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：Hash常用于对象字段存储、用户信息缓存和配置缓存。学习时把它放回Redis链路中观察，并结合前置知识Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Hash通常会和String一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把Hash当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Hash适合什么使用场景","Hash可能带来哪些性能或一致性问题","Hash线上如何排查和治理"], useCases: ["对象字段存储","用户信息缓存","配置缓存"], prerequisites: ["redis-data-types"], related: ["redis-string"], commonIssues: ["field 数量过多","热 Hash 导致单 key 压力集中"] },
-  /* <!-- KG_REVIEWED: List | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-hashes-docs", "redis-hset-command", "redis-hscan-command", "redis-commands", "redis-data-types-docs", "xiaolin-redis"],
+    id: "redis-hash",
+    zh: "Hash",
+    en: "Hash",
+    area: "data-type",
+    difficulty: "easy",
+    summary: "Hash 用一个 key 管理多个 field-value，适合对象字段缓存和局部字段读写。",
+    explanation: [
+      "核心概念：Redis Hash 是 field-value 映射，一个 Redis key 下可以保存多个字段。它适合表达用户资料、商品属性、配置项等对象型数据，支持按字段读写。",
+      "常见命令：HSET/HGET 写入和读取单个字段，HMGET 批量读取字段，HDEL 删除字段，HINCRBY/HINCRBYFLOAT 对数字字段做原子增量，HGETALL 返回整个 Hash，HSCAN 分批遍历字段。",
+      "适用场景：对象缓存中只有少数字段频繁变化时，Hash 可以减少整对象序列化和整体覆盖。配置缓存、用户信息、购物车局部字段和计数聚合都常见。",
+      "边界情况：Hash 的过期时间作用在整个 key 上，单个 field 没有独立 TTL。field 数量过多或 value 过大时，HGETALL、HKEYS、HVALS 会返回大量数据，造成主线程和网络压力。",
+      "工程注意：字段粒度要稳定，避免把无界增长的明细塞进一个 Hash。大 Hash 遍历用 HSCAN 分批，热 Hash 可按业务维度拆 key；对象整体读取频率更高时，String 序列化对象可能更简单。",
+      "参考来源：Hash 类型定义和示例参考 Redis 官方 Hashes；HSET 命令语义参考官方 HSET；大 Hash 分批遍历参考官方 HSCAN；命令复杂度参考 Redis Commands；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Hash 适合存储哪些对象型数据",
+      "Hash 和 String 序列化对象如何选择",
+      "Hash 的过期时间为什么作用在整个 key 上",
+      "HGETALL、HKEYS、HVALS 在线上有什么风险",
+      "大 Hash 如何用 HSCAN 分批处理",
+      "热 Hash key 如何拆分和治理",
+    ],
+    useCases: ["对象字段存储", "用户信息缓存", "配置缓存"],
+    prerequisites: ["redis-data-types"],
+    related: ["redis-string", "big-key", "hot-key"],
+    commonIssues: ["field 数量过多", "热 Hash 导致单 key 压力集中", "整 key TTL 粒度过粗", "HGETALL 返回过大"],
+  },
+  /* <!-- KG_REVIEWED: List | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: List | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-list", zh: "List", en: "List", area: "data-type", difficulty: "easy", explanation: ["核心概念：List聚焦List是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：List常用于简单队列、最新消息列表和任务缓冲。学习时把它放回Redis链路中观察，并结合前置知识Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，List通常会和Stream和发布订阅一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把List当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["List适合什么使用场景","List可能带来哪些性能或一致性问题","List线上如何排查和治理"], useCases: ["简单队列","最新消息列表","任务缓冲"], prerequisites: ["redis-data-types"], related: ["redis-stream","redis-pubsub"], commonIssues: ["大 List 删除成本高","阻塞弹出使用不当"] },
-  /* <!-- KG_REVIEWED: Set | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-lists-docs", "redis-blpop-command", "redis-lrange-command", "redis-ltrim-command", "redis-commands", "xiaolin-redis"],
+    id: "redis-list",
+    zh: "List",
+    en: "List",
+    area: "data-type",
+    difficulty: "easy",
+    summary: "List 是按插入顺序排列的双端序列，适合简单队列、最新列表和任务缓冲。",
+    explanation: [
+      "核心概念：Redis List 是字符串元素组成的有序序列，支持在两端快速插入和弹出。LPUSH/RPUSH 写入两端，LPOP/RPOP 弹出两端，LRANGE 按索引范围读取。",
+      "队列用法：List 可以用 RPUSH + LPOP 或 LPUSH + RPOP 实现 FIFO 队列，BLPOP/BRPOP 提供阻塞弹出，适合消费者等待新任务。简单任务缓冲、异步削峰和最新消息列表都常见。",
+      "列表维护：LRANGE 常用于读取最新 N 条，LTRIM 可以保留固定窗口，例如只保留最近 1000 条。这个组合适合动态时间线、操作日志和轻量历史列表。",
+      "边界情况：List 缺少 Stream 的消费组、消息确认和历史消费语义，复杂消息系统更适合 Stream 或专业队列。大范围 LRANGE、按值删除 LREM 和大 List 删除会带来主线程与网络压力。",
+      "工程注意：队列消费要考虑消费者宕机后的消息丢失、重复处理和幂等。阻塞命令要设置合理超时，连接池要区分阻塞连接和普通命令连接，避免阻塞连接占满池子。",
+      "参考来源：List 类型和队列示例参考 Redis 官方 Lists；阻塞弹出参考 BLPOP；范围读取参考 LRANGE；保留固定长度参考 LTRIM；命令复杂度参考 Redis Commands；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "List 为什么适合实现简单 FIFO 队列",
+      "BLPOP/BRPOP 和普通 LPOP/RPOP 有什么使用差异",
+      "LRANGE 和 LTRIM 如何实现最新消息列表",
+      "List 做消息队列有哪些可靠性边界",
+      "大 List 和大范围读取会带来哪些风险",
+      "List 和 Stream 在消息场景中如何选择",
+    ],
+    useCases: ["简单队列", "最新消息列表", "任务缓冲"],
+    prerequisites: ["redis-data-types"],
+    related: ["redis-stream", "redis-pubsub", "big-key"],
+    commonIssues: ["大 List 删除成本高", "阻塞弹出使用不当", "消费失败导致消息丢失", "连接池被阻塞命令占满"],
+  },
+  /* <!-- KG_REVIEWED: Set | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: Set | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-set", zh: "Set", en: "Set", area: "data-type", difficulty: "easy", explanation: ["核心概念：Set聚焦Set是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：Set常用于去重、共同关注、标签集合和抽奖。学习时把它放回Redis链路中观察，并结合前置知识Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Set通常会和ZSet和Bitmap一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把Set当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Set适合什么使用场景","Set可能带来哪些性能或一致性问题","Set线上如何排查和治理"], useCases: ["去重","共同关注","标签集合","抽奖"], prerequisites: ["redis-data-types"], related: ["redis-zset","bitmap"], commonIssues: ["集合过大","交并差运算阻塞"] },
-  /* <!-- KG_REVIEWED: ZSet | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-sets-docs", "redis-sinter-command", "redis-sscan-command", "redis-commands", "redis-data-types-docs", "xiaolin-redis"],
+    id: "redis-set",
+    zh: "Set",
+    en: "Set",
+    area: "data-type",
+    difficulty: "easy",
+    summary: "Set 是无序去重集合，适合成员关系、标签、共同关注和随机抽样。",
+    explanation: [
+      "核心概念：Redis Set 存储唯一成员，成员无序。SADD 添加成员，SREM 删除成员，SISMEMBER 判断成员是否存在，SCARD 获取基数，SMEMBERS 返回全部成员。",
+      "集合运算：SINTER、SUNION、SDIFF 可做交集、并集和差集，适合共同关注、共同好友、标签筛选和权限集合计算。结果规模和输入集合大小会直接影响执行时间和返回数据量。",
+      "随机能力：SRANDMEMBER 可随机取成员，SPOP 会随机移除成员，适合抽奖、随机推荐和任务抽样。需要公平性或审计时，要记录抽样条件和结果。",
+      "边界情况：大 Set 使用 SMEMBERS、SINTER 等命令会造成阻塞和网络放大。线上遍历成员优先用 SSCAN 分批处理；跨多个大集合的交并差更适合离线预计算或拆分计算。",
+      "工程注意：Set 适合去重和成员关系，带权重排序要用 Sorted Set，海量布尔状态可考虑 Bitmap，近似去重计数可考虑 HyperLogLog。热点 Set 要关注单 key 压力和集合增长速度。",
+      "参考来源：Set 类型定义和示例参考 Redis 官方 Sets；交集复杂度参考 SINTER；大集合遍历参考 SSCAN；命令复杂度参考 Redis Commands；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Set 为什么适合去重和成员关系判断",
+      "SINTER、SUNION、SDIFF 分别适合什么业务场景",
+      "SMEMBERS 和 SINTER 在线上有哪些风险",
+      "SSCAN 如何降低大集合遍历风险",
+      "Set、Sorted Set、Bitmap、HyperLogLog 如何选择",
+      "抽奖场景使用 SRANDMEMBER 和 SPOP 有什么差异",
+    ],
+    useCases: ["去重", "共同关注", "标签集合", "抽奖"],
+    prerequisites: ["redis-data-types"],
+    related: ["redis-zset", "bitmap", "hyperloglog", "big-key", "hot-key"],
+    commonIssues: ["集合过大", "交并差运算阻塞", "返回结果过大", "热点集合单 key 压力集中"],
+  },
+  /* <!-- KG_REVIEWED: ZSet | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: ZSet | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-zset", zh: "ZSet", en: "Sorted Set", area: "data-type", difficulty: "medium", explanation: ["核心概念：ZSet（Sorted Set）聚焦ZSet是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：ZSet常用于排行榜、延迟队列和带权重排序。学习时把它放回Redis链路中观察，并结合前置知识Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，ZSet通常会和skiplist和List一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把ZSet当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["ZSet适合什么使用场景","ZSet可能带来哪些性能或一致性问题","ZSet线上如何排查和治理"], useCases: ["排行榜","延迟队列","带权重排序"], prerequisites: ["redis-data-types"], related: ["redis-list","geo"], commonIssues: ["分数精度问题","大范围查询成本高"] },
-  /* <!-- KG_REVIEWED: Bitmap | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-sorted-sets-docs", "redis-zadd-command", "redis-zrange-command", "redis-commands", "redis-data-types-docs", "xiaolin-redis"],
+    id: "redis-zset",
+    zh: "ZSet",
+    en: "Sorted Set",
+    area: "data-type",
+    difficulty: "medium",
+    summary: "ZSet 用唯一成员加 score 建立有序集合，适合排行榜、范围检索和延迟调度。",
+    explanation: [
+      "核心概念：Redis Sorted Set 由唯一 member 和对应 score 组成，按 score 排序。member 负责唯一性，score 负责顺序，常用于排行榜、优先级队列、延迟任务和时间线索引。",
+      "常见命令：ZADD 写入或更新分数，ZINCRBY 增加分数，ZRANGE 按排名、分数或字典范围读取，ZRANK/ZREVRANK 查询排名，ZREM 删除成员，ZCARD/ZCOUNT 统计数量。",
+      "排行榜场景：用户分数变化时用 ZADD 或 ZINCRBY 更新，读取 Top N 用 ZRANGE REV，查询个人排名用 ZREVRANK。相同 score 的成员会按字典序形成稳定顺序，业务需要额外排序时可把时间或 tie-breaker 编进 score 或 member。",
+      "延迟队列场景：把执行时间戳作为 score，消费者按当前时间取到期任务，再通过原子删除或 Lua 脚本避免多消费者重复领取。任务失败、重试、幂等和可观测性要在业务层设计。",
+      "边界情况：score 使用浮点数，极大整数、金额和高精度排序要谨慎。大范围 ZRANGE、带大 offset 的 LIMIT、全量遍历和超大 ZSet 会增加延迟与网络输出；热点排行榜会集中到单 key。",
+      "参考来源：Sorted Set 类型和排行榜示例参考 Redis 官方 Sorted sets；写入选项参考 ZADD；范围查询和 BYSCORE/BYLEX/REV/LIMIT 参考 ZRANGE；命令复杂度参考 Redis Commands；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "ZSet 的 member 和 score 分别承担什么角色",
+      "排行榜如何用 ZADD、ZINCRBY、ZRANGE、ZREVRANK 实现",
+      "相同 score 的排序结果如何处理",
+      "ZSet 做延迟队列有哪些并发领取风险",
+      "score 精度和大范围查询有哪些边界",
+      "热点排行榜和大 ZSet 如何治理",
+    ],
+    useCases: ["排行榜", "延迟队列", "带权重排序"],
+    prerequisites: ["redis-data-types"],
+    related: ["redis-list", "geo", "big-key", "hot-key"],
+    commonIssues: ["分数精度问题", "大范围查询成本高", "热点排行榜压力集中", "延迟任务重复领取"],
+  },
+  /* <!-- KG_REVIEWED: Bitmap | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: Bitmap | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "bitmap", zh: "Bitmap", en: "Bitmap", area: "data-type", difficulty: "medium", explanation: ["核心概念：Bitmap聚焦Bitmap是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：Bitmap常用于签到、活跃用户统计和布尔状态压缩存储。学习时把它放回Redis链路中观察，并结合前置知识String判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Bitmap通常会和HyperLogLog一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把Bitmap当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Bitmap适合什么使用场景","Bitmap可能带来哪些性能或一致性问题","Bitmap线上如何排查和治理"], useCases: ["签到","活跃用户统计","布尔状态压缩存储"], prerequisites: ["redis-string"], related: ["hyperloglog"], commonIssues: ["offset 过大导致内存突增","统计语义设计错误"] },
-  /* <!-- KG_REVIEWED: HyperLogLog | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-bitmaps-docs", "redis-setbit-command", "redis-bitcount-command", "redis-strings-docs", "redis-commands", "xiaolin-redis"],
+    id: "bitmap",
+    zh: "Bitmap",
+    en: "Bitmap",
+    area: "data-type",
+    difficulty: "medium",
+    summary: "Bitmap 用 String 的位操作压缩保存大量布尔状态，适合签到、活跃标记和状态统计。",
+    explanation: [
+      "核心概念：Redis Bitmap 本质上是 String 上的位操作视角，每个 bit 表示一个布尔状态。SETBIT 设置某个偏移位，GETBIT 读取位值，BITCOUNT 统计置为 1 的数量，BITOP 可做位运算。",
+      "典型场景：用户签到可以用日期或用户 ID 映射 offset，活跃用户统计可以按天保存 bitmap，功能开关、在线状态、布尔标签和海量状态压缩也适合 Bitmap。",
+      "内存模型：Bitmap 按最大 offset 决定字符串长度，稀疏且 offset 很大时会直接分配到该偏移所需空间。首次设置高 offset 可能触发大块内存分配，造成延迟抖动。",
+      "统计边界：BITCOUNT 适合统计某段范围内为 1 的 bit 数量，范围越大执行成本越高。复杂维度统计要先设计好 offset 映射、时间分片和 key 粒度，避免一个 key 无限增长。",
+      "工程注意：Bitmap 只表达 0/1 状态，成员 ID 需要能稳定映射到 offset。用户 ID 分布稀疏时可以按业务分桶或改用 Set；近似 UV 统计更适合 HyperLogLog。",
+      "参考来源：Bitmap 类型和示例参考 Redis 官方 Bitmaps；SETBIT 的 offset 与分配行为参考官方 SETBIT；统计语义参考 BITCOUNT；String 位操作背景参考官方 Strings；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Bitmap 为什么本质上属于 String 位操作",
+      "SETBIT 的 offset 如何影响内存占用",
+      "签到和活跃用户统计如何设计 key 与 offset",
+      "BITCOUNT 统计大范围时有什么成本",
+      "Bitmap、Set、HyperLogLog 在统计场景中如何选择",
+      "offset 稀疏导致内存突增如何治理",
+    ],
+    useCases: ["签到", "活跃用户统计", "布尔状态压缩存储"],
+    prerequisites: ["redis-string"],
+    related: ["hyperloglog", "redis-set", "big-key"],
+    commonIssues: ["offset 过大导致内存突增", "统计语义设计错误", "单 key 无限增长", "稀疏 ID 浪费内存"],
+  },
+  /* <!-- KG_REVIEWED: HyperLogLog | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: HyperLogLog | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "hyperloglog", zh: "HyperLogLog", en: "HyperLogLog", area: "data-type", difficulty: "medium", explanation: ["核心概念：HyperLogLog聚焦HyperLogLog是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：HyperLogLog常用于UV 近似统计和大规模去重计数。学习时把它放回Redis链路中观察，并结合前置知识Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，HyperLogLog通常会和Bitmap一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把HyperLogLog当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["HyperLogLog适合什么使用场景","HyperLogLog可能带来哪些性能或一致性问题","HyperLogLog线上如何排查和治理"], useCases: ["UV 近似统计","大规模去重计数"], prerequisites: ["redis-data-types"], related: ["bitmap"], commonIssues: ["结果有误差","无法取回原始元素"] },
-  /* <!-- KG_REVIEWED: Geo | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-hyperloglog-docs", "redis-pfadd-command", "redis-pfcount-command", "redis-pfmerge-command", "redis-commands", "xiaolin-redis"],
+    id: "hyperloglog",
+    zh: "HyperLogLog",
+    en: "HyperLogLog",
+    area: "data-type",
+    difficulty: "medium",
+    summary: "HyperLogLog 用固定小内存做近似基数统计，适合大规模 UV 和去重计数。",
+    explanation: [
+      "核心概念：HyperLogLog 是概率型数据结构，用来估算集合基数，也就是去重后的元素数量。它占用固定小内存，适合接受少量误差的大规模统计。",
+      "常见命令：PFADD 把元素加入统计结构，PFCOUNT 返回估算基数，PFMERGE 合并多个 HyperLogLog。典型用法是按天、页面、渠道记录 UV，然后按时间窗口合并统计。",
+      "适用场景：UV、独立访客、去重设备数、去重请求来源和大规模活动曝光人数适合 HyperLogLog。它关注数量估算，适合趋势分析、容量观察和低成本统计。",
+      "边界情况：HyperLogLog 无法返回原始元素，也无法判断某个元素是否出现过；结果是近似值，适合统计报表，适合精确去重和成员查询的场景通常用 Set 或外部存储。",
+      "工程注意：key 粒度要和业务口径一致，例如 day:page、day:campaign。跨天统计用 PFMERGE 或多个 key 的 PFCOUNT，过期时间要覆盖报表查询窗口。结果波动要在产品指标口径中说明。",
+      "参考来源：HyperLogLog 类型、误差和内存特性参考 Redis 官方 HyperLogLog；PFADD、PFCOUNT、PFMERGE 语义参考官方命令文档；命令复杂度参考 Redis Commands；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "HyperLogLog 解决什么统计问题",
+      "PFADD、PFCOUNT、PFMERGE 分别做什么",
+      "HyperLogLog 为什么适合 UV 近似统计",
+      "HyperLogLog 和 Set 的取舍是什么",
+      "为什么 HyperLogLog 无法取回原始元素",
+      "按天、按页面统计 UV 时 key 应该如何设计",
+    ],
+    useCases: ["UV 近似统计", "大规模去重计数"],
+    prerequisites: ["redis-data-types"],
+    related: ["bitmap", "redis-set"],
+    commonIssues: ["结果有误差", "无法取回原始元素", "指标口径需要说明近似统计", "key 粒度设计不清"],
+  },
+  /* <!-- KG_REVIEWED: Geo | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: Geo | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "geo", zh: "Geo", en: "Geo", area: "data-type", difficulty: "medium", explanation: ["核心概念：Geo聚焦Geo是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：Geo常用于附近的人、门店距离查询和地理位置排序。学习时把它放回Redis链路中观察，并结合前置知识ZSet判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Geo通常会和ZSet一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把Geo当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Geo适合什么使用场景","Geo可能带来哪些性能或一致性问题","Geo线上如何排查和治理"], useCases: ["附近的人","门店距离查询","地理位置排序"], prerequisites: ["redis-zset"], related: ["redis-zset"], commonIssues: ["精度边界","坐标数据更新频繁"] },
-  /* <!-- KG_REVIEWED: Stream | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-geospatial-docs", "redis-geoadd-command", "redis-geosearch-command", "redis-geodist-command", "redis-sorted-sets-docs", "xiaolin-redis"],
+    id: "geo",
+    zh: "Geo",
+    en: "Geo",
+    area: "data-type",
+    difficulty: "medium",
+    summary: "Geo 用经纬度索引位置成员，适合附近搜索、距离计算和按距离排序。",
+    explanation: [
+      "核心概念：Redis Geospatial 用经度、纬度和成员名保存地理位置，并支持距离计算和附近搜索。它底层使用 Sorted Set 表示位置编码，因此许多存储与大 key 风险和 ZSet 相似。",
+      "常见命令：GEOADD 添加或更新位置，GEODIST 计算两个成员距离，GEOSEARCH 按半径或矩形区域搜索附近成员，并可按距离排序、限制返回数量，GEOPOS 获取成员坐标。",
+      "典型场景：附近门店、附近的人、配送范围、车辆位置和地理围栏初筛都适合 Geo。通常用 Redis 做快速候选集筛选，再由业务系统做精确距离、权限和排序补充。",
+      "边界情况：Geo 使用经纬度，坐标顺序是 longitude、latitude。经纬度有有效范围，输入错误会导致数据写入失败或位置异常。地球曲面、坐标系转换和高精度路线距离要由专业 GIS 或业务算法处理。",
+      "工程注意：频繁移动对象会持续更新同一个 Geo key，热点城市或热点区域可能形成单 key 压力。大范围搜索和高 COUNT 会放大返回结果，适合按城市、业务区域或 geohash 前缀拆分 key。",
+      "参考来源：Geo 类型和示例参考 Redis 官方 Geospatial；GEOADD 的坐标与存储语义参考官方命令；GEOSEARCH 的范围、排序和限制参数参考官方命令；GEODIST 参考官方命令；底层 ZSet 关系参考 Sorted sets；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Redis Geo 底层为什么和 ZSet 有关系",
+      "GEOADD、GEODIST、GEOSEARCH 分别解决什么问题",
+      "经纬度参数顺序和范围要注意什么",
+      "附近的人或附近门店如何设计 key 粒度",
+      "Redis Geo 和专业 GIS 适合分别承担什么职责",
+      "热点区域和大范围搜索如何治理",
+    ],
+    useCases: ["附近的人", "门店距离查询", "地理位置排序"],
+    prerequisites: ["redis-zset"],
+    related: ["redis-zset", "big-key", "hot-key"],
+    commonIssues: ["精度边界", "坐标数据更新频繁", "经纬度顺序写反", "热点区域单 key 压力"],
+  },
+  /* <!-- KG_REVIEWED: Stream | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: Stream | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-stream", zh: "Stream", en: "Stream", area: "data-type", difficulty: "medium", explanation: ["核心概念：Stream聚焦Stream是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：Stream常用于消息流、消费组和事件日志。学习时把它放回Redis链路中观察，并结合前置知识List判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Stream通常会和发布订阅和消费组一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把Stream当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Stream适合什么使用场景","Stream可能带来哪些性能或一致性问题","Stream线上如何排查和治理"], useCases: ["消息流","消费组","事件日志"], prerequisites: ["redis-list"], related: ["redis-pubsub","consumer-group"], commonIssues: ["消息堆积","消费组确认遗漏"] },
-  /* <!-- KG_REVIEWED: 消费组 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-streams-docs", "redis-streaming-use-case", "redis-xread-command", "redis-xreadgroup-command", "redis-xpending-command", "redis-commands"],
+    id: "redis-stream",
+    zh: "Stream",
+    en: "Stream",
+    area: "data-type",
+    difficulty: "medium",
+    summary: "Stream 是 Redis 的追加式消息日志，支持消息 ID、范围读取、阻塞读取和消费者组。",
+    explanation: [
+      "核心概念：Redis Stream 是按 ID 排序的追加式日志，每条消息包含一个 ID 和多个 field-value。XADD 追加消息，XRANGE 按 ID 范围读取，XREAD 可以阻塞读取新消息。",
+      "消费者组：XGROUP 创建消费组，XREADGROUP 让组内消费者分摊消息，XACK 确认处理完成。待确认消息会进入 PEL，可用 XPENDING 观察，用 XCLAIM 或 XAUTOCLAIM 转交给其他消费者恢复处理。",
+      "适用场景：Stream 适合事件日志、轻量消息队列、异步任务、审计流和多消费者处理。相比 List，Stream 保留消息 ID、历史读取、消费者组和 pending 语义；相比 Pub/Sub，Stream 可以保存历史消息。",
+      "边界情况：Stream 需要主动修剪，XADD MAXLEN 或 XTRIM 可控制长度。修剪会影响历史查询和消费组补偿；消费者忘记 XACK 会导致 pending 堆积；消息处理仍需要业务幂等。",
+      "版本差异：不同 Redis 版本对 Stream 命令能力有差异，例如 XAUTOCLAIM 和 newer pending claim 能力会影响故障恢复方式。设计方案时要确认线上 Redis 版本。",
+      "工程注意：要监控 stream 长度、组内 lag、pending 数、最老 pending 时间、消费速率和失败重试。高吞吐场景要评估单 stream 热点、消息体大小、修剪策略和持久化压力。",
+      "参考来源：Stream 类型、消息 ID、消费者组和 PEL 参考 Redis 官方 Streams；流式用例参考 Redis streaming；阻塞读取参考 XREAD；消费组读取参考 XREADGROUP；pending 观察参考 XPENDING；命令复杂度参考 Redis Commands。"
+    ],
+    typicalProblems: [
+      "Stream 和 List 做队列有什么区别",
+      "Stream 的消息 ID 有什么作用",
+      "消费者组如何分摊消息并记录 pending",
+      "XACK 遗漏会造成什么问题",
+      "Stream 修剪策略如何影响历史消息和补偿",
+      "Stream 消息堆积如何从 lag、pending 和消费速率排查",
+    ],
+    useCases: ["消息流", "消费组", "事件日志"],
+    prerequisites: ["redis-list"],
+    related: ["redis-pubsub", "consumer-group", "message-ack", "retry"],
+    commonIssues: ["消息堆积", "消费组确认遗漏", "pending 长期堆积", "修剪误删历史消息"],
+  },
+  /* <!-- KG_REVIEWED: 消费组 | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: 消费组 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "consumer-group", zh: "消费组", en: "Consumer Group", area: "data-type", difficulty: "medium", explanation: ["核心概念：消费组（Consumer Group）聚焦消费组是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住数据类型、编码结构和命令复杂度，再看输入、状态变化、输出结果和失败分支。","适用场景：消费组常用于多消费者分摊 Stream 消息和可靠消费。学习时把它放回Redis链路中观察，并结合前置知识Stream判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，消费组通常会和消息确认一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认数据类型、编码结构和命令复杂度是否仍然成立。","常见误区与注意点：实践中容易把消费组当成孤立概念处理，结果遗漏大 Key、热 Key、遍历命令、内存编码和阻塞风险。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["消费组适合什么使用场景","消费组可能带来哪些性能或一致性问题","消费组线上如何排查和治理"], useCases: ["多消费者分摊 Stream 消息","可靠消费"], prerequisites: ["redis-stream"], related: ["redis-ack"], commonIssues: ["pending 消息堆积","消费者宕机后的消息恢复"] },
-  /* <!-- KG_REVIEWED: 持久化 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-streams-docs", "redis-xgroup-command", "redis-xreadgroup-command", "redis-xpending-command", "redis-xautoclaim-command", "redis-commands"],
+    id: "consumer-group",
+    zh: "消费组",
+    en: "Consumer Group",
+    area: "data-type",
+    difficulty: "medium",
+    summary: "消费组让多个消费者协作处理同一条 Stream，并用 pending 列表追踪未确认消息。",
+    explanation: [
+      "核心概念：Redis Stream 消费组把同一个 Stream 的消息分配给组内多个 consumer。每个消息在同一消费组内通常交给一个 consumer 处理，用于横向扩展消费能力。",
+      "主流程：XGROUP 创建消费组，XREADGROUP 读取新消息，消费者处理完成后用 XACK 确认。已投递但尚未确认的消息进入 Pending Entries List，Redis 会记录消息 ID、消费者、投递次数和空闲时间。",
+      "失败恢复：XPENDING 用于观察 pending 概览和明细，XCLAIM 或 XAUTOCLAIM 可以把超时未确认的消息转交给其他 consumer。业务侧仍要保证幂等，因为消息可能被重复投递或重复处理。",
+      "消费位点：消费组维护 last delivered ID。读取 `>` 表示只读新消息，读取具体 ID 可重新读取 pending 历史。消费者名称要稳定，频繁变化会让 pending 和监控更难治理。",
+      "工程边界：Stream 修剪可能影响 pending 恢复，消费者宕机会造成 pending 堆积，处理过慢会形成 lag。多组消费互相独立，同一条消息可以被不同组分别处理。",
+      "排查方法：看组内 lag、pending 数、最老 pending 空闲时间、投递次数、consumer 在线情况、XACK 成功率、处理耗时和重试次数。恢复时按业务幂等能力决定 claim、重试或转死信。",
+      "参考来源：消费组、PEL 和确认语义参考 Redis 官方 Streams；XGROUP、XREADGROUP、XPENDING、XAUTOCLAIM 语义参考官方命令文档；命令复杂度参考 Redis Commands。"
+    ],
+    typicalProblems: [
+      "消费组如何让多个 consumer 分摊 Stream 消息",
+      "PEL 中记录了哪些信息",
+      "XACK 遗漏为什么会导致 pending 堆积",
+      "XCLAIM 和 XAUTOCLAIM 适合解决什么问题",
+      "读取 `>` 和读取历史 ID 有什么差异",
+      "消费者宕机后如何恢复消息且保证幂等",
+    ],
+    useCases: ["多消费者分摊 Stream 消息", "可靠消费"],
+    prerequisites: ["redis-stream"],
+    related: ["message-ack", "retry", "redis-stream"],
+    commonIssues: ["pending 消息堆积", "消费者宕机后的消息恢复", "消费者名称混乱", "修剪影响补偿"],
+  },
+  /* <!-- KG_REVIEWED: 持久化 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 持久化 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-persistence", zh: "持久化", en: "Persistence", area: "persistence", difficulty: "medium", explanation: ["核心概念：持久化（Persistence）聚焦持久化是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住RDB、AOF、重写、fork 和写时复制，再看输入、状态变化、输出结果和失败分支。","适用场景：持久化常用于实例重启恢复、灾难恢复和数据备份。学习时把它放回Redis链路中观察，并结合前置知识Redis 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，持久化通常会和RDB和AOF一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认RDB、AOF、重写、fork 和写时复制是否仍然成立。","常见误区与注意点：实践中容易把持久化当成孤立概念处理，结果遗漏fsync 策略、fork 抖动、磁盘压力和恢复时间。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["持久化适合什么使用场景","持久化可能带来哪些性能或一致性问题","持久化线上如何排查和治理"], useCases: ["实例重启恢复","灾难恢复","数据备份"], prerequisites: ["redis-overview"], related: ["rdb","aof"], commonIssues: ["性能和安全性的取舍","恢复时间过长"] },
-  /* <!-- KG_REVIEWED: RDB | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-persistence-docs", "redis-persistence-learn", "redis-commands", "xiaolin-redis", "javaguide"],
+    id: "redis-persistence",
+    zh: "持久化",
+    en: "Persistence",
+    area: "persistence",
+    difficulty: "medium",
+    summary: "Redis 持久化把内存数据写到磁盘，用于重启恢复、备份和灾难恢复。",
+    explanation: [
+      "核心概念：Redis 是内存优先系统，持久化负责把内存状态保存到磁盘。主要方式是 RDB 快照和 AOF 追加日志，也可以组合使用，让恢复速度和数据安全性取得平衡。",
+      "RDB 思路：RDB 在某个时间点生成数据快照，文件紧凑、适合备份和快速全量恢复。它的风险是两次快照之间的写入在故障时可能丢失，快照生成会涉及 fork 和写时复制。",
+      "AOF 思路：AOF 记录写命令，恢复时重放日志。appendfsync always/everysec/no 影响写入延迟和数据丢失窗口，常见配置是 everysec，在性能和安全性之间取得实用平衡。",
+      "混合与重写：AOF 文件会增长，需要后台重写压缩日志；Redis 也支持 AOF 中包含 RDB preamble 的混合方式，缩短恢复时间。重写、快照和复制都可能带来磁盘 I/O、fork 延迟和额外内存压力。",
+      "工程边界：持久化提升恢复能力，也带来磁盘容量、I/O、fsync 抖动、恢复时间和运维复杂度。缓存型业务可以接受较大数据丢失窗口，订单、扣费等强一致写入要使用数据库作为权威存储。",
+      "排查建议：关注 latest_fork_usec、rdb_last_bgsave_status、aof_last_bgrewrite_status、aof_delayed_fsync、磁盘延迟、AOF/RDB 文件大小、恢复耗时和备份可用性。定期做恢复演练，比只生成备份更关键。",
+      "参考来源：RDB、AOF、fsync、重写和混合持久化参考 Redis 官方 Persistence；持久化取舍参考 Redis Learn；命令语义参考 Redis Commands；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "Redis 为什么需要持久化",
+      "RDB 和 AOF 分别如何恢复数据",
+      "appendfsync always、everysec、no 如何取舍",
+      "AOF 重写为什么能缩小文件",
+      "持久化会带来哪些 fork、内存和磁盘压力",
+      "如何根据 RPO/RTO 选择 Redis 持久化策略",
+    ],
+    useCases: ["实例重启恢复", "灾难恢复", "数据备份"],
+    prerequisites: ["redis-overview"],
+    related: ["rdb", "aof", "aof-rewrite", "fork-cow"],
+    commonIssues: ["性能和安全性的取舍", "恢复时间过长", "磁盘 I/O 抖动", "备份未演练"],
+  },
+  /* <!-- KG_REVIEWED: RDB | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: RDB | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "rdb", zh: "RDB", en: "RDB Snapshot", area: "persistence", difficulty: "medium", explanation: ["核心概念：RDB（RDB Snapshot）聚焦RDB是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住RDB、AOF、重写、fork 和写时复制，再看输入、状态变化、输出结果和失败分支。","适用场景：RDB常用于周期性快照、全量备份和快速恢复。学习时把它放回Redis链路中观察，并结合前置知识持久化判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，RDB通常会和AOF和fork 与写时复制一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认RDB、AOF、重写、fork 和写时复制是否仍然成立。","常见误区与注意点：实践中容易把RDB当成孤立概念处理，结果遗漏fsync 策略、fork 抖动、磁盘压力和恢复时间。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["RDB适合什么使用场景","RDB可能带来哪些性能或一致性问题","RDB线上如何排查和治理"], useCases: ["周期性快照","全量备份","快速恢复"], prerequisites: ["redis-persistence"], related: ["aof","fork-cow"], commonIssues: ["两次快照之间数据丢失","fork 带来短暂抖动"] },
-  /* <!-- KG_REVIEWED: AOF | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-persistence-docs", "redis-bgsave-command", "redis-info-command", "redis-commands", "xiaolin-redis"],
+    id: "rdb",
+    zh: "RDB",
+    en: "RDB Snapshot",
+    area: "persistence",
+    difficulty: "medium",
+    summary: "RDB 是 Redis 的时间点快照文件，适合全量备份和快速恢复。",
+    explanation: [
+      "核心概念：RDB 把某一时刻的 Redis 内存数据保存成紧凑的二进制快照文件。恢复时 Redis 直接加载 RDB 文件，通常比逐条重放命令更快。",
+      "触发方式：RDB 可以由配置的 save 规则自动触发，也可以手动执行 SAVE 或 BGSAVE。生产环境通常使用 BGSAVE，让后台子进程生成快照，主进程继续处理请求。",
+      "fork 与写时复制：BGSAVE 会 fork 子进程，子进程写 RDB 文件。快照期间主进程继续写入数据，写过的内存页会触发 Copy-on-Write，因此写入量大时会增加额外内存和 fork 压力。",
+      "适用场景：RDB 适合周期性备份、跨环境迁移、灾备恢复和从节点全量同步。它的恢复速度和文件体积优势明显，数据丢失窗口取决于快照间隔。",
+      "工程边界：快照失败、磁盘空间不足、fork 延迟、文件系统 I/O 抖动和 `stop-writes-on-bgsave-error` 都会影响生产。RDB 对秒级数据安全要求较高的业务需要配合 AOF 或上游数据库兜底。",
+      "排查方法：通过 INFO persistence 看 rdb_last_bgsave_status、rdb_last_bgsave_time_sec、latest_fork_usec、rdb_changes_since_last_save；用 LASTSAVE 查看最近快照时间，并监控磁盘容量和备份恢复演练结果。",
+      "参考来源：RDB 机制和取舍参考 Redis 官方 Persistence；后台快照行为参考 BGSAVE；持久化指标参考 INFO；命令语义参考 Redis Commands；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "RDB 快照适合哪些持久化场景",
+      "SAVE 和 BGSAVE 有什么区别",
+      "BGSAVE 为什么会涉及 fork 和写时复制",
+      "RDB 两次快照之间的数据丢失窗口如何评估",
+      "rdb_last_bgsave_status 和 latest_fork_usec 如何用于排查",
+      "RDB 和 AOF 如何组合满足恢复需求",
+    ],
+    useCases: ["周期性快照", "全量备份", "快速恢复"],
+    prerequisites: ["redis-persistence"],
+    related: ["aof", "fork-cow", "full-sync"],
+    commonIssues: ["两次快照之间数据丢失", "fork 带来短暂抖动", "磁盘空间不足", "备份未验证可恢复"],
+  },
+  /* <!-- KG_REVIEWED: AOF | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: AOF | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "aof", zh: "AOF", en: "Append Only File", area: "persistence", difficulty: "medium", explanation: ["核心概念：AOF（Append Only File）聚焦AOF是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住RDB、AOF、重写、fork 和写时复制，再看输入、状态变化、输出结果和失败分支。","适用场景：AOF常用于更高数据安全性和命令级恢复。学习时把它放回Redis链路中观察，并结合前置知识持久化判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，AOF通常会和AOF 重写和RDB一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认RDB、AOF、重写、fork 和写时复制是否仍然成立。","常见误区与注意点：实践中容易把AOF当成孤立概念处理，结果遗漏fsync 策略、fork 抖动、磁盘压力和恢复时间。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["AOF适合什么使用场景","AOF可能带来哪些性能或一致性问题","AOF线上如何排查和治理"], useCases: ["更高数据安全性","命令级恢复"], prerequisites: ["redis-persistence"], related: ["aof-rewrite","rdb"], commonIssues: ["文件膨胀","刷盘策略影响性能"] },
-  /* <!-- KG_REVIEWED: AOF 重写 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-persistence-docs", "redis-bgrewriteaof-command", "redis-info-command", "redis-latency-docs", "redis-commands", "xiaolin-redis"],
+    id: "aof",
+    zh: "AOF",
+    en: "Append Only File",
+    area: "persistence",
+    difficulty: "medium",
+    summary: "AOF 通过追加写命令提升数据安全性，恢复时重放日志重建内存状态。",
+    explanation: [
+      "核心概念：AOF 会把 Redis 写命令追加到日志文件中。实例重启时，Redis 读取 AOF 并按顺序重放命令，从而恢复内存数据。",
+      "刷盘策略：appendfsync always 每次写都尽量同步到磁盘，数据安全性更高且延迟更大；everysec 通常每秒同步一次，是常见折中；no 交给操作系统决定刷盘时机，性能更高且数据丢失窗口更大。",
+      "文件增长：AOF 记录历史写命令，长期运行会变大。BGREWRITEAOF 会在后台生成等价的新 AOF，用更少命令表达当前数据集，降低磁盘占用和恢复时间。",
+      "混合 AOF：Redis 支持 AOF 文件以 RDB preamble 开头，再追加增量 AOF 命令。这样恢复时先快速加载快照，再重放后续命令，兼顾恢复速度和数据安全性。",
+      "工程边界：AOF 会增加磁盘写入和 fsync 压力，磁盘抖动可能影响延迟。AOF 文件损坏、磁盘满、重写失败、fsync 延迟和后台 I/O 竞争都需要监控。",
+      "排查方法：看 aof_enabled、aof_last_bgrewrite_status、aof_rewrite_in_progress、aof_current_size、aof_base_size、aof_pending_fsync、aof_delayed_fsync、磁盘延迟和 Redis latency 事件。恢复演练要覆盖 AOF 重放耗时和文件修复流程。",
+      "参考来源：AOF 机制、fsync 策略、重写和混合 AOF 参考 Redis 官方 Persistence；后台重写命令参考 BGREWRITEAOF；持久化指标参考 INFO；延迟排查参考 Redis latency 文档；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "AOF 为什么比 RDB 更关注数据安全性",
+      "appendfsync always、everysec、no 如何选择",
+      "AOF 文件为什么会不断增长",
+      "BGREWRITEAOF 如何压缩恢复日志",
+      "混合 AOF 为什么能提升恢复速度",
+      "AOF 相关延迟和失败应该看哪些指标",
+    ],
+    useCases: ["更高数据安全性", "命令级恢复"],
+    prerequisites: ["redis-persistence"],
+    related: ["aof-rewrite", "rdb", "fork-cow"],
+    commonIssues: ["文件膨胀", "刷盘策略影响性能", "磁盘写入抖动", "恢复重放耗时长"],
+  },
+  /* <!-- KG_REVIEWED: AOF 重写 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: AOF 重写 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "aof-rewrite", zh: "AOF 重写", en: "AOF Rewrite", area: "persistence", difficulty: "hard", explanation: ["核心概念：AOF 重写（AOF Rewrite）聚焦AOF 重写是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住RDB、AOF、重写、fork 和写时复制，再看输入、状态变化、输出结果和失败分支。","适用场景：AOF 重写常用于压缩 AOF 文件和降低恢复成本。学习时把它放回Redis链路中观察，并结合前置知识AOF判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，AOF 重写通常会和fork 与写时复制一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认RDB、AOF、重写、fork 和写时复制是否仍然成立。","常见误区与注意点：实践中容易把AOF 重写当成孤立概念处理，结果遗漏fsync 策略、fork 抖动、磁盘压力和恢复时间。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["AOF 重写适合什么使用场景","AOF 重写可能带来哪些性能或一致性问题","AOF 重写线上如何排查和治理"], useCases: ["压缩 AOF 文件","降低恢复成本"], prerequisites: ["aof"], related: ["fork-cow"], commonIssues: ["重写期间 I/O 压力","后台重写失败"] },
-  /* <!-- KG_REVIEWED: fork 与写时复制 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-persistence-docs", "redis-bgrewriteaof-command", "redis-info-command", "redis-latency-docs", "xiaolin-redis"],
+    id: "aof-rewrite",
+    zh: "AOF 重写",
+    en: "AOF Rewrite",
+    area: "persistence",
+    difficulty: "hard",
+    summary: "AOF 重写用当前内存状态生成更紧凑的 AOF，降低磁盘占用和恢复成本。",
+    explanation: [
+      "核心概念：AOF 重写会根据当前数据集生成一个等价的新 AOF，用更少的命令恢复同样状态。例如多次 SET 同一个 key，重写后只需要保留最终值。",
+      "执行方式：BGREWRITEAOF 触发后台重写。Redis fork 子进程生成新文件，主进程继续处理写请求；重写期间的新写入会被记录到增量部分，最终和新基础文件一起形成可恢复状态。",
+      "安全性：重写成功前旧 AOF 保持可用，失败时 Redis 继续使用旧文件。Redis 也会自动触发重写，手动 BGREWRITEAOF 适合在磁盘膨胀、恢复变慢或运维窗口中主动压缩。",
+      "互斥与调度：同一时间通常只有一个后台持久化任务运行。BGSAVE 正在执行时，AOF 重写可能被排队；已有 AOF 重写运行时再次触发会返回错误。失败重试会逐步放慢，降低连续失败造成的压力。",
+      "成本边界：重写依赖 fork 和 Copy-on-Write，写入越活跃，额外内存压力越大；同时还会产生磁盘写入和 fsync 竞争。大实例重写需要评估内存余量、磁盘空间、I/O 和业务低峰窗口。",
+      "排查方法：看 aof_rewrite_in_progress、aof_rewrite_scheduled、aof_last_bgrewrite_status、aof_current_size、aof_base_size、latest_fork_usec、aof_delayed_fsync 和日志中的 rewrite 失败原因。",
+      "参考来源：AOF 重写机制、自动触发、失败降频和 Copy-on-Write 参考 Redis 官方 Persistence；手动触发与后台任务互斥参考 BGREWRITEAOF；指标参考 INFO；延迟影响参考 Redis latency 文档；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "AOF 重写为什么能缩小文件",
+      "BGREWRITEAOF 执行期间新写入如何处理",
+      "重写失败为什么不会破坏旧 AOF",
+      "AOF 重写和 BGSAVE 为什么会互相影响调度",
+      "大实例执行 AOF 重写要评估哪些资源",
+      "aof_rewrite_scheduled、aof_last_bgrewrite_status 如何用于排查",
+    ],
+    useCases: ["压缩 AOF 文件", "降低恢复成本"],
+    prerequisites: ["aof"],
+    related: ["fork-cow", "redis-memory", "rdb"],
+    commonIssues: ["重写期间 I/O 压力", "后台重写失败", "Copy-on-Write 内存放大", "重写与快照任务互斥"],
+  },
+  /* <!-- KG_REVIEWED: fork 与写时复制 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: fork 与写时复制 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "fork-cow", zh: "fork 与写时复制", en: "fork and Copy-on-Write", area: "persistence", difficulty: "hard", explanation: ["核心概念：fork 与写时复制（fork and Copy-on-Write）聚焦fork 与写时复制是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住RDB、AOF、重写、fork 和写时复制，再看输入、状态变化、输出结果和失败分支。","适用场景：fork 与写时复制常用于RDB 生成、AOF 重写和后台子进程任务。学习时把它放回Redis链路中观察，并结合前置知识RDB和AOF 重写判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，fork 与写时复制通常会和Redis 内存管理一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认RDB、AOF、重写、fork 和写时复制是否仍然成立。","常见误区与注意点：实践中容易把fork 与写时复制当成孤立概念处理，结果遗漏fsync 策略、fork 抖动、磁盘压力和恢复时间。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["fork 与写时复制适合什么使用场景","fork 与写时复制可能带来哪些性能或一致性问题","fork 与写时复制线上如何排查和治理"], useCases: ["RDB 生成","AOF 重写","后台子进程任务"], prerequisites: ["rdb","aof-rewrite"], related: ["redis-memory"], commonIssues: ["内存瞬时放大","fork 阻塞主线程"] },
-  /* <!-- KG_REVIEWED: 过期策略 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-persistence-docs", "redis-latency-docs", "redis-latency-monitor-docs", "redis-info-command", "xiaolin-redis"],
+    id: "fork-cow",
+    zh: "fork 与写时复制",
+    en: "fork and Copy-on-Write",
+    area: "persistence",
+    difficulty: "hard",
+    summary: "Redis 后台快照和 AOF 重写依赖 fork 子进程，写时复制决定额外内存和延迟风险。",
+    explanation: [
+      "核心概念：Redis 执行 BGSAVE、BGREWRITEAOF、主从全量同步等后台任务时，会 fork 子进程处理持久化或传输数据。fork 会复制进程页表，内存越大，页表复制和调度开销越明显。",
+      "写时复制：fork 后父子进程共享物理内存页。主进程继续处理写请求时，被修改的页会复制一份给父进程使用，这就是 Copy-on-Write。写入越密集，额外内存占用越高。",
+      "性能影响：fork 本身可能短暂阻塞主线程，COW 会增加内存压力，后台进程写磁盘会带来 I/O 竞争。大实例、透明大页、内存碎片、慢磁盘和高写入流量都会放大影响。",
+      "典型场景：RDB 生成、AOF 重写和复制全量同步都可能触发 fork/COW。业务低峰执行后台任务、预留内存余量、控制写入峰值和优化磁盘性能，是降低风险的主要手段。",
+      "排查方法：看 INFO 中 latest_fork_usec、rdb_bgsave_in_progress、aof_rewrite_in_progress、used_memory_rss、mem_fragmentation_ratio、aof_delayed_fsync；用 LATENCY DOCTOR 或 latency monitor 观察 fork、aof-write 等事件。",
+      "参考来源：后台持久化与 COW 机制参考 Redis 官方 Persistence；fork 与延迟排查参考 Redis latency 文档；事件观测参考 Latency monitoring；指标参考 INFO；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Redis 为什么在 RDB 和 AOF 重写时使用 fork",
+      "Copy-on-Write 为什么会导致内存瞬时放大",
+      "latest_fork_usec 表示什么",
+      "大实例执行 BGSAVE 为什么可能出现延迟抖动",
+      "后台持久化任务和磁盘 I/O 如何互相影响",
+      "如何在生产降低 fork/COW 风险",
+    ],
+    useCases: ["RDB 生成", "AOF 重写", "后台子进程任务"],
+    prerequisites: ["rdb", "aof-rewrite"],
+    related: ["redis-memory", "redis-persistence", "rdb", "aof-rewrite"],
+    commonIssues: ["内存瞬时放大", "fork 阻塞主线程", "磁盘 I/O 竞争", "写入峰值放大 COW"],
+  },
+  /* <!-- KG_REVIEWED: 过期策略 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 过期策略 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "expire-policy", zh: "过期策略", en: "Expiration Policy", area: "expiration", difficulty: "medium", explanation: ["核心概念：过期策略（Expiration Policy）聚焦过期策略是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住过期时间、惰性删除和定期删除，再看输入、状态变化、输出结果和失败分支。","适用场景：过期策略常用于缓存自动失效、会话过期和验证码过期。学习时把它放回Redis链路中观察，并结合前置知识String判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，过期策略通常会和惰性删除和定期删除一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认过期时间、惰性删除和定期删除是否仍然成立。","常见误区与注意点：实践中容易把过期策略当成孤立概念处理，结果遗漏集中失效、过期风暴、主从过期传播和内存残留。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["过期策略适合什么使用场景","过期策略可能带来哪些性能或一致性问题","过期策略线上如何排查和治理"], useCases: ["缓存自动失效","会话过期","验证码过期"], prerequisites: ["redis-string"], related: ["lazy-expire","active-expire"], commonIssues: ["大量 key 同时过期","过期 key 未及时释放"] },
-  /* <!-- KG_REVIEWED: 惰性删除 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-expire-command",
+      "redis-ttl-command",
+      "redis-persist-command",
+      "redis-set-command",
+      "redis-keyspace-notifications",
+      "redis-info-command",
+      "xiaolin-redis",
+    ],
+    id: "expire-policy",
+    zh: "过期策略",
+    en: "Expiration Policy",
+    area: "expiration",
+    difficulty: "medium",
+    summary: "Redis 过期策略用 TTL 标记 key 的生命周期，并通过访问时检查与后台抽样清理回收数据。",
+    explanation: [
+      "核心概念：过期策略给 key 绑定到期时间。`EXPIRE`、`PEXPIRE`、`EXPIREAT` 等命令设置 TTL，`TTL`/`PTTL` 查询剩余时间，`PERSIST` 移除过期时间；到期后 key 在逻辑上失效，后续读取会得到 key 已消失的结果。",
+      "清理机制：Redis 同时使用惰性删除和主动过期。惰性删除在访问 key 时检查 TTL 并清理过期数据；主动过期在后台周期性抽样带 TTL 的 key，发现过期就删除，用 CPU 时间换内存回收进度。",
+      "命令细节：`EXPIRE` 支持 NX、XX、GT、LT 条件控制，适合做幂等 TTL 设置、续期和缩短有效期。`SET` 默认会覆盖旧值并清除原 TTL，使用 `EX`/`PX` 可原子写入带过期时间的值，使用 `KEEPTTL` 可保留原 TTL；`INCR`、`HSET` 这类原地修改通常保留 key 的过期时间。",
+      "工程用法：缓存、验证码、登录态、限流窗口和临时锁都依赖 TTL。批量缓存要给 TTL 加随机抖动，热点数据要配合预热、异步刷新或逻辑过期，避免同一时间大量 key 失效造成 Redis CPU 和后端回源压力。",
+      "特殊情况：过期删除是近似实时机制，内存释放时间受访问模式、后台抽样和负载影响。keyspace notifications 可以发布 expired 事件，适合观测和弱通知；可靠任务调度、强顺序回调和精确触发要交给专门的消息队列或调度系统。",
+      "排查建议：先用 `TTL`/`PTTL` 看单个 key 的生命周期，再看 INFO 中 expired_keys、evicted_keys、used_memory、keyspace_hits/misses 和命令延迟。集中失效时重点检查 TTL 分布、写入批次、业务回源量、active expire CPU 开销和缓存预热策略。",
+      "参考来源：TTL 设置和条件参数参考 Redis EXPIRE；剩余时间参考 TTL；移除过期时间参考 PERSIST；写入时 TTL 行为参考 SET；过期事件参考 Keyspace notifications；线上指标参考 INFO；中文工程案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "EXPIRE、TTL、PERSIST 分别解决什么问题",
+      "惰性删除和主动过期如何配合清理过期 key",
+      "SET 覆盖旧值为什么会影响 TTL",
+      "NX、XX、GT、LT 在续期和幂等场景中如何使用",
+      "过期 key 为什么可能延迟释放内存",
+      "大量 key 同时过期如何降低 CPU 和回源压力",
+    ],
+    useCases: ["缓存自动失效", "会话过期", "验证码过期", "限流窗口", "临时锁释放"],
+    prerequisites: ["redis-string"],
+    related: ["lazy-expire", "active-expire", "expire-storm", "cache-avalanche", "redis-string"],
+    commonIssues: ["TTL 集中失效", "SET 覆盖导致 TTL 丢失", "过期事件配置缺失", "把过期事件用于可靠调度", "过期 key 延迟释放内存"],
+  },
+  /* <!-- KG_REVIEWED: 惰性删除 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 惰性删除 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "lazy-expire", zh: "惰性删除", en: "Lazy Expiration", area: "expiration", difficulty: "easy", explanation: ["核心概念：惰性删除（Lazy Expiration）聚焦惰性删除是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住过期时间、惰性删除和定期删除，再看输入、状态变化、输出结果和失败分支。","适用场景：惰性删除常用于访问 key 时顺便清理过期数据。学习时把它放回Redis链路中观察，并结合前置知识过期策略判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，惰性删除通常会和定期删除一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认过期时间、惰性删除和定期删除是否仍然成立。","常见误区与注意点：实践中容易把惰性删除当成孤立概念处理，结果遗漏集中失效、过期风暴、主从过期传播和内存残留。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["惰性删除适合什么使用场景","惰性删除可能带来哪些性能或一致性问题","惰性删除线上如何排查和治理"], useCases: ["访问 key 时顺便清理过期数据"], prerequisites: ["expire-policy"], related: ["active-expire"], commonIssues: ["长期不访问的过期 key 占内存"] },
-  /* <!-- KG_REVIEWED: 定期删除 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-expire-command", "redis-ttl-command", "redis-keyspace-notifications", "redis-info-command", "xiaolin-redis"],
+    id: "lazy-expire",
+    zh: "惰性删除",
+    en: "Lazy Expiration",
+    area: "expiration",
+    difficulty: "easy",
+    summary: "惰性删除在客户端访问 key 时检查 TTL，发现 key 已到期就顺手删除并按不存在处理。",
+    explanation: [
+      "核心概念：惰性删除也叫 passive expiration。Redis 在执行访问 key 的命令时，会先检查该 key 是否带过期时间以及当前时间是否已经超过到期时间；到期后立即删除 key，本次命令按 key 已消失处理。",
+      "工作价值：它把过期判断放在访问路径上，访问到的 key 能及时获得过期语义。比如 `GET` 一个已过期 key 会得到空结果，`TTL` 对已清理 key 返回 -2，应用层看到的是 key 生命周期已经结束。",
+      "与主动过期配合：惰性删除覆盖被访问的 key，主动过期覆盖长期无人访问的残留 key。两者组合后，Redis 既能让请求路径看到正确过期状态，也能持续回收后台积累的过期数据。",
+      "性能特点：单次 TTL 检查是常数级开销，通常很轻；当大量已过期 key 在短时间被集中访问，删除成本会落到请求路径上，Big Key、复杂对象和集中失效会放大延迟抖动。",
+      "特殊情况：过期事件触发依赖实际删除时机，因此 lazy expiration 可能在访问发生时才产生 expired 事件。监听 keyspace notifications 适合做观测和辅助清理，可靠业务流程要有自己的状态表或任务队列。",
+      "排查建议：单 key 先看 `TTL`/`PTTL`，全局看 INFO 的 expired_keys、keyspace_hits、keyspace_misses、used_memory 和延迟事件。发现内存残留时，重点检查低访问 key 的 TTL 分布、主动过期压力和是否存在大量大对象过期。",
+      "参考来源：passive expiration 定义与主动过期配合参考 Redis EXPIRE；TTL 返回语义参考 TTL；过期事件参考 Keyspace notifications；指标参考 INFO；中文工程案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "惰性删除在什么时候触发",
+      "访问已过期 key 时 Redis 会返回什么",
+      "为什么长期无人访问的过期 key 还会占内存",
+      "惰性删除和主动过期各自覆盖哪些场景",
+      "大量过期 key 被集中访问为什么会带来延迟",
+      "expired 事件为什么可能晚于 TTL 到期时间出现",
+    ],
+    useCases: ["访问 key 时顺便清理过期数据", "保证读取路径看到过期结果", "辅助释放会话和验证码 key"],
+    prerequisites: ["expire-policy"],
+    related: ["active-expire", "expire-storm", "ttl", "redis-string"],
+    commonIssues: ["长期不访问的过期 key 占内存", "集中访问已过期 key 带来延迟", "Big Key 删除成本落到请求路径", "过期事件出现时间晚于 TTL 到期"],
+  },
+  /* <!-- KG_REVIEWED: 定期删除 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 定期删除 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "active-expire", zh: "定期删除", en: "Active Expiration", area: "expiration", difficulty: "medium", explanation: ["核心概念：定期删除（Active Expiration）聚焦定期删除是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住过期时间、惰性删除和定期删除，再看输入、状态变化、输出结果和失败分支。","适用场景：定期删除常用于后台抽样清理过期 key。学习时把它放回Redis链路中观察，并结合前置知识过期策略判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，定期删除通常会和惰性删除一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认过期时间、惰性删除和定期删除是否仍然成立。","常见误区与注意点：实践中容易把定期删除当成孤立概念处理，结果遗漏集中失效、过期风暴、主从过期传播和内存残留。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["定期删除适合什么使用场景","定期删除可能带来哪些性能或一致性问题","定期删除线上如何排查和治理"], useCases: ["后台抽样清理过期 key"], prerequisites: ["expire-policy"], related: ["lazy-expire"], commonIssues: ["清理频率影响 CPU","过期风暴"] },
-  /* <!-- KG_REVIEWED: 过期风暴 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-expire-command", "redis-ttl-command", "redis-keyspace-notifications", "redis-info-command", "xiaolin-redis"],
+    id: "active-expire",
+    zh: "定期删除",
+    en: "Active Expiration",
+    area: "expiration",
+    difficulty: "medium",
+    summary: "定期删除让 Redis 在后台抽样检查带 TTL 的 key，主动清理已经到期的数据。",
+    explanation: [
+      "核心概念：定期删除也叫 active expiration。Redis 周期性从设置了过期时间的 key 集合中抽样，检查样本是否到期，并删除已经过期的 key，用后台工作弥补惰性删除只覆盖访问路径的局限。",
+      "清理逻辑：抽样清理追求总体收益和 CPU 开销平衡。过期 key 比例高时，Redis 会在过期循环中继续推进清理；实例负载高、过期 key 分布分散或数据量很大时，回收进度会呈现批次化特征。",
+      "与惰性删除配合：惰性删除保证被访问的过期 key 立即体现生命周期结束，定期删除负责长期无人访问的 key。理解 Redis 过期策略时，把这两条路径合起来看，才能解释内存释放时间和请求延迟变化。",
+      "性能影响：主动过期会消耗主线程 CPU。大量 key 在相近时间到期时，清理循环、对象释放和后端回源会同时升高；复杂对象、Big Key 和高写入负载会让延迟更明显。",
+      "复制与持久化：主节点删除过期 key 时，会把等价删除操作写入 AOF 并传播给副本。副本保留过期元数据，在被提升为主节点后可以独立执行过期处理。",
+      "排查建议：观察 INFO 中 expired_keys、used_memory、evicted_keys、keyspace_hits/misses、instantaneous_ops_per_sec，以及 latency 事件和业务回源曲线。治理手段包括 TTL 随机抖动、分批写入、热点预热、异步刷新和控制 Big Key。",
+      "参考来源：active expiration 和主从/AOF 过期处理参考 Redis EXPIRE；TTL 语义参考 TTL；过期事件参考 Keyspace notifications；指标参考 INFO；中文工程案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "定期删除为什么需要抽样清理",
+      "主动过期和惰性删除如何互补",
+      "过期 key 为什么会批次化释放内存",
+      "大量 key 同时到期为什么会带来 CPU 抖动",
+      "主从复制和 AOF 如何处理过期删除",
+      "线上如何通过指标判断过期清理压力",
+    ],
+    useCases: ["后台抽样清理过期 key", "回收长期无人访问的过期数据", "降低过期 key 内存残留"],
+    prerequisites: ["expire-policy"],
+    related: ["lazy-expire", "expire-storm", "redis-replication", "aof"],
+    commonIssues: ["清理循环消耗 CPU", "过期释放呈批次化", "TTL 集中到期", "Big Key 删除放大延迟", "副本过期行为理解偏差"],
+  },
+  /* <!-- KG_REVIEWED: 过期风暴 | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: 过期风暴 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "expire-storm", zh: "过期风暴", en: "Expiration Storm", area: "expiration", difficulty: "medium", explanation: ["核心概念：过期风暴（Expiration Storm）聚焦过期风暴是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住过期时间、惰性删除和定期删除，再看输入、状态变化、输出结果和失败分支。","适用场景：过期风暴常用于批量缓存设置过期时间的风险控制。学习时把它放回Redis链路中观察，并结合前置知识过期策略判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，过期风暴通常会和缓存雪崩一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认过期时间、惰性删除和定期删除是否仍然成立。","常见误区与注意点：实践中容易把过期风暴当成孤立概念处理，结果遗漏集中失效、过期风暴、主从过期传播和内存残留。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["过期风暴适合什么使用场景","过期风暴可能带来哪些性能或一致性问题","过期风暴线上如何排查和治理"], useCases: ["批量缓存设置过期时间的风险控制"], prerequisites: ["expire-policy"], related: ["cache-avalanche"], commonIssues: ["CPU 飙升","数据库瞬时压力变大"] },
-  /* <!-- KG_REVIEWED: 淘汰策略 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-expire-command", "redis-latency-docs", "redis-info-command", "aws-redis-caching-strategies", "xiaolin-redis", "javaguide"],
+    id: "expire-storm",
+    zh: "过期风暴",
+    en: "Expiration Storm",
+    area: "expiration",
+    difficulty: "medium",
+    summary: "过期风暴是大量 key 在同一时间窗失效，导致 Redis 删除、缓存 miss 和后端回源同时升高。",
+    explanation: [
+      "核心概念：过期风暴来自 TTL 时间集中。常见触发方式是批量导入缓存时使用相同 TTL、定时任务同时刷新缓存、热点活动结束时统一失效，最终大量 key 在同一小时间窗到期。",
+      "影响链路：Redis 需要集中做惰性删除和主动过期，CPU、对象释放和延迟会上升；业务请求同时遇到缓存 miss，会把流量打到数据库、搜索服务或下游接口，形成回源峰值。",
+      "与缓存雪崩关系：过期风暴强调 key 到期时间集中和 Redis 过期清理压力；缓存雪崩强调缓存层大面积失效后下游被压垮。过期风暴经常是缓存雪崩的一种触发路径。",
+      "治理重点：写入缓存时给 TTL 加随机抖动，例如基础 TTL 加上 0 到 N 分钟随机值；批量重建时分批写入；热点 key 使用异步刷新、提前刷新或逻辑过期；核心读路径配合互斥重建、限流和降级。",
+      "特殊情况：TTL 抖动要按业务容忍度设置，金融报价、库存锁定、验证码等时间敏感数据需要较窄窗口；热点数据随机过期后仍可能集中回源，要配合单飞请求、队列化重建或本地缓存兜底。",
+      "排查建议：把 Redis expired_keys 增速、latency 事件、CPU、used_memory、keyspace_misses、数据库 QPS、慢查询和业务错误率放在同一时间轴上看。若峰值和某批缓存写入时间一致，优先检查 TTL 分布和批处理任务。",
+      "参考来源：过期机制参考 Redis EXPIRE；延迟分析参考 Redis latency 文档；指标参考 INFO；TTL 抖动与缓存策略参考 AWS Redis caching whitepaper；中文缓存雪崩案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "过期风暴通常由哪些写缓存方式触发",
+      "过期风暴为什么会同时影响 Redis 和数据库",
+      "TTL 随机抖动应该解决什么问题",
+      "热点 key 过期为什么需要互斥重建或异步刷新",
+      "如何用指标判断过期风暴已经发生",
+      "过期风暴和缓存雪崩有什么关系",
+    ],
+    useCases: ["批量缓存 TTL 治理", "活动页热点缓存保护", "缓存预热和重建节奏控制"],
+    prerequisites: ["expire-policy", "active-expire", "lazy-expire"],
+    related: ["cache-avalanche", "cache-penetration", "hot-key", "redis-cache"],
+    commonIssues: ["TTL 集中到期", "Redis CPU 短时升高", "数据库瞬时回源", "热点 key 同时重建", "随机抖动窗口过窄"],
+  },
+  /* <!-- KG_REVIEWED: 淘汰策略 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 淘汰策略 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "eviction-policy", zh: "淘汰策略", en: "Eviction Policy", area: "memory", difficulty: "medium", explanation: ["核心概念：淘汰策略（Eviction Policy）聚焦淘汰策略是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住内存上限、淘汰策略、对象编码和热点治理，再看输入、状态变化、输出结果和失败分支。","适用场景：淘汰策略常用于内存达到上限后选择删除哪些 key。学习时把它放回Redis链路中观察，并结合前置知识Redis 内存管理判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，淘汰策略通常会和LRU和LFU一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认内存上限、淘汰策略、对象编码和热点治理是否仍然成立。","常见误区与注意点：实践中容易把淘汰策略当成孤立概念处理，结果遗漏碎片率、淘汰抖动、Big Key、Hot Key 和采样误差。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["淘汰策略适合什么使用场景","淘汰策略可能带来哪些性能或一致性问题","淘汰策略线上如何排查和治理"], useCases: ["内存达到上限后选择删除哪些 key"], prerequisites: ["redis-memory"], related: ["lru","lfu"], commonIssues: ["策略选择与业务不匹配","热数据被淘汰"] },
-  /* <!-- KG_REVIEWED: Redis 内存管理 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-key-eviction-docs", "redis-info-command", "redis-latency-docs", "xiaolin-redis", "javaguide"],
+    id: "eviction-policy",
+    zh: "淘汰策略",
+    en: "Eviction Policy",
+    area: "memory",
+    difficulty: "medium",
+    summary: "淘汰策略决定 Redis 达到 maxmemory 后如何选择 key 释放内存。",
+    explanation: [
+      "核心概念：Redis 配置 `maxmemory` 后，内存达到上限时会按 `maxmemory-policy` 选择 key 淘汰。淘汰关注内存上限下的生存竞争，过期策略关注 TTL 到期后的生命周期结束，两者经常同时出现在缓存系统中。",
+      "策略家族：`allkeys-lru` 和 `volatile-lru` 按最近使用倾向淘汰，`allkeys-lfu` 和 `volatile-lfu` 按访问频率倾向淘汰，`allkeys-random` 和 `volatile-random` 随机淘汰，`volatile-ttl` 优先淘汰剩余 TTL 更短的 key，`noeviction` 在内存不足时让写命令返回错误。",
+      "allkeys 与 volatile：allkeys 会在整个 keyspace 里选候选 key，适合纯缓存实例；volatile 只在设置了过期时间的 key 中选候选 key，适合把可淘汰缓存和长期数据放在同一实例的场景。",
+      "选择建议：一般缓存优先考虑 `allkeys-lru` 或 `allkeys-lfu`；访问频率稳定且热点明显时 LFU 更合适；临时缓存全都带 TTL 时可以考虑 volatile 系列；核心状态数据要规划独立实例或使用 `noeviction` 配合容量告警。",
+      "特殊情况：Redis 的 LRU/LFU 是近似算法，依赖抽样估计，样本数会影响精度和 CPU。Big Key 被淘汰时释放成本高，热 key 在采样误差或频率衰减下也可能被淘汰；副本缓冲区、AOF 重写和内存碎片会让实际内存压力早于业务预期出现。",
+      "排查建议：看 INFO 中 used_memory、maxmemory、evicted_keys、rejected_connections、mem_fragmentation_ratio、keyspace_hits/misses 和 latency 事件。淘汰异常时同时检查策略、是否所有缓存都带 TTL、Big Key 分布、热点访问模式和容量增长趋势。",
+      "参考来源：策略枚举、近似 LRU/LFU 和配置语义参考 Redis Key eviction；指标参考 INFO；延迟影响参考 Redis latency 文档；中文工程案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "maxmemory 和 maxmemory-policy 分别控制什么",
+      "allkeys-lru、volatile-lru、allkeys-lfu、volatile-ttl 如何选择",
+      "noeviction 会让哪些写入行为受影响",
+      "Redis 的 LRU/LFU 为什么存在采样误差",
+      "热 key 为什么也可能被淘汰",
+      "如何通过 INFO 判断实例已经发生淘汰",
+    ],
+    useCases: ["缓存实例容量保护", "内存达到上限后选择删除 key", "热点数据保留策略"],
+    prerequisites: ["redis-memory"],
+    related: ["lru", "lfu", "big-key", "hot-key", "redis-memory"],
+    commonIssues: ["策略选择与业务不匹配", "热数据被淘汰", "Big Key 淘汰造成延迟", "volatile 策略候选 key 不足", "noeviction 导致写入报错"],
+  },
+  /* <!-- KG_REVIEWED: Redis 内存管理 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: Redis 内存管理 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-memory", zh: "Redis 内存管理", en: "Redis Memory Management", area: "memory", difficulty: "medium", explanation: ["核心概念：Redis 内存管理（Redis Memory Management）聚焦Redis 内存管理是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住内存上限、淘汰策略、对象编码和热点治理，再看输入、状态变化、输出结果和失败分支。","适用场景：Redis 内存管理常用于容量规划、内存优化和大 Key 治理。学习时把它放回Redis链路中观察，并结合前置知识Redis 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Redis 内存管理通常会和大 Key和淘汰策略一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认内存上限、淘汰策略、对象编码和热点治理是否仍然成立。","常见误区与注意点：实践中容易把Redis 内存管理当成孤立概念处理，结果遗漏碎片率、淘汰抖动、Big Key、Hot Key 和采样误差。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Redis 内存管理适合什么使用场景","Redis 内存管理可能带来哪些性能或一致性问题","Redis 内存管理线上如何排查和治理"], useCases: ["容量规划","内存优化","大 Key 治理"], prerequisites: ["redis-overview"], related: ["big-key","eviction-policy"], commonIssues: ["内存碎片","大 Key 阻塞"] },
-  /* <!-- KG_REVIEWED: LRU | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-memory-optimization-docs",
+      "redis-memory-usage-command",
+      "redis-memory-stats-command",
+      "redis-memory-doctor-command",
+      "redis-info-command",
+      "redis-key-eviction-docs",
+      "xiaolin-redis",
+    ],
+    id: "redis-memory",
+    zh: "Redis 内存管理",
+    en: "Redis Memory Management",
+    area: "memory",
+    difficulty: "medium",
+    summary: "Redis 内存管理围绕容量上限、对象大小、碎片率、缓冲区和淘汰策略持续控制实例风险。",
+    explanation: [
+      "核心概念：Redis 数据主要在内存中，内存管理要同时看 key/value 数据、对象编码、元数据、客户端缓冲、复制缓冲、AOF/RDB 后台任务、allocator 开销和操作系统 RSS。容量规划只看业务数据大小会低估真实占用。",
+      "关键指标：`used_memory` 表示 Redis 分配器视角的内存，`used_memory_rss` 表示进程常驻内存，`mem_fragmentation_ratio` 反映 RSS 和分配内存的比例，`maxmemory` 决定上限，`evicted_keys` 反映淘汰次数，`expired_keys` 反映过期清理量。",
+      "定位工具：`MEMORY USAGE key` 用于估算单个 key 的内存占用，`MEMORY STATS` 给出全局内存分类，`MEMORY DOCTOR` 提供诊断建议，`INFO memory` 适合接入监控和趋势分析。",
+      "治理手段：先设置合理 `maxmemory` 和淘汰策略，再治理 Big Key、Hot Key 和无 TTL 缓存；对 Hash、List、Set、ZSet 等集合控制元素数量和编码阈值；批量删除大对象用渐进方式，降低主线程阻塞。",
+      "特殊情况：fork 生成 RDB、AOF 重写和全量同步会触发 Copy-on-Write，需要预留额外内存；客户端输出缓冲、复制积压缓冲区和慢消费者会占用可观内存；内存碎片高时，RSS 可能明显高于 Redis 逻辑数据量。",
+      "排查建议：先看 used_memory、used_memory_rss、mem_fragmentation_ratio、maxmemory、evicted_keys 和 client_recent_max_output_buffer，再用 `MEMORY USAGE` 找大 key，用 `SCAN` 分批抽样统计 key 类型和大小，最后结合业务 TTL、访问热点和淘汰策略做治理。",
+      "参考来源：对象编码和节省内存方法参考 Redis Memory optimization；单 key 估算参考 MEMORY USAGE；全局分类参考 MEMORY STATS；诊断建议参考 MEMORY DOCTOR；指标参考 INFO；淘汰行为参考 Key eviction；中文工程案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "used_memory、used_memory_rss 和 mem_fragmentation_ratio 分别表示什么",
+      "为什么 Redis 实际 RSS 会高于业务数据大小",
+      "如何定位单个 key 或某类 key 的内存占用",
+      "maxmemory 和淘汰策略如何配合容量规划",
+      "fork、AOF 重写和复制为什么会放大内存压力",
+      "Big Key、Hot Key 和无 TTL 缓存如何治理",
+    ],
+    useCases: ["容量规划", "内存优化", "大 Key 治理", "淘汰策略配置", "实例水位监控"],
+    prerequisites: ["redis-overview"],
+    related: ["big-key", "hot-key", "eviction-policy", "fork-cow", "aof-rewrite"],
+    commonIssues: ["内存碎片", "大 Key 阻塞", "客户端缓冲区膨胀", "COW 内存放大", "maxmemory 规划不足"],
+  },
+  /* <!-- KG_REVIEWED: LRU | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: LRU | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "lru", zh: "LRU", en: "Least Recently Used", area: "memory", difficulty: "medium", explanation: ["核心概念：LRU（Least Recently Used）聚焦LRU是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住内存上限、淘汰策略、对象编码和热点治理，再看输入、状态变化、输出结果和失败分支。","适用场景：LRU常用于淘汰最近最少使用的数据。学习时把它放回Redis链路中观察，并结合前置知识淘汰策略判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，LRU通常会和LFU一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认内存上限、淘汰策略、对象编码和热点治理是否仍然成立。","常见误区与注意点：实践中容易把LRU当成孤立概念处理，结果遗漏碎片率、淘汰抖动、Big Key、Hot Key 和采样误差。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["LRU适合什么使用场景","LRU可能带来哪些性能或一致性问题","LRU线上如何排查和治理"], useCases: ["淘汰最近最少使用的数据"], prerequisites: ["eviction-policy"], related: ["lfu"], commonIssues: ["偶发访问影响淘汰判断","近似 LRU 与理论 LRU 差异"] },
-  /* <!-- KG_REVIEWED: LFU | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-key-eviction-docs", "redis-info-command", "redis-latency-docs", "xiaolin-redis", "javaguide"],
+    id: "lru",
+    zh: "LRU",
+    en: "Least Recently Used",
+    area: "memory",
+    difficulty: "medium",
+    summary: "LRU 按最近访问时间选择淘汰候选，适合热点集中且最近访问能代表未来访问的缓存。",
+    explanation: [
+      "核心概念：LRU 是 Least Recently Used，意思是优先淘汰最近最少使用的 key。它背后的假设是近期被访问的数据更可能继续被访问，长期未访问的数据更适合释放内存。",
+      "Redis 实现：Redis 使用近似 LRU。每次需要淘汰时，Redis 随机抽样少量 key，从样本中选择空闲时间更长的 key；Redis 3.0 之后还维护候选池，让近似效果更接近理论 LRU，同时控制额外内存成本。",
+      "策略选择：`allkeys-lru` 会在所有 key 中按 LRU 倾向淘汰，适合纯缓存实例；`volatile-lru` 只在带 TTL 的 key 中选候选，适合缓存 key 与长期 key 共存的实例。纯缓存场景通常优先考虑 `allkeys-lru`。",
+      "调优参数：`maxmemory-samples` 控制每次淘汰抽样数量。样本数越大，淘汰结果越接近理论 LRU，CPU 开销也更高；样本数较小时性能更轻，采样误差更明显。",
+      "特殊情况：偶发访问会刷新最近访问时间，可能让一次性访问的数据短期内更安全；周期性扫描或批量读取会污染 LRU 判断；Big Key 被选中时释放成本高；热点快速变化时，LFU 或业务分层缓存可能更稳。",
+      "排查建议：通过 INFO 看 keyspace_hits、keyspace_misses、evicted_keys、used_memory 和 current_eviction_exceeded_time。命中率低且 evicted_keys 持续升高时，检查 maxmemory、策略、samples、热 key 分布和是否存在批量扫描污染。",
+      "参考来源：近似 LRU、`allkeys-lru`、`volatile-lru` 和 `maxmemory-samples` 参考 Redis Key eviction；指标参考 INFO；延迟影响参考 Redis latency 文档；中文工程案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "LRU 为什么能用于缓存淘汰",
+      "Redis 为什么采用近似 LRU",
+      "allkeys-lru 和 volatile-lru 如何选择",
+      "maxmemory-samples 如何影响命中率和 CPU",
+      "批量扫描为什么会污染 LRU 判断",
+      "如何用 INFO 判断 LRU 策略效果",
+    ],
+    useCases: ["淘汰最近最少使用的数据", "热点集中缓存", "纯缓存实例默认淘汰策略"],
+    prerequisites: ["eviction-policy"],
+    related: ["lfu", "eviction-policy", "hot-key", "big-key"],
+    commonIssues: ["偶发访问影响淘汰判断", "近似 LRU 采样误差", "批量扫描污染访问时间", "Big Key 淘汰带来延迟", "热点快速变化导致命中率下降"],
+  },
+  /* <!-- KG_REVIEWED: LFU | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: LFU | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "lfu", zh: "LFU", en: "Least Frequently Used", area: "memory", difficulty: "medium", explanation: ["核心概念：LFU（Least Frequently Used）聚焦LFU是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住内存上限、淘汰策略、对象编码和热点治理，再看输入、状态变化、输出结果和失败分支。","适用场景：LFU常用于淘汰访问频率低的数据。学习时把它放回Redis链路中观察，并结合前置知识淘汰策略判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，LFU通常会和LRU一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认内存上限、淘汰策略、对象编码和热点治理是否仍然成立。","常见误区与注意点：实践中容易把LFU当成孤立概念处理，结果遗漏碎片率、淘汰抖动、Big Key、Hot Key 和采样误差。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["LFU适合什么使用场景","LFU可能带来哪些性能或一致性问题","LFU线上如何排查和治理"], useCases: ["淘汰访问频率低的数据"], prerequisites: ["eviction-policy"], related: ["lru"], commonIssues: ["热点变化滞后","计数衰减参数难调"] },
-  /* <!-- KG_REVIEWED: 大 Key | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-key-eviction-docs", "redis-object-freq-command", "redis-info-command", "redis-latency-docs", "xiaolin-redis", "javaguide"],
+    id: "lfu",
+    zh: "LFU",
+    en: "Least Frequently Used",
+    area: "memory",
+    difficulty: "medium",
+    summary: "LFU 按访问频率选择淘汰候选，适合长期热点稳定的缓存。",
+    explanation: [
+      "核心概念：LFU 是 Least Frequently Used，意思是优先淘汰访问频率低的 key。它把“访问次数”作为缓存价值信号，适合商品详情、配置、用户画像等热点相对稳定的读多场景。",
+      "Redis 实现：Redis 使用近似 LFU。每个对象维护一个较小的频率计数器，访问 key 时按概率增加计数，计数增长速度由 `lfu-log-factor` 控制；时间过去后计数会衰减，衰减速度由 `lfu-decay-time` 控制。",
+      "策略选择：`allkeys-lfu` 会在所有 key 中按频率倾向淘汰，适合纯缓存实例；`volatile-lfu` 只在带 TTL 的 key 中选候选，适合可淘汰缓存和长期 key 共存的实例。",
+      "与 LRU 对比：LRU 更看重最近访问，适合热点变化快的场景；LFU 更看重累计频率，适合长期热点稳定的场景。活动突发热点、榜单页和推荐流缓存要根据热点持续时间调整衰减参数。",
+      "特殊情况：短时爆发访问会快速抬高频率，衰减太慢会让旧热点长期占据内存；衰减太快会削弱 LFU 的长期记忆。`OBJECT FREQ` 可以查看 key 的 LFU 计数，但它依赖 LFU 策略开启后才有意义。",
+      "排查建议：观察 INFO 中 evicted_keys、keyspace_hits、keyspace_misses、used_memory 和 current_eviction_exceeded_time；抽样查看热点 key 的 `OBJECT FREQ`，结合业务访问日志判断低频 key 是否被优先淘汰。",
+      "参考来源：近似 LFU、`allkeys-lfu`、`volatile-lfu`、`lfu-log-factor` 和 `lfu-decay-time` 参考 Redis Key eviction；频率查看参考 OBJECT FREQ；指标参考 INFO；延迟影响参考 Redis latency 文档；中文工程案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "LFU 为什么适合长期热点缓存",
+      "Redis 的 LFU 计数器为什么采用概率增长",
+      "lfu-log-factor 和 lfu-decay-time 分别影响什么",
+      "allkeys-lfu 和 volatile-lfu 如何选择",
+      "旧热点为什么可能长期占据内存",
+      "如何用 OBJECT FREQ 辅助分析 LFU 效果",
+    ],
+    useCases: ["淘汰访问频率低的数据", "长期热点缓存", "读多写少缓存保留"],
+    prerequisites: ["eviction-policy"],
+    related: ["lru", "eviction-policy", "hot-key", "redis-memory"],
+    commonIssues: ["热点变化滞后", "计数衰减参数难调", "短时爆发污染频率", "低频大对象占用内存", "volatile 策略候选不足"],
+  },
+  /* <!-- KG_REVIEWED: 大 Key | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 大 Key | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "big-key", zh: "大 Key", en: "Big Key", area: "memory", difficulty: "medium", explanation: ["核心概念：大 Key（Big Key）聚焦大 Key是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住内存上限、淘汰策略、对象编码和热点治理，再看输入、状态变化、输出结果和失败分支。","适用场景：大 Key常用于识别和拆分超大 value 或集合。学习时把它放回Redis链路中观察，并结合前置知识Redis 内存管理和Redis 数据类型判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，大 Key通常会和热 Key一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认内存上限、淘汰策略、对象编码和热点治理是否仍然成立。","常见误区与注意点：实践中容易把大 Key当成孤立概念处理，结果遗漏碎片率、淘汰抖动、Big Key、Hot Key 和采样误差。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["大 Key适合什么使用场景","大 Key可能带来哪些性能或一致性问题","大 Key线上如何排查和治理"], useCases: ["识别和拆分超大 value 或集合"], prerequisites: ["redis-memory","redis-data-types"], related: ["hot-key"], commonIssues: ["删除阻塞","网络传输慢","集群槽位压力集中"] },
-  /* <!-- KG_REVIEWED: 热 Key | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-cli-docs",
+      "redis-memory-usage-command",
+      "redis-scan-command",
+      "redis-unlink-command",
+      "redis-latency-docs",
+      "redis-memory-optimization-docs",
+      "xiaolin-redis",
+    ],
+    id: "big-key",
+    zh: "大 Key",
+    en: "Big Key",
+    area: "memory",
+    difficulty: "medium",
+    summary: "大 Key 是 value 或集合元素过大的 key，会放大内存、网络、阻塞和集群倾斜风险。",
+    explanation: [
+      "核心概念：大 Key 指单个 key 占用内存过大，可能是超长 String，也可能是元素数量巨大的 Hash、List、Set、ZSet、Stream。判断标准要结合业务，一般从内存占用、元素数量、序列化体积和操作耗时共同判断。",
+      "主要危害：读取大 Key 会占用网络带宽和客户端内存，删除或过期大 Key 会带来主线程释放成本，复制、AOF 重写、RDB 快照和集群迁移都会被放大；在 Cluster 中，大 Key 还会让单个槽位和节点压力集中。",
+      "发现方法：用 `redis-cli --bigkeys` 或 `--keystats` 做线上抽样扫描，用 `MEMORY USAGE key` 估算单 key 内存，用 `SCAN` 配合 `TYPE`、`STRLEN`、`HLEN`、`LLEN`、`SCARD`、`ZCARD` 等命令分批统计。线上扫描要限速，避开高峰。",
+      "治理方法：String 大值可拆成分片 key 或迁到对象存储；大 Hash/Set/ZSet 可按业务维度拆桶；列表和 Stream 控制长度并定期修剪；删除大 Key 优先用 `UNLINK` 或分批删除集合元素，降低请求路径阻塞。",
+      "特殊情况：大 Key 和热 Key 叠加时，单 key 既大又高频，会同时造成带宽、CPU 和节点倾斜。过期或淘汰大 Key 也可能产生延迟尖刺；批量导入、活动缓存和用户聚合数据是常见来源。",
+      "排查建议：把慢日志、latency 事件、网络流量、used_memory、evicted_keys、单节点 CPU、Cluster 槽位分布和业务 key 模式放在一起看。治理后要补上写入侧限制，防止同类大 Key 再次生成。",
+      "参考来源：`--bigkeys` 和 `--keystats` 参考 Redis CLI；单 key 内存估算参考 MEMORY USAGE；安全遍历参考 SCAN；异步释放参考 UNLINK；延迟影响参考 Redis latency 文档；内存优化参考 Redis Memory optimization；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "大 Key 应该从哪些维度判断",
+      "大 Key 为什么会造成网络、复制和删除延迟",
+      "redis-cli --bigkeys 和 MEMORY USAGE 分别适合做什么",
+      "线上扫描大 Key 为什么要限速",
+      "大集合如何拆分或分批删除",
+      "大 Key 和热 Key 叠加时如何治理",
+    ],
+    useCases: ["识别超大 value 或集合", "拆分聚合缓存", "降低删除和迁移风险", "Cluster 槽位压力治理"],
+    prerequisites: ["redis-memory", "redis-data-types"],
+    related: ["hot-key", "redis-memory", "eviction-policy", "redis-cluster"],
+    commonIssues: ["删除阻塞", "网络传输慢", "集群槽位压力集中", "过期释放延迟尖刺", "扫描命令影响线上实例"],
+  },
+  /* <!-- KG_REVIEWED: 热 Key | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 热 Key | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "hot-key", zh: "热 Key", en: "Hot Key", area: "memory", difficulty: "medium", explanation: ["核心概念：热 Key（Hot Key）聚焦热 Key是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住内存上限、淘汰策略、对象编码和热点治理，再看输入、状态变化、输出结果和失败分支。","适用场景：热 Key常用于识别高频访问 key和热点缓存保护。学习时把它放回Redis链路中观察，并结合前置知识Redis 内存管理判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，热 Key通常会和缓存击穿和负载均衡一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认内存上限、淘汰策略、对象编码和热点治理是否仍然成立。","常见误区与注意点：实践中容易把热 Key当成孤立概念处理，结果遗漏碎片率、淘汰抖动、Big Key、Hot Key 和采样误差。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["热 Key适合什么使用场景","热 Key可能带来哪些性能或一致性问题","热 Key线上如何排查和治理"], useCases: ["识别高频访问 key","热点缓存保护"], prerequisites: ["redis-memory"], related: ["cache-breakdown","load-balancing"], commonIssues: ["单节点 CPU 飙升","请求集中导致延迟上升"] },
-  /* <!-- KG_REVIEWED: 缓存策略 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-hotkeys-command",
+      "redis-cli-docs",
+      "redis-object-freq-command",
+      "redis-info-command",
+      "redis-latency-docs",
+      "redis-observability-docs",
+      "xiaolin-redis",
+    ],
+    id: "hot-key",
+    zh: "热 Key",
+    en: "Hot Key",
+    area: "memory",
+    difficulty: "medium",
+    summary: "热 Key 是访问量高度集中的 key，会把 CPU、网络、连接和槽位压力集中到少数节点。",
+    explanation: [
+      "核心概念：热 Key 指请求量远高于普通 key 的 key。它可能只是一个小 String，也可能同时是大 Key；风险来自访问集中度，读热点主要消耗 CPU 和网络，写热点还会带来同步、持久化和一致性压力。",
+      "典型来源：秒杀商品库存、首页配置、排行榜、热门内容详情、全局开关、活动状态和验证码计数都容易形成热点。Cluster 中同一个 key 固定落在一个槽位，热点会让单个主节点成为瓶颈。",
+      "识别方法：新版本可用 `HOTKEYS` 追踪热点；常见方式是 `redis-cli --hotkeys`、LFU 策略下的 `OBJECT FREQ`、客户端埋点、代理层统计、慢日志、latency 事件和节点 QPS 对比。线上采样要控制频率，避免观测本身制造压力。",
+      "读热点治理：把热点数据放进本地缓存或多级缓存，增加副本读能力，按业务维度拆分 key，使用随机副本 key 分摊读取，提前预热并延长热点 TTL。只读或弱一致数据最适合这类方案。",
+      "写热点治理：库存扣减、计数器和限流窗口这类写热点要做分片计数、队列化、批量合并、令牌桶或业务削峰。写热点分散后需要明确合并时机和一致性边界。",
+      "特殊情况：热 Key 过期会触发缓存击穿，大量请求同时回源；热 Key 被淘汰会导致命中率突然下降；大 Key 与热 Key 叠加时，单次请求和总请求量都会放大成本。",
+      "参考来源：热点识别参考 HOTKEYS、Redis CLI 和 OBJECT FREQ；指标参考 INFO、latency 与 Redis monitoring guidance；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "热 Key 和大 Key 的风险分别来自哪里",
+      "如何识别线上热 Key",
+      "读热点和写热点为什么要分开治理",
+      "Cluster 中热 Key 为什么会造成单节点瓶颈",
+      "热点 key 过期为什么容易引发缓存击穿",
+      "本地缓存和副本读适合哪些热点数据",
+    ],
+    useCases: ["识别高频访问 key", "热点缓存保护", "秒杀与活动流量削峰", "Cluster 单节点压力治理"],
+    prerequisites: ["redis-memory"],
+    related: ["cache-breakdown", "load-balancing", "big-key", "redis-cluster", "lfu"],
+    commonIssues: ["单节点 CPU 飙升", "请求集中导致延迟上升", "热点过期引发回源", "写热点合并复杂", "观测采样增加实例压力"],
+  },
+  /* <!-- KG_REVIEWED: 缓存策略 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 缓存策略 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-cache", zh: "缓存策略", en: "Cache Strategy", area: "cache", difficulty: "easy", explanation: ["核心概念：缓存策略（Cache Strategy）聚焦缓存策略是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住缓存模式、一致性和失效治理，再看输入、状态变化、输出结果和失败分支。","适用场景：缓存策略常用于数据库查询加速、热点数据读取和接口性能优化。学习时把它放回Redis链路中观察，并结合前置知识Redis 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，缓存策略通常会和Cache Aside和缓存一致性一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认缓存模式、一致性和失效治理是否仍然成立。","常见误区与注意点：实践中容易把缓存策略当成孤立概念处理，结果遗漏穿透、击穿、雪崩、双写一致性和回源风暴。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["缓存策略适合什么使用场景","缓存策略可能带来哪些性能或一致性问题","缓存策略线上如何排查和治理"], useCases: ["数据库查询加速","热点数据读取","接口性能优化"], prerequisites: ["redis-overview"], related: ["cache-aside","cache-consistency"], commonIssues: ["缓存命中率低","缓存与数据库不一致"] },
-  /* <!-- KG_REVIEWED: Cache Aside | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-cache-aside-docs",
+      "redis-caching-use-case",
+      "aws-redis-caching-strategies",
+      "redis-expire-command",
+      "redis-key-eviction-docs",
+      "redis-info-command",
+      "xiaolin-redis",
+    ],
+    id: "redis-cache",
+    zh: "缓存策略",
+    en: "Cache Strategy",
+    area: "cache",
+    difficulty: "easy",
+    summary: "Redis 缓存策略用内存副本加速读写，同时用 TTL、淘汰和一致性治理控制风险。",
+    explanation: [
+      "核心概念：缓存把高频读取的数据放到 Redis，缩短访问路径并降低数据库压力。数据库仍是权威数据源，缓存承担加速、削峰和热点保护，设计时要同时考虑命中率、数据新鲜度、容量和故障降级。",
+      "常见模式：Cache Aside 由业务代码先读缓存，未命中再读数据库并回填缓存；Write-through 在写入时同步更新缓存；Write-behind 先写缓存再异步落库，吞吐更高且一致性治理更复杂。后端业务最常见的是 Cache Aside。",
+      "关键配置：TTL 决定数据生命周期，随机抖动降低集中失效风险；`maxmemory` 和淘汰策略决定内存上限下保留哪些 key；key 设计、序列化大小和数据结构会影响内存、网络和命中率。",
+      "风险模型：缓存穿透来自不存在数据反复查库，缓存击穿来自热点 key 失效瞬间回源，缓存雪崩来自大量 key 或缓存集群同时失效，缓存一致性问题来自数据库与缓存更新时序。",
+      "特殊情况：强一致读、交易状态、库存扣减和权限判断要明确缓存可接受的陈旧窗口。热点数据要做预热、逻辑过期或互斥重建；低频数据、超大 value 和高写入数据会拉低缓存收益。",
+      "排查建议：看 INFO 的 keyspace_hits、keyspace_misses、expired_keys、evicted_keys、used_memory，结合数据库 QPS、慢查询、接口延迟和错误率。命中率下降时，优先检查 TTL 分布、淘汰策略、热点 key、空值缓存和回源保护。",
+      "参考来源：Cache Aside 流程参考 Redis Cache-aside；缓存价值参考 Redis Caching use case；缓存模式和 TTL 抖动参考 AWS Redis caching whitepaper；TTL 参考 EXPIRE；淘汰策略参考 Key eviction；指标参考 INFO；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Redis 缓存主要解决哪些性能问题",
+      "Cache Aside、Write-through、Write-behind 有什么差异",
+      "TTL、淘汰策略和命中率之间有什么关系",
+      "缓存穿透、击穿、雪崩分别如何产生",
+      "哪些数据适合放进缓存",
+      "如何用指标判断缓存策略是否有效",
+    ],
+    useCases: ["数据库查询加速", "热点数据读取", "接口性能优化", "削峰和降级", "多级缓存入口"],
+    prerequisites: ["redis-overview"],
+    related: ["cache-aside", "cache-consistency", "cache-penetration", "cache-breakdown", "cache-avalanche", "expire-policy"],
+    commonIssues: ["缓存命中率低", "缓存与数据库不一致", "TTL 集中失效", "热点 key 回源", "缓存数据过大"],
+  },
+  /* <!-- KG_REVIEWED: Cache Aside | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: Cache Aside | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "cache-aside", zh: "Cache Aside", en: "Cache Aside", area: "cache", difficulty: "medium", explanation: ["核心概念：Cache Aside聚焦Cache Aside是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住缓存模式、一致性和失效治理，再看输入、状态变化、输出结果和失败分支。","适用场景：Cache Aside常用于业务代码先读缓存，未命中再读数据库。学习时把它放回Redis链路中观察，并结合前置知识缓存策略判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Cache Aside通常会和缓存一致性一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认缓存模式、一致性和失效治理是否仍然成立。","常见误区与注意点：实践中容易把Cache Aside当成孤立概念处理，结果遗漏穿透、击穿、雪崩、双写一致性和回源风暴。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Cache Aside适合什么使用场景","Cache Aside可能带来哪些性能或一致性问题","Cache Aside线上如何排查和治理"], useCases: ["业务代码先读缓存，未命中再读数据库"], prerequisites: ["redis-cache"], related: ["cache-consistency"], commonIssues: ["并发回源","写后删除缓存失败"] },
-  /* <!-- KG_REVIEWED: 缓存一致性 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-cache-aside-docs", "azure-cache-aside-pattern", "aws-redis-caching-strategies", "redis-info-command", "xiaolin-redis", "javaguide"],
+    id: "cache-aside",
+    zh: "Cache Aside",
+    en: "Cache Aside",
+    area: "cache",
+    difficulty: "medium",
+    summary: "Cache Aside 由业务代码按需读取缓存、回源数据库、回填缓存，是后端最常见的缓存模式。",
+    explanation: [
+      "核心概念：Cache Aside 也叫 lazy loading。读请求先查 Redis，命中直接返回；未命中读取数据库，再把结果写回 Redis。缓存只保存被访问过的数据，业务代码负责加载、回填和失效。",
+      "读流程：`GET cache` 命中时返回缓存；miss 时查询数据库，查到数据后 `SET` 缓存并设置 TTL，随后返回结果。对空结果可以写入短 TTL 空值缓存，降低不存在数据反复查库的压力。",
+      "写流程：常见做法是先更新数据库，再删除缓存，让下一次读取回源并回填新值。删除缓存比直接更新缓存更常见，因为写入路径通常缺少完整读模型，直接更新容易遗漏派生字段和聚合结果。",
+      "并发边界：热点 key 同时 miss 会造成并发回源，可用互斥重建、singleflight、本地短缓存或逻辑过期控制；读写并发可能回填旧值，需要结合延迟双删、版本号、消息补偿或较短 TTL 降低脏缓存窗口。",
+      "适用场景：读多写少、允许短暂陈旧、数据可从数据库重建的场景最适合 Cache Aside。强一致交易状态、实时库存和权限决策要明确陈旧窗口和降级策略。",
+      "排查建议：看 keyspace_hits、keyspace_misses、数据库 QPS、缓存写入量、删除失败日志、热点 key 分布和接口 P99。命中率下降时，检查 TTL、淘汰、空值缓存、热点过期和回填失败。",
+      "参考来源：基本流程参考 Redis Cache-aside；模式说明和一致性边界参考 Azure Cache-Aside pattern；缓存策略参考 AWS Redis caching whitepaper；指标参考 INFO；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "Cache Aside 的读流程和写流程分别是什么",
+      "为什么写入后常见做法是删除缓存",
+      "缓存 miss 并发回源如何控制",
+      "读写并发为什么可能回填旧值",
+      "空值缓存如何配合 Cache Aside",
+      "哪些业务数据适合使用 Cache Aside",
+    ],
+    useCases: ["业务代码先读缓存，未命中再读数据库", "读多写少查询加速", "热点数据按需加载", "空值缓存保护数据库"],
+    prerequisites: ["redis-cache"],
+    related: ["cache-consistency", "delayed-double-delete", "mutex-rebuild", "logical-expire", "null-cache", "cache-breakdown"],
+    commonIssues: ["并发回源", "写后删除缓存失败", "读写并发回填旧值", "缓存 TTL 设置过长", "空值缓存污染"],
+  },
+  /* <!-- KG_REVIEWED: 缓存一致性 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 缓存一致性 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "cache-consistency", zh: "缓存一致性", en: "Cache Consistency", area: "cache", difficulty: "hard", explanation: ["核心概念：缓存一致性（Cache Consistency）聚焦缓存一致性是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住缓存模式、一致性和失效治理，再看输入、状态变化、输出结果和失败分支。","适用场景：缓存一致性常用于保证缓存和数据库最终一致。学习时把它放回Redis链路中观察，并结合前置知识Cache Aside判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，缓存一致性通常会和延迟双删一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认缓存模式、一致性和失效治理是否仍然成立。","常见误区与注意点：实践中容易把缓存一致性当成孤立概念处理，结果遗漏穿透、击穿、雪崩、双写一致性和回源风暴。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["缓存一致性适合什么使用场景","缓存一致性可能带来哪些性能或一致性问题","缓存一致性线上如何排查和治理"], useCases: ["保证缓存和数据库最终一致"], prerequisites: ["cache-aside"], related: ["delayed-double-delete"], commonIssues: ["更新数据库和删除缓存的时序问题","读写并发导致脏缓存"] },
-  /* <!-- KG_REVIEWED: 延迟双删 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-cache-consistency-blog",
+      "redis-cache-aside-docs",
+      "azure-cache-aside-pattern",
+      "aws-redis-caching-strategies",
+      "redis-expire-command",
+      "xiaolin-redis",
+      "javaguide",
+    ],
+    id: "cache-consistency",
+    zh: "缓存一致性",
+    en: "Cache Consistency",
+    area: "cache",
+    difficulty: "hard",
+    summary: "缓存一致性控制数据库更新后缓存出现旧值的时间窗口，让缓存最终回到正确状态。",
+    explanation: [
+      "核心概念：缓存一致性关注数据库和 Redis 中同一份业务数据是否同步。后端缓存通常追求可控的最终一致：短时间内允许旧值存在，但必须有 TTL、删除、补偿或版本机制让旧值收敛。",
+      "常见策略：Cache Aside 下常见做法是先更新数据库，再删除缓存。后续读请求 miss 后从数据库加载新值并回填缓存。这个策略把数据库作为权威来源，缓存承担加速层。",
+      "风险时序：删除缓存失败会让旧值继续存在；读请求在写请求提交前回源旧值，随后又把旧值回填缓存；并发写入乱序会让后到的旧版本覆盖新版本；消息延迟会让缓存失效动作晚到。",
+      "治理手段：给缓存设置合理 TTL 作为最终兜底；删除失败写入重试队列或 outbox；缓存值携带版本号或更新时间，回填时比较版本；高风险场景用延迟双删、订阅数据库变更日志或业务消息做补偿。",
+      "特殊情况：强一致读可以绕过缓存直读数据库，或使用短事务内同步写缓存并加版本校验。库存、余额、权限和交易状态要明确陈旧窗口，核心写路径要有幂等、重试和审计。",
+      "排查建议：记录数据库版本、缓存版本、删除缓存结果和回填来源。线上看脏读投诉、缓存命中率、删除失败日志、消息积压、数据库 binlog/CDC 延迟和接口读写时间线。",
+      "参考来源：一致性维护方式参考 Redis cache consistency blog；Cache Aside 流程参考 Redis Cache-aside 与 Azure Cache-Aside pattern；缓存模式参考 AWS Redis caching whitepaper；TTL 兜底参考 EXPIRE；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "缓存一致性通常追求什么级别的一致性",
+      "为什么常见做法是更新数据库后删除缓存",
+      "删除缓存失败会造成什么后果",
+      "读写并发为什么可能回填旧值",
+      "TTL、版本号、消息补偿分别解决什么问题",
+      "强一致业务如何处理缓存读取",
+    ],
+    useCases: ["保证缓存和数据库最终一致", "控制脏缓存时间窗口", "读写并发场景缓存治理", "缓存删除失败补偿"],
+    prerequisites: ["cache-aside"],
+    related: ["delayed-double-delete", "cache-aside", "logical-expire", "redis-stream", "message-ack"],
+    commonIssues: ["更新数据库和删除缓存的时序问题", "读写并发导致脏缓存", "删除失败缺少重试", "消息补偿延迟", "缓存 TTL 过长"],
+  },
+  /* <!-- KG_REVIEWED: 延迟双删 | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: 延迟双删 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "delayed-double-delete", zh: "延迟双删", en: "Delayed Double Delete", area: "cache", difficulty: "hard", explanation: ["核心概念：延迟双删（Delayed Double Delete）聚焦延迟双删是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住缓存模式、一致性和失效治理，再看输入、状态变化、输出结果和失败分支。","适用场景：延迟双删常用于降低并发读写下脏缓存概率。学习时把它放回Redis链路中观察，并结合前置知识缓存一致性判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，延迟双删通常会和Cache Aside一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认缓存模式、一致性和失效治理是否仍然成立。","常见误区与注意点：实践中容易把延迟双删当成孤立概念处理，结果遗漏穿透、击穿、雪崩、双写一致性和回源风暴。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["延迟双删适合什么使用场景","延迟双删可能带来哪些性能或一致性问题","延迟双删线上如何排查和治理"], useCases: ["降低并发读写下脏缓存概率"], prerequisites: ["cache-consistency"], related: ["cache-aside"], commonIssues: ["延迟时间难设","依赖业务读写耗时"] },
-  /* <!-- KG_REVIEWED: 缓存穿透 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-cache-consistency-blog", "azure-cache-aside-pattern", "redis-expire-command", "alibaba-cache-consistency", "xiaolin-redis", "javaguide"],
+    id: "delayed-double-delete",
+    zh: "延迟双删",
+    en: "Delayed Double Delete",
+    area: "cache",
+    difficulty: "hard",
+    summary: "延迟双删通过两次删除缓存，降低读写并发下旧值重新回填缓存的概率。",
+    explanation: [
+      "核心概念：延迟双删用于 Cache Aside 的读写并发窗口。典型流程是先删除缓存，再更新数据库，等待一小段时间后再次删除缓存；第二次删除用于清掉并发读请求可能回填进去的旧值。",
+      "问题场景：读请求 miss 后读取数据库旧值，写请求随后更新数据库；如果读请求在写请求之后把旧值写回缓存，缓存会进入脏数据状态。延迟双删试图用第二次删除覆盖这个回填窗口。",
+      "延迟估算：等待时间要覆盖一次读请求从查库到回填缓存的耗时，并留出网络抖动。常见做法是参考接口 P99、数据库查询 P99、缓存写入 P99 和业务超时时间设置，再通过压测和线上观测调整。",
+      "可靠性要求：第二次删除要异步化并具备重试、幂等和告警。服务宕机、任务丢失、Redis 短暂不可用都会让第二次删除缺席，因此生产里常配合消息队列、outbox 或 CDC 兜底。",
+      "适用边界：延迟双删适合读多写少、允许短暂陈旧的业务。强一致场景要使用版本校验、事务读库、写路径同步策略或直接绕过缓存；热点 key 场景还要配合互斥重建，降低并发回源。",
+      "排查建议：记录两次删除的 key、时间、结果、数据库版本和回填版本。出现脏缓存时，把读请求回源时间、写请求提交时间、第二次删除时间和缓存写入时间串成时间线。",
+      "参考来源：缓存一致性方法参考 Redis cache consistency blog；Cache Aside 一致性边界参考 Azure Cache-Aside pattern；TTL 兜底参考 EXPIRE；延迟双删工程讨论参考阿里云开发者社区、小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "延迟双删要解决哪类读写并发窗口",
+      "为什么需要第二次删除缓存",
+      "延迟时间应该如何估算",
+      "第二次删除失败如何补偿",
+      "延迟双删适合哪些业务场景",
+      "脏缓存问题如何还原请求时间线",
+    ],
+    useCases: ["降低并发读写下脏缓存概率", "Cache Aside 写路径补偿", "读多写少场景一致性兜底"],
+    prerequisites: ["cache-consistency"],
+    related: ["cache-aside", "logical-expire", "mutex-rebuild", "redis-stream", "message-ack"],
+    commonIssues: ["延迟时间难设", "第二次删除任务丢失", "依赖业务读写耗时", "热点 key 并发回源", "强一致场景风险高"],
+  },
+  /* <!-- KG_REVIEWED: 缓存穿透 | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: 缓存穿透 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "cache-penetration", zh: "缓存穿透", en: "Cache Penetration", area: "cache", difficulty: "medium", explanation: ["核心概念：缓存穿透（Cache Penetration）聚焦缓存穿透是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住缓存模式、一致性和失效治理，再看输入、状态变化、输出结果和失败分支。","适用场景：缓存穿透常用于防止不存在的数据反复打到数据库。学习时把它放回Redis链路中观察，并结合前置知识缓存策略判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，缓存穿透通常会和布隆过滤器和空值缓存一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认缓存模式、一致性和失效治理是否仍然成立。","常见误区与注意点：实践中容易把缓存穿透当成孤立概念处理，结果遗漏穿透、击穿、雪崩、双写一致性和回源风暴。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["缓存穿透适合什么使用场景","缓存穿透可能带来哪些性能或一致性问题","缓存穿透线上如何排查和治理"], useCases: ["防止不存在的数据反复打到数据库"], prerequisites: ["redis-cache"], related: ["bloom-filter","null-cache"], commonIssues: ["恶意请求不存在 key","空值缓存过期策略"] },
-  /* <!-- KG_REVIEWED: 布隆过滤器 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-cache-aside-docs", "redis-bloom-filter-docs", "redis-expire-command", "redis-info-command", "xiaolin-redis", "javaguide"],
+    id: "cache-penetration",
+    zh: "缓存穿透",
+    en: "Cache Penetration",
+    area: "cache",
+    difficulty: "medium",
+    summary: "缓存穿透是请求查询不存在的数据，缓存和数据库都查不到，导致流量持续打到数据库。",
+    explanation: [
+      "核心概念：缓存穿透发生在请求对象本身不存在时。Cache Aside 流程里，缓存 miss 后会查数据库；数据库也查不到时，如果结果没有被缓存，下一次相同请求还会继续 miss 并查库。",
+      "典型来源：恶意请求随机 ID、爬虫枚举不存在商品、客户端参数错误、历史删除数据、灰度期间 ID 生成规则变化，都可能制造大量不存在 key。",
+      "治理方案：第一层做参数校验和权限校验，拦截明显非法请求；第二层做空值缓存，把不存在结果写入 Redis 并设置较短 TTL；第三层用布隆过滤器判断 ID 是否可能存在，在查缓存和查库前先过滤。",
+      "空值缓存：实现简单，适合不存在结果规模可控、短时间重复访问多的场景。要设置短 TTL，并区分空值和系统异常；数据后来创建成功时，要主动删除对应空值缓存或使用版本/更新时间避免误判。",
+      "布隆过滤器：内存占用低，适合过滤海量不存在 ID。它可能误判存在，误判时仍会进入缓存和数据库；容量和误判率要提前规划，数据删除和重建也要设计同步流程。",
+      "排查建议：关注 keyspace_misses、数据库空结果比例、404/空响应比例、接口参数分布、异常 IP/用户、空值缓存数量和布隆过滤器命中率。穿透流量通常表现为缓存命中率下降且数据库空查询升高。",
+      "参考来源：Cache Aside miss 流程参考 Redis Cache-aside；布隆过滤器语义参考 Redis Bloom filter；空值 TTL 参考 EXPIRE；指标参考 INFO；中文工程案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "缓存穿透为什么会持续打到数据库",
+      "空值缓存适合解决什么问题",
+      "布隆过滤器为什么能拦截不存在 ID",
+      "空值缓存 TTL 应该如何设置",
+      "数据后来创建成功时如何处理空值缓存",
+      "如何通过指标判断缓存穿透",
+    ],
+    useCases: ["防止不存在的数据反复打到数据库", "恶意 ID 枚举防护", "空结果高频查询治理"],
+    prerequisites: ["redis-cache"],
+    related: ["bloom-filter", "null-cache", "cache-aside", "redis-cache"],
+    commonIssues: ["恶意请求不存在 key", "空值缓存过期策略", "空值缓存和真实数据冲突", "布隆过滤器误判", "布隆过滤器容量预估不足"],
+  },
+  /* <!-- KG_REVIEWED: 布隆过滤器 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 布隆过滤器 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "bloom-filter", zh: "布隆过滤器", en: "Bloom Filter", area: "cache", difficulty: "medium", explanation: ["核心概念：布隆过滤器（Bloom Filter）聚焦布隆过滤器是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住缓存模式、一致性和失效治理，再看输入、状态变化、输出结果和失败分支。","适用场景：布隆过滤器常用于快速判断 key 是否可能存在。学习时把它放回Redis链路中观察，并结合前置知识缓存穿透判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，布隆过滤器通常会和Bitmap一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认缓存模式、一致性和失效治理是否仍然成立。","常见误区与注意点：实践中容易把布隆过滤器当成孤立概念处理，结果遗漏穿透、击穿、雪崩、双写一致性和回源风暴。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["布隆过滤器适合什么使用场景","布隆过滤器可能带来哪些性能或一致性问题","布隆过滤器线上如何排查和治理"], useCases: ["快速判断 key 是否可能存在"], prerequisites: ["cache-penetration"], related: ["bitmap"], commonIssues: ["误判","删除困难","容量预估错误"] },
-  /* <!-- KG_REVIEWED: 空值缓存 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-bloom-filter-docs",
+      "redis-bf-reserve-command",
+      "redis-bf-add-command",
+      "redis-bf-exists-command",
+      "redis-bitmaps-docs",
+      "xiaolin-redis",
+      "javaguide",
+    ],
+    id: "bloom-filter",
+    zh: "布隆过滤器",
+    en: "Bloom Filter",
+    area: "cache",
+    difficulty: "medium",
+    summary: "布隆过滤器用位数组和多哈希判断元素是否可能存在，常用于拦截缓存穿透。",
+    explanation: [
+      "核心概念：布隆过滤器是一种概率型数据结构。添加元素时，用多个哈希函数把元素映射到位数组的多个位置并置 1；查询时，所有对应位都为 1，结果是可能存在；存在任一位为 0，结果是一定不存在。",
+      "误判特性：布隆过滤器会有假阳性，也就是把不存在元素判断为可能存在；标准布隆过滤器对已添加元素没有假阴性。误判率由容量、位数组大小和哈希数量决定，元素超过预估容量后误判率会升高。",
+      "Redis 用法：Redis Bloom 模块提供 `BF.RESERVE` 创建过滤器并指定误判率和容量，`BF.ADD` 添加元素，`BF.EXISTS` 判断元素是否可能存在。使用前要确认部署环境包含 Redis Stack 或 RedisBloom 模块。",
+      "缓存穿透场景：请求进入后先查布隆过滤器，判断一定不存在时直接返回空结果；判断可能存在时再走缓存和数据库。这样可以把大量随机不存在 ID 拦在数据库之前。",
+      "特殊情况：标准布隆过滤器删除困难，因为多个元素可能共享同一位；数据删除、ID 回收和批量重建要设计同步流程。动态增长、分片布隆过滤器或可计数布隆过滤器可以覆盖更复杂场景。",
+      "工程建议：容量按峰值对象数预估，并留增长余量；误判率按数据库可承受空查询比例设置；初始化时批量导入全量 ID，增量创建时同步写入过滤器。监控过滤器拦截率、误判带来的数据库空查和重建耗时。",
+      "参考来源：数据结构和命令参考 Redis Bloom filter；容量和误判率初始化参考 BF.RESERVE；添加与查询参考 BF.ADD、BF.EXISTS；位数组思路参考 Redis Bitmaps；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "布隆过滤器为什么能快速判断元素是否可能存在",
+      "假阳性和假阴性分别是什么意思",
+      "容量和误判率为什么要提前规划",
+      "BF.RESERVE、BF.ADD、BF.EXISTS 分别做什么",
+      "布隆过滤器如何用于缓存穿透",
+      "数据删除和过滤器重建应该如何处理",
+    ],
+    useCases: ["快速判断 key 是否可能存在", "缓存穿透防护", "海量 ID 存在性判断", "请求前置过滤"],
+    prerequisites: ["cache-penetration"],
+    related: ["bitmap", "null-cache", "cache-penetration", "redis-cache"],
+    commonIssues: ["误判", "删除困难", "容量预估错误", "模块依赖缺失", "全量重建耗时"],
+  },
+  /* <!-- KG_REVIEWED: 空值缓存 | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: 空值缓存 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "null-cache", zh: "空值缓存", en: "Null Value Cache", area: "cache", difficulty: "easy", explanation: ["核心概念：空值缓存（Null Value Cache）聚焦空值缓存是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住缓存模式、一致性和失效治理，再看输入、状态变化、输出结果和失败分支。","适用场景：空值缓存常用于缓存不存在结果，保护数据库。学习时把它放回Redis链路中观察，并结合前置知识缓存穿透判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，空值缓存通常会和Cache Aside一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认缓存模式、一致性和失效治理是否仍然成立。","常见误区与注意点：实践中容易把空值缓存当成孤立概念处理，结果遗漏穿透、击穿、雪崩、双写一致性和回源风暴。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["空值缓存适合什么使用场景","空值缓存可能带来哪些性能或一致性问题","空值缓存线上如何排查和治理"], useCases: ["缓存不存在结果，保护数据库"], prerequisites: ["cache-penetration"], related: ["cache-aside"], commonIssues: ["空值过多占内存","短 TTL 设置不合理"] },
-  /* <!-- KG_REVIEWED: 缓存击穿 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-cache-aside-docs", "azure-cache-aside-pattern", "redis-expire-command", "redis-info-command", "xiaolin-redis", "javaguide"],
+    id: "null-cache",
+    zh: "空值缓存",
+    en: "Null Value Cache",
+    area: "cache",
+    difficulty: "easy",
+    summary: "空值缓存把数据库查不到的结果也写入 Redis，用短 TTL 拦截重复空查询。",
+    explanation: [
+      "核心概念：空值缓存是缓存穿透治理手段。Cache Aside miss 后查询数据库，数据库返回不存在时，把一个特殊哨兵值写入 Redis；后续相同请求命中哨兵值后直接返回空结果。",
+      "实现要点：哨兵值要和正常业务值区分清楚，例如 `__NULL__`、带类型字段的 JSON 或独立状态码。写入时使用较短 TTL，避免不存在结果长期占用内存，也给后续数据创建留出自动恢复窗口。",
+      "适用场景：不存在 key 重复访问较多、业务可以接受短时间空结果、对象创建频率较低时，空值缓存很实用。它实现简单，常与参数校验、限流和布隆过滤器组合使用。",
+      "特殊情况：数据库超时、网络错误和权限失败要和真实不存在区分。系统异常写成空值缓存会掩盖故障；数据后来创建成功时，要主动删除空值缓存或通过写路径覆盖缓存。",
+      "容量风险：攻击者构造大量随机 key 时，空值缓存会产生很多短期 key，占用内存并增加淘汰压力。需要限制 key 格式、设置短 TTL、控制空值缓存数量，并监控异常来源。",
+      "排查建议：关注 keyspace_misses、空值缓存命中率、数据库空查询比例、空值 key 数量、内存水位和异常请求来源。空值缓存命中很高时，继续检查接口参数、爬虫流量和业务 ID 生成规则。",
+      "参考来源：Cache Aside miss 与回填流程参考 Redis Cache-aside 和 Azure Cache-Aside pattern；短 TTL 参考 EXPIRE；指标参考 INFO；缓存穿透与空值缓存案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "空值缓存如何缓解缓存穿透",
+      "哨兵值为什么要和正常值区分",
+      "空值缓存 TTL 为什么通常较短",
+      "系统异常为什么要和真实不存在区分",
+      "数据后来创建成功时如何清理空值缓存",
+      "大量随机不存在 key 会带来什么风险",
+    ],
+    useCases: ["缓存不存在结果，保护数据库", "重复空查询治理", "轻量级缓存穿透防护"],
+    prerequisites: ["cache-penetration"],
+    related: ["cache-aside", "bloom-filter", "cache-penetration", "expire-policy"],
+    commonIssues: ["空值过多占内存", "短 TTL 设置不合理", "异常结果误写为空值", "真实数据创建后仍命中空值", "恶意随机 key 撑大缓存"],
+  },
+  /* <!-- KG_REVIEWED: 缓存击穿 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 缓存击穿 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "cache-breakdown", zh: "缓存击穿", en: "Cache Breakdown", area: "cache", difficulty: "medium", explanation: ["核心概念：缓存击穿（Cache Breakdown）聚焦缓存击穿是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住缓存模式、一致性和失效治理，再看输入、状态变化、输出结果和失败分支。","适用场景：缓存击穿常用于保护热点 key 过期瞬间的数据库压力。学习时把它放回Redis链路中观察，并结合前置知识热 Key和缓存策略判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，缓存击穿通常会和互斥重建缓存和逻辑过期一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认缓存模式、一致性和失效治理是否仍然成立。","常见误区与注意点：实践中容易把缓存击穿当成孤立概念处理，结果遗漏穿透、击穿、雪崩、双写一致性和回源风暴。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["缓存击穿适合什么使用场景","缓存击穿可能带来哪些性能或一致性问题","缓存击穿线上如何排查和治理"], useCases: ["保护热点 key 过期瞬间的数据库压力"], prerequisites: ["hot-key","redis-cache"], related: ["mutex-rebuild","logical-expire"], commonIssues: ["热点 key 同时回源","互斥锁粒度过大"] },
-  /* <!-- KG_REVIEWED: 互斥重建缓存 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-cache-aside-docs",
+      "redis-expire-command",
+      "redis-set-command",
+      "redis-hotkeys-command",
+      "redis-info-command",
+      "xiaolin-redis",
+      "javaguide",
+    ],
+    id: "cache-breakdown",
+    zh: "缓存击穿",
+    en: "Cache Breakdown",
+    area: "cache",
+    difficulty: "medium",
+    summary: "缓存击穿是单个热点 key 失效后，大量并发请求同时回源重建缓存。",
+    explanation: [
+      "核心概念：缓存击穿关注单个热点 key 的失效瞬间。这个 key 平时命中率很高，一旦 TTL 到期或被删除，所有并发请求都会发现缓存 miss，并同时访问数据库或下游服务，形成 cache stampede。",
+      "触发链路：热点 key 到期、缓存被淘汰、主动删除缓存、实例重启后未预热，都可能让请求从 Redis 转向数据库。回源查询耗时越长，并发堆积越明显，数据库连接池、线程池和接口 P99 会迅速变差。",
+      "治理手段：互斥重建让一个请求获得锁并回源，其余请求等待、快速失败或读取旧值；逻辑过期让缓存物理上继续存在，过期后由后台异步刷新；热点 key 也可以预热、延长 TTL、加随机抖动或使用多级缓存。",
+      "互斥细节：锁通常用 `SET key value NX PX ttl` 实现，锁 TTL 要覆盖重建耗时，并配合唯一 value 防止误删。重建失败时要释放锁、记录告警，并给等待请求设置降级路径。",
+      "逻辑过期细节：缓存值中保存业务过期时间，读到过期值时先返回旧数据，再触发异步刷新。它适合能接受短暂旧值的热点读场景，可以把数据库压力从请求峰值中移走。",
+      "排查建议：关注热点 key 的 miss 时刻、数据库 QPS、连接池等待、keyspace_misses、latency、接口 P99 和锁竞争次数。若尖峰与 TTL 到期一致，优先检查热点 TTL、预热任务和重建保护。",
+      "参考来源：Cache Aside 与 cache stampede 场景参考 Redis Cache-aside；TTL 语义参考 EXPIRE；互斥锁基础命令参考 SET；热点识别参考 HOTKEYS；指标参考 INFO；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "缓存击穿为什么通常发生在热点 key 上",
+      "热点 key 失效后为什么会形成并发回源",
+      "互斥重建如何控制同时回源数量",
+      "逻辑过期如何缓解请求峰值",
+      "锁 TTL 和重建耗时如何匹配",
+      "如何通过指标定位缓存击穿",
+    ],
+    useCases: ["保护热点 key 过期瞬间的数据库压力", "热点缓存重建保护", "活动页和商品详情缓存保护"],
+    prerequisites: ["hot-key", "redis-cache"],
+    related: ["mutex-rebuild", "logical-expire", "hot-key", "cache-aside", "expire-policy"],
+    commonIssues: ["热点 key 同时回源", "互斥锁粒度过大", "锁 TTL 短于重建耗时", "逻辑过期读到旧值", "重建失败缺少降级"],
+  },
+  /* <!-- KG_REVIEWED: 互斥重建缓存 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 互斥重建缓存 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "mutex-rebuild", zh: "互斥重建缓存", en: "Mutex Cache Rebuild", area: "cache", difficulty: "medium", explanation: ["核心概念：互斥重建缓存（Mutex Cache Rebuild）聚焦互斥重建缓存是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住缓存模式、一致性和失效治理，再看输入、状态变化、输出结果和失败分支。","适用场景：互斥重建缓存常用于只允许一个请求回源重建热点缓存。学习时把它放回Redis链路中观察，并结合前置知识缓存击穿和分布式锁判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，互斥重建缓存通常会和逻辑过期一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认缓存模式、一致性和失效治理是否仍然成立。","常见误区与注意点：实践中容易把互斥重建缓存当成孤立概念处理，结果遗漏穿透、击穿、雪崩、双写一致性和回源风暴。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["互斥重建缓存适合什么使用场景","互斥重建缓存可能带来哪些性能或一致性问题","互斥重建缓存线上如何排查和治理"], useCases: ["只允许一个请求回源重建热点缓存"], prerequisites: ["cache-breakdown","redis-lock"], related: ["logical-expire"], commonIssues: ["锁超时设置不合理","重建失败后请求阻塞"] },
-  /* <!-- KG_REVIEWED: 逻辑过期 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-cache-aside-docs",
+      "redis-set-command",
+      "redis-distributed-locks-docs",
+      "redis-hotkeys-command",
+      "redis-info-command",
+      "xiaolin-redis",
+      "javaguide",
+    ],
+    id: "mutex-rebuild",
+    zh: "互斥重建缓存",
+    en: "Mutex Cache Rebuild",
+    area: "cache",
+    difficulty: "medium",
+    summary: "互斥重建用锁控制热点缓存 miss 后的回源数量，让一个请求重建缓存，其余请求等待或降级。",
+    explanation: [
+      "核心概念：互斥重建用于缓存击穿。热点 key 过期后，多个请求同时 miss；系统让一个请求拿到重建锁并查询数据库，其余请求等待、短暂重试、返回旧值或降级，从而保护数据库。",
+      "基本流程：请求 miss 后执行 `SET lockKey token NX PX ttl` 尝试加锁；加锁成功者回源数据库并写回缓存；加锁失败者进入等待策略。释放锁时要比对 token，再删除锁，防止误删其他请求的新锁。",
+      "锁 TTL：锁过期时间要覆盖数据库查询、组装数据和写缓存的 P99，并留出抖动余量。TTL 过短会让第二个请求进入重建，TTL 过长会让失败重建占住锁，增加等待时间。",
+      "等待策略：等待请求可以短 sleep 后重查缓存，也可以返回旧值、本地缓存或降级结果。高并发热点场景要限制等待队列和重试次数，避免所有请求阻塞在线程池里。",
+      "失败处理：重建失败要释放锁、记录错误、设置短期降级缓存或触发异步重建。数据库慢、下游超时、缓存写入失败和服务宕机都要有保护路径。",
+      "特殊情况：互斥重建适合能接受短暂等待的热点读。强实时场景要谨慎使用等待策略；超高并发场景常配合逻辑过期、多级缓存和预热，让请求路径更稳。",
+      "参考来源：Cache Aside miss 场景参考 Redis Cache-aside；互斥锁命令参考 SET；唯一 token 和安全释放参考 Redis distributed locks；热点识别参考 HOTKEYS；指标参考 INFO；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "互斥重建如何控制并发回源",
+      "SET NX PX 在重建锁里解决什么问题",
+      "锁 value 为什么要使用唯一 token",
+      "锁 TTL 应该如何设置",
+      "拿不到锁的请求应该怎么处理",
+      "重建失败时如何避免请求长期阻塞",
+    ],
+    useCases: ["只允许一个请求回源重建热点缓存", "缓存击穿保护", "热点数据按需重建"],
+    prerequisites: ["cache-breakdown", "redis-lock"],
+    related: ["logical-expire", "cache-breakdown", "set-nx-ex", "redis-lock", "hot-key"],
+    commonIssues: ["锁超时设置不合理", "重建失败后请求阻塞", "释放锁误删他人锁", "等待请求挤满线程池", "重建结果写缓存失败"],
+  },
+  /* <!-- KG_REVIEWED: 逻辑过期 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 逻辑过期 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "logical-expire", zh: "逻辑过期", en: "Logical Expiration", area: "cache", difficulty: "medium", explanation: ["核心概念：逻辑过期（Logical Expiration）聚焦逻辑过期是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住缓存模式、一致性和失效治理，再看输入、状态变化、输出结果和失败分支。","适用场景：逻辑过期常用于热点数据后台异步刷新。学习时把它放回Redis链路中观察，并结合前置知识缓存击穿判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，逻辑过期通常会和互斥重建缓存一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认缓存模式、一致性和失效治理是否仍然成立。","常见误区与注意点：实践中容易把逻辑过期当成孤立概念处理，结果遗漏穿透、击穿、雪崩、双写一致性和回源风暴。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["逻辑过期适合什么使用场景","逻辑过期可能带来哪些性能或一致性问题","逻辑过期线上如何排查和治理"], useCases: ["热点数据后台异步刷新"], prerequisites: ["cache-breakdown"], related: ["mutex-rebuild"], commonIssues: ["短时间读到旧数据","后台刷新失败"] },
-  /* <!-- KG_REVIEWED: 缓存雪崩 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-cache-aside-docs",
+      "redis-set-command",
+      "redis-expire-command",
+      "redis-hotkeys-command",
+      "aws-cloudfront-swr",
+      "xiaolin-redis",
+      "javaguide",
+    ],
+    id: "logical-expire",
+    zh: "逻辑过期",
+    en: "Logical Expiration",
+    area: "cache",
+    difficulty: "medium",
+    summary: "逻辑过期把过期时间写进缓存值里，命中过期值时先返回旧数据，再异步刷新热点缓存。",
+    explanation: [
+      "核心概念：逻辑过期让 Redis key 在物理上继续存在，value 中保存业务过期时间。请求读到缓存后检查逻辑过期字段；未过期直接返回，已过期则返回旧值并触发后台刷新。",
+      "执行流程：热点数据预热时写入 `{data, expireAt}`，Redis key 可以设置很长 TTL 或配合物理 TTL 兜底。请求发现 `expireAt` 已过期后，通过互斥锁或任务队列只触发一次异步重建，重建完成后覆盖缓存。",
+      "核心价值：逻辑过期把数据库查询从用户请求路径移到后台，避免热点 key 过期瞬间大量请求同时回源。它牺牲短时间新鲜度，换取延迟稳定和下游保护。",
+      "适用场景：商品详情、活动配置、排行榜、首页模块、热门内容等读多写少热点数据适合逻辑过期。用户余额、库存强扣减、权限状态等强一致读要使用数据库或版本校验兜底。",
+      "特殊情况：后台刷新失败时，旧值会继续被返回，需要最大陈旧时间、告警和降级策略；并发刷新要加锁；数据主动更新时要同步刷新缓存或提高版本号，避免旧值长期存在。",
+      "与物理过期：逻辑过期控制业务新鲜度，物理 TTL 控制 Redis 内存生命周期。两者可以组合：逻辑过期负责平滑刷新，物理 TTL 负责异常情况下最终释放内存。",
+      "参考来源：Cache Aside 与回填参考 Redis Cache-aside；写入缓存参考 SET；物理 TTL 参考 EXPIRE；热点识别参考 HOTKEYS；stale-while-revalidate 类似思想参考 AWS CloudFront 文档；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "逻辑过期和物理过期有什么分工",
+      "为什么逻辑过期能缓解缓存击穿",
+      "读到逻辑过期值时请求应该如何处理",
+      "后台刷新失败时如何兜底",
+      "哪些热点数据适合逻辑过期",
+      "逻辑过期如何配合互斥重建",
+    ],
+    useCases: ["热点数据后台异步刷新", "活动页缓存平滑更新", "排行榜和首页模块保护", "热点 key 防击穿"],
+    prerequisites: ["cache-breakdown"],
+    related: ["mutex-rebuild", "cache-breakdown", "hot-key", "expire-policy", "cache-aside"],
+    commonIssues: ["短时间读到旧数据", "后台刷新失败", "旧值长期存在", "并发刷新重复回源", "物理 TTL 兜底缺失"],
+  },
+  /* <!-- KG_REVIEWED: 缓存雪崩 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 缓存雪崩 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "cache-avalanche", zh: "缓存雪崩", en: "Cache Avalanche", area: "cache", difficulty: "medium", explanation: ["核心概念：缓存雪崩（Cache Avalanche）聚焦缓存雪崩是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住缓存模式、一致性和失效治理，再看输入、状态变化、输出结果和失败分支。","适用场景：缓存雪崩常用于防止大量 key 同时失效或 Redis 故障导致数据库被打满。学习时把它放回Redis链路中观察，并结合前置知识缓存策略和过期策略判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，缓存雪崩通常会和过期风暴、哨兵和集群一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认缓存模式、一致性和失效治理是否仍然成立。","常见误区与注意点：实践中容易把缓存雪崩当成孤立概念处理，结果遗漏穿透、击穿、雪崩、双写一致性和回源风暴。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["缓存雪崩适合什么使用场景","缓存雪崩可能带来哪些性能或一致性问题","缓存雪崩线上如何排查和治理"], useCases: ["防止大量 key 同时失效或 Redis 故障导致数据库被打满"], prerequisites: ["redis-cache","expire-policy"], related: ["expire-storm","redis-sentinel","redis-cluster"], commonIssues: ["TTL 集中失效","缓存集群不可用"] },
-  /* <!-- KG_REVIEWED: 分布式锁 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "aws-redis-caching-strategies",
+      "redis-expire-command",
+      "redis-key-eviction-docs",
+      "redis-sentinel-docs",
+      "redis-cluster-docs",
+      "xiaolin-redis",
+      "javaguide",
+    ],
+    id: "cache-avalanche",
+    zh: "缓存雪崩",
+    en: "Cache Avalanche",
+    area: "cache",
+    difficulty: "medium",
+    summary: "缓存雪崩是缓存层大面积失效或不可用，导致大量请求同时涌向数据库和下游服务。",
+    explanation: [
+      "核心概念：缓存雪崩关注系统级冲击。大量 key 在同一时间失效，或 Redis 集群整体不可用时，请求绕过缓存集中回源，数据库、搜索、RPC 服务和连接池会同时承压。",
+      "两类触发：第一类是 TTL 集中到期，例如批量导入缓存时使用相同过期时间；第二类是缓存基础设施故障，例如主节点故障、网络抖动、连接池耗尽、集群扩缩容或配置错误。",
+      "与相关问题：过期风暴强调 Redis 内部过期清理和时间集中度；缓存击穿强调单个热点 key；缓存穿透强调查询对象不存在。缓存雪崩强调缓存层保护能力大面积下降后的下游冲击。",
+      "治理手段：TTL 加随机抖动，批量缓存分批预热，热点数据逻辑过期或后台刷新；Redis 层使用 Sentinel、Cluster、读副本和多可用区部署提升可用性；业务层配置限流、熔断、降级和本地兜底缓存。",
+      "特殊情况：雪崩恢复时也会有二次峰值，缓存冷启动和全量预热要分批进行；降级策略要提前定义返回内容；数据库保护阈值要低于数据库崩溃阈值，留出恢复空间。",
+      "排查建议：把缓存命中率、keyspace_misses、Redis 可用性、数据库 QPS、连接池等待、接口错误率和 TTL 分布放在同一时间轴。若 Redis 正常且 miss 激增，优先查 TTL；若 Redis 错误率升高，优先查连接、节点和故障转移。",
+      "参考来源：缓存策略和 TTL 分散参考 AWS Redis caching whitepaper；TTL 参考 EXPIRE；淘汰行为参考 Key eviction；高可用参考 Redis Sentinel；扩展与分片参考 Redis Cluster；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "缓存雪崩和缓存击穿、穿透有什么区别",
+      "大量 key 同时失效为什么会压垮数据库",
+      "缓存集群不可用为什么也会引发雪崩",
+      "TTL 随机抖动和分批预热如何降低风险",
+      "限流、熔断、降级分别保护哪一层",
+      "如何用指标判断雪崩来自 TTL 还是 Redis 故障",
+    ],
+    useCases: ["防止大量 key 同时失效", "缓存集群故障兜底", "数据库回源保护", "活动流量削峰"],
+    prerequisites: ["redis-cache", "expire-policy"],
+    related: ["expire-storm", "redis-sentinel", "redis-cluster", "cache-breakdown", "cache-penetration"],
+    commonIssues: ["TTL 集中失效", "缓存集群不可用", "数据库瞬时回源", "冷启动预热过猛", "降级策略缺失"],
+  },
+  /* <!-- KG_REVIEWED: 分布式锁 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 分布式锁 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-lock", zh: "分布式锁", en: "Distributed Lock", area: "coordination", difficulty: "medium", explanation: ["核心概念：分布式锁（Distributed Lock）聚焦分布式锁是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住分布式锁、Lua 原子性和过期释放，再看输入、状态变化、输出结果和失败分支。","适用场景：分布式锁常用于跨进程互斥、防重复执行和库存扣减保护。学习时把它放回Redis链路中观察，并结合前置知识String判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，分布式锁通常会和SET NX EX和Redlock一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认分布式锁、Lua 原子性和过期释放是否仍然成立。","常见误区与注意点：实践中容易把分布式锁当成孤立概念处理，结果遗漏锁超时、误删、续期、时钟漂移和 Redlock 取舍。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["分布式锁适合什么使用场景","分布式锁可能带来哪些性能或一致性问题","分布式锁线上如何排查和治理"], useCases: ["跨进程互斥","防重复执行","库存扣减保护"], prerequisites: ["redis-string"], related: ["set-nx-ex","redlock"], commonIssues: ["锁误删","业务执行超过锁过期时间"] },
-  /* <!-- KG_REVIEWED: SET NX EX | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-distributed-locks-docs",
+      "redis-set-command",
+      "redis-lua-scripting-docs",
+      "redis-replication-docs",
+      "redis-expire-command",
+      "xiaolin-redis",
+      "javaguide",
+    ],
+    id: "redis-lock",
+    zh: "分布式锁",
+    en: "Distributed Lock",
+    area: "coordination",
+    difficulty: "medium",
+    summary: "Redis 分布式锁用原子写入和过期时间实现跨进程互斥，核心是加锁唯一性、解锁安全性和超时边界。",
+    explanation: [
+      "核心概念：分布式锁让多个进程围绕同一资源形成互斥访问。Redis 常见实现是用 `SET lockKey token NX PX ttl` 原子创建锁：key 存在表示资源被占用，token 标识锁持有者，ttl 兜底释放。",
+      "加锁要点：`NX` 保证锁 key 只在不存在时写入，`PX` 或 `EX` 保证客户端崩溃后锁最终释放，value 要使用足够随机的唯一 token，方便释放锁时确认所有权。",
+      "解锁要点：释放锁要先比较 token，再删除 key，并用 Lua 脚本把比较和删除放在一个原子执行单元里。这样可以避免锁过期后被其他客户端重新获得，旧客户端继续删除新锁。",
+      "超时边界：锁 TTL 要覆盖业务执行 P99，并考虑网络抖动、GC 暂停和下游慢请求。业务执行超过 TTL 时，互斥语义会变弱；需要续期、缩短临界区、幂等写入或数据库唯一约束兜底。",
+      "复制风险：单 Redis 主节点锁依赖主从异步复制，主节点加锁后尚未复制就故障，提升后的副本可能没有这把锁。高安全要求场景要评估 Redlock、多数派系统或数据库事务锁。",
+      "适用场景：防重复提交、定时任务抢占、热点缓存重建、库存扣减前置保护都可以使用 Redis 锁。资金结算、强一致库存和跨系统事务要把 Redis 锁当作保护层，并使用数据库约束做最终兜底。",
+      "参考来源：锁算法、随机 token、安全释放和复制风险参考 Redis distributed locks；`SET NX PX` 语义参考 SET；Lua 原子执行参考 Redis Lua scripting；复制边界参考 Redis Replication；过期兜底参考 EXPIRE；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "Redis 分布式锁的基本加锁命令是什么",
+      "锁 value 为什么要使用唯一 token",
+      "为什么解锁要用 Lua 比较 token 后删除",
+      "锁 TTL 应该如何设置",
+      "业务执行超过锁 TTL 会发生什么",
+      "主从异步复制对锁安全性有什么影响",
+    ],
+    useCases: ["跨进程互斥", "防重复执行", "库存扣减保护", "热点缓存互斥重建", "定时任务抢占"],
+    prerequisites: ["redis-string"],
+    related: ["set-nx-ex", "lua-unlock", "redlock", "mutex-rebuild", "redis-replication"],
+    commonIssues: ["锁误删", "业务执行超过锁过期时间", "锁续期失控", "主从故障切换导致锁丢失", "缺少幂等兜底"],
+  },
+  /* <!-- KG_REVIEWED: SET NX EX | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: SET NX EX | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "set-nx-ex", zh: "SET NX EX", en: "SET NX EX", area: "coordination", difficulty: "medium", explanation: ["核心概念：SET NX EX聚焦SET NX EX是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住分布式锁、Lua 原子性和过期释放，再看输入、状态变化、输出结果和失败分支。","适用场景：SET NX EX常用于原子加锁并设置过期时间。学习时把它放回Redis链路中观察，并结合前置知识分布式锁判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，SET NX EX通常会和Lua 解锁一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认分布式锁、Lua 原子性和过期释放是否仍然成立。","常见误区与注意点：实践中容易把SET NX EX当成孤立概念处理，结果遗漏锁超时、误删、续期、时钟漂移和 Redlock 取舍。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["SET NX EX适合什么使用场景","SET NX EX可能带来哪些性能或一致性问题","SET NX EX线上如何排查和治理"], useCases: ["原子加锁并设置过期时间"], prerequisites: ["redis-lock"], related: ["lua-unlock"], commonIssues: ["过期时间设置过短","客户端崩溃后锁释放语义"] },
-  /* <!-- KG_REVIEWED: Lua 解锁 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-set-command", "redis-distributed-locks-docs", "redis-expire-command", "redis-ttl-command", "xiaolin-redis", "javaguide"],
+    id: "set-nx-ex",
+    zh: "SET NX EX",
+    en: "SET NX EX",
+    area: "coordination",
+    difficulty: "medium",
+    summary: "SET NX EX/PX 用一条原子命令完成加锁和设置过期时间，是 Redis 锁的基础写法。",
+    explanation: [
+      "核心概念：`SET key value NX EX seconds` 表示 key 只有在不存在时才写入，并同时设置秒级过期时间；`PX milliseconds` 是毫秒级过期。用于锁时，key 是锁名，value 是持有者 token，过期时间是兜底释放时间。",
+      "原子价值：早期 `SETNX` 后再 `EXPIRE` 需要两条命令，中间客户端崩溃会留下无过期锁。`SET NX EX/PX` 把“占位”和“设置 TTL”合成一次服务器端原子操作，锁创建成功时自然带上过期时间。",
+      "返回语义：加锁成功返回 OK；key 已存在时返回空结果。客户端要把空结果当作加锁失败处理，进入重试、等待、降级或快速失败路径。",
+      "参数选择：`EX` 适合秒级锁，`PX` 适合更精细的毫秒级锁。TTL 要大于业务临界区 P99，并留出网络和 GC 抖动；value 要使用唯一随机 token，供 Lua 解锁时校验所有权。",
+      "特殊情况：TTL 过短会让锁提前释放，多个客户端进入临界区；TTL 过长会让失败任务长期占锁。业务需要续期时，要限制最大续期时间，并用幂等和数据库约束兜底。",
+      "版本与替代：`SET` 还支持 `XX`、`GET`、`KEEPTTL`、`EXAT/PXAT` 等参数，但分布式锁主路径通常只使用 `NX` + `EX/PX` + 唯一 value。解锁安全性由 Lua 比对 value 后删除承担。",
+      "参考来源：`SET` 参数和返回语义参考 Redis SET；锁写法与唯一随机 value 参考 Redis distributed locks；TTL 语义参考 EXPIRE 与 TTL；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "SET NX EX/PX 为什么适合做加锁命令",
+      "SETNX 后再 EXPIRE 有什么风险",
+      "加锁失败时客户端应该如何处理",
+      "EX 和 PX 如何选择",
+      "锁 value 为什么要使用唯一 token",
+      "TTL 过短或过长会带来什么问题",
+    ],
+    useCases: ["原子加锁并设置过期时间", "缓存重建锁", "定时任务抢占锁", "防重复提交"],
+    prerequisites: ["redis-lock"],
+    related: ["lua-unlock", "redis-lock", "expire-policy", "mutex-rebuild"],
+    commonIssues: ["过期时间设置过短", "客户端崩溃后锁释放语义", "value 未使用唯一 token", "加锁失败无限重试", "续期缺少上限"],
+  },
+  /* <!-- KG_REVIEWED: Lua 解锁 | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: Lua 解锁 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "lua-unlock", zh: "Lua 解锁", en: "Lua Unlock", area: "coordination", difficulty: "medium", explanation: ["核心概念：Lua 解锁（Lua Unlock）聚焦Lua 解锁是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住分布式锁、Lua 原子性和过期释放，再看输入、状态变化、输出结果和失败分支。","适用场景：Lua 解锁常用于校验锁值并原子删除锁。学习时把它放回Redis链路中观察，并结合前置知识SET NX EX判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Lua 解锁通常会和Redlock一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认分布式锁、Lua 原子性和过期释放是否仍然成立。","常见误区与注意点：实践中容易把Lua 解锁当成孤立概念处理，结果遗漏锁超时、误删、续期、时钟漂移和 Redlock 取舍。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Lua 解锁适合什么使用场景","Lua 解锁可能带来哪些性能或一致性问题","Lua 解锁线上如何排查和治理"], useCases: ["校验锁值并原子删除锁"], prerequisites: ["set-nx-ex"], related: ["redlock"], commonIssues: ["直接 DEL 误删他人锁","锁 value 未使用唯一标识"] },
-  /* <!-- KG_REVIEWED: Redlock | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-distributed-locks-docs", "redis-lua-scripting-docs", "redis-eval-command", "redis-set-command", "xiaolin-redis", "javaguide"],
+    id: "lua-unlock",
+    zh: "Lua 解锁",
+    en: "Lua Unlock",
+    area: "coordination",
+    difficulty: "medium",
+    summary: "Lua 解锁把校验锁 token 和删除锁 key 放进一个原子脚本，防止误删其他客户端的锁。",
+    explanation: [
+      "核心概念：Redis 锁释放时要确认当前客户端仍然拥有锁。标准做法是 value 中保存唯一 token，解锁脚本先判断 `GET lockKey` 是否等于 token，相等才执行 `DEL lockKey`。",
+      "竞态问题：如果客户端先 `GET` 判断 token，再单独 `DEL`，两条命令之间锁可能过期并被其他客户端重新获得；旧客户端随后执行 `DEL`，就会删除新客户端的锁。",
+      "Lua 价值：Redis 执行 Lua 脚本期间会把脚本作为一个原子执行单元处理。把比较和删除写在同一个 Lua 脚本里，可以让所有权校验和删除动作连续完成。",
+      "典型脚本：`if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end`。返回 1 表示删除成功，返回 0 表示锁已过期、token 不匹配或锁已被释放。",
+      "特殊情况：Lua 解锁只能解决释放阶段误删问题，无法修复锁 TTL 过短、业务超时、主从故障切换或临界区缺少幂等。锁 token、TTL 和业务幂等要一起设计。",
+      "工程建议：脚本要通过参数传 key 和 token，避免拼接字符串；客户端要记录加锁 token、释放结果和业务执行耗时。长脚本会阻塞 Redis 主线程，解锁脚本应保持短小。",
+      "参考来源：安全释放脚本参考 Redis distributed locks；Lua 原子执行参考 Redis Lua scripting 和 EVAL；加锁 token 语义参考 SET；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "为什么解锁前要比较锁 token",
+      "GET 后 DEL 两条命令为什么有竞态",
+      "Lua 如何保证比较和删除原子执行",
+      "解锁脚本返回 0 可能代表什么",
+      "Lua 解锁能解决哪些问题",
+      "解锁脚本为什么要保持短小",
+    ],
+    useCases: ["校验锁值并原子删除锁", "Redis 分布式锁安全释放", "缓存重建锁释放"],
+    prerequisites: ["set-nx-ex"],
+    related: ["redlock", "redis-lock", "set-nx-ex"],
+    commonIssues: ["直接 DEL 误删他人锁", "锁 value 未使用唯一标识", "GET 与 DEL 拆开执行", "业务超时超过锁 TTL", "长 Lua 脚本阻塞主线程"],
+  },
+  /* <!-- KG_REVIEWED: Redlock | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: Redlock | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redlock", zh: "Redlock", en: "Redlock", area: "coordination", difficulty: "hard", explanation: ["核心概念：Redlock聚焦Redlock是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住分布式锁、Lua 原子性和过期释放，再看输入、状态变化、输出结果和失败分支。","适用场景：Redlock常用于多 Redis 节点下的分布式锁方案。学习时把它放回Redis链路中观察，并结合前置知识分布式锁和主从复制判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Redlock通常会和集群一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认分布式锁、Lua 原子性和过期释放是否仍然成立。","常见误区与注意点：实践中容易把Redlock当成孤立概念处理，结果遗漏锁超时、误删、续期、时钟漂移和 Redlock 取舍。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Redlock适合什么使用场景","Redlock可能带来哪些性能或一致性问题","Redlock线上如何排查和治理"], useCases: ["多 Redis 节点下的分布式锁方案"], prerequisites: ["redis-lock","redis-replication"], related: ["redis-cluster"], commonIssues: ["时钟漂移","网络分区下的安全性争议"] },
-  /* <!-- KG_REVIEWED: 发布订阅 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-distributed-locks-docs", "redis-set-command", "redis-lua-scripting-docs", "kleppmann-redlock-critique", "antirez-redlock-safe", "xiaolin-redis"],
+    id: "redlock",
+    zh: "Redlock",
+    en: "Redlock",
+    area: "coordination",
+    difficulty: "hard",
+    summary: "Redlock 通过多个独立 Redis 节点上的多数派加锁，降低单节点故障导致锁丢失的风险。",
+    explanation: [
+      "核心概念：Redlock 是 Redis 官方文档给出的多节点分布式锁算法。客户端在多个相互独立的 Redis 主节点上用相同资源名和随机 token 尝试加锁，只有在多数节点成功且总耗时小于锁有效期时，才认为加锁成功。",
+      "基本流程：准备 N 个独立 Redis 节点，通常是 5 个；客户端记录开始时间，依次用 `SET resource token NX PX ttl` 加锁；成功节点数达到多数派后，计算剩余有效期；失败时释放已经获得的锁。",
+      "安全基础：随机 token 用于安全释放，Lua 解锁用于比较 token 后删除；TTL 用于崩溃兜底；多数派用于降低单节点主从异步复制和单点故障带来的锁丢失风险。",
+      "时间假设：Redlock 依赖客户端测量加锁耗时，并假设锁有效期内系统时钟漂移和网络延迟在可控范围。GC 暂停、长时间网络分区、系统时钟跳变和超长临界区都会削弱锁语义。",
+      "争议边界：Martin Kleppmann 认为在强一致互斥场景中，Redlock 仍需要 fencing token 或线性一致存储兜底；antirez 则认为在合适故障模型和随机 token 设计下 Redlock 可以满足许多实际互斥需求。工程上要按业务损失选择锁方案。",
+      "适用建议：缓存重建、定时任务抢占、低风险重复执行控制可以考虑 Redlock；资金扣减、库存最终扣减、主数据写入等强一致场景要使用数据库约束、事务锁、ZooKeeper/etcd 或 fencing token 保护资源。",
+      "参考来源：Redlock 算法、随机 token 和释放流程参考 Redis distributed locks；加锁命令参考 SET；Lua 解锁参考 Redis Lua scripting；争议观点参考 Martin Kleppmann 与 antirez 文章；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Redlock 为什么需要多个独立 Redis 节点",
+      "多数派加锁和有效期计算如何工作",
+      "加锁失败时为什么要释放已获得的锁",
+      "时钟漂移、GC 暂停和网络分区会带来什么风险",
+      "Redlock 争议主要集中在哪些假设上",
+      "哪些业务适合使用 Redlock",
+    ],
+    useCases: ["多 Redis 节点下的分布式锁方案", "缓存重建互斥", "定时任务抢占", "低风险重复执行控制"],
+    prerequisites: ["redis-lock", "redis-replication"],
+    related: ["redis-cluster", "redis-lock", "set-nx-ex", "lua-unlock", "quorum"],
+    commonIssues: ["时钟漂移", "网络分区下的安全性争议", "临界区超过有效期", "缺少 fencing token", "节点独立性不足"],
+  },
+  /* <!-- KG_REVIEWED: 发布订阅 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 发布订阅 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-pubsub", zh: "发布订阅", en: "Pub/Sub", area: "messaging", difficulty: "easy", explanation: ["核心概念：发布订阅（Pub/Sub）聚焦发布订阅是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住发布订阅、Stream、消费组和确认语义，再看输入、状态变化、输出结果和失败分支。","适用场景：发布订阅常用于实时通知、简单广播和配置变更推送。学习时把它放回Redis链路中观察，并结合前置知识Redis 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，发布订阅通常会和Stream一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认发布订阅、Stream、消费组和确认语义是否仍然成立。","常见误区与注意点：实践中容易把发布订阅当成孤立概念处理，结果遗漏消息丢失、重复消费、积压、ACK 和消费者故障。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["发布订阅适合什么使用场景","发布订阅可能带来哪些性能或一致性问题","发布订阅线上如何排查和治理"], useCases: ["实时通知","简单广播","配置变更推送"], prerequisites: ["redis-overview"], related: ["redis-stream"], commonIssues: ["消息不持久化","消费者离线丢消息"] },
-  /* <!-- KG_REVIEWED: 消息确认 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-pubsub-docs",
+      "redis-pubsub-use-case",
+      "redis-publish-command",
+      "redis-subscribe-command",
+      "redis-pubsub-command",
+      "redis-streams-docs",
+      "xiaolin-redis",
+    ],
+    id: "redis-pubsub",
+    zh: "发布订阅",
+    en: "Pub/Sub",
+    area: "messaging",
+    difficulty: "easy",
+    summary: "Redis Pub/Sub 是在线广播模型，发布者向频道发消息，当前订阅者实时收到消息。",
+    explanation: [
+      "核心概念：Pub/Sub 把发布者、频道和订阅者解耦。发布者用 `PUBLISH channel message` 发送消息，订阅者用 `SUBSCRIBE channel` 接收频道消息，模式订阅可以匹配多个频道。",
+      "交付语义：Redis Pub/Sub 是 at-most-once 交付。消息推送给当前在线且已订阅的客户端；订阅者离线、连接断开或处理失败时，Redis 不会为它保留消息，也没有 ACK 和重试机制。",
+      "适用场景：实时通知、配置变更广播、轻量事件推送、聊天室在线消息、进程间简单信号都适合 Pub/Sub。它的优势是延迟低、模型简单、发布者无需知道订阅者。",
+      "运行特点：订阅连接进入订阅模式后主要用于接收消息，业务通常会单独使用连接处理订阅。`PUBSUB` 命令可以查看频道和订阅者信息，辅助排查订阅关系。",
+      "与 Stream 边界：Stream 会持久化消息，支持消费组、PEL、ACK、历史读取和重试，适合可靠消息队列。Pub/Sub 更适合在线广播和弱可靠通知。",
+      "特殊情况：频道名和消息体要设计版本与命名规范；订阅者处理慢会带来客户端输出缓冲压力；跨分片、集群和代理场景要确认消息路由能力。需要补偿的业务要把关键事件写入 Stream 或数据库。",
+      "参考来源：交付语义和订阅模型参考 Redis Pub/Sub；使用场景参考 Redis pub/sub messaging；命令语义参考 PUBLISH、SUBSCRIBE、PUBSUB；可靠消息边界参考 Redis Streams；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Pub/Sub 的发布者、频道、订阅者分别是什么",
+      "at-most-once 交付意味着什么",
+      "订阅者离线时消息会如何处理",
+      "Pub/Sub 适合哪些实时通知场景",
+      "Pub/Sub 和 Stream 如何选择",
+      "线上如何排查订阅关系和慢消费者",
+    ],
+    useCases: ["实时通知", "简单广播", "配置变更推送", "在线消息", "进程间信号"],
+    prerequisites: ["redis-overview"],
+    related: ["redis-stream", "redis-ack", "consumer-group", "message-ack"],
+    commonIssues: ["消息不持久化", "消费者离线丢消息", "无 ACK 和重试", "慢消费者输出缓冲膨胀", "频道命名混乱"],
+  },
+  /* <!-- KG_REVIEWED: 消息确认 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 消息确认 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-ack", zh: "消息确认", en: "Message Acknowledgement", area: "messaging", difficulty: "medium", explanation: ["核心概念：消息确认（Message Acknowledgement）聚焦消息确认是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住发布订阅、Stream、消费组和确认语义，再看输入、状态变化、输出结果和失败分支。","适用场景：消息确认常用于Stream 消费可靠性和消费失败重试。学习时把它放回Redis链路中观察，并结合前置知识Stream和消费组判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，消息确认通常会和发布订阅一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认发布订阅、Stream、消费组和确认语义是否仍然成立。","常见误区与注意点：实践中容易把消息确认当成孤立概念处理，结果遗漏消息丢失、重复消费、积压、ACK 和消费者故障。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["消息确认适合什么使用场景","消息确认可能带来哪些性能或一致性问题","消息确认线上如何排查和治理"], useCases: ["Stream 消费可靠性","消费失败重试"], prerequisites: ["redis-stream","consumer-group"], related: ["redis-pubsub"], commonIssues: ["ack 遗漏","pending list 堆积"] },
-  /* <!-- KG_REVIEWED: 主从复制 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-streams-docs",
+      "redis-xreadgroup-command",
+      "redis-xack-command",
+      "redis-xpending-command",
+      "redis-xautoclaim-command",
+      "redis-pubsub-docs",
+      "xiaolin-redis",
+    ],
+    id: "redis-ack",
+    zh: "消息确认",
+    en: "Message Acknowledgement",
+    area: "messaging",
+    difficulty: "medium",
+    summary: "Redis Stream 的消息确认用 XACK 标记处理完成，并把消息从消费者组的 PEL 中移除。",
+    explanation: [
+      "核心概念：消息确认是可靠消费的状态标记。消费者组通过 `XREADGROUP` 读取消息后，消息会进入 Pending Entries List；业务处理成功后执行 `XACK`，Redis 才把该消息从 PEL 中移除。",
+      "状态流转：新消息被投递给某个消费者后处于 pending 状态，PEL 记录消息 ID、所属消费者、空闲时间和投递次数。`XACK` 表示消费者已经处理完成，后续补偿逻辑无需继续追踪这条消息。",
+      "失败恢复：消费者崩溃、处理超时或 ACK 丢失时，消息会留在 PEL 中。可以用 `XPENDING` 查看积压，用 `XAUTOCLAIM` 或 `XCLAIM` 把超时消息转移给其他消费者重新处理。",
+      "交付语义：Stream 消费组常见效果是至少一次处理，业务可能收到重复消息。消费者必须做幂等，例如用消息 ID、业务单号、去重表或状态机防止重复扣款、重复发货和重复通知。",
+      "与 Pub/Sub 边界：Pub/Sub 没有 ACK、PEL 和重试，适合在线广播；Stream 有 ACK 和 pending 管理，适合订单事件、异步任务、可靠通知和需要补偿的业务。",
+      "特殊情况：先 ACK 后处理会丢失失败补偿机会；处理成功后 ACK 失败会产生重复消费；Stream 修剪可能影响历史补偿；消费者名称混乱会让 PEL 归属难以排查。",
+      "参考来源：Stream 消费组与 pending 机制参考 Redis Streams；读取参考 XREADGROUP；确认参考 XACK；积压排查参考 XPENDING；消息接管参考 XAUTOCLAIM；Pub/Sub 边界参考 Redis Pub/Sub；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "XACK 在 Stream 消费组中表示什么",
+      "PEL 记录哪些消息状态",
+      "ACK 丢失为什么会导致 pending 堆积",
+      "XPENDING 和 XAUTOCLAIM 分别解决什么问题",
+      "Stream 消费为什么需要业务幂等",
+      "Pub/Sub 和 Stream 在 ACK 语义上有什么区别",
+    ],
+    useCases: ["Stream 消费可靠性", "消费失败重试", "异步任务补偿", "订单事件处理"],
+    prerequisites: ["redis-stream", "consumer-group"],
+    related: ["redis-pubsub", "consumer-group", "message-ack", "retry", "redis-stream"],
+    commonIssues: ["ack 遗漏", "pending list 堆积", "重复消费", "先 ACK 后处理导致补偿缺失", "Stream 修剪影响历史补偿"],
+  },
+  /* <!-- KG_REVIEWED: 主从复制 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 主从复制 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-replication", zh: "主从复制", en: "Master Replica Replication", area: "high-availability", difficulty: "medium", explanation: ["核心概念：主从复制（Master Replica Replication）聚焦主从复制是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住复制、哨兵、故障转移和延迟，再看输入、状态变化、输出结果和失败分支。","适用场景：主从复制常用于读写分离、数据冗余和故障恢复基础。学习时把它放回Redis链路中观察，并结合前置知识持久化判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，主从复制通常会和全量同步、部分同步和复制延迟一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认复制、哨兵、故障转移和延迟是否仍然成立。","常见误区与注意点：实践中容易把主从复制当成孤立概念处理，结果遗漏脑裂、复制积压、全量同步、法定票数和数据丢失窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["主从复制适合什么使用场景","主从复制可能带来哪些性能或一致性问题","主从复制线上如何排查和治理"], useCases: ["读写分离","数据冗余","故障恢复基础"], prerequisites: ["redis-persistence"], related: ["full-sync","partial-sync","replication-lag"], commonIssues: ["复制延迟","主从数据短暂不一致"] },
-  /* <!-- KG_REVIEWED: 全量同步 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-replication-docs",
+      "redis-info-command",
+      "redis-role-command",
+      "redis-wait-command",
+      "redis-persistence-docs",
+      "xiaolin-redis",
+      "javaguide",
+    ],
+    id: "redis-replication",
+    zh: "主从复制",
+    en: "Master Replica Replication",
+    area: "high-availability",
+    difficulty: "medium",
+    summary: "Redis 主从复制把主节点写入异步复制到副本，用于读扩展、冗余和故障恢复基础。",
+    explanation: [
+      "核心概念：主从复制由一个主节点接收写入，并把数据变化发送给一个或多个副本。副本维护主节点的数据副本，可用于读请求、故障切换候选和数据冗余。",
+      "同步路径：新副本接入或复制断层过大时会走全量同步，主节点生成 RDB 快照并传给副本；短暂断线后可通过复制积压缓冲区做部分同步，从缺失 offset 继续追赶写命令。",
+      "异步语义：Redis 复制默认是异步的，主节点写成功并不等于所有副本已经收到。主节点故障时，尚未复制到副本的写入可能丢失；`WAIT` 可以等待指定数量副本确认，提高写入传播概率。",
+      "读写分离：副本读可以扩展读能力，但读到的是副本当前复制进度。对余额、权限、订单状态等读新要求高的数据，要读主节点、使用 `WAIT` 后读副本，或在业务层做版本校验。",
+      "运维观察：`INFO replication` 可以看 role、master_link_status、master_repl_offset、slave_repl_offset、connected_slaves 等指标；`ROLE` 可以快速确认节点身份和复制状态。",
+      "特殊情况：全量同步会消耗网络、磁盘和 fork/COW 内存；复制积压缓冲区太小会让短暂断线退化为全量同步；慢副本会增加延迟；故障切换期间会出现短暂读写不可用和数据窗口。",
+      "参考来源：复制机制、全量同步、部分同步和异步语义参考 Redis Replication；指标参考 INFO；节点角色参考 ROLE；副本确认参考 WAIT；持久化与 RDB 成本参考 Redis Persistence；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "Redis 主从复制解决哪些问题",
+      "全量同步和部分同步分别在什么时候发生",
+      "默认异步复制会带来什么数据窗口",
+      "WAIT 命令能提升哪些场景的数据安全性",
+      "读副本为什么可能读到旧数据",
+      "INFO replication 应该重点看哪些指标",
+    ],
+    useCases: ["读写分离", "数据冗余", "故障恢复基础", "副本读扩展", "高可用架构基础"],
+    prerequisites: ["redis-persistence"],
+    related: ["full-sync", "partial-sync", "replication-backlog", "replication-lag", "redis-sentinel"],
+    commonIssues: ["复制延迟", "主从数据短暂不一致", "故障切换丢失最新写入", "全量同步资源压力", "复制积压缓冲区不足"],
+  },
+  /* <!-- KG_REVIEWED: 全量同步 | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: 全量同步 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "full-sync", zh: "全量同步", en: "Full Synchronization", area: "high-availability", difficulty: "medium", explanation: ["核心概念：全量同步（Full Synchronization）聚焦全量同步是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住复制、哨兵、故障转移和延迟，再看输入、状态变化、输出结果和失败分支。","适用场景：全量同步常用于新从节点首次同步主节点数据。学习时把它放回Redis链路中观察，并结合前置知识主从复制和RDB判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，全量同步通常会和部分同步一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认复制、哨兵、故障转移和延迟是否仍然成立。","常见误区与注意点：实践中容易把全量同步当成孤立概念处理，结果遗漏脑裂、复制积压、全量同步、法定票数和数据丢失窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["全量同步适合什么使用场景","全量同步可能带来哪些性能或一致性问题","全量同步线上如何排查和治理"], useCases: ["新从节点首次同步主节点数据"], prerequisites: ["redis-replication","rdb"], related: ["partial-sync"], commonIssues: ["网络和磁盘压力","大实例同步耗时"] },
-  /* <!-- KG_REVIEWED: 部分同步 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-replication-docs", "redis-persistence-docs", "redis-info-command", "redis-latency-docs", "xiaolin-redis", "javaguide"],
+    id: "full-sync",
+    zh: "全量同步",
+    en: "Full Synchronization",
+    area: "high-availability",
+    difficulty: "medium",
+    summary: "全量同步让副本从主节点获取完整数据集，通常通过 RDB 快照完成首次或断层后的复制。",
+    explanation: [
+      "核心概念：全量同步发生在副本首次接入、复制 ID 不匹配、复制积压缓冲区缺失所需 offset 等场景。副本无法只追增量时，就从主节点重新获取完整数据集。",
+      "执行流程：主节点启动后台保存生成 RDB，同时缓冲新的写命令；RDB 生成完成后传给副本，副本保存并加载到内存；随后主节点把缓冲期间产生的写命令继续发送给副本。",
+      "资源成本：全量同步会消耗主节点 fork/COW 内存、磁盘 I/O、网络带宽和副本加载时间。大实例执行全量同步时，业务延迟、内存水位和网络吞吐都要重点观察。",
+      "多副本场景：多个副本同时请求同步时，Redis 可以用一次后台保存服务多个副本，但传输和加载仍会带来网络与副本侧压力。可以通过运维窗口、分批接入和磁盘/网络容量规划降低风险。",
+      "优化方向：调大复制积压缓冲区可以增加部分同步成功概率；diskless replication 可以减少中间 RDB 落盘成本；副本重启和扩容要尽量避开业务高峰。",
+      "排查建议：看 INFO replication 中 master_sync_in_progress、master_link_status、master_repl_offset、slave_repl_offset、repl_backlog_size；看 latest_fork_usec、rdb_bgsave_in_progress、网络流量和 Redis 日志中的 full resync 信息。",
+      "参考来源：full resynchronization 流程、RDB 传输和缓冲写命令参考 Redis Replication；RDB 与 fork 成本参考 Redis Persistence；指标参考 INFO；延迟影响参考 Redis latency 文档；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "全量同步在什么情况下发生",
+      "主节点为什么要生成 RDB",
+      "全量同步期间新写入如何同步给副本",
+      "全量同步会消耗哪些资源",
+      "如何降低全量同步发生概率",
+      "线上如何判断正在发生 full resync",
+    ],
+    useCases: ["新从节点首次同步主节点数据", "复制断层后的完整重建", "副本扩容和恢复"],
+    prerequisites: ["redis-replication", "rdb"],
+    related: ["partial-sync", "replication-backlog", "fork-cow", "rdb", "replication-lag"],
+    commonIssues: ["网络和磁盘压力", "大实例同步耗时", "fork/COW 内存放大", "副本加载期间不可用", "复制缓冲区不足导致频繁全量同步"],
+  },
+  /* <!-- KG_REVIEWED: 部分同步 | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: 部分同步 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "partial-sync", zh: "部分同步", en: "Partial Synchronization", area: "high-availability", difficulty: "medium", explanation: ["核心概念：部分同步（Partial Synchronization）聚焦部分同步是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住复制、哨兵、故障转移和延迟，再看输入、状态变化、输出结果和失败分支。","适用场景：部分同步常用于短暂断线后增量追赶复制数据。学习时把它放回Redis链路中观察，并结合前置知识主从复制判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，部分同步通常会和复制积压缓冲区一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认复制、哨兵、故障转移和延迟是否仍然成立。","常见误区与注意点：实践中容易把部分同步当成孤立概念处理，结果遗漏脑裂、复制积压、全量同步、法定票数和数据丢失窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["部分同步适合什么使用场景","部分同步可能带来哪些性能或一致性问题","部分同步线上如何排查和治理"], useCases: ["短暂断线后增量追赶复制数据"], prerequisites: ["redis-replication"], related: ["replication-backlog"], commonIssues: ["复制积压缓冲区不足导致退化为全量同步"] },
-  /* <!-- KG_REVIEWED: 复制积压缓冲区 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-replication-docs", "redis-psync-command", "redis-info-command", "redis-role-command", "xiaolin-redis", "javaguide"],
+    id: "partial-sync",
+    zh: "部分同步",
+    en: "Partial Synchronization",
+    area: "high-availability",
+    difficulty: "medium",
+    summary: "部分同步让副本短暂断线后从复制 offset 继续追增量，避免重新做全量同步。",
+    explanation: [
+      "核心概念：部分同步用于副本短暂断线后的增量追赶。副本重新连接主节点时，带上自己记住的 replication ID 和 offset；主节点判断 backlog 中是否还保留这段增量，能覆盖就继续发送缺失命令。",
+      "关键条件：replication ID 要匹配同一复制历史，offset 要落在主节点复制积压缓冲区仍然保存的范围内。两个条件满足时，Redis 返回继续同步；条件缺失时，副本进入全量同步。",
+      "PSYNC 角色：`PSYNC` 是复制协议中的核心命令，用于请求继续复制或全量同步。它让副本表达“我来自哪条复制历史、已经收到哪个 offset”。",
+      "工程价值：部分同步减少 RDB 生成、传输和加载成本，降低主节点 fork/COW、网络和磁盘压力。网络闪断、短暂副本重启和主从连接抖动都依赖它快速恢复。",
+      "特殊情况：写入流量越大，backlog 被覆盖越快；断线时间越长，offset 越容易落出 backlog；故障切换后 replication ID 变化，也可能让副本无法继续原来的部分同步路径。",
+      "排查建议：关注 INFO replication 中 master_replid、master_repl_offset、slave_repl_offset、repl_backlog_size、repl_backlog_first_byte_offset、sync_partial_ok、sync_partial_err。部分同步失败频繁时，优先评估 backlog 大小和断线时长。",
+      "参考来源：partial resynchronization、replication ID、offset 和 backlog 参考 Redis Replication；协议命令参考 PSYNC；指标参考 INFO；角色观察参考 ROLE；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "部分同步解决什么问题",
+      "replication ID 和 offset 分别表示什么",
+      "复制积压缓冲区为什么决定部分同步成败",
+      "PSYNC 在部分同步中做什么",
+      "什么情况下会退化为全量同步",
+      "如何通过 INFO 判断部分同步是否频繁失败",
+    ],
+    useCases: ["短暂断线后增量追赶复制数据", "副本重连恢复", "降低全量同步成本"],
+    prerequisites: ["redis-replication"],
+    related: ["replication-backlog", "full-sync", "replication-lag"],
+    commonIssues: ["复制积压缓冲区不足导致退化为全量同步", "写入流量过大覆盖 backlog", "断线时间过长", "故障切换后复制历史变化", "部分同步失败缺少监控"],
+  },
+  /* <!-- KG_REVIEWED: 复制积压缓冲区 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 复制积压缓冲区 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "replication-backlog", zh: "复制积压缓冲区", en: "Replication Backlog", area: "high-availability", difficulty: "hard", explanation: ["核心概念：复制积压缓冲区（Replication Backlog）聚焦复制积压缓冲区是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住复制、哨兵、故障转移和延迟，再看输入、状态变化、输出结果和失败分支。","适用场景：复制积压缓冲区常用于支持从节点断线后增量同步。学习时把它放回Redis链路中观察，并结合前置知识部分同步判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，复制积压缓冲区通常会和复制延迟一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认复制、哨兵、故障转移和延迟是否仍然成立。","常见误区与注意点：实践中容易把复制积压缓冲区当成孤立概念处理，结果遗漏脑裂、复制积压、全量同步、法定票数和数据丢失窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["复制积压缓冲区适合什么使用场景","复制积压缓冲区可能带来哪些性能或一致性问题","复制积压缓冲区线上如何排查和治理"], useCases: ["支持从节点断线后增量同步"], prerequisites: ["partial-sync"], related: ["replication-lag"], commonIssues: ["backlog 太小","高写入场景下追不上主库"] },
-  /* <!-- KG_REVIEWED: 复制延迟 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-replication-docs", "redis-info-command", "redis-psync-command", "redis-role-command", "xiaolin-redis"],
+    id: "replication-backlog",
+    zh: "复制积压缓冲区",
+    en: "Replication Backlog",
+    area: "high-availability",
+    difficulty: "hard",
+    summary: "复制积压缓冲区保存最近的复制命令流，让副本短暂断线后可以做部分同步。",
+    explanation: [
+      "核心概念：复制积压缓冲区是主节点维护的一段固定大小环形缓冲，保存最近发送给副本的复制流。副本断线后重新连接，只要缺失的 offset 仍在 backlog 中，就能从断点继续同步。",
+      "工作方式：主节点不断把写命令追加到复制流和 backlog。backlog 满后会覆盖最旧数据，因此它只能覆盖最近一段时间的写入历史；写入越快，可覆盖的断线时间越短。",
+      "部分同步关系：副本发起 `PSYNC replid offset` 后，主节点检查 replication ID 和 offset。offset 落在 `repl_backlog_first_byte_offset` 到当前 offset 的范围内，部分同步才有基础。",
+      "容量估算：可按 `写入复制流字节速率 × 目标可容忍断线秒数 × 安全系数` 估算 backlog。高峰写入、网络抖动、跨机房延迟和故障切换时间都要纳入安全系数。",
+      "配置取舍：backlog 太小会让短断线频繁退化为全量同步；backlog 太大占用主节点内存。大实例、跨机房副本、高写入业务和 Sentinel/Cluster 故障切换场景通常需要更充足的 backlog。",
+      "排查建议：看 INFO replication 中 repl_backlog_size、repl_backlog_histlen、repl_backlog_first_byte_offset、master_repl_offset、sync_partial_ok、sync_partial_err。若 partial err 上升或日志频繁 full resync，优先评估 backlog 和断线窗口。",
+      "参考来源：复制积压缓冲区、部分同步和 full resync 退化条件参考 Redis Replication；字段含义参考 INFO；协议请求参考 PSYNC；角色状态参考 ROLE；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "复制积压缓冲区保存什么内容",
+      "为什么 backlog 是部分同步成功的关键",
+      "backlog 大小如何按写入速率估算",
+      "backlog 太小会带来什么后果",
+      "backlog 太大会有什么成本",
+      "INFO replication 中哪些字段能观察 backlog",
+    ],
+    useCases: ["支持从节点断线后增量同步", "降低全量同步概率", "跨机房复制恢复", "故障切换后副本追赶"],
+    prerequisites: ["partial-sync"],
+    related: ["replication-lag", "partial-sync", "full-sync", "redis-replication"],
+    commonIssues: ["backlog 太小", "高写入场景下追不上主库", "断线窗口估算不足", "频繁 full resync", "主节点内存被 backlog 占用"],
+  },
+  /* <!-- KG_REVIEWED: 复制延迟 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 复制延迟 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "replication-lag", zh: "复制延迟", en: "Replication Lag", area: "high-availability", difficulty: "medium", explanation: ["核心概念：复制延迟（Replication Lag）聚焦复制延迟是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住复制、哨兵、故障转移和延迟，再看输入、状态变化、输出结果和失败分支。","适用场景：复制延迟常用于评估读从库的一致性风险。学习时把它放回Redis链路中观察，并结合前置知识主从复制判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，复制延迟通常会和哨兵一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认复制、哨兵、故障转移和延迟是否仍然成立。","常见误区与注意点：实践中容易把复制延迟当成孤立概念处理，结果遗漏脑裂、复制积压、全量同步、法定票数和数据丢失窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["复制延迟适合什么使用场景","复制延迟可能带来哪些性能或一致性问题","复制延迟线上如何排查和治理"], useCases: ["评估读从库的一致性风险"], prerequisites: ["redis-replication"], related: ["redis-sentinel"], commonIssues: ["读到旧数据","故障切换丢失最新写入"] },
-  /* <!-- KG_REVIEWED: 哨兵 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-replication-docs",
+      "redis-replication-consistency-docs",
+      "redis-info-command",
+      "redis-role-command",
+      "redis-wait-command",
+      "xiaolin-redis",
+      "javaguide",
+    ],
+    id: "replication-lag",
+    zh: "复制延迟",
+    en: "Replication Lag",
+    area: "high-availability",
+    difficulty: "medium",
+    summary: "复制延迟是副本落后主节点的时间或 offset 差距，会导致读副本读到旧数据。",
+    explanation: [
+      "核心概念：复制延迟描述主节点写入传播到副本的滞后。Redis 默认异步复制，主节点确认写入后，副本仍可能在网络传输、命令执行或本地加载阶段落后。",
+      "产生原因：高写入流量、网络抖动、跨机房链路、慢副本、AOF/RDB I/O、全量同步、客户端输出缓冲积压和副本机器资源不足都会扩大延迟。",
+      "一致性影响：读副本可能读到旧值；主节点故障切换时，尚未复制到候选副本的写入可能丢失。对读新要求高的请求，应读主节点、带版本校验，或在关键写入后使用 `WAIT` 提高副本确认概率。",
+      "观测方法：`INFO replication` 中主节点看 master_repl_offset 和各副本 offset/lag，副本看 master_link_status、master_last_io_seconds_ago、slave_repl_offset。`ROLE` 可快速确认节点角色和复制位置。",
+      "业务观测：在 value 中写入版本号或更新时间，读副本时比对主库版本、请求上下文版本或数据库版本，可以发现真实业务延迟。监控只看 offset 还不足以覆盖业务感知。",
+      "治理手段：降低跨机房读新依赖，优化网络和副本资源，避免大实例频繁全量同步，调大 backlog，控制写入峰值，关键读走主节点，故障切换前评估副本 offset。",
+      "参考来源：复制异步语义和 offset 参考 Redis Replication；一致性边界参考 Redis consistency during replication；指标参考 INFO；角色与 offset 参考 ROLE；副本确认参考 WAIT；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "复制延迟为什么会导致读到旧数据",
+      "主从 offset 差距如何理解",
+      "哪些因素会放大复制延迟",
+      "WAIT 能解决哪些一致性窗口",
+      "如何用业务版本发现真实延迟",
+      "故障切换前为什么要看副本 offset",
+    ],
+    useCases: ["评估读从库的一致性风险", "读写分离监控", "故障切换前副本评估", "跨机房复制观测"],
+    prerequisites: ["redis-replication"],
+    related: ["redis-sentinel", "replication-backlog", "partial-sync", "full-sync", "load-balancing"],
+    commonIssues: ["读到旧数据", "故障切换丢失最新写入", "跨机房延迟", "慢副本积压", "只看基础监控忽略业务版本"],
+  },
+  /* <!-- KG_REVIEWED: 哨兵 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 哨兵 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-sentinel", zh: "哨兵", en: "Redis Sentinel", area: "high-availability", difficulty: "medium", explanation: ["核心概念：哨兵（Redis Sentinel）聚焦哨兵是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住复制、哨兵、故障转移和延迟，再看输入、状态变化、输出结果和失败分支。","适用场景：哨兵常用于监控主从、自动故障转移和服务发现。学习时把它放回Redis链路中观察，并结合前置知识主从复制判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，哨兵通常会和哨兵故障转移和哨兵法定票数一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认复制、哨兵、故障转移和延迟是否仍然成立。","常见误区与注意点：实践中容易把哨兵当成孤立概念处理，结果遗漏脑裂、复制积压、全量同步、法定票数和数据丢失窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["哨兵适合什么使用场景","哨兵可能带来哪些性能或一致性问题","哨兵线上如何排查和治理"], useCases: ["监控主从","自动故障转移","服务发现"], prerequisites: ["redis-replication"], related: ["sentinel-failover","quorum"], commonIssues: ["误判主观下线","切换期间短暂不可用"] },
-  /* <!-- KG_REVIEWED: 哨兵故障转移 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-sentinel-docs",
+      "redis-sentinel-client-spec",
+      "redis-sentinel-learn",
+      "redis-replication-docs",
+      "redis-info-command",
+      "xiaolin-redis",
+      "javaguide",
+    ],
+    id: "redis-sentinel",
+    zh: "哨兵",
+    en: "Redis Sentinel",
+    area: "high-availability",
+    difficulty: "medium",
+    summary: "Redis Sentinel 负责监控主从、发现故障、选举并完成主节点故障转移，同时为客户端提供主节点发现。",
+    explanation: [
+      "核心概念：Sentinel 是 Redis 的高可用组件，运行在独立进程中。它持续监控主节点和副本，发现主节点不可用后，协同其他 Sentinel 选择新主节点，并通知客户端新的主节点地址。",
+      "下线判断：单个 Sentinel 认为主节点不可达时是主观下线；达到配置的 quorum 数量后，Sentinel 集群认为主节点客观下线。quorum 用于故障认定，真正执行 failover 还需要多数 Sentinel 授权。",
+      "故障转移：Sentinel 会选举一个 leader 执行 failover，挑选合适副本提升为新主节点，让其他副本复制新主节点，并发布配置变更。副本选择会考虑优先级、复制 offset 和运行状态。",
+      "客户端发现：客户端应连接 Sentinel 查询当前主节点，并订阅或定期刷新主节点地址。主节点切换后，客户端需要重建连接、处理写入失败和短暂不可用。",
+      "工程边界：Sentinel 提供高可用和自动故障转移，但复制默认异步，切换期间仍可能丢失尚未复制的写入。网络分区、Sentinel 数量不足、quorum 设置不当和客户端发现实现薄弱都会放大风险。",
+      "部署建议：至少部署 3 个 Sentinel，分布在不同故障域；定期演练 failover；监控 Sentinel 日志、主从复制延迟、客观下线事件、failover 耗时和客户端重连成功率。",
+      "参考来源：Sentinel 监控、主观/客观下线、quorum 和 failover 参考 Redis Sentinel；客户端发现参考 Sentinel client spec；学习路径参考 Redis Learn Sentinels；复制边界参考 Redis Replication；指标参考 INFO；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "Sentinel 主要解决 Redis 哪些高可用问题",
+      "主观下线和客观下线有什么区别",
+      "quorum 和多数派授权分别控制什么",
+      "Sentinel 如何选择新的主节点",
+      "客户端如何发现故障转移后的主节点",
+      "为什么 Sentinel 切换期间仍可能丢失最新写入",
+    ],
+    useCases: ["监控主从", "自动故障转移", "服务发现", "主从高可用"],
+    prerequisites: ["redis-replication"],
+    related: ["sentinel-failover", "quorum", "replication-lag", "redis-replication"],
+    commonIssues: ["误判主观下线", "切换期间短暂不可用", "quorum 设置不合理", "客户端未正确刷新主节点", "异步复制导致数据窗口"],
+  },
+  /* <!-- KG_REVIEWED: 哨兵故障转移 | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: 哨兵故障转移 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "sentinel-failover", zh: "哨兵故障转移", en: "Sentinel Failover", area: "high-availability", difficulty: "hard", explanation: ["核心概念：哨兵故障转移（Sentinel Failover）聚焦哨兵故障转移是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住复制、哨兵、故障转移和延迟，再看输入、状态变化、输出结果和失败分支。","适用场景：哨兵故障转移常用于主节点故障后选举新主节点。学习时把它放回Redis链路中观察，并结合前置知识哨兵判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，哨兵故障转移通常会和哨兵法定票数一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认复制、哨兵、故障转移和延迟是否仍然成立。","常见误区与注意点：实践中容易把哨兵故障转移当成孤立概念处理，结果遗漏脑裂、复制积压、全量同步、法定票数和数据丢失窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["哨兵故障转移适合什么使用场景","哨兵故障转移可能带来哪些性能或一致性问题","哨兵故障转移线上如何排查和治理"], useCases: ["主节点故障后选举新主节点"], prerequisites: ["redis-sentinel"], related: ["quorum"], commonIssues: ["脑裂","客户端未及时刷新主节点地址"] },
-  /* <!-- KG_REVIEWED: 哨兵法定票数 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-sentinel-docs", "redis-sentinel-client-spec", "redis-replication-docs", "redis-replication-consistency-docs", "redis-info-command", "xiaolin-redis"],
+    id: "sentinel-failover",
+    zh: "哨兵故障转移",
+    en: "Sentinel Failover",
+    area: "high-availability",
+    difficulty: "hard",
+    summary: "哨兵故障转移是在主节点客观下线后，由 Sentinel leader 提升副本为新主并重配复制关系。",
+    explanation: [
+      "核心概念：Sentinel failover 是主节点故障后的自动恢复流程。它从客观下线开始，经过授权和 leader 选举，由一个 Sentinel 负责推动新主提升、其他副本重配和客户端发现更新。",
+      "触发条件：多个 Sentinel 达到 quorum 后确认主节点客观下线；随后某个 Sentinel 申请成为 failover leader，并获得多数 Sentinel 授权。quorum 负责故障判断，多数派授权负责执行切换。",
+      "副本选择：leader 会从健康副本中选择候选者，考虑 replica priority、复制 offset、与主节点断开时间和运行状态。复制进度越靠前的副本，提升后数据丢失窗口通常越小。",
+      "切换流程：leader 向候选副本发送提升命令，使其成为新主；再让其他副本复制新主；旧主恢复后会被重配为新主的副本；Sentinel 发布新配置，客户端通过 Sentinel 获取新的主节点地址。",
+      "业务影响：切换期间写请求可能失败或超时，客户端需要重连和重试；Redis 异步复制会留下数据窗口，旧主在网络分区中继续收写时可能产生脑裂风险。`min-replicas-to-write` 和 `min-replicas-max-lag` 可以限制孤立主节点继续写入。",
+      "排查建议：关注 Sentinel 日志中的 +sdown、+odown、+elected-leader、+failover-state-*、+switch-master；同时看复制延迟、候选副本 offset、客户端重连耗时和业务错误率。",
+      "参考来源：failover 流程、副本选择、quorum 与多数派授权参考 Redis Sentinel；客户端刷新参考 Sentinel client spec；复制边界参考 Redis Replication 与 consistency during replication；指标参考 INFO；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "哨兵故障转移从哪个事件开始",
+      "quorum 和多数派授权在 failover 中分别做什么",
+      "Sentinel 如何选择要提升的副本",
+      "旧主恢复后会发生什么",
+      "客户端如何感知新主节点",
+      "脑裂和数据丢失窗口如何降低",
+    ],
+    useCases: ["主节点故障后选举新主节点", "Redis 主从自动恢复", "高可用演练"],
+    prerequisites: ["redis-sentinel"],
+    related: ["quorum", "redis-sentinel", "replication-lag", "redis-replication"],
+    commonIssues: ["脑裂", "客户端未及时刷新主节点地址", "切换期间写入失败", "副本数据落后", "旧主恢复后数据被覆盖"],
+  },
+  /* <!-- KG_REVIEWED: 哨兵法定票数 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 哨兵法定票数 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "quorum", zh: "哨兵法定票数", en: "Sentinel Quorum", area: "high-availability", difficulty: "medium", explanation: ["核心概念：哨兵法定票数（Sentinel Quorum）聚焦哨兵法定票数是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住复制、哨兵、故障转移和延迟，再看输入、状态变化、输出结果和失败分支。","适用场景：哨兵法定票数常用于控制故障判断和切换条件。学习时把它放回Redis链路中观察，并结合前置知识哨兵判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，哨兵法定票数通常会和哨兵故障转移一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认复制、哨兵、故障转移和延迟是否仍然成立。","常见误区与注意点：实践中容易把哨兵法定票数当成孤立概念处理，结果遗漏脑裂、复制积压、全量同步、法定票数和数据丢失窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["哨兵法定票数适合什么使用场景","哨兵法定票数可能带来哪些性能或一致性问题","哨兵法定票数线上如何排查和治理"], useCases: ["控制故障判断和切换条件"], prerequisites: ["redis-sentinel"], related: ["sentinel-failover"], commonIssues: ["票数设置不合理","少量节点故障导致无法切换"] },
-  /* <!-- KG_REVIEWED: 集群 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-sentinel-docs", "redis-sentinel-client-spec", "redis-replication-docs", "xiaolin-redis", "javaguide"],
+    id: "quorum",
+    zh: "哨兵法定票数",
+    en: "Sentinel Quorum",
+    area: "high-availability",
+    difficulty: "medium",
+    summary: "Sentinel quorum 决定多少个哨兵同意主节点不可达后，主节点才会进入客观下线状态。",
+    explanation: [
+      "核心概念：quorum 是每个被监控 master 的配置项，表示需要多少个 Sentinel 同意 master 不可达，master 才会从主观下线推进到客观下线。它控制故障认定敏感度。",
+      "与 majority：quorum 触发 ODOWN，failover 执行还需要多数 Sentinel 授权。比如 5 个 Sentinel、quorum=2 时，2 个 Sentinel 同意即可触发 ODOWN，但真正执行切换至少要 3 个 Sentinel 可达并授权。",
+      "配置影响：quorum 较低时，故障发现更敏感，误判风险更高；quorum 较高时，误判更少，但网络分区或少数 Sentinel 故障可能让系统迟迟无法切换。",
+      "网络分区：Sentinel 只会在能够获得多数授权的一侧执行 failover，少数派分区无法完成切换。这个机制用于降低双主风险，但也意味着部署拓扑和故障域分布非常关键。",
+      "工程建议：生产常用 3 或 5 个 Sentinel，分布在不同机器或可用区。quorum 要结合 Sentinel 数量、网络拓扑、故障容忍目标和误判成本设置，并通过演练验证。",
+      "排查建议：看 Sentinel 日志中的 +sdown、+odown、quorum 计数、leader 授权和 failover 状态。无法切换时，重点检查可达 Sentinel 数量、quorum 配置、网络分区和 Sentinel 之间通信。",
+      "参考来源：quorum、ODOWN、majority 授权和示例参考 Redis Sentinel；客户端发现边界参考 Sentinel client spec；复制数据窗口参考 Redis Replication；中文案例参考小林 coding 与 JavaGuide。"
+    ],
+    typicalProblems: [
+      "quorum 控制 Sentinel 的哪个阶段",
+      "quorum 和 majority 授权有什么区别",
+      "5 个 Sentinel 且 quorum=2 时故障转移如何触发",
+      "quorum 设置过低会带来什么风险",
+      "quorum 设置过高会带来什么风险",
+      "网络分区时为什么少数派无法切换",
+    ],
+    useCases: ["控制故障判断和切换条件", "Sentinel 高可用参数设计", "故障演练校验"],
+    prerequisites: ["redis-sentinel"],
+    related: ["sentinel-failover", "redis-sentinel", "replication-lag"],
+    commonIssues: ["票数设置不合理", "少量节点故障导致无法切换", "quorum 与 majority 混淆", "Sentinel 分布在同一故障域", "网络分区导致切换受阻"],
+  },
+  /* <!-- KG_REVIEWED: 集群 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 集群 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-cluster", zh: "集群", en: "Redis Cluster", area: "cluster", difficulty: "hard", explanation: ["核心概念：集群（Redis Cluster）聚焦集群是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住哈希槽、分片路由和槽位迁移，再看输入、状态变化、输出结果和失败分支。","适用场景：集群常用于水平扩展容量、分片存储和高可用。学习时把它放回Redis链路中观察，并结合前置知识主从复制和哨兵判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，集群通常会和哈希槽和槽位迁移一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认哈希槽、分片路由和槽位迁移是否仍然成立。","常见误区与注意点：实践中容易把集群当成孤立概念处理，结果遗漏MOVED/ASK、Key Tag、多 Key 操作和重分片影响。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["集群适合什么使用场景","集群可能带来哪些性能或一致性问题","集群线上如何排查和治理"], useCases: ["水平扩展容量","分片存储","高可用"], prerequisites: ["redis-replication","redis-sentinel"], related: ["hash-slot","resharding"], commonIssues: ["跨槽命令限制","客户端路由复杂"] },
-  /* <!-- KG_REVIEWED: 哈希槽 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-cluster-docs",
+      "redis-cluster-spec",
+      "redis-cluster-keyslot-command",
+      "redis-cluster-shards-command",
+      "redis-replication-docs",
+      "redis-sentinel-docs",
+      "xiaolin-redis",
+    ],
+    id: "redis-cluster",
+    zh: "集群",
+    en: "Redis Cluster",
+    area: "cluster",
+    difficulty: "hard",
+    summary: "Redis Cluster 用 16384 个哈希槽把 key 分片到多个主节点，并通过副本提供分片级高可用。",
+    explanation: [
+      "核心概念：Redis Cluster 把整个 keyspace 划分为 16384 个哈希槽，每个主节点负责一部分槽。key 先计算槽位，再路由到负责该槽的节点，从而实现水平扩容和分片存储。",
+      "节点结构：集群由多个主节点组成，每个主节点可以有一个或多个副本。主节点负责槽位读写，副本用于故障转移；某个主节点故障时，它的副本可以被提升为新主继续服务对应槽位。",
+      "客户端路由：客户端需要理解槽位映射。请求发错节点时会收到 `MOVED` 重定向，槽位迁移期间可能收到 `ASK` 临时重定向。成熟客户端会缓存槽位表，并在拓扑变化时刷新。",
+      "多 key 限制：多 key 命令要求所有 key 位于同一槽位。Key Tag 可以用 `{...}` 指定参与哈希的片段，让相关 key 落到同一槽，支持事务、Lua 或批量操作的同槽需求。",
+      "扩缩容与迁移：扩容、缩容和负载均衡依赖槽位迁移。迁移期间要处理 ASK/MOVED、热点槽位、Big Key、客户端重试和业务延迟；迁移计划要分批执行并观察节点负载。",
+      "与 Sentinel：Sentinel 适合单主多副本的高可用，Cluster 同时解决分片容量和分片级故障转移。Cluster 的故障恢复依赖节点间 gossip、槽位状态和副本提升。",
+      "参考来源：Cluster 运维和扩展参考 Redis Scale with Redis Cluster；槽位、MOVED/ASK、Key Tag 和故障模型参考 Redis Cluster specification；槽位计算参考 CLUSTER KEYSLOT；拓扑观察参考 CLUSTER SHARDS；复制基础参考 Redis Replication；Sentinel 对比参考 Redis Sentinel；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Redis Cluster 为什么使用 16384 个哈希槽",
+      "key 如何从槽位路由到节点",
+      "MOVED 和 ASK 分别在什么场景出现",
+      "多 key 命令为什么要求同槽",
+      "Key Tag 如何让相关 key 落到同一槽",
+      "扩缩容和槽位迁移会带来哪些风险",
+    ],
+    useCases: ["水平扩展容量", "分片存储", "高可用", "大规模缓存集群", "热点槽位治理"],
+    prerequisites: ["redis-replication", "redis-sentinel"],
+    related: ["hash-slot", "resharding", "moved-ask", "key-tag", "redis-replication"],
+    commonIssues: ["跨槽命令限制", "客户端路由复杂", "MOVED/ASK 处理不完整", "槽位迁移带来延迟", "热点 key 或 Big Key 导致分片倾斜"],
+  },
+  /* <!-- KG_REVIEWED: 哈希槽 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 哈希槽 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "hash-slot", zh: "哈希槽", en: "Hash Slot", area: "cluster", difficulty: "medium", explanation: ["核心概念：哈希槽（Hash Slot）聚焦哈希槽是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住哈希槽、分片路由和槽位迁移，再看输入、状态变化、输出结果和失败分支。","适用场景：哈希槽常用于把 key 映射到 16384 个槽位并分布到节点。学习时把它放回Redis链路中观察，并结合前置知识集群判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，哈希槽通常会和Key Tag一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认哈希槽、分片路由和槽位迁移是否仍然成立。","常见误区与注意点：实践中容易把哈希槽当成孤立概念处理，结果遗漏MOVED/ASK、Key Tag、多 Key 操作和重分片影响。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["哈希槽适合什么使用场景","哈希槽可能带来哪些性能或一致性问题","哈希槽线上如何排查和治理"], useCases: ["把 key 映射到 16384 个槽位并分布到节点"], prerequisites: ["redis-cluster"], related: ["key-tag"], commonIssues: ["槽位分布不均","热点槽位"] },
-  /* <!-- KG_REVIEWED: Key Tag | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-cluster-spec", "redis-cluster-keyslot-command", "redis-cluster-docs", "redis-cluster-shards-command", "xiaolin-redis"],
+    id: "hash-slot",
+    zh: "哈希槽",
+    en: "Hash Slot",
+    area: "cluster",
+    difficulty: "medium",
+    summary: "哈希槽是 Redis Cluster 的分片单位，key 通过 CRC16 映射到 0 到 16383 的槽位。",
+    explanation: [
+      "核心概念：Redis Cluster 把 keyspace 分成 16384 个 hash slot。每个 key 先计算槽位，再由槽位映射到某个主节点；节点实际负责的是一组槽，而非直接负责某个 key 前缀。",
+      "计算规则：普通 key 的槽位公式是 `CRC16(key) mod 16384`。`CLUSTER KEYSLOT key` 可以返回某个 key 的槽位，常用于调试客户端哈希算法和确认 key 分布。",
+      "Key Tag：如果 key 中包含 `{...}` 且花括号中间有内容，Redis 只用花括号内的内容计算槽位。例如 `user:{42}:profile` 和 `order:{42}:list` 会落到同一槽，方便同一用户相关多 key 操作。",
+      "多 key 约束：Cluster 中多 key 命令、事务和 Lua 脚本要求相关 key 位于同一槽。hash slot 设计让单 key 操作易于分片，也把跨槽操作限制暴露给业务 key 设计。",
+      "槽位倾斜：hash 算法通常能均匀分布 key，但业务使用过多相同 Key Tag、单个槽出现大 Key 或热 Key 时，会造成节点负载倾斜。槽位均匀并不等于流量和内存均匀。",
+      "排查建议：用 `CLUSTER KEYSLOT` 验证单个 key 槽位，用 `CLUSTER SHARDS` 或客户端槽位表看槽到节点映射；结合 Big Key、Hot Key 和节点资源指标判断是否存在槽位倾斜。",
+      "参考来源：16384 槽、CRC16 和 hash tag 规则参考 Redis Cluster specification；槽位计算参考 CLUSTER KEYSLOT；集群分片参考 Scale with Redis Cluster；拓扑观察参考 CLUSTER SHARDS；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Redis Cluster 为什么使用哈希槽做分片",
+      "key 到槽位的计算公式是什么",
+      "CLUSTER KEYSLOT 适合排查什么问题",
+      "Key Tag 如何改变槽位计算",
+      "多 key 操作为什么要求同槽",
+      "槽位均匀为什么仍可能出现负载倾斜",
+    ],
+    useCases: ["决定 key 存储在哪个节点", "客户端路由", "多 key 同槽设计", "槽位倾斜排查"],
+    prerequisites: ["redis-cluster"],
+    related: ["key-tag", "moved-ask", "resharding", "big-key", "hot-key"],
+    commonIssues: ["槽位倾斜", "多 key 操作跨槽", "Key Tag 滥用导致热点槽", "客户端哈希算法不一致", "误以为前缀决定节点"],
+  },
+  /* <!-- KG_REVIEWED: Key Tag | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: Key Tag | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "key-tag", zh: "Key Tag", en: "Key Tag", area: "cluster", difficulty: "medium", explanation: ["核心概念：Key Tag聚焦Key Tag是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住哈希槽、分片路由和槽位迁移，再看输入、状态变化、输出结果和失败分支。","适用场景：Key Tag常用于让多个 key 落到同一个槽位以支持多 key 操作。学习时把它放回Redis链路中观察，并结合前置知识哈希槽判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Key Tag通常会和集群一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认哈希槽、分片路由和槽位迁移是否仍然成立。","常见误区与注意点：实践中容易把Key Tag当成孤立概念处理，结果遗漏MOVED/ASK、Key Tag、多 Key 操作和重分片影响。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Key Tag适合什么使用场景","Key Tag可能带来哪些性能或一致性问题","Key Tag线上如何排查和治理"], useCases: ["让多个 key 落到同一个槽位以支持多 key 操作"], prerequisites: ["hash-slot"], related: ["redis-cluster"], commonIssues: ["滥用导致槽位热点","命名规范混乱"] },
-  /* <!-- KG_REVIEWED: 槽位迁移 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-cluster-spec", "redis-cluster-keyslot-command", "redis-cluster-docs", "redis-cluster-shards-command", "xiaolin-redis"],
+    id: "key-tag",
+    zh: "Key Tag",
+    en: "Key Tag",
+    area: "cluster",
+    difficulty: "medium",
+    summary: "Key Tag 用 `{...}` 指定参与哈希的 key 片段，让相关 key 在 Redis Cluster 中落到同一槽。",
+    explanation: [
+      "核心概念：Key Tag 是 Redis Cluster 的同槽设计工具。普通 key 用完整 key 名计算槽位；带有有效 `{tag}` 的 key，只用 tag 内容计算槽位，从而让不同 key 共享同一个 hash slot。",
+      "有效规则：只有第一个 `{` 后面存在 `}`，且中间内容非空时，花括号内内容才作为 hash tag。例如 `user:{42}:profile`、`order:{42}:list` 会同槽；`user:{}:profile` 会按完整 key 哈希。",
+      "适用场景：事务、Lua、多 key 命令、批量读写和同一聚合对象的多个字段 key，通常需要同槽。按用户 ID、订单 ID、租户 ID 做 tag，可以把同一业务实体相关 key 放在同一槽。",
+      "风险边界：Key Tag 会把相关 key 强行集中到一个槽。tag 粒度过粗，例如所有活动 key 都用 `{activity}`，会制造热点槽位和单节点压力；tag 粒度过细，可能无法满足多 key 操作。",
+      "命名建议：把 tag 设计成稳定、低碰撞、业务边界清晰的标识，例如 `{user:42}` 或 `{tenant:abc}`。客户端、服务端脚本和运维工具要统一 key 命名规范。",
+      "排查建议：用 `CLUSTER KEYSLOT` 验证相关 key 是否同槽，用 `CLUSTER SHARDS` 看槽位归属；结合热点 key、大 key 和节点负载判断 tag 是否造成倾斜。",
+      "参考来源：hash tag 规则参考 Redis Cluster specification；槽位验证参考 CLUSTER KEYSLOT；集群分片参考 Scale with Redis Cluster；拓扑观察参考 CLUSTER SHARDS；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "Key Tag 为什么能让多个 key 同槽",
+      "哪些花括号写法会被识别为有效 tag",
+      "多 key 命令为什么常需要 Key Tag",
+      "Key Tag 粒度过粗会带来什么风险",
+      "如何设计稳定的业务 tag",
+      "如何验证几个 key 是否落在同一槽",
+    ],
+    useCases: ["让多个 key 落到同一个槽位以支持多 key 操作", "同一用户数据同槽", "同一订单数据同槽", "Lua 脚本同槽约束"],
+    prerequisites: ["hash-slot"],
+    related: ["redis-cluster", "hash-slot", "moved-ask", "hot-key"],
+    commonIssues: ["滥用导致槽位热点", "命名规范混乱", "空花括号无效", "tag 粒度过粗", "跨服务 key 规则不一致"],
+  },
+  /* <!-- KG_REVIEWED: 槽位迁移 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 槽位迁移 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "resharding", zh: "槽位迁移", en: "Resharding", area: "cluster", difficulty: "hard", explanation: ["核心概念：槽位迁移（Resharding）聚焦槽位迁移是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住哈希槽、分片路由和槽位迁移，再看输入、状态变化、输出结果和失败分支。","适用场景：槽位迁移常用于扩容、缩容和负载均衡。学习时把它放回Redis链路中观察，并结合前置知识哈希槽判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，槽位迁移通常会和MOVED 与 ASK一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认哈希槽、分片路由和槽位迁移是否仍然成立。","常见误区与注意点：实践中容易把槽位迁移当成孤立概念处理，结果遗漏MOVED/ASK、Key Tag、多 Key 操作和重分片影响。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["槽位迁移适合什么使用场景","槽位迁移可能带来哪些性能或一致性问题","槽位迁移线上如何排查和治理"], useCases: ["扩容","缩容","负载均衡"], prerequisites: ["hash-slot"], related: ["moved-ask"], commonIssues: ["迁移期间延迟抖动","客户端重定向处理异常"] },
-  /* <!-- KG_REVIEWED: MOVED 与 ASK | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-cluster-docs",
+      "redis-cluster-spec",
+      "redis-cluster-setslot-command",
+      "redis-migrate-command",
+      "redis-cluster-shards-command",
+      "redis-latency-docs",
+      "xiaolin-redis",
+    ],
+    id: "resharding",
+    zh: "槽位迁移",
+    en: "Resharding",
+    area: "cluster",
+    difficulty: "hard",
+    summary: "槽位迁移是在 Redis Cluster 扩缩容或负载均衡时，把 hash slot 及其 key 从源节点迁到目标节点。",
+    explanation: [
+      "核心概念：Redis Cluster 的数据归属以槽位为单位。resharding 会把某些 hash slot 从源主节点迁移到目标主节点，完成后该槽上的新请求由目标节点负责。",
+      "典型流程：先把目标节点对应槽设置为 importing，把源节点对应槽设置为 migrating；再逐个迁移该槽内的 key，常用 `MIGRATE` 完成 key 搬迁；槽内 key 搬完后，用 `CLUSTER SETSLOT` 把槽归属切换到目标节点。",
+      "重定向语义：迁移期间，客户端可能收到 `ASK` 临时重定向；迁移完成后，槽位归属变化会通过 `MOVED` 告诉客户端刷新槽位表。客户端对 ASK/MOVED 的处理能力决定迁移期间的可用性。",
+      "资源成本：迁移会消耗源节点和目标节点 CPU、网络、内存和命令处理时间。Big Key 迁移会带来更明显延迟；热槽迁移会叠加请求流量和迁移流量。",
+      "工程控制：按槽分批迁移，避开高峰，限制迁移速率，先治理 Big Key 和 Hot Key，准备回滚步骤。迁移前后观察节点内存、ops、延迟、网络、槽位分布和客户端错误。",
+      "特殊情况：多 key 同槽业务在迁移期间可能频繁遇到重定向；客户端槽位缓存过期策略不当会放大错误；迁移中断后要检查 importing/migrating 状态，避免槽状态残留。",
+      "参考来源：Cluster 扩缩容和 resharding 参考 Scale with Redis Cluster；MOVED/ASK 和迁移状态参考 Redis Cluster specification；槽状态切换参考 CLUSTER SETSLOT；key 搬迁参考 MIGRATE；拓扑观察参考 CLUSTER SHARDS；延迟影响参考 Redis latency 文档；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "槽位迁移用于哪些扩缩容场景",
+      "migrating 和 importing 状态分别表示什么",
+      "MIGRATE 在槽位迁移中做什么",
+      "迁移期间为什么会出现 ASK",
+      "迁移完成后为什么会出现 MOVED",
+      "Big Key 和热槽会如何放大迁移风险",
+    ],
+    useCases: ["扩容", "缩容", "负载均衡", "热点槽位迁移", "节点下线前数据搬迁"],
+    prerequisites: ["hash-slot"],
+    related: ["moved-ask", "redis-cluster", "hash-slot", "big-key", "hot-key"],
+    commonIssues: ["迁移期间延迟抖动", "客户端重定向处理异常", "Big Key 迁移耗时", "槽状态残留", "热槽迁移造成节点压力"],
+  },
+  /* <!-- KG_REVIEWED: MOVED 与 ASK | 2026-05-30 | source_count=6 --> */
   /* <!-- KG_EXPLAINED: MOVED 与 ASK | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "moved-ask", zh: "MOVED 与 ASK", en: "MOVED and ASK Redirection", area: "cluster", difficulty: "hard", explanation: ["核心概念：MOVED 与 ASK（MOVED and ASK Redirection）聚焦MOVED 与 ASK是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住哈希槽、分片路由和槽位迁移，再看输入、状态变化、输出结果和失败分支。","适用场景：MOVED 与 ASK常用于客户端定位正确槽位节点和处理迁移中请求。学习时把它放回Redis链路中观察，并结合前置知识集群和槽位迁移判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，MOVED 与 ASK通常会和哈希槽一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认哈希槽、分片路由和槽位迁移是否仍然成立。","常见误区与注意点：实践中容易把MOVED 与 ASK当成孤立概念处理，结果遗漏MOVED/ASK、Key Tag、多 Key 操作和重分片影响。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["MOVED 与 ASK适合什么使用场景","MOVED 与 ASK可能带来哪些性能或一致性问题","MOVED 与 ASK线上如何排查和治理"], useCases: ["客户端定位正确槽位节点","处理迁移中请求"], prerequisites: ["redis-cluster","resharding"], related: ["hash-slot"], commonIssues: ["客户端槽位缓存过期","重定向风暴"] },
-  /* <!-- KG_REVIEWED: 慢查询日志 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: ["redis-cluster-spec", "redis-cluster-docs", "redis-asking-command", "redis-cluster-shards-command", "redis-cluster-keyslot-command", "xiaolin-redis"],
+    id: "moved-ask",
+    zh: "MOVED 与 ASK",
+    en: "MOVED and ASK Redirection",
+    area: "cluster",
+    difficulty: "hard",
+    summary: "MOVED 和 ASK 都是 Redis Cluster 的重定向响应，MOVED 表示槽位归属已变，ASK 表示迁移期间的一次性临时访问。",
+    explanation: [
+      "核心概念：Cluster 客户端根据槽位表把命令发到目标节点。节点发现自己当前不负责该槽时，会返回重定向，让客户端把请求发往正确节点。",
+      "MOVED：`MOVED slot host:port` 表示槽位已经归属于另一个节点。客户端收到后应更新本地槽位表，并把后续该槽位请求发到新节点。MOVED 代表拓扑视图需要刷新。",
+      "ASK：`ASK slot host:port` 常出现在槽位迁移期间。客户端只把当前这一次请求临时发往目标节点，并在真正命令前发送 `ASKING`；它不应该立即把槽位表永久改成目标节点。",
+      "处理差异：MOVED 是长期路由修正，ASK 是迁移期临时路由。客户端混淆二者会造成频繁重定向、请求失败或槽位表抖动。",
+      "迁移场景：源节点处于 migrating，目标节点处于 importing 时，同一槽内不同 key 可能分布在源和目标节点。ASK 让迁移期间仍能访问已搬到目标节点的 key。",
+      "排查建议：统计 MOVED/ASK 数量、客户端槽位刷新次数、重试次数、迁移任务状态和命令延迟。MOVED 长期高发通常说明客户端槽位表刷新异常；ASK 高发通常与 resharding 迁移窗口有关。",
+      "参考来源：MOVED/ASK 语义和迁移状态参考 Redis Cluster specification；集群路由参考 Scale with Redis Cluster；ASKING 命令参考 ASKING；拓扑观察参考 CLUSTER SHARDS；槽位验证参考 CLUSTER KEYSLOT；中文案例参考小林 coding。"
+    ],
+    typicalProblems: [
+      "MOVED 表示什么路由变化",
+      "ASK 为什么只适用于当前请求",
+      "收到 ASK 后为什么要先发送 ASKING",
+      "客户端为什么要区分 MOVED 和 ASK",
+      "槽位迁移期间为什么会出现 ASK",
+      "重定向风暴通常如何排查",
+    ],
+    useCases: ["客户端定位正确槽位节点", "处理迁移中请求", "刷新客户端槽位表", "集群扩缩容期间请求路由"],
+    prerequisites: ["redis-cluster", "resharding"],
+    related: ["hash-slot", "resharding", "key-tag", "redis-cluster"],
+    commonIssues: ["客户端槽位缓存过期", "重定向风暴", "把 ASK 当成 MOVED 处理", "未发送 ASKING", "迁移期间重试策略过激"],
+  },
+  /* <!-- KG_REVIEWED: 慢查询日志 | 2026-05-30 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 慢查询日志 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "slowlog", zh: "慢查询日志", en: "Slow Log", area: "observability", difficulty: "easy", explanation: ["核心概念：慢查询日志（Slow Log）聚焦慢查询日志是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住慢查询、监控指标和运行状态，再看输入、状态变化、输出结果和失败分支。","适用场景：慢查询日志常用于定位慢命令和性能排查。学习时把它放回Redis链路中观察，并结合前置知识Redis 常用命令判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，慢查询日志通常会和Redis 监控和大 Key一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认慢查询、监控指标和运行状态是否仍然成立。","常见误区与注意点：实践中容易把慢查询日志当成孤立概念处理，结果遗漏采样盲区、指标滞后、监控命令开销和告警阈值。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["慢查询日志适合什么使用场景","慢查询日志可能带来哪些性能或一致性问题","慢查询日志线上如何排查和治理"], useCases: ["定位慢命令","性能排查"], prerequisites: ["redis-command"], related: ["redis-monitor","big-key"], commonIssues: ["阈值设置过高","只记录命令执行时间不含网络时间"] },
-  /* <!-- KG_REVIEWED: Redis 监控 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-slowlog-command",
+      "redis-slowlog-get-command",
+      "redis-slowlog-len-command",
+      "redis-latency-docs",
+      "redis-latency-monitor-docs",
+      "redis-info-command",
+      "xiaolin-redis",
+    ],
+    id: "slowlog",
+    zh: "慢查询日志",
+    en: "Slow Log",
+    area: "observability",
+    difficulty: "easy",
+    summary: "慢查询日志记录超过阈值的命令执行耗时，用来定位慢命令、Big Key 和阻塞风险。",
+    explanation: [
+      "核心概念：慢查询日志（Slow Log）记录执行时间超过阈值的 Redis 命令。它关注服务端真正执行命令的阶段，能帮助定位阻塞事件、复杂命令、大对象读写和脚本执行过久等问题。",
+      "记录范围：慢日志里的 duration 单位是微秒，覆盖命令实际执行耗时。客户端排队、网络传输、响应发送和客户端消费速度属于端到端延迟，需要结合客户端指标、`LATENCY`、`INFO` 和链路监控一起看。",
+      "配置方式：`slowlog-log-slower-than` 决定超过多少微秒写入慢日志，`slowlog-max-len` 决定最多保留多少条。阈值越低，采样越细；长度越小，旧记录越快被覆盖。线上通常先根据基线设置阈值，再在排障窗口临时调低。",
+      "查看命令：`SLOWLOG GET [count]` 返回慢日志条目，默认取最近 10 条；`SLOWLOG LEN` 查看当前条数；`SLOWLOG RESET` 清空记录。每条记录包含递增 id、时间戳、耗时、命令参数、客户端地址和客户端名，id 适合做增量告警去重。",
+      "重点排查：看到慢命令后先看命令复杂度、key 大小、返回数据量、Lua 脚本、集合交并差、大范围读取和删除行为。Big Key 读写会放大 CPU、内存分配和网络传输压力，慢日志通常是发现它的入口之一。",
+      "特殊情况：慢日志是内存环形记录，保留长度有限；输出里可能包含业务 key 和参数，落库、告警和截图前要做脱敏。托管版或兼容版 Redis 可能在客户端地址、脚本和权限上有差异，排查时以当前环境文档为准。",
+      "排查路径：先用 `SLOWLOG GET` 找命令和 key 模式，再用 `INFO commandstats`、延迟监控和大 key 扫描确认影响面，最后从命令替换、分页访问、数据拆分、异步删除、脚本限时和阈值告警上治理。",
+      "参考来源：慢日志定义、耗时范围、配置项和返回字段参考 Redis SLOWLOG GET；命令族参考 SLOWLOG、SLOWLOG LEN；端到端延迟判断参考 Redis latency 文档和 latency monitor；运行指标参考 INFO；中文案例参考小林 coding。",
+    ],
+    typicalProblems: [
+      "慢查询日志记录的是哪段耗时",
+      "`slowlog-log-slower-than` 和 `slowlog-max-len` 如何设置",
+      "`SLOWLOG GET`、`SLOWLOG LEN`、`SLOWLOG RESET` 分别怎么用",
+      "为什么慢日志要和延迟监控一起看",
+      "如何通过慢日志定位 Big Key 和高复杂度命令",
+      "慢日志告警如何避免重复通知",
+    ],
+    useCases: ["定位慢命令", "性能排查", "发现 Big Key 操作", "命令复杂度治理"],
+    prerequisites: ["redis-command"],
+    related: ["redis-monitor", "big-key", "hot-key", "redis-cli"],
+    commonIssues: ["阈值设置过高", "只看慢日志忽略端到端延迟", "慢日志长度过小导致记录被覆盖", "忽略 Big Key 和命令复杂度", "输出参数未脱敏"],
+  },
+  /* <!-- KG_REVIEWED: Redis 监控 | 2026-05-30 | source_count=8 --> */
   /* <!-- KG_EXPLAINED: Redis 监控 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "redis-monitor", zh: "Redis 监控", en: "Redis Monitoring", area: "observability", difficulty: "medium", explanation: ["核心概念：Redis 监控（Redis Monitoring）聚焦Redis 监控是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住慢查询、监控指标和运行状态，再看输入、状态变化、输出结果和失败分支。","适用场景：Redis 监控常用于观察 QPS、内存、延迟、连接数和复制状态。学习时把它放回Redis链路中观察，并结合前置知识Redis 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Redis 监控通常会和慢查询日志和热 Key一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认慢查询、监控指标和运行状态是否仍然成立。","常见误区与注意点：实践中容易把Redis 监控当成孤立概念处理，结果遗漏采样盲区、指标滞后、监控命令开销和告警阈值。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Redis 监控适合什么使用场景","Redis 监控可能带来哪些性能或一致性问题","Redis 监控线上如何排查和治理"], useCases: ["观察 QPS、内存、延迟、连接数和复制状态"], prerequisites: ["redis-overview"], related: ["slowlog","hot-key"], commonIssues: ["指标缺失","告警阈值不合理"] },
-  /* <!-- KG_REVIEWED: 负载均衡 | 2026-05-24 | source_count=5 --> */
+  {
+    sourceRefs: [
+      "redis-observability-docs",
+      "redis-info-command",
+      "redis-latency-docs",
+      "redis-latency-monitor-docs",
+      "redis-slowlog-command",
+      "redis-monitor-command",
+      "redis-client-list-command",
+      "xiaolin-redis",
+    ],
+    id: "redis-monitor",
+    zh: "Redis 监控",
+    en: "Redis Monitoring",
+    area: "observability",
+    difficulty: "medium",
+    summary: "Redis 监控用指标、延迟、慢日志和客户端状态建立运行画像，目标是提前发现容量、阻塞和复制风险。",
+    explanation: [
+      "核心概念：Redis 监控是一套观测体系，重点看吞吐、延迟、内存、连接、命令、持久化、复制和集群状态。`MONITOR` 只是调试命令，会实时打印服务器收到的命令流，适合短时间定位请求来源。",
+      "基础指标：`INFO` 是最常用入口。`stats` 看 QPS、命中率、拒绝连接和过期淘汰；`memory` 看 used_memory、碎片率和峰值；`clients` 看连接数和阻塞客户端；`persistence` 看 RDB/AOF；`replication` 看主从状态和复制延迟。",
+      "延迟指标：端到端延迟要同时看客户端耗时、网络、Redis 服务端延迟和命令执行耗时。Redis 官方延迟文档建议把慢日志、延迟监控、系统 CPU、内存、fork、磁盘和网络一起分析。",
+      "慢命令定位：`SLOWLOG` 记录执行时间超过阈值的命令，适合发现 O(N) 操作、Lua 脚本、Big Key 读写和删除。`INFO commandstats` 能按命令累计调用次数与耗时，适合判断哪类命令贡献了主要压力。",
+      "客户端观察：`CLIENT LIST` 可以看到客户端地址、状态、输出缓冲区、阻塞标记和最近命令。连接暴涨、输出缓冲区增长、阻塞客户端堆积，常见于慢消费者、大响应、阻塞命令或客户端泄漏。",
+      "MONITOR 边界：`MONITOR` 输出每条命令，流量高时会增加服务端和网络开销，也可能暴露业务参数。生产环境只适合短时间、低风险窗口使用，常规监控应依赖指标采集、慢日志和延迟事件。",
+      "告警设计：Redis 告警要从业务影响出发，常见核心项包括 P99 延迟、错误率、内存水位、淘汰数量、连接数、拒绝连接、主从复制延迟、AOF/RDB 失败、集群状态和慢日志增量。",
+      "排障路径：先看业务延迟和错误，再用 `INFO` 定位资源维度，用 `SLOWLOG` 和 commandstats 定位命令维度，用 `CLIENT LIST` 定位客户端维度，最后结合机器 CPU、内存、磁盘和网络确认根因。",
+      "参考来源：监控指标参考 Redis observability 文档和 INFO；延迟分析参考 latency 与 latency monitor；慢命令参考 SLOWLOG；实时命令流参考 MONITOR；客户端状态参考 CLIENT LIST；中文排障案例参考小林 coding。",
+    ],
+    typicalProblems: [
+      "Redis 监控应该看哪些核心指标",
+      "`INFO` 各 section 适合排查什么问题",
+      "端到端延迟如何拆成客户端、网络和服务端",
+      "`SLOWLOG` 与 `INFO commandstats` 如何配合",
+      "`MONITOR` 为什么只适合短时间调试",
+      "连接数、输出缓冲区和阻塞客户端如何判断风险",
+    ],
+    useCases: ["观察 QPS、内存、延迟、连接数和复制状态", "定位慢命令", "发现客户端异常", "设计告警阈值"],
+    prerequisites: ["redis-overview"],
+    related: ["slowlog", "hot-key", "big-key", "redis-cli", "redis-replication"],
+    commonIssues: ["只看平均延迟", "告警阈值缺少业务基线", "长时间开启 MONITOR", "忽略客户端输出缓冲区", "只看 Redis 指标忽略机器资源"],
+  },
+  /* <!-- KG_REVIEWED: 负载均衡 | 2026-05-30 | source_count=8 --> */
   /* <!-- KG_EXPLAINED: 负载均衡 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["redis-docs","redis-commands","xiaolin-redis","javaguide","doocs-advanced-java"], id: "load-balancing", zh: "负载均衡", en: "Load Balancing", area: "operations", difficulty: "medium", explanation: ["核心概念：负载均衡（Load Balancing）聚焦负载均衡是Redis体系中的关键知识点。Redis 围绕内存数据结构、单线程事件循环、持久化、复制和缓存治理提供高性能数据服务；理解它时先抓住负载、限流、容量和故障演练，再看输入、状态变化、输出结果和失败分支。","适用场景：负载均衡常用于分散读请求和治理热点访问。学习时把它放回Redis链路中观察，并结合前置知识主从复制和热 Key判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，负载均衡通常会和集群一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认负载、限流、容量和故障演练是否仍然成立。","常见误区与注意点：实践中容易把负载均衡当成孤立概念处理，结果遗漏变更风险、回滚、连接风暴和客户端配置。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Redis 官方文档、Redis Commands、小林 coding、JavaGuide 和 doocs advanced-java，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["负载均衡适合什么使用场景","负载均衡可能带来哪些性能或一致性问题","负载均衡线上如何排查和治理"], useCases: ["分散读请求","治理热点访问"], prerequisites: ["redis-replication","hot-key"], related: ["redis-cluster"], commonIssues: ["读写一致性","客户端路由策略复杂"] },
+  {
+    sourceRefs: [
+      "redis-replication-docs",
+      "redis-replication-consistency-docs",
+      "redis-sentinel-docs",
+      "redis-sentinel-client-spec",
+      "redis-cluster-docs",
+      "redis-cluster-spec",
+      "redis-readonly-command",
+      "xiaolin-redis",
+    ],
+    id: "load-balancing",
+    zh: "负载均衡",
+    en: "Load Balancing",
+    area: "operations",
+    difficulty: "medium",
+    summary: "Redis 负载均衡通过副本读、分片、客户端路由和热点治理分散压力，核心目标是让请求落到合适节点。",
+    explanation: [
+      "核心概念：Redis 负载均衡主要分为读流量分摊和数据分片两类。读流量通常通过主从复制把只读请求分到副本，写流量仍进入主节点；容量和写入压力通常通过 Redis Cluster 把 key 分散到不同槽位和主节点。",
+      "读写分离：主从复制可以提升读吞吐，但副本数据来自异步复制，读副本可能读到旧值。强一致读、写后立刻读和库存扣减这类场景，应路由到主节点或结合业务版本号、`WAIT`、短暂主读等策略处理。",
+      "集群分片：Redis Cluster 使用 16384 个 hash slot 分配 key，客户端根据槽位表把请求发到目标节点。扩容、缩容和迁移时会出现 MOVED/ASK 重定向，客户端需要刷新拓扑并控制重试节奏。",
+      "副本读：集群客户端向副本发送 `READONLY` 后，可以把属于副本主节点负责槽位的读请求发到该副本。它适合读多写少、可容忍短暂滞后的场景；`READWRITE` 可恢复默认读写模式。",
+      "故障切换：Sentinel 负责监控主节点、达成故障判断并完成故障转移。客户端要接入 Sentinel 或服务发现能力，及时拿到新的主节点地址；连接池要在切换后刷新旧连接。",
+      "热点治理：负载均衡解决的是整体压力分布，热 Key 会让单个节点或单个 key 成为瓶颈。常见做法是本地缓存、多副本读、key 拆分、随机后缀、请求合并和限流。",
+      "特殊情况：跨槽多 key 命令会受 Cluster 槽位限制，需要 hash tag 把相关 key 放到同一槽。副本读会受到复制延迟、故障切换、客户端路由缓存和连接池策略影响，线上要监控主从延迟、MOVED/ASK 数量和节点负载。",
+      "落地路径：先按业务一致性把请求分成主读、副本读和写，再选择单主多从、Sentinel 或 Cluster。随后压测读写比例、热点分布、故障切换、扩缩容和客户端重试，最后用监控指标持续校准路由策略。",
+      "参考来源：主从复制和一致性边界参考 Redis replication 与 consistency 文档；故障切换参考 Sentinel 文档和 Sentinel client spec；分片路由参考 Redis Cluster 文档和 Cluster specification；副本读参考 READONLY；中文案例参考小林 coding。",
+    ],
+    typicalProblems: [
+      "Redis 负载均衡主要解决哪些压力",
+      "读写分离为什么会出现旧数据",
+      "Redis Cluster 如何把请求路由到正确节点",
+      "`READONLY` 副本读适合什么场景",
+      "Sentinel 故障切换后客户端如何刷新主节点",
+      "热 Key 为什么会绕过整体负载均衡效果",
+    ],
+    useCases: ["分散读请求", "治理热点访问", "提升集群容量", "降低单节点故障影响"],
+    prerequisites: ["redis-replication", "redis-cluster", "hot-key"],
+    related: ["redis-cluster", "redis-sentinel", "hash-slot", "key-tag", "resharding", "hot-key"],
+    commonIssues: ["读写分离读到旧值", "客户端槽位表刷新滞后", "连接池未感知故障切换", "热 Key 压垮单节点", "跨槽多 key 命令失败"],
+  },
 ] satisfies GraphKnowledgePoint[];
 
 const redisKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {

@@ -5,6 +5,22 @@ export const knowledgeSources = {
     title: "Go Documentation",
     url: "https://go.dev/doc/",
   },
+  "go-command": {
+    title: "cmd/go: go command",
+    url: "https://pkg.go.dev/cmd/go",
+  },
+  "go-toolchains": {
+    title: "Go Toolchains",
+    url: "https://go.dev/doc/toolchain",
+  },
+  "go-gofmt-command": {
+    title: "cmd/gofmt: gofmt command",
+    url: "https://pkg.go.dev/cmd/gofmt",
+  },
+  "go-blog-gofmt": {
+    title: "Go Blog: go fmt your code",
+    url: "https://go.dev/blog/gofmt",
+  },
   "go-spec": {
     title: "The Go Programming Language Specification",
     url: "https://go.dev/ref/spec",
@@ -16,6 +32,146 @@ export const knowledgeSources = {
   "go-modules-reference": {
     title: "Go Modules Reference",
     url: "https://go.dev/ref/mod",
+  },
+  "go-managing-dependencies": {
+    title: "Managing dependencies",
+    url: "https://go.dev/doc/modules/managing-dependencies",
+  },
+  "go-mod-tidy-reference": {
+    title: "Go Modules Reference: go mod tidy",
+    url: "https://go.dev/ref/mod#go-mod-tidy",
+  },
+  "go-create-module": {
+    title: "Tutorial: Create a Go module",
+    url: "https://go.dev/doc/tutorial/create-module",
+  },
+  "go-how-to-write-code": {
+    title: "How to Write Go Code",
+    url: "https://go.dev/doc/code",
+  },
+  "go-module-layout": {
+    title: "Organizing a Go module",
+    url: "https://go.dev/doc/modules/layout",
+  },
+  "go-blog-package-names": {
+    title: "Go Blog: Package names",
+    url: "https://go.dev/blog/package-names",
+  },
+  "go-doc-comments": {
+    title: "Go Doc Comments",
+    url: "https://go.dev/doc/comment",
+  },
+  "go-os-exit": {
+    title: "os.Exit",
+    url: "https://pkg.go.dev/os#Exit",
+  },
+  "go-os-signal": {
+    title: "os/signal",
+    url: "https://pkg.go.dev/os/signal",
+  },
+  "go-faq-stack-heap": {
+    title: "Go FAQ: stack or heap",
+    url: "https://go.dev/doc/faq#stack_or_heap",
+  },
+  "go-unsafe-package": {
+    title: "unsafe package",
+    url: "https://pkg.go.dev/unsafe",
+  },
+  "go-sync-map": {
+    title: "sync.Map",
+    url: "https://pkg.go.dev/sync#Map",
+  },
+  "go-sync-atomic": {
+    title: "sync/atomic",
+    url: "https://pkg.go.dev/sync/atomic",
+  },
+  "go-race-detector": {
+    title: "Data Race Detector",
+    url: "https://go.dev/doc/articles/race_detector",
+  },
+  "go-sync-mutex": {
+    title: "sync.Mutex",
+    url: "https://pkg.go.dev/sync#Mutex",
+  },
+  "go-sync-waitgroup": {
+    title: "sync.WaitGroup",
+    url: "https://pkg.go.dev/sync#WaitGroup",
+  },
+  "go-sync-once": {
+    title: "sync.Once",
+    url: "https://pkg.go.dev/sync#Once",
+  },
+  "go-sync-oncefunc": {
+    title: "sync.OnceFunc and OnceValue",
+    url: "https://pkg.go.dev/sync#OnceFunc",
+  },
+  "go-errgroup": {
+    title: "errgroup package",
+    url: "https://pkg.go.dev/golang.org/x/sync/errgroup",
+  },
+  "go-time-package": {
+    title: "time package",
+    url: "https://pkg.go.dev/time",
+  },
+  "go-runtime-package": {
+    title: "runtime package",
+    url: "https://pkg.go.dev/runtime",
+  },
+  "go-memory-model": {
+    title: "The Go Memory Model",
+    url: "https://go.dev/ref/mem",
+  },
+  "go-context-package": {
+    title: "context package",
+    url: "https://pkg.go.dev/context",
+  },
+  "go-encoding-json": {
+    title: "encoding/json",
+    url: "https://pkg.go.dev/encoding/json",
+  },
+  "go-blog-constants": {
+    title: "Go Blog: Constants",
+    url: "https://go.dev/blog/constants",
+  },
+  "go-blog-strings": {
+    title: "Go Blog: Strings, bytes, runes and characters in Go",
+    url: "https://go.dev/blog/strings",
+  },
+  "go-blog-slices": {
+    title: "Go Blog: Go Slices: usage and internals",
+    url: "https://go.dev/blog/slices-intro",
+  },
+  "go-blog-loopvar": {
+    title: "Go Blog: Fixing For Loops in Go 1.22",
+    url: "https://go.dev/blog/loopvar-preview",
+  },
+  "go-builtin-error": {
+    title: "builtin: error",
+    url: "https://pkg.go.dev/builtin#error",
+  },
+  "go-errors-package": {
+    title: "errors package",
+    url: "https://pkg.go.dev/errors",
+  },
+  "go-blog-errors-1-13": {
+    title: "Go Blog: Working with Errors in Go 1.13",
+    url: "https://go.dev/blog/go1.13-errors",
+  },
+  "go-blog-defer-panic-recover": {
+    title: "Go Blog: Defer, Panic, and Recover",
+    url: "https://go.dev/blog/defer-panic-and-recover",
+  },
+  "go-generics-tutorial": {
+    title: "Tutorial: Getting started with generics",
+    url: "https://go.dev/doc/tutorial/generics",
+  },
+  "go-blog-intro-generics": {
+    title: "Go Blog: An Introduction To Generics",
+    url: "https://go.dev/blog/intro-generics",
+  },
+  "go-mvs": {
+    title: "Minimal Version Selection",
+    url: "https://research.swtch.com/vgo-mvs",
   },
   "go-std-lib": {
     title: "Go Standard Library",
@@ -49,6 +205,190 @@ export const knowledgeSources = {
     title: "Open Data Structures: Array-Based Lists",
     url: "https://opendatastructures.org/newhtml/ods/latex/arrays.html",
   },
+  "hello-algo-array": {
+    title: "Hello 算法: 数组",
+    url: "https://www.hello-algo.com/chapter_array_and_linkedlist/array/",
+  },
+  "usaco-guide-two-pointers": {
+    title: "USACO Guide: Two Pointers",
+    url: "https://usaco.guide/silver/two-pointers",
+  },
+  "competitive-programmers-handbook": {
+    title: "Competitive Programmer's Handbook",
+    url: "https://usaco.guide/CPH.pdf",
+  },
+  "labuladong-two-pointers": {
+    title: "labuladong 的算法笔记: 双指针技巧",
+    url: "https://gitee.com/labuladong/fucking-algorithm/blob/master/%E7%AE%97%E6%B3%95%E6%80%9D%E7%BB%B4%E7%B3%BB%E5%88%97/%E5%8F%8C%E6%8C%87%E9%92%88%E6%8A%80%E5%B7%A7.md",
+  },
+  "cp-algorithms-tortoise-hare": {
+    title: "cp-algorithms: Tortoise and Hare Algorithm",
+    url: "https://cp-algorithms.com/others/tortoise_and_hare.html",
+  },
+  "usaco-guide-functional-graphs": {
+    title: "USACO Guide: Introduction to Functional Graphs",
+    url: "https://usaco.guide/silver/func-graphs",
+  },
+  "leetcode-hard-way-sliding-window": {
+    title: "LeetCode The Hard Way: Sliding Window",
+    url: "https://leetcodethehardway.com/tutorials/basic-topics/sliding-window",
+  },
+  "cp-algorithms-minimum-queue": {
+    title: "cp-algorithms: Minimum Stack / Minimum Queue",
+    url: "https://cp-algorithms.com/data_structures/stack_queue_modification.html",
+  },
+  "labuladong-monotonic-queue": {
+    title: "labuladong 的算法笔记: 单调队列结构解决滑动窗口问题",
+    url: "https://labuladong.online/zh/algo/data-structure/monotonic-queue/",
+  },
+  "usaco-guide-sliding-window": {
+    title: "USACO Guide: Sliding Window",
+    url: "https://usaco.guide/gold/sliding-window",
+  },
+  "labuladong-sliding-window": {
+    title: "labuladong 的算法笔记: 滑动窗口算法",
+    url: "https://gitee.com/labuladong/fucking-algorithm/blob/master/%E7%AE%97%E6%B3%95%E6%80%9D%E7%BB%B4%E7%B3%BB%E5%88%97/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E6%8A%80%E5%B7%A7.md",
+  },
+  "usaco-guide-prefix-sums": {
+    title: "USACO Guide: Introduction to Prefix Sums",
+    url: "https://usaco.guide/silver/prefix-sums",
+  },
+  "usaco-guide-more-prefix-sums": {
+    title: "USACO Guide: More on Prefix Sums",
+    url: "https://usaco.guide/silver/more-prefix-sums",
+  },
+  "oi-wiki-prefix-sum": {
+    title: "OI Wiki: 前缀和 & 差分",
+    url: "https://oi-wiki.org/basic/prefix-sum/",
+  },
+  "cppreference-partial-sum": {
+    title: "cppreference: std::partial_sum",
+    url: "https://en.cppreference.com/w/cpp/algorithm/partial_sum",
+  },
+  "cppreference-adjacent-difference": {
+    title: "cppreference: std::adjacent_difference",
+    url: "https://en.cppreference.com/w/cpp/algorithm/adjacent_difference",
+  },
+  "open-data-structures-book": {
+    title: "Open Data Structures",
+    url: "https://opendatastructures.org/",
+  },
+  "mit-ocw-introduction-to-algorithms": {
+    title: "MIT OpenCourseWare: Introduction to Algorithms",
+    url: "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/",
+  },
+  "mit-press-introduction-to-algorithms": {
+    title: "MIT Press: Introduction to Algorithms",
+    url: "https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/",
+  },
+  "mit-ocw-asymptotic-complexity": {
+    title: "MIT OpenCourseWare: 6.006 Recitation 1 Notes, Asymptotic Complexity",
+    url: "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/ce8348ec64dce3841ced6a9d0c9e48f2_MIT6_006F11_rec01.pdf",
+  },
+  "khan-academy-big-o": {
+    title: "Khan Academy: Big-O notation",
+    url: "https://www.khanacademy.org/computing/computer-science/algorithms/big-o-notation",
+  },
+  "jhu-dsa-space-complexity": {
+    title: "JHU DSA: Space Complexity",
+    url: "https://jhu-dsa.github.io/notes/10-asymptotics/step02.html",
+  },
+  "khan-academy-recursion": {
+    title: "Khan Academy: Recursion",
+    url: "https://www.khanacademy.org/computing/computer-science/algorithms/recursive-algorithms/a/recursion",
+  },
+  "khan-academy-recursive-factorial": {
+    title: "Khan Academy: Recursive factorial",
+    url: "https://www.khanacademy.org/computing/grade-10-computer-science-pakistan-national-curriculum/xa40329e704bba224%3Acomputational-thinking-and-algorithms/xa40329e704bba224%3Arecursive-algorithms/a/recursive-factorial",
+  },
+  "python-sys-recursionlimit": {
+    title: "Python Docs: sys.setrecursionlimit",
+    url: "https://docs.python.org/3/library/sys.html#sys.setrecursionlimit",
+  },
+  "mdn-too-much-recursion": {
+    title: "MDN: InternalError too much recursion",
+    url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Too_much_recursion",
+  },
+  "mit-6046-divide-conquer": {
+    title: "MIT OCW 6.046J: Divide and Conquer",
+    url: "https://ocw.mit.edu/courses/6-046j-introduction-to-algorithms-sma-5503-fall-2005/9cdb6914be3e87215cb86f327ee4180b_lec3.pdf",
+  },
+  "khan-academy-divide-conquer": {
+    title: "Khan Academy: Divide-and-conquer algorithms",
+    url: "https://www.khanacademy.org/computing/computer-science/algorithms/merge-sort/a/divide-and-conquer-algorithms",
+  },
+  "geeksforgeeks-divide-conquer": {
+    title: "GeeksforGeeks: Introduction to Divide and Conquer Algorithm",
+    url: "https://www.geeksforgeeks.org/introduction-to-divide-and-conquer-algorithm/",
+  },
+  "stanford-cs161-divide-conquer": {
+    title: "Stanford CS161: Divide-and-Conquer Algorithms",
+    url: "https://web.stanford.edu/class/archive/cs/cs161/cs161.1138/lectures/08/Small08.pdf",
+  },
+  "cp-algorithms-binary-search": {
+    title: "cp-algorithms: Binary Search",
+    url: "https://cp-algorithms.com/num_methods/binary_search.html",
+  },
+  "cppreference-binary-search": {
+    title: "cppreference: std::binary_search",
+    url: "https://en.cppreference.com/w/cpp/algorithm/binary_search",
+  },
+  "cppreference-lower-bound": {
+    title: "cppreference: std::lower_bound",
+    url: "https://en.cppreference.com/w/cpp/algorithm/lower_bound",
+  },
+  "cppreference-upper-bound": {
+    title: "cppreference: std::upper_bound",
+    url: "https://en.cppreference.com/w/cpp/algorithm/upper_bound",
+  },
+  "python-bisect": {
+    title: "Python Docs: bisect",
+    url: "https://docs.python.org/3/library/bisect.html",
+  },
+  "geeksforgeeks-lower-upper-bound": {
+    title: "GeeksforGeeks: Lower Bound and Upper Bound in Binary Search",
+    url: "https://www.geeksforgeeks.org/dsa/implementing-upper_bound-and-lower_bound-in-c/",
+  },
+  "usaco-guide-binary-search": {
+    title: "USACO Guide: Binary Search",
+    url: "https://usaco.guide/silver/binary-search",
+  },
+  "nist-dads-search": {
+    title: "NIST DADS: search",
+    url: "https://xlinux.nist.gov/dads/HTML/search.html",
+  },
+  "nist-dads-linear-search": {
+    title: "NIST DADS: linear search",
+    url: "https://xlinux.nist.gov/dads/HTML/linearSearch.html",
+  },
+  "princeton-algs4-searching": {
+    title: "Princeton Algorithms, 4th Edition: Searching",
+    url: "https://algs4.cs.princeton.edu/30searching/",
+  },
+  "cppreference-find": {
+    title: "cppreference: std::find",
+    url: "https://en.cppreference.com/w/cpp/algorithm/find",
+  },
+  "khan-academy-algorithms": {
+    title: "Khan Academy: Algorithms",
+    url: "https://www.khanacademy.org/computing/computer-science/algorithms",
+  },
+  "geeksforgeeks-linear-search": {
+    title: "GeeksforGeeks: Linear Search Algorithm",
+    url: "https://www.geeksforgeeks.org/dsa/linear-search/",
+  },
+  "geeksforgeeks-binary-search-answer": {
+    title: "GeeksforGeeks: Binary Search on Answer Tutorial with Problems",
+    url: "https://www.geeksforgeeks.org/dsa/binary-search-on-answer-tutorial-with-problems/",
+  },
+  "geeksforgeeks-binary-search-technique": {
+    title: "GeeksforGeeks: Binary Search Technique",
+    url: "https://www.geeksforgeeks.org/dsa/binary-search-identify-solve-and-interview-questions/",
+  },
+  "khan-academy-binary-search": {
+    title: "Khan Academy: Binary search",
+    url: "https://www.khanacademy.org/computing/computer-science/algorithms/binary-search/a/binary-search",
+  },
   "nist-dads-linked-list": {
     title: "NIST DADS: linked list",
     url: "https://xlinux.nist.gov/dads/HTML/linkedList.html",
@@ -61,9 +401,69 @@ export const knowledgeSources = {
     title: "Oracle Java API: LinkedList",
     url: "https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/LinkedList.html",
   },
+  "hello-algo-linked-list": {
+    title: "Hello 算法: 链表",
+    url: "https://www.hello-algo.com/chapter_array_and_linkedlist/linked_list/",
+  },
+  "algolist-singly-linked-list-insertion": {
+    title: "Algorithms and Data Structures: Singly-linked list insertion",
+    url: "https://www.algolist.net/Data_structures/Singly-linked_list/Insertion",
+  },
+  "niu-doubly-linked-list": {
+    title: "NIU CS: Doubly-Linked List Insertion and Deletion",
+    url: "https://faculty.cs.niu.edu/~winans/CS501/Notes/Data_Structures/doubly_linked.html",
+  },
   "libretexts-stack": {
     title: "Engineering LibreTexts: Stack Data Structure",
     url: "https://eng.libretexts.org/Courses/Delta_College/C_-_Data_Structures/09%3A_Lesson_5_-_Stack_Data_Structure/9.01%3A_Lesson_5-1_-_Stacks",
+  },
+  "nist-dads-stack": {
+    title: "NIST DADS: stack",
+    url: "https://xlinux.nist.gov/dads/HTML/stack.html",
+  },
+  "oracle-java-deque": {
+    title: "Oracle Java API: Deque",
+    url: "https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Deque.html",
+  },
+  "cppreference-deque": {
+    title: "cppreference: std::deque",
+    url: "https://en.cppreference.com/w/cpp/container/deque.html",
+  },
+  "python-collections-deque": {
+    title: "Python Docs: collections.deque",
+    url: "https://docs.python.org/3/library/collections.html#collections.deque",
+  },
+  "rust-vecdeque": {
+    title: "Rust std::collections::VecDeque",
+    url: "https://doc.rust-lang.org/std/collections/struct.VecDeque.html",
+  },
+  "open-data-structures-arraydeque": {
+    title: "Open Data Structures: ArrayDeque",
+    url: "https://opendatastructures.org/newhtml/ods/latex/arrays.html#section:2.4",
+  },
+  "open-data-structures-dualarraydeque": {
+    title: "Open Data Structures: DualArrayDeque",
+    url: "https://opendatastructures.org/newhtml/ods/latex/arrays.html#section:2.5",
+  },
+  "oi-wiki-monotonous-queue": {
+    title: "OI Wiki: 单调队列",
+    url: "https://oi-wiki.org/ds/monotonous-queue/",
+  },
+  "oracle-java-stack": {
+    title: "Oracle Java API: Stack",
+    url: "https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Stack.html",
+  },
+  "hello-algo-stack": {
+    title: "Hello 算法: 栈",
+    url: "https://www.hello-algo.com/chapter_stack_and_queue/stack/",
+  },
+  "oi-wiki-monotonous-stack": {
+    title: "OI Wiki: Monotonous Stack",
+    url: "https://en.oi-wiki.org/ds/monotonous-stack/",
+  },
+  "usaco-guide-stacks": {
+    title: "USACO Guide: Stacks",
+    url: "https://usaco.guide/gold/stacks",
   },
   "warwick-stacks-queues": {
     title: "Warwick Guide: Stacks and Queues",
@@ -93,9 +493,21 @@ export const knowledgeSources = {
     title: "Open Data Structures: ArrayQueue",
     url: "https://opendatastructures.org/newhtml/ods/latex/arrays.html#SECTION00530000000000000000",
   },
+  "hello-algo-queue": {
+    title: "Hello 算法: 队列",
+    url: "https://www.hello-algo.com/chapter_stack_and_queue/queue/",
+  },
   "nist-dads-hash-table": {
     title: "NIST DADS: hash table",
     url: "https://xlinux.nist.gov/dads/HTML/hashtab.html",
+  },
+  "nist-csrc-hash-function": {
+    title: "NIST CSRC Glossary: hash function",
+    url: "https://csrc.nist.gov/glossary/term/hash_function",
+  },
+  "nist-csrc-collision": {
+    title: "NIST CSRC Glossary: collision",
+    url: "https://csrc.nist.gov/glossary/term/collision",
   },
   "nist-dads-load-factor": {
     title: "NIST DADS: load factor",
@@ -108,6 +520,674 @@ export const knowledgeSources = {
   "oracle-java-hashmap": {
     title: "Oracle Java API: HashMap",
     url: "https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html",
+  },
+  "oracle-java-linkedhashmap": {
+    title: "Oracle Java API: LinkedHashMap",
+    url: "https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/LinkedHashMap.html",
+  },
+  "oracle-java-set": {
+    title: "Oracle Java API: Set",
+    url: "https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Set.html",
+  },
+  "oracle-java-hashset": {
+    title: "Oracle Java API: HashSet",
+    url: "https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/HashSet.html",
+  },
+  "oracle-java-object-hashcode": {
+    title: "Oracle Java API: Object.hashCode",
+    url: "https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#hashCode()",
+  },
+  "oracle-java8-collections-changes": {
+    title: "Oracle Java 8: Collections Framework Enhancements",
+    url: "https://docs.oracle.com/javase/8/docs/technotes/guides/collections/changes8.html",
+  },
+  "python-dict": {
+    title: "Python Docs: Mapping Types - dict",
+    url: "https://docs.python.org/3/library/stdtypes.html#mapping-types-dict",
+  },
+  "python-set-types": {
+    title: "Python Docs: Set Types - set, frozenset",
+    url: "https://docs.python.org/3/library/stdtypes.html#set-types-set-frozenset",
+  },
+  "python-datamodel-hash": {
+    title: "Python Data Model: object.__hash__",
+    url: "https://docs.python.org/3/reference/datamodel.html#object.__hash__",
+  },
+  "python-functools-lru-cache": {
+    title: "Python Docs: functools.lru_cache",
+    url: "https://docs.python.org/3/library/functools.html#functools.lru_cache",
+  },
+  "cppreference-unordered-map": {
+    title: "cppreference: std::unordered_map",
+    url: "https://en.cppreference.com/w/cpp/container/unordered_map.html",
+  },
+  "cppreference-unordered-set": {
+    title: "cppreference: std::unordered_set",
+    url: "https://en.cppreference.com/w/cpp/container/unordered_set.html",
+  },
+  "cppreference-std-hash": {
+    title: "cppreference: std::hash",
+    url: "https://en.cppreference.com/w/cpp/utility/hash.html",
+  },
+  "hello-algo-hash-map": {
+    title: "Hello 算法: 哈希表",
+    url: "https://www.hello-algo.com/chapter_hashing/hash_map/",
+  },
+  "mdn-javascript-set": {
+    title: "MDN Web Docs: Set",
+    url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
+  },
+  "oi-wiki-tree-basic": {
+    title: "OI Wiki: 树基础",
+    url: "https://oi-wiki.org/graph/tree-basic/",
+  },
+  "open-data-structures-binary-trees": {
+    title: "Open Data Structures: Binary Trees",
+    url: "https://opendatastructures.org/ods-cpp/6_Binary_Trees.html",
+  },
+  "hello-algo-binary-tree": {
+    title: "Hello 算法: 二叉树",
+    url: "https://www.hello-algo.com/chapter_tree/binary_tree/",
+  },
+  "opendsa-binary-tree": {
+    title: "OpenDSA: Binary Trees",
+    url: "https://opendsa-server.cs.vt.edu/ODSA/Books/Everything/html/BinaryTree.html",
+  },
+  "opendsa-binary-tree-traversal": {
+    title: "OpenDSA: Binary Tree Traversals",
+    url: "https://opendsa.cs.vt.edu/ODSA/Books/wmu/cs3310/fall-2018/TR_100pm/html/BinaryTreeTraversal.html",
+  },
+  "opendsa-binary-search-trees": {
+    title: "OpenDSA: Binary Search Trees",
+    url: "https://opendsa.cs.vt.edu/ODSA/Books/Everything/html/BST.html",
+  },
+  "open-data-structures-binary-search-trees": {
+    title: "Open Data Structures: BinarySearchTree",
+    url: "https://opendatastructures.org/ods-java/6_2_BinarySearchTree_Unbala.html",
+  },
+  "hello-algo-binary-search-tree": {
+    title: "Hello 算法: 二叉搜索树",
+    url: "https://www.hello-algo.com/chapter_tree/binary_search_tree/",
+  },
+  "oi-wiki-bst": {
+    title: "OI Wiki: 二叉搜索树与平衡树",
+    url: "https://oi-wiki.org/ds/bst/",
+  },
+  "visualgo-bst": {
+    title: "VisuAlgo: Binary Search Tree",
+    url: "https://visualgo.net/en/bst",
+  },
+  "opendsa-avl-tree": {
+    title: "OpenDSA: The AVL Tree",
+    url: "https://opendsa.cs.vt.edu/ODSA/Books/Everything/html/AVL.html",
+  },
+  "hello-algo-avl-tree": {
+    title: "Hello 算法: AVL 树",
+    url: "https://www.hello-algo.com/chapter_tree/avl_tree/",
+  },
+  "oracle-java-treemap": {
+    title: "Oracle Java API: TreeMap",
+    url: "https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/TreeMap.html",
+  },
+  "open-data-structures-red-black-tree": {
+    title: "Open Data Structures: RedBlackTree",
+    url: "https://opendatastructures.org/ods-java/9_2_RedBlackTree_Simulated_.html",
+  },
+  "cp-algorithms-treap": {
+    title: "cp-algorithms: Treap",
+    url: "https://cp-algorithms.com/data_structures/treap.html",
+  },
+  "geeksforgeeks-tree-traversals": {
+    title: "GeeksforGeeks: Tree Traversal Techniques",
+    url: "https://www.geeksforgeeks.org/dsa/tree-traversals-inorder-preorder-and-postorder/",
+  },
+  "princeton-algs4-tries": {
+    title: "Princeton Algorithms: Tries",
+    url: "https://algs4.cs.princeton.edu/52trie/",
+  },
+  "oi-wiki-trie": {
+    title: "OI Wiki: 字典树 (Trie)",
+    url: "https://oi-wiki.org/string/trie/",
+  },
+  "geeksforgeeks-trie": {
+    title: "GeeksforGeeks: Trie Data Structure",
+    url: "https://www.geeksforgeeks.org/dsa/trie-insert-and-search/",
+  },
+  "cp-algorithms-aho-corasick": {
+    title: "cp-algorithms: Aho-Corasick algorithm",
+    url: "https://cp-algorithms.com/string/aho_corasick.html",
+  },
+  "princeton-algs4-union-find": {
+    title: "Princeton Algorithms: Union-Find",
+    url: "https://algs4.cs.princeton.edu/15uf/",
+  },
+  "cp-algorithms-dsu": {
+    title: "cp-algorithms: Disjoint Set Union",
+    url: "https://cp-algorithms.com/data_structures/disjoint_set_union.html",
+  },
+  "oi-wiki-dsu": {
+    title: "OI Wiki: 并查集",
+    url: "https://oi-wiki.org/ds/dsu/",
+  },
+  "opendsa-union-find": {
+    title: "OpenDSA: Union/FIND",
+    url: "https://opendsa-server.cs.vt.edu/ODSA/Books/Everything/html/UnionFind.html",
+  },
+  "uiuc-cs225-disjoint-sets": {
+    title: "UIUC CS 225: Disjoint Sets",
+    url: "https://courses.grainger.illinois.edu/cs225/sp2024/resources/disjoint-sets/",
+  },
+  "princeton-algs4-priority-queues": {
+    title: "Princeton Algorithms: Priority Queues",
+    url: "https://algs4.cs.princeton.edu/24pq/",
+  },
+  "open-data-structures-heaps": {
+    title: "Open Data Structures: Heaps",
+    url: "https://opendatastructures.org/newhtml/ods/latex/heaps.html",
+  },
+  "python-heapq": {
+    title: "Python Docs: heapq - Heap queue algorithm",
+    url: "https://docs.python.org/3/library/heapq.html",
+  },
+  "oracle-java-priorityqueue": {
+    title: "Oracle Java API: PriorityQueue",
+    url: "https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/PriorityQueue.html",
+  },
+  "cppreference-priority-queue": {
+    title: "cppreference: std::priority_queue",
+    url: "https://en.cppreference.com/w/cpp/container/priority_queue.html",
+  },
+  "oi-wiki-binary-heap": {
+    title: "OI Wiki: 二叉堆",
+    url: "https://oi-wiki.org/ds/binary-heap/",
+  },
+  "opendsa-graph-intro": {
+    title: "OpenDSA: Graphs",
+    url: "https://opendsa-server.cs.vt.edu/ODSA/Books/Everything/html/GraphIntro.html",
+  },
+  "princeton-algs4-undirected-graphs": {
+    title: "Princeton Algorithms: Undirected Graphs",
+    url: "https://algs4.cs.princeton.edu/41graph/",
+  },
+  "oi-wiki-graph-concepts": {
+    title: "OI Wiki: 图论概念",
+    url: "https://oi-wiki.org/graph/concept/",
+  },
+  "oi-wiki-graph-save": {
+    title: "OI Wiki: 图的存储",
+    url: "https://oi-wiki.org/graph/save/",
+  },
+  "networkx-graph": {
+    title: "NetworkX: Graph",
+    url: "https://networkx.org/documentation/stable/reference/classes/graph.html",
+  },
+  "jgrapht-overview": {
+    title: "JGraphT: Overview for Application Developers",
+    url: "https://jgrapht.org/guide/UserOverview",
+  },
+  "open-data-structures-adjacency-matrix": {
+    title: "Open Data Structures: AdjacencyMatrix",
+    url: "https://opendatastructures.org/ods-java/12_1_AdjacencyMatrix_Repres.html",
+  },
+  "open-data-structures-adjacency-lists": {
+    title: "Open Data Structures: AdjacencyLists",
+    url: "https://opendatastructures.org/ods-java/12_2_AdjacencyLists_Graph_a.html",
+  },
+  "networkx-graph-adjacency": {
+    title: "NetworkX: Graph.adjacency",
+    url: "https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.adjacency.html",
+  },
+  "cp-algorithms-dfs": {
+    title: "cp-algorithms: Depth First Search",
+    url: "https://cp-algorithms.com/graph/depth-first-search.html",
+  },
+  "oi-wiki-graph-dfs": {
+    title: "OI Wiki: DFS（图论）",
+    url: "https://oi-wiki.org/graph/dfs/",
+  },
+  "opendsa-graph-traversal": {
+    title: "OpenDSA: Graph Traversals",
+    url: "https://opendsa.org/OpenDSA/Books/Everything/html/GraphTraversal.html",
+  },
+  "princeton-algs4-depth-first-search": {
+    title: "Princeton Algorithms: DepthFirstSearch",
+    url: "https://algs4.cs.princeton.edu/code/javadoc/edu/princeton/cs/algs4/DepthFirstSearch.html",
+  },
+  "open-data-structures-graph-traversal": {
+    title: "Open Data Structures: Graph Traversal",
+    url: "https://opendatastructures.org/ods-python/12_3_Graph_Traversal.html",
+  },
+  "cp-algorithms-bfs": {
+    title: "cp-algorithms: Breadth First Search",
+    url: "https://cp-algorithms.com/graph/breadth-first-search.html",
+  },
+  "cp-algorithms-01-bfs": {
+    title: "cp-algorithms: 0-1 BFS",
+    url: "https://cp-algorithms.com/graph/01_bfs.html",
+  },
+  "oi-wiki-search-bfs": {
+    title: "OI Wiki: BFS（搜索）",
+    url: "https://oi-wiki.org/search/bfs/",
+  },
+  "princeton-algs4-breadth-first-paths": {
+    title: "Princeton Algorithms: BreadthFirstPaths",
+    url: "https://algs4.cs.princeton.edu/code/javadoc/edu/princeton/cs/algs4/BreadthFirstPaths.html",
+  },
+  "cp-algorithms-topological-sort": {
+    title: "cp-algorithms: Topological Sorting",
+    url: "https://cp-algorithms.com/graph/topological-sort.html",
+  },
+  "oi-wiki-topological-sort": {
+    title: "OI Wiki: 拓扑排序",
+    url: "https://oi.wiki/graph/topo/",
+  },
+  "princeton-algs4-topological": {
+    title: "Princeton Algorithms: Topological",
+    url: "https://algs4.cs.princeton.edu/code/javadoc/edu/princeton/cs/algs4/Topological.html",
+  },
+  "networkx-topological-sort": {
+    title: "NetworkX: topological_sort",
+    url: "https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.dag.topological_sort.html",
+  },
+  "networkx-dag": {
+    title: "NetworkX: Directed Acyclic Graphs",
+    url: "https://networkx.org/documentation/stable/reference/algorithms/dag.html",
+  },
+  "cp-algorithms-dijkstra": {
+    title: "cp-algorithms: Dijkstra Algorithm",
+    url: "https://cp-algorithms.com/graph/dijkstra.html",
+  },
+  "oi-wiki-shortest-path": {
+    title: "OI Wiki: 最短路",
+    url: "https://oi-wiki.org/graph/shortest-path/",
+  },
+  "princeton-algs4-shortest-paths": {
+    title: "Princeton Algorithms: Shortest Paths",
+    url: "https://algs4.cs.princeton.edu/44sp/",
+  },
+  "networkx-dijkstra-path": {
+    title: "NetworkX: dijkstra_path",
+    url: "https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.shortest_paths.weighted.dijkstra_path.html",
+  },
+  "networkx-shortest-paths": {
+    title: "NetworkX: Shortest Paths",
+    url: "https://networkx.org/documentation/stable/reference/algorithms/shortest_paths.html",
+  },
+  "mit-6006-dijkstra": {
+    title: "MIT 6.006: Dijkstra",
+    url: "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/ec187276db0faaa047d655979a44de7f_MIT6_006S20_r13.pdf",
+  },
+  "princeton-algs4-mst": {
+    title: "Princeton Algorithms: Minimum Spanning Trees",
+    url: "https://algs4.cs.princeton.edu/43mst/",
+  },
+  "cp-algorithms-mst-kruskal": {
+    title: "cp-algorithms: Minimum Spanning Tree - Kruskal",
+    url: "https://cp-algorithms.com/graph/mst_kruskal.html",
+  },
+  "cp-algorithms-mst-prim": {
+    title: "cp-algorithms: Minimum Spanning Tree - Prim",
+    url: "https://cp-algorithms.com/graph/mst_prim.html",
+  },
+  "oi-wiki-mst": {
+    title: "OI Wiki: 最小生成树",
+    url: "https://oi-wiki.org/graph/mst/",
+  },
+  "networkx-minimum-spanning-tree": {
+    title: "NetworkX: minimum_spanning_tree",
+    url: "https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.tree.mst.minimum_spanning_tree.html",
+  },
+  "princeton-algs4-prim-mst": {
+    title: "Princeton Algorithms: PrimMST",
+    url: "https://algs4.cs.princeton.edu/code/javadoc/edu/princeton/cs/algs4/PrimMST.html",
+  },
+  "princeton-algs4-sorting": {
+    title: "Princeton Algorithms: Sorting",
+    url: "https://algs4.cs.princeton.edu/20sorting/",
+  },
+  "princeton-algs4-sorting-applications": {
+    title: "Princeton Algorithms: Sorting Applications",
+    url: "https://algs4.cs.princeton.edu/25applications/",
+  },
+  "princeton-algs4-elementary-sorts": {
+    title: "Princeton Algorithms: Elementary Sorts",
+    url: "https://algs4.cs.princeton.edu/21elementary/",
+  },
+  "python-sorting-howto": {
+    title: "Python Docs: Sorting Techniques",
+    url: "https://docs.python.org/3/howto/sorting.html",
+  },
+  "oracle-java-arrays-sort": {
+    title: "Oracle Java API: Arrays.sort",
+    url: "https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Arrays.html",
+  },
+  "oracle-java-comparator": {
+    title: "Oracle Java API: Comparator",
+    url: "https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Comparator.html",
+  },
+  "cppreference-sort": {
+    title: "cppreference: std::sort",
+    url: "https://en.cppreference.com/w/cpp/algorithm/sort.html",
+  },
+  "cppreference-stable-sort": {
+    title: "cppreference: std::stable_sort",
+    url: "https://en.cppreference.com/w/cpp/algorithm/stable_sort.html",
+  },
+  "opendsa-sorting-lower-bound": {
+    title: "OpenDSA: Sorting Lower Bound",
+    url: "https://opendsa-server.cs.vt.edu/ODSA/Books/Everything/html/SortingLowerBound.html",
+  },
+  "oi-wiki-sort-intro": {
+    title: "OI Wiki: 排序简介",
+    url: "https://oi-wiki.org/basic/sort-intro/",
+  },
+  "opendsa-bubble-sort": {
+    title: "OpenDSA: Bubble Sort",
+    url: "https://opendsa-server.cs.vt.edu/ODSA/Books/Everything/html/BubbleSort.html",
+  },
+  "oi-wiki-bubble-sort": {
+    title: "OI Wiki: 冒泡排序",
+    url: "https://oi-wiki.org/basic/bubble-sort/",
+  },
+  "visualgo-sorting-bubble": {
+    title: "VisuAlgo: Sorting - Bubble Sort",
+    url: "https://visualgo.net/en/sorting",
+  },
+  "geeksforgeeks-bubble-sort": {
+    title: "GeeksforGeeks: Bubble Sort",
+    url: "https://www.geeksforgeeks.org/dsa/bubble-sort-algorithm/",
+  },
+  "hello-algo-bubble-sort": {
+    title: "Hello 算法: 冒泡排序",
+    url: "https://www.hello-algo.com/chapter_sorting/bubble_sort/",
+  },
+  "opendsa-selection-sort": {
+    title: "OpenDSA: Selection Sort",
+    url: "https://opendsa-server.cs.vt.edu/ODSA/Books/Everything/html/SelectionSort.html",
+  },
+  "oi-wiki-selection-sort": {
+    title: "OI Wiki: 选择排序",
+    url: "https://oi-wiki.org/basic/selection-sort/",
+  },
+  "visualgo-sorting-selection": {
+    title: "VisuAlgo: Sorting - Selection Sort",
+    url: "https://visualgo.net/en/sorting",
+  },
+  "geeksforgeeks-selection-sort": {
+    title: "GeeksforGeeks: Selection Sort",
+    url: "https://www.geeksforgeeks.org/dsa/selection-sort-algorithm-2/",
+  },
+  "opendsa-insertion-sort": {
+    title: "OpenDSA: Insertion Sort",
+    url: "https://opendsa-server.cs.vt.edu/ODSA/Books/Everything/html/InsertionSort.html",
+  },
+  "oi-wiki-insertion-sort": {
+    title: "OI Wiki: 插入排序",
+    url: "https://oi-wiki.org/basic/insertion-sort/",
+  },
+  "visualgo-sorting-insertion": {
+    title: "VisuAlgo: Sorting - Insertion Sort",
+    url: "https://visualgo.net/en/sorting",
+  },
+  "geeksforgeeks-insertion-sort": {
+    title: "GeeksforGeeks: Insertion Sort",
+    url: "https://www.geeksforgeeks.org/dsa/insertion-sort-algorithm/",
+  },
+  "princeton-algs4-merge-sort": {
+    title: "Princeton Algorithms: Mergesort",
+    url: "https://algs4.cs.princeton.edu/22mergesort/",
+  },
+  "opendsa-merge-sort-concepts": {
+    title: "OpenDSA: Mergesort Concepts",
+    url: "https://opendsa-server.cs.vt.edu/ODSA/Books/Everything/html/Mergesort.html",
+  },
+  "opendsa-merge-sort-implementation": {
+    title: "OpenDSA: Implementing Mergesort",
+    url: "https://opendsa-server.cs.vt.edu/ODSA/Books/Everything/html/MergesortImpl.html",
+  },
+  "oi-wiki-merge-sort": {
+    title: "OI Wiki: 归并排序",
+    url: "https://oi-wiki.org/basic/merge-sort/",
+  },
+  "visualgo-sorting-merge": {
+    title: "VisuAlgo: Sorting - Merge Sort",
+    url: "https://visualgo.net/en/sorting",
+  },
+  "geeksforgeeks-merge-sort": {
+    title: "GeeksforGeeks: Merge Sort",
+    url: "https://www.geeksforgeeks.org/dsa/merge-sort/",
+  },
+  "princeton-algs4-quick-sort": {
+    title: "Princeton Algorithms: Quicksort",
+    url: "https://algs4.cs.princeton.edu/23quicksort/",
+  },
+  "opendsa-quick-sort": {
+    title: "OpenDSA: Quicksort",
+    url: "https://opendsa-server.cs.vt.edu/ODSA/Books/Everything/html/Quicksort.html",
+  },
+  "oi-wiki-quick-sort": {
+    title: "OI Wiki: 快速排序",
+    url: "https://oi-wiki.org/basic/quick-sort/",
+  },
+  "visualgo-sorting-quick": {
+    title: "VisuAlgo: Sorting - Quick Sort",
+    url: "https://visualgo.net/en/sorting",
+  },
+  "geeksforgeeks-quick-sort": {
+    title: "GeeksforGeeks: Quick Sort",
+    url: "https://www.geeksforgeeks.org/dsa/quick-sort-algorithm/",
+  },
+  "cp-algorithms-kth-order-statistic": {
+    title: "cp-algorithms: K-th order statistic in O(N)",
+    url: "https://cp-algorithms.com/sequences/k-th.html",
+  },
+  "geeksforgeeks-quickselect": {
+    title: "GeeksforGeeks: Quickselect Algorithm",
+    url: "https://www.geeksforgeeks.org/dsa/quickselect-algorithm/",
+  },
+  "oregonstate-quickselect": {
+    title: "Oregon State Algorithms Course: Quickselect",
+    url: "https://web.engr.oregonstate.edu/~huanlian/algorithms_course/1-datastructures/quickselect.html",
+  },
+  "opendsa-heap-sort": {
+    title: "OpenDSA: Heapsort",
+    url: "https://opendsa-server.cs.vt.edu/ODSA/Books/Everything/html/Heapsort.html",
+  },
+  "oi-wiki-heap-sort": {
+    title: "OI Wiki: 堆排序",
+    url: "https://oi-wiki.org/basic/heap-sort/",
+  },
+  "visualgo-sorting-heap": {
+    title: "VisuAlgo: Sorting - Heap Sort",
+    url: "https://visualgo.net/en/sorting",
+  },
+  "geeksforgeeks-heap-sort": {
+    title: "GeeksforGeeks: Heap Sort",
+    url: "https://www.geeksforgeeks.org/dsa/heap-sort/",
+  },
+  "oi-wiki-counting-sort": {
+    title: "OI Wiki: 计数排序",
+    url: "https://oi-wiki.org/basic/counting-sort/",
+  },
+  "visualgo-sorting-counting": {
+    title: "VisuAlgo: Sorting - Counting Sort",
+    url: "https://visualgo.net/en/sorting",
+  },
+  "geeksforgeeks-counting-sort": {
+    title: "GeeksforGeeks: Counting Sort",
+    url: "https://www.geeksforgeeks.org/dsa/counting-sort/",
+  },
+  "oi-wiki-bucket-sort": {
+    title: "OI Wiki: 桶排序",
+    url: "https://oi-wiki.org/basic/bucket-sort/",
+  },
+  "geeksforgeeks-bucket-sort": {
+    title: "GeeksforGeeks: Bucket Sort",
+    url: "https://www.geeksforgeeks.org/dsa/bucket-sort-2/",
+  },
+  "programiz-bucket-sort": {
+    title: "Programiz: Bucket Sort",
+    url: "https://www.programiz.com/dsa/bucket-sort",
+  },
+  "oi-wiki-greedy": {
+    title: "OI Wiki: 贪心",
+    url: "https://oi-wiki.org/basic/greedy/",
+  },
+  "geeksforgeeks-greedy-algorithms": {
+    title: "GeeksforGeeks: Greedy Algorithms Tutorial",
+    url: "https://www.geeksforgeeks.org/dsa/greedy-algorithms/",
+  },
+  "programiz-greedy-algorithm": {
+    title: "Programiz: Greedy Algorithm",
+    url: "https://www.programiz.com/dsa/greedy-algorithm",
+  },
+  "cp-algorithms-scheduling-one-machine": {
+    title: "cp-algorithms: Scheduling jobs on one machine",
+    url: "https://cp-algorithms.com/schedules/schedule_one_machine.html",
+  },
+  "geeksforgeeks-activity-selection": {
+    title: "GeeksforGeeks: Activity Selection",
+    url: "https://www.geeksforgeeks.org/dsa/activity-selection-problem-greedy-algo-1/",
+  },
+  "hope-greedy-interval-scheduling": {
+    title: "Hope College Algorithms: Greedy Interval Scheduling",
+    url: "https://cusack.hope.edu/Algorithms/Content/Algorithms/Greedy/Interval%20Scheduling.html?path=Problems%2FOptimization%2FInterval+Scheduling",
+  },
+  "cse102-greedy-algorithms": {
+    title: "CSE102 Notes: Greedy Algorithms",
+    url: "https://cse102-notes.readthedocs.io/en/latest/greedy.html",
+  },
+  "wikipedia-interval-scheduling": {
+    title: "Wikipedia: Interval scheduling",
+    url: "https://en.wikipedia.org/wiki/Interval_scheduling",
+  },
+  "geeksforgeeks-backtracking-algorithms": {
+    title: "GeeksforGeeks: Backtracking Algorithm",
+    url: "https://www.geeksforgeeks.org/dsa/backtracking-algorithms/",
+  },
+  "geeksforgeeks-intro-backtracking": {
+    title: "GeeksforGeeks: Introduction to Backtracking",
+    url: "https://www.geeksforgeeks.org/dsa/introduction-to-backtracking-2/",
+  },
+  "programiz-backtracking-algorithm": {
+    title: "Programiz: Backtracking Algorithm",
+    url: "https://www.programiz.com/dsa/backtracking-algorithm",
+  },
+  "oi-wiki-backtracking": {
+    title: "OI Wiki Next: 回溯法",
+    url: "https://next.oi-wiki.org/search/backtracking/",
+  },
+  "stanford-cs106b-recursive-backtracking": {
+    title: "Stanford CS106B: Recursive Backtracking Examples",
+    url: "https://see.stanford.edu/materials/icspacs106b/H19-RecBacktrackExamples.pdf",
+  },
+  "oi-wiki-search-optimization": {
+    title: "OI Wiki: 搜索优化",
+    url: "https://oi-wiki.org/search/opt/",
+  },
+  "nist-dads-branch-and-bound": {
+    title: "NIST DADS: branch and bound",
+    url: "https://xlinux.nist.gov/dads/HTML/branchNbound.html",
+  },
+  "nist-dads-prune-and-search": {
+    title: "NIST DADS: prune and search",
+    url: "https://xlinux.nist.gov/dads/HTML/pruneNsearch.html",
+  },
+  "geeksforgeeks-branch-and-bound": {
+    title: "GeeksforGeeks: Introduction to Branch and Bound",
+    url: "https://www.geeksforgeeks.org/dsa/introduction-to-branch-and-bound-data-structures-and-algorithms-tutorial/",
+  },
+  "geeksforgeeks-alpha-beta-pruning": {
+    title: "GeeksforGeeks: Alpha-Beta Pruning",
+    url: "https://www.geeksforgeeks.org/dsa/minimax-algorithm-in-game-theory-set-4-alpha-beta-pruning/",
+  },
+  "oi-wiki-combination": {
+    title: "OI Wiki: 排列组合",
+    url: "https://oi-wiki.org/math/combinatorics/combination/",
+  },
+  "python-itertools-combinatoric": {
+    title: "Python docs: itertools combinatoric iterators",
+    url: "https://docs.python.org/3/library/itertools.html",
+  },
+  "cp-algorithms-generating-combinations": {
+    title: "cp-algorithms: Generating all K-combinations",
+    url: "https://cp-algorithms.com/combinatorics/generating_combinations.html",
+  },
+  "geeksforgeeks-array-subsets": {
+    title: "GeeksforGeeks: Subsets of a given Array",
+    url: "https://www.geeksforgeeks.org/dsa/backtracking-to-find-all-subsets/",
+  },
+  "geeksforgeeks-distinct-permutations-duplicates": {
+    title: "GeeksforGeeks: All Distinct Permutations with Duplicate Elements",
+    url: "https://www.geeksforgeeks.org/dsa/print-all-possible-permutations-of-an-array-with-duplicates-using-backtracking/",
+  },
+  "oi-wiki-dp-basic": {
+    title: "OI Wiki: 动态规划基础",
+    url: "https://oi-wiki.org/dp/basic/",
+  },
+  "oi-wiki-dp-memo": {
+    title: "OI Wiki: 记忆化搜索",
+    url: "https://oi-wiki.org/dp/memo/",
+  },
+  "geeksforgeeks-dp-introduction": {
+    title: "GeeksforGeeks: Dynamic Programming (DP) Introduction",
+    url: "https://www.geeksforgeeks.org/introduction-to-dynamic-programming-data-structures-and-algorithm-tutorials/",
+  },
+  "geeksforgeeks-memoization": {
+    title: "GeeksforGeeks: Memoization (1D, 2D and 3D)",
+    url: "https://www.geeksforgeeks.org/dsa/memoization-1d-2d-and-3d/",
+  },
+  "cp-algorithms-intro-dp": {
+    title: "cp-algorithms: Introduction to Dynamic Programming",
+    url: "https://cp-algorithms.com/dynamic_programming/intro-to-dp.html",
+  },
+  "cp-algorithms-knapsack": {
+    title: "cp-algorithms: Knapsack Problem",
+    url: "https://cp-algorithms.com/dynamic_programming/knapsack.html",
+  },
+  "oi-wiki-dp-knapsack": {
+    title: "OI Wiki: 背包 DP",
+    url: "https://oi-wiki.org/dp/knapsack/",
+  },
+  "usaco-guide-knapsack": {
+    title: "USACO Guide: Knapsack DP",
+    url: "https://usaco.guide/gold/knapsack?lang=cpp",
+  },
+  "geeksforgeeks-01-knapsack": {
+    title: "GeeksforGeeks: 0/1 Knapsack Problem",
+    url: "https://www.geeksforgeeks.org/dsa/0-1-knapsack-problem-dp-10/",
+  },
+  "oi-wiki-space-optimization": {
+    title: "OI Wiki: 空间优化简介",
+    url: "https://oi.wiki/misc/space-optimization/",
+  },
+  "labuladong-dp-space-optimization": {
+    title: "labuladong 的算法笔记: 对动态规划进行空间压缩",
+    url: "https://labuladong.online/algo/dynamic-programming/space-optimization/",
+  },
+  "geeksforgeeks-dp-space-optimization": {
+    title: "GeeksforGeeks: How to Optimize Auxiliary Space Of a DP Solution",
+    url: "https://www.geeksforgeeks.org/dsa/how-to-optimize-auxiliary-space-of-a-dp-solution/",
+  },
+  "pegwiki-dynamic-programming": {
+    title: "PEGWiki: Dynamic programming",
+    url: "https://wcipeg.com/wiki/Dynamic_programming",
+  },
+  "erickson-dynamic-programming": {
+    title: "Jeff Erickson: Algorithms, Dynamic Programming",
+    url: "https://jeffe.cs.illinois.edu/teaching/algorithms/book/03-dynprog.pdf",
+  },
+  "usaco-guide-intro-dp": {
+    title: "USACO Guide: Introduction to DP",
+    url: "https://usaco.guide/gold/intro-dp?lang=cpp",
+  },
+  "mit-6006-dynamic-programming": {
+    title: "MIT 6.006: Dynamic Programming I",
+    url: "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/resources/lecture-19-dynamic-programming-i-fibonacci-shortest-paths/",
+  },
+  "mit-6046-universal-perfect-hashing": {
+    title: "MIT 6.046J: Universal & Perfect Hashing",
+    url: "https://ocw.mit.edu/courses/6-046j-design-and-analysis-of-algorithms-spring-2015/5e4c05ec33ad4e733c1e6a247f21d1de_MIT6_046JS15_lec08.pdf",
   },
   "xiaolin-coding": {
     title: "小林 coding 图解网络与操作系统",
@@ -124,6 +1204,14 @@ export const knowledgeSources = {
   "cloudflare-how-internet-works": {
     title: "Cloudflare Learning Center: How does the Internet work?",
     url: "https://www.cloudflare.com/learning/network-layer/how-does-the-internet-work/",
+  },
+  "cloudflare-ssl-certificate": {
+    title: "Cloudflare Learning Center: What is an SSL certificate?",
+    url: "https://www.cloudflare.com/learning/ssl/what-is-an-ssl-certificate/",
+  },
+  "cloudflare-ssl-concepts": {
+    title: "Cloudflare SSL/TLS Docs: Concepts",
+    url: "https://developers.cloudflare.com/ssl/concepts/",
   },
   "mdn-how-internet-works": {
     title: "MDN Web Docs: How does the Internet work?",
@@ -229,6 +1317,10 @@ export const knowledgeSources = {
     title: "RFC 5681: TCP Congestion Control",
     url: "https://www.rfc-editor.org/rfc/rfc5681",
   },
+  "rfc2018-tcp-sack": {
+    title: "RFC 2018: TCP Selective Acknowledgment Options",
+    url: "https://www.rfc-editor.org/rfc/rfc2018",
+  },
   "rfc7323-tcp-high-performance": {
     title: "RFC 7323: TCP Extensions for High Performance",
     url: "https://www.rfc-editor.org/rfc/rfc7323",
@@ -265,9 +1357,401 @@ export const knowledgeSources = {
     title: "RFC 8446: TLS 1.3",
     url: "https://www.rfc-editor.org/rfc/rfc8446",
   },
+  "mdn-tls": {
+    title: "MDN: Transport Layer Security (TLS)",
+    url: "https://developer.mozilla.org/docs/Web/Security/Transport_Layer_Security",
+  },
+  "mozilla-ssl-config": {
+    title: "Mozilla SSL Configuration Generator",
+    url: "https://ssl-config.mozilla.org/",
+  },
   "rfc5280-pkix": {
     title: "RFC 5280: Internet X.509 PKI Certificate and CRL Profile",
     url: "https://www.rfc-editor.org/rfc/rfc5280",
+  },
+  "mdn-http-overview": {
+    title: "MDN: An overview of HTTP",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview",
+  },
+  "twelve-factor-app": {
+    title: "The Twelve-Factor App",
+    url: "https://12factor.net/",
+  },
+  "cncf-cloud-native-definition": {
+    title: "CNCF: Cloud Native Definition",
+    url: "https://github.com/cncf/toc/blob/main/DEFINITION.md",
+  },
+  "google-api-design-guide": {
+    title: "Google Cloud: API Design Guide",
+    url: "https://cloud.google.com/apis/design",
+  },
+  "google-aip-185-api-versioning": {
+    title: "Google AIP-185: API Versioning",
+    url: "https://google.aip.dev/185",
+  },
+  "google-aip-180-backwards-compatibility": {
+    title: "Google AIP-180: Backwards Compatibility",
+    url: "https://google.aip.dev/180",
+  },
+  "microsoft-rest-api-guidelines": {
+    title: "Microsoft REST API Guidelines",
+    url: "https://github.com/microsoft/api-guidelines",
+  },
+  "zalando-restful-api-guidelines": {
+    title: "Zalando RESTful API and Event Guidelines",
+    url: "https://opensource.zalando.com/restful-api-guidelines/",
+  },
+  "openapi-specification": {
+    title: "OpenAPI Specification",
+    url: "https://spec.openapis.org/oas/latest.html",
+  },
+  "openapi-initiative-what-is-openapi": {
+    title: "OpenAPI Initiative: What is OpenAPI?",
+    url: "https://www.openapis.org/what-is-openapi",
+  },
+  "learn-openapi-paths": {
+    title: "Learn OpenAPI: API Endpoints",
+    url: "https://learn.openapis.org/specification/paths.html",
+  },
+  "swagger-openapi-paths": {
+    title: "Swagger Docs: Paths and Operations",
+    url: "https://swagger.io/docs/specification/v3_0/paths-and-operations/",
+  },
+  "json-schema-docs": {
+    title: "JSON Schema Documentation",
+    url: "https://json-schema.github.io/json-schema/documentation.html",
+  },
+  "rfc9457-problem-details": {
+    title: "RFC 9457: Problem Details for HTTP APIs",
+    url: "https://www.rfc-editor.org/rfc/rfc9457",
+  },
+  "pact-docs-contract-testing": {
+    title: "Pact Docs: Contract Testing",
+    url: "https://docs.pact.io/",
+  },
+  "pact-docs-consumer-tests": {
+    title: "Pact Docs: Consumer Tests",
+    url: "https://docs.pact.io/implementation_guides/javascript/docs/consumer",
+  },
+  "martin-fowler-consumer-driven-contracts": {
+    title: "Martin Fowler: Consumer-Driven Contracts",
+    url: "https://martinfowler.com/articles/consumerDrivenContracts.html",
+  },
+  "spring-cloud-contract-reference": {
+    title: "Spring Cloud Contract Reference Documentation",
+    url: "https://docs.spring.io/spring-cloud-contract/docs/current/reference/htmlsingle/",
+  },
+  "microsoft-aspnetcore-integration-tests": {
+    title: "Microsoft Learn: Integration tests in ASP.NET Core",
+    url: "https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-10.0",
+  },
+  "spring-boot-testing": {
+    title: "Spring Boot Reference: Testing",
+    url: "https://docs.spring.io/spring-boot/reference/testing/index.html",
+  },
+  "spring-boot-testcontainers": {
+    title: "Spring Boot Reference: Testcontainers",
+    url: "https://docs.spring.io/spring-boot/reference/testing/testcontainers.html",
+  },
+  "testcontainers-java": {
+    title: "Testcontainers for Java Documentation",
+    url: "https://java.testcontainers.org/",
+  },
+  "martin-fowler-practical-test-pyramid": {
+    title: "Martin Fowler: The Practical Test Pyramid",
+    url: "https://martinfowler.com/articles/practical-test-pyramid.html",
+  },
+  "google-testing-flaky-tests": {
+    title: "Google Testing Blog: Flaky Tests at Google and How We Mitigate Them",
+    url: "https://testing.googleblog.com/2016/05/flaky-tests-at-google-and-how-we.html",
+  },
+  "semver-spec": {
+    title: "Semantic Versioning 2.0.0",
+    url: "https://semver.org/",
+  },
+  "rfc9745-deprecation": {
+    title: "RFC 9745: The Deprecation HTTP Response Header Field",
+    url: "https://www.rfc-editor.org/rfc/rfc9745",
+  },
+  "rfc8594-sunset": {
+    title: "RFC 8594: The Sunset HTTP Header Field",
+    url: "https://www.rfc-editor.org/rfc/rfc8594",
+  },
+  "stripe-api-versioning": {
+    title: "Stripe Docs: API Versioning",
+    url: "https://docs.stripe.com/api/versioning",
+  },
+  "github-rest-api-versioning": {
+    title: "GitHub Docs: REST API Versions",
+    url: "https://docs.github.com/rest/about-the-rest-api/api-versions",
+  },
+  "nist-sp-800-63-4-digital-identity": {
+    title: "NIST SP 800-63-4: Digital Identity Guidelines",
+    url: "https://pages.nist.gov/800-63-4/sp800-63.html",
+  },
+  "nist-sp-800-63b-4-authentication": {
+    title: "NIST SP 800-63B-4: Authentication and Authenticator Management",
+    url: "https://pages.nist.gov/800-63-4/sp800-63b.html",
+  },
+  "nist-sp-800-63c-4-federation": {
+    title: "NIST SP 800-63C-4: Federation and Assertions",
+    url: "https://pages.nist.gov/800-63-4/sp800-63c.html",
+  },
+  "owasp-authentication-cheat-sheet": {
+    title: "OWASP Cheat Sheet: Authentication",
+    url: "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html",
+  },
+  "owasp-password-storage-cheat-sheet": {
+    title: "OWASP Cheat Sheet: Password Storage",
+    url: "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html",
+  },
+  "owasp-session-management-cheat-sheet": {
+    title: "OWASP Cheat Sheet: Session Management",
+    url: "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html",
+  },
+  "owasp-authorization-cheat-sheet": {
+    title: "OWASP Cheat Sheet: Authorization",
+    url: "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html",
+  },
+  "owasp-access-control-cheat-sheet": {
+    title: "OWASP Cheat Sheet: Access Control",
+    url: "https://cheatsheetseries.owasp.org/cheatsheets/Access_Control_Cheat_Sheet.html",
+  },
+  "owasp-logging-cheat-sheet": {
+    title: "OWASP Cheat Sheet: Logging",
+    url: "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html",
+  },
+  "nist-sp-800-92-log-management": {
+    title: "NIST SP 800-92: Guide to Computer Security Log Management",
+    url: "https://csrc.nist.gov/pubs/sp/800/92/final",
+  },
+  "nist-rbac-project": {
+    title: "NIST: Role Based Access Control",
+    url: "https://csrc.nist.gov/projects/role-based-access-control",
+  },
+  "nist-rbac-faqs": {
+    title: "NIST: Role Based Access Control FAQs",
+    url: "https://csrc.nist.gov/projects/role-based-access-control/faqs",
+  },
+  "kubernetes-rbac-authorization": {
+    title: "Kubernetes Docs: Using RBAC Authorization",
+    url: "https://kubernetes.io/docs/reference/access-authn-authz/rbac/",
+  },
+  "kubernetes-rbac-authorization-zh": {
+    title: "Kubernetes 文档：使用 RBAC 鉴权",
+    url: "https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/rbac/",
+  },
+  "nist-sp-800-162-abac": {
+    title: "NIST SP 800-162: Guide to Attribute Based Access Control (ABAC)",
+    url: "https://csrc.nist.gov/pubs/sp/800/162/upd2/final",
+  },
+  "nist-nccoe-abac": {
+    title: "NIST NCCoE: Attribute Based Access Control",
+    url: "https://www.nccoe.nist.gov/publication/1800-3/VolB/",
+  },
+  "aws-iam-abac": {
+    title: "AWS IAM: Attribute-based access control",
+    url: "https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction_attribute-based-access-control.html",
+  },
+  "aws-iam-policy-evaluation": {
+    title: "AWS IAM: Policy Evaluation Logic",
+    url: "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html",
+  },
+  "open-policy-agent-docs": {
+    title: "Open Policy Agent Documentation",
+    url: "https://www.openpolicyagent.org/docs/latest/",
+  },
+  "opa-policy-language": {
+    title: "Open Policy Agent Docs: Policy Language",
+    url: "https://www.openpolicyagent.org/docs/policy-language",
+  },
+  "opa-bundles": {
+    title: "Open Policy Agent Docs: Bundles",
+    url: "https://www.openpolicyagent.org/docs/management-bundles",
+  },
+  "cedar-policy-docs": {
+    title: "Cedar Policy Language Reference Guide",
+    url: "https://docs.cedarpolicy.com/",
+  },
+  "cedar-authorization": {
+    title: "Cedar Policy Language: Authorization",
+    url: "https://docs.cedarpolicy.com/auth/authorization.html",
+  },
+  "aws-verified-permissions": {
+    title: "Amazon Verified Permissions Documentation",
+    url: "https://docs.aws.amazon.com/verifiedpermissions/",
+  },
+  "google-zanzibar-paper": {
+    title: "Google Research: Zanzibar, Google's Consistent, Global Authorization System",
+    url: "https://research.google/pubs/zanzibar-googles-consistent-global-authorization-system/",
+  },
+  "openfga-concepts": {
+    title: "OpenFGA Docs: Concepts",
+    url: "https://openfga.dev/docs/concepts",
+  },
+  "openfga-modeling": {
+    title: "OpenFGA Docs: Define Your Authorization Model",
+    url: "https://openfga.dev/docs/modeling",
+  },
+  "openfga-model-testing": {
+    title: "OpenFGA Docs: Testing Models",
+    url: "https://openfga.dev/docs/modeling/testing",
+  },
+  "rfc6749-oauth2": {
+    title: "RFC 6749: The OAuth 2.0 Authorization Framework",
+    url: "https://www.rfc-editor.org/rfc/rfc6749",
+  },
+  "rfc9700-oauth2-security": {
+    title: "RFC 9700: Best Current Practice for OAuth 2.0 Security",
+    url: "https://www.rfc-editor.org/rfc/rfc9700",
+  },
+  "rfc7636-pkce": {
+    title: "RFC 7636: Proof Key for Code Exchange by OAuth Public Clients",
+    url: "https://www.rfc-editor.org/rfc/rfc7636",
+  },
+  "rfc8252-oauth-native-apps": {
+    title: "RFC 8252: OAuth 2.0 for Native Apps",
+    url: "https://www.rfc-editor.org/rfc/rfc8252",
+  },
+  "rfc8628-oauth-device-grant": {
+    title: "RFC 8628: OAuth 2.0 Device Authorization Grant",
+    url: "https://www.rfc-editor.org/rfc/rfc8628",
+  },
+  "rfc7009-token-revocation": {
+    title: "RFC 7009: OAuth 2.0 Token Revocation",
+    url: "https://www.rfc-editor.org/rfc/rfc7009",
+  },
+  "rfc7662-token-introspection": {
+    title: "RFC 7662: OAuth 2.0 Token Introspection",
+    url: "https://www.rfc-editor.org/rfc/rfc7662",
+  },
+  "auth0-refresh-token-rotation": {
+    title: "Auth0 Docs: Refresh Token Rotation",
+    url: "https://auth0.com/docs/secure/tokens/refresh-tokens/refresh-token-rotation",
+  },
+  "okta-refresh-tokens": {
+    title: "Okta Developer: Refresh Access Tokens and Rotate Refresh Tokens",
+    url: "https://developer.okta.com/docs/guides/refresh-tokens/main/",
+  },
+  "openid-connect-core": {
+    title: "OpenID Connect Core 1.0",
+    url: "https://openid.net/specs/openid-connect-core-1_0.html",
+  },
+  "openid-connect-discovery": {
+    title: "OpenID Connect Discovery 1.0",
+    url: "https://openid.net/specs/openid-connect-discovery-1_0.html",
+  },
+  "openid-connect-rp-initiated-logout": {
+    title: "OpenID Connect RP-Initiated Logout 1.0",
+    url: "https://openid.net/specs/openid-connect-rpinitiated-1_0.html",
+  },
+  "openid-connect-session-management": {
+    title: "OpenID Connect Session Management 1.0",
+    url: "https://openid.net/specs/openid-connect-session-1_0.html",
+  },
+  "openid-connect-frontchannel-logout": {
+    title: "OpenID Connect Front-Channel Logout 1.0",
+    url: "https://openid.net/specs/openid-connect-frontchannel-1_0.html",
+  },
+  "openid-connect-backchannel-logout": {
+    title: "OpenID Connect Back-Channel Logout 1.0",
+    url: "https://openid.net/specs/openid-connect-backchannel-1_0.html",
+  },
+  "rfc8414-oauth-authorization-server-metadata": {
+    title: "RFC 8414: OAuth 2.0 Authorization Server Metadata",
+    url: "https://www.rfc-editor.org/rfc/rfc8414",
+  },
+  "saml2-technical-overview": {
+    title: "OASIS: SAML 2.0 Technical Overview",
+    url: "https://docs.oasis-open.org/security/saml/Post2.0/sstc-saml-tech-overview-2.0.html",
+  },
+  "rfc7519-jwt": {
+    title: "RFC 7519: JSON Web Token (JWT)",
+    url: "https://www.rfc-editor.org/rfc/rfc7519",
+  },
+  "rfc8725-jwt-bcp": {
+    title: "RFC 8725: JSON Web Token Best Current Practices",
+    url: "https://www.rfc-editor.org/rfc/rfc8725",
+  },
+  "rfc7515-jws": {
+    title: "RFC 7515: JSON Web Signature (JWS)",
+    url: "https://www.rfc-editor.org/rfc/rfc7515",
+  },
+  "rfc7517-jwk": {
+    title: "RFC 7517: JSON Web Key (JWK)",
+    url: "https://www.rfc-editor.org/rfc/rfc7517",
+  },
+  "owasp-jwt-java-cheat-sheet": {
+    title: "OWASP Cheat Sheet: JSON Web Token for Java",
+    url: "https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html",
+  },
+  "webauthn-level-3": {
+    title: "W3C: Web Authentication Level 3",
+    url: "https://www.w3.org/TR/webauthn-3/",
+  },
+  "rfc6265-cookies": {
+    title: "RFC 6265: HTTP State Management Mechanism",
+    url: "https://www.rfc-editor.org/rfc/rfc6265",
+  },
+  "mdn-set-cookie": {
+    title: "MDN: Set-Cookie Header",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie",
+  },
+  "mdn-http-cookies": {
+    title: "MDN: Using HTTP Cookies",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies",
+  },
+  "owasp-csrf-prevention-cheat-sheet": {
+    title: "OWASP Cheat Sheet: Cross-Site Request Forgery Prevention",
+    url: "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html",
+  },
+  "mdn-samesite-cookies": {
+    title: "MDN: SameSite cookies",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie#samesitesamesite-value",
+  },
+  "webdev-samesite-cookies": {
+    title: "web.dev: SameSite cookies explained",
+    url: "https://web.dev/articles/samesite-cookies-explained",
+  },
+  "w3c-fetch-metadata": {
+    title: "W3C: Fetch Metadata Request Headers",
+    url: "https://www.w3.org/TR/fetch-metadata/",
+  },
+  "mdn-cors": {
+    title: "MDN: Cross-Origin Resource Sharing (CORS)",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS",
+  },
+  "whatwg-fetch": {
+    title: "WHATWG Fetch Standard",
+    url: "https://fetch.spec.whatwg.org/",
+  },
+  "mdn-access-control-allow-origin": {
+    title: "MDN: Access-Control-Allow-Origin header",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Access-Control-Allow-Origin",
+  },
+  "mdn-access-control-allow-credentials": {
+    title: "MDN: Access-Control-Allow-Credentials header",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Access-Control-Allow-Credentials",
+  },
+  "mdn-preflight-request": {
+    title: "MDN: Preflight request",
+    url: "https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request",
+  },
+  "fielding-rest-dissertation": {
+    title: "Roy Fielding: Architectural Styles and the Design of Network-based Software Architectures",
+    url: "https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm",
+  },
+  "mdn-http-methods": {
+    title: "MDN: HTTP request methods",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods",
+  },
+  "mdn-http-status-codes": {
+    title: "MDN: HTTP response status codes",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status",
+  },
+  "mdn-http-101": {
+    title: "MDN: 101 Switching Protocols",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/101",
   },
   "rfc6455-websocket": {
     title: "RFC 6455: The WebSocket Protocol",
@@ -277,21 +1761,245 @@ export const knowledgeSources = {
     title: "gRPC Docs: Core concepts, architecture and lifecycle",
     url: "https://grpc.io/docs/what-is-grpc/core-concepts/",
   },
+  "grpc-deadlines": {
+    title: "gRPC Docs: Deadlines",
+    url: "https://grpc.io/docs/guides/deadlines/",
+  },
+  "grpc-error-handling": {
+    title: "gRPC Docs: Error handling",
+    url: "https://grpc.io/docs/guides/error/",
+  },
   "protobuf-overview": {
     title: "Protocol Buffers Documentation: Overview",
     url: "https://protobuf.dev/overview/",
+  },
+  "protobuf-proto3-guide": {
+    title: "Protocol Buffers Documentation: Language Guide (proto 3)",
+    url: "https://protobuf.dev/programming-guides/proto3/",
+  },
+  "protobuf-encoding": {
+    title: "Protocol Buffers Documentation: Encoding",
+    url: "https://protobuf.dev/programming-guides/encoding/",
   },
   "aws-elb-overview": {
     title: "AWS Elastic Load Balancing: What is Elastic Load Balancing?",
     url: "https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html",
   },
+  "aws-elb-target-groups": {
+    title: "AWS Elastic Load Balancing: Target groups",
+    url: "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html",
+  },
   "nginx-http-load-balancing": {
     title: "NGINX Documentation: HTTP Load Balancing",
     url: "https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/",
   },
+  "microservices-io-api-gateway": {
+    title: "Microservices.io: API Gateway / Backends for Frontends",
+    url: "https://microservices.io/patterns/apigateway.html",
+  },
+  "aws-api-gateway-overview": {
+    title: "AWS Docs: What is Amazon API Gateway?",
+    url: "https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html",
+  },
+  "google-cloud-api-gateway": {
+    title: "Google Cloud Docs: About API Gateway",
+    url: "https://cloud.google.com/api-gateway/docs/about-api-gateway",
+  },
+  "azure-api-management-concepts": {
+    title: "Microsoft Learn: Azure API Management concepts",
+    url: "https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts",
+  },
+  "kong-gateway-docs": {
+    title: "Kong Docs: Kong Gateway",
+    url: "https://docs.konghq.com/gateway/latest/",
+  },
+  "envoy-architecture-overview": {
+    title: "Envoy Docs: Architecture overview",
+    url: "https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/arch_overview",
+  },
+  "nginx-reverse-proxy": {
+    title: "NGINX Documentation: Reverse Proxy",
+    url: "https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/",
+  },
+  "owasp-api-security-top-10": {
+    title: "OWASP API Security Top 10",
+    url: "https://owasp.org/API-Security/",
+  },
+  "rfc6585-http-additional-status-codes": {
+    title: "RFC 6585: Additional HTTP Status Codes",
+    url: "https://www.rfc-editor.org/rfc/rfc6585",
+  },
+  "ietf-ratelimit-header-fields": {
+    title: "IETF: RateLimit header fields for HTTP",
+    url: "https://datatracker.ietf.org/doc/draft-ietf-httpapi-ratelimit-headers/",
+  },
+  "aws-api-gateway-throttling": {
+    title: "AWS Docs: API Gateway request throttling",
+    url: "https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-request-throttling.html",
+  },
+  "envoy-global-rate-limiting": {
+    title: "Envoy Docs: Global rate limiting",
+    url: "https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/other_features/global_rate_limiting",
+  },
+  "envoyproxy-ratelimit-service": {
+    title: "Envoyproxy Ratelimit: Go/gRPC rate limit service",
+    url: "https://github.com/envoyproxy/ratelimit",
+  },
+  "nginx-rate-limiting": {
+    title: "NGINX Documentation: Rate limiting proxied HTTP resources",
+    url: "https://docs.nginx.com/nginx/admin-guide/security-controls/controlling-access-proxied-http/",
+  },
+  "nginx-limit-req-module": {
+    title: "NGINX Docs: ngx_http_limit_req_module",
+    url: "https://nginx.org/en/docs/http/ngx_http_limit_req_module.html",
+  },
+  "nginx-rate-limiting-blog": {
+    title: "NGINX Blog: Rate Limiting with NGINX",
+    url: "https://blog.nginx.org/blog/rate-limiting-nginx",
+  },
+  "github-rest-rate-limits": {
+    title: "GitHub Docs: Rate limits for the REST API",
+    url: "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api",
+  },
+  "stripe-rate-limits": {
+    title: "Stripe Docs: Rate limits",
+    url: "https://docs.stripe.com/rate-limits",
+  },
+  "cloudflare-rate-limiting-rules": {
+    title: "Cloudflare Docs: Rate limiting rules",
+    url: "https://developers.cloudflare.com/waf/rate-limiting-rules/",
+  },
+  "cloudflare-rate-limiting-scale": {
+    title: "Cloudflare Blog: How we built rate limiting capable of scaling to millions of domains",
+    url: "https://blog.cloudflare.com/counting-things-a-lot-of-different-things/",
+  },
+  "kong-rate-limiting-advanced": {
+    title: "Kong Docs: Rate Limiting Advanced plugin",
+    url: "https://developer.konghq.com/plugins/rate-limiting-advanced/",
+  },
+  "microsoft-aspnetcore-rate-limiting": {
+    title: "Microsoft Learn: Rate limiting middleware in ASP.NET Core",
+    url: "https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit",
+  },
+  "rfc2697-srtcm": {
+    title: "RFC 2697: A Single Rate Three Color Marker",
+    url: "https://www.rfc-editor.org/rfc/rfc2697",
+  },
+  "rfc2698-trtcm": {
+    title: "RFC 2698: A Two Rate Three Color Marker",
+    url: "https://www.rfc-editor.org/rfc/rfc2698",
+  },
+  "rfc3290-diffserv-model": {
+    title: "RFC 3290: An Informal Management Model for Diffserv Routers",
+    url: "https://www.rfc-editor.org/rfc/rfc3290",
+  },
+  "envoy-local-rate-limit": {
+    title: "Envoy Docs: HTTP local rate limit filter",
+    url: "https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/local_rate_limit_filter",
+  },
+  "guava-ratelimiter": {
+    title: "Guava: RateLimiter",
+    url: "https://github.com/google/guava/blob/master/guava/src/com/google/common/util/concurrent/RateLimiter.java",
+  },
+  "sentinel-flow-control-zh": {
+    title: "Sentinel Docs: 流量控制",
+    url: "https://sentinelguard.io/zh-cn/docs/flow-control.html",
+  },
+  "sentinel-golang-flow-control-zh": {
+    title: "Sentinel Go Docs: 流量控制",
+    url: "https://sentinelguard.io/zh-cn/docs/golang/flow-control.html",
+  },
+  "wikipedia-leaky-bucket": {
+    title: "Wikipedia: Leaky bucket",
+    url: "https://en.wikipedia.org/wiki/Leaky_bucket",
+  },
+  "martin-fowler-circuit-breaker": {
+    title: "Martin Fowler: Circuit Breaker",
+    url: "https://martinfowler.com/bliki/CircuitBreaker.html",
+  },
+  "microsoft-circuit-breaker-pattern": {
+    title: "Microsoft Learn: Circuit Breaker pattern",
+    url: "https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker",
+  },
+  "resilience4j-circuitbreaker": {
+    title: "Resilience4j Docs: CircuitBreaker",
+    url: "https://resilience4j.readme.io/docs/circuitbreaker",
+  },
+  "sentinel-circuit-breaking-zh": {
+    title: "Sentinel Docs: 熔断降级",
+    url: "https://sentinelguard.io/zh-cn/docs/circuit-breaking.html",
+  },
+  "polly-circuit-breaker": {
+    title: "Polly Docs: Circuit breaker resilience strategy",
+    url: "https://www.pollydocs.org/strategies/circuit-breaker.html",
+  },
+  "microsoft-bulkhead-pattern": {
+    title: "Microsoft Learn: Bulkhead pattern",
+    url: "https://learn.microsoft.com/en-us/azure/architecture/patterns/bulkhead",
+  },
+  "resilience4j-bulkhead": {
+    title: "Resilience4j Docs: Bulkhead",
+    url: "https://resilience4j.readme.io/docs/bulkhead",
+  },
+  "netflix-hystrix-how-it-works": {
+    title: "Netflix Hystrix Wiki: How it Works",
+    url: "https://github.com/Netflix/Hystrix/wiki/How-it-Works",
+  },
+  "oracle-threadpoolexecutor": {
+    title: "Oracle Java Docs: ThreadPoolExecutor",
+    url: "https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html",
+  },
+  "oracle-blockingqueue": {
+    title: "Oracle Java Docs: BlockingQueue",
+    url: "https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/BlockingQueue.html",
+  },
+  "oracle-rejectedexecutionhandler": {
+    title: "Oracle Java Docs: RejectedExecutionHandler",
+    url: "https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/RejectedExecutionHandler.html",
+  },
+  "go-blog-pipelines": {
+    title: "Go Blog: Pipelines and cancellation",
+    url: "https://go.dev/blog/pipelines",
+  },
+  "go-database-sql-manage-connections": {
+    title: "Go Docs: Managing database connections",
+    url: "https://go.dev/doc/database/manage-connections",
+  },
+  "go-database-sql-package": {
+    title: "Go Package Docs: database/sql",
+    url: "https://pkg.go.dev/database/sql",
+  },
+  "microsoft-ado-net-connection-pooling": {
+    title: "Microsoft Learn: SQL Server connection pooling",
+    url: "https://learn.microsoft.com/en-us/sql/connect/ado-net/sql-server-connection-pooling",
+  },
+  "mysql-connectorj-connection-pooling": {
+    title: "MySQL Connector/J: Connection Pooling",
+    url: "https://dev.mysql.com/doc/connectors/en/connector-j-usagenotes-j2ee-concepts-connection-pooling.html",
+  },
+  "netflix-hystrix-configuration": {
+    title: "Netflix Hystrix Wiki: Configuration",
+    url: "https://github.com/Netflix/Hystrix/wiki/Configuration",
+  },
+  "polly-fallback": {
+    title: "Polly Docs: Fallback resilience strategy",
+    url: "https://www.pollydocs.org/strategies/fallback.html",
+  },
+  "aws-wellarchitected-graceful-degradation": {
+    title: "AWS Well-Architected: Graceful degradation",
+    url: "https://docs.aws.amazon.com/wellarchitected/latest/framework/rel_mitigate_interaction_failure_graceful_degradation.html",
+  },
+  "amazon-builders-library-fallback": {
+    title: "Amazon Builders' Library: Avoiding fallback in distributed systems",
+    url: "https://aws.amazon.com/builders-library/avoiding-fallback-in-distributed-systems/",
+  },
   "kubernetes-probes": {
     title: "Kubernetes Docs: Configure Liveness, Readiness and Startup Probes",
     url: "https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+  },
+  "aws-elb-health-checks": {
+    title: "AWS Elastic Load Balancing: Health checks for target groups",
+    url: "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html",
   },
   "aws-security-groups": {
     title: "AWS VPC: Control traffic using security groups",
@@ -305,9 +2013,469 @@ export const knowledgeSources = {
     title: "OpenTelemetry Docs: Observability Primer",
     url: "https://opentelemetry.io/docs/concepts/observability-primer/",
   },
+  "opentelemetry-components": {
+    title: "OpenTelemetry Docs: Components",
+    url: "https://opentelemetry.io/docs/concepts/components/",
+  },
+  "opentelemetry-instrumentation": {
+    title: "OpenTelemetry Docs: Instrumentation",
+    url: "https://opentelemetry.io/docs/concepts/instrumentation/",
+  },
+  "opentelemetry-code-instrumentation": {
+    title: "OpenTelemetry Docs: Code-based instrumentation",
+    url: "https://opentelemetry.io/docs/concepts/instrumentation/code-based/",
+  },
+  "opentelemetry-otlp": {
+    title: "OpenTelemetry Docs: OTLP Specification",
+    url: "https://opentelemetry.io/docs/specs/otlp/",
+  },
+  "opentelemetry-semantics": {
+    title: "OpenTelemetry Docs: Semantic Conventions",
+    url: "https://opentelemetry.io/docs/specs/semconv/",
+  },
+  "opentelemetry-resource-semantics": {
+    title: "OpenTelemetry Docs: Resource semantic conventions",
+    url: "https://opentelemetry.io/docs/specs/semconv/resource/",
+  },
+  "opentelemetry-logs-data-model": {
+    title: "OpenTelemetry Docs: Logs Data Model",
+    url: "https://opentelemetry.io/docs/specs/otel/logs/data-model/",
+  },
+  "aws-cloudtrail-user-guide": {
+    title: "AWS CloudTrail User Guide",
+    url: "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html",
+  },
+  "google-cloud-audit-logs": {
+    title: "Google Cloud Docs: Cloud Audit Logs overview",
+    url: "https://cloud.google.com/logging/docs/audit",
+  },
+  "google-cloud-structured-logging": {
+    title: "Google Cloud Docs: Structured logging",
+    url: "https://cloud.google.com/logging/docs/structured-logging",
+  },
+  "logback-mdc": {
+    title: "Logback Manual: Mapped Diagnostic Context",
+    url: "https://logback.qos.ch/manual/mdc.html",
+  },
+  "logback-architecture": {
+    title: "Logback Manual: Architecture",
+    url: "https://logback.qos.ch/manual/architecture.html",
+  },
+  "log4j-levels": {
+    title: "Apache Log4j 2 Manual: Levels",
+    url: "https://logging.apache.org/log4j/2.x/manual/customloglevels.html",
+  },
+  "slf4j-manual": {
+    title: "SLF4J Manual",
+    url: "https://www.slf4j.org/manual.html",
+  },
+  "python-logging-howto": {
+    title: "Python Docs: Logging HOWTO",
+    url: "https://docs.python.org/3/howto/logging.html",
+  },
+  "elastic-common-schema": {
+    title: "Elastic Common Schema: ECS reference",
+    url: "https://www.elastic.co/docs/reference/ecs",
+  },
+  "opentelemetry-collector": {
+    title: "OpenTelemetry Docs: Collector",
+    url: "https://opentelemetry.io/docs/collector/",
+  },
+  "opentelemetry-collector-processors": {
+    title: "OpenTelemetry Docs: Collector processors",
+    url: "https://opentelemetry.io/docs/collector/components/processor/",
+  },
+  "fluent-bit-pipeline": {
+    title: "Fluent Bit Manual: Stream processing overview",
+    url: "https://docs.fluentbit.io/manual/stream-processing/get-started",
+  },
+  "fluent-bit-concepts": {
+    title: "Fluent Bit Manual: Key concepts",
+    url: "https://docs.fluentbit.io/manual/concepts/key-concepts",
+  },
+  "logstash-introduction": {
+    title: "Elastic Docs: Logstash introduction",
+    url: "https://www.elastic.co/docs/reference/logstash/introduction",
+  },
+  "elastic-stack-docs": {
+    title: "Elastic Docs: The Elastic Stack",
+    url: "https://www.elastic.co/guide/en/kibana/current/index.html",
+  },
+  "elasticsearch-data-lifecycle": {
+    title: "Elastic Docs: Data lifecycle",
+    url: "https://www.elastic.co/docs/manage-data/lifecycle",
+  },
+  "elasticsearch-data-streams": {
+    title: "Elastic Docs: Data streams",
+    url: "https://www.elastic.co/docs/manage-data/data-store/data-streams",
+  },
+  "elasticsearch-mapping": {
+    title: "Elastic Docs: Mapping",
+    url: "https://www.elastic.co/docs/manage-data/data-store/mapping",
+  },
+  "kibana-discover": {
+    title: "Elastic Docs: Discover",
+    url: "https://www.elastic.co/docs/explore-analyze/discover",
+  },
+  "grafana-loki-labels": {
+    title: "Grafana Loki Docs: Understand labels",
+    url: "https://grafana.com/docs/loki/latest/get-started/labels/",
+  },
+  "grafana-loki-overview": {
+    title: "Grafana Loki Docs: Overview",
+    url: "https://grafana.com/docs/loki/latest/",
+  },
+  "grafana-loki-architecture": {
+    title: "Grafana Loki Docs: Architecture",
+    url: "https://grafana.com/docs/loki/latest/get-started/architecture/",
+  },
+  "grafana-loki-logql": {
+    title: "Grafana Loki Docs: LogQL",
+    url: "https://grafana.com/docs/loki/latest/query/",
+  },
+  "grafana-loki-retention": {
+    title: "Grafana Loki Docs: Retention",
+    url: "https://grafana.com/docs/loki/latest/operations/storage/retention/",
+  },
+  "grafana-loki-storage": {
+    title: "Grafana Loki Docs: Storage",
+    url: "https://grafana.com/docs/loki/latest/operations/storage/",
+  },
+  "grafana-loki-structured-metadata": {
+    title: "Grafana Loki Docs: Structured metadata",
+    url: "https://grafana.com/docs/loki/latest/get-started/labels/structured-metadata/",
+  },
+  "google-sre-monitoring": {
+    title: "Google SRE Book: Monitoring Distributed Systems",
+    url: "https://sre.google/sre-book/monitoring-distributed-systems/",
+  },
+  "google-sre-service-level-objectives": {
+    title: "Google SRE Book: Service Level Objectives",
+    url: "https://sre.google/sre-book/service-level-objectives/",
+  },
+  "google-sre-implementing-slos": {
+    title: "Google SRE Workbook: Implementing SLOs",
+    url: "https://sre.google/workbook/implementing-slos/",
+  },
+  "google-sre-error-budget-policy": {
+    title: "Google SRE Workbook: Example Error Budget Policy",
+    url: "https://sre.google/workbook/error-budget-policy/",
+  },
+  "google-sre-practical-alerting": {
+    title: "Google SRE Workbook: Alerting on SLOs",
+    url: "https://sre.google/workbook/alerting-on-slos/",
+  },
+  "google-cloud-slo-monitoring": {
+    title: "Google Cloud Docs: Service monitoring SLO concepts",
+    url: "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring",
+  },
+  "google-cloud-burn-rate-alerts": {
+    title: "Google Cloud Docs: Alerting on your burn rate",
+    url: "https://cloud.google.com/stackdriver/docs/solutions/slo-monitoring/alerting-on-budget-burn-rate",
+  },
+  "google-sre-managing-incidents": {
+    title: "Google SRE Book: Managing Incidents",
+    url: "https://sre.google/sre-book/managing-incidents/",
+  },
+  "google-sre-postmortem-culture": {
+    title: "Google SRE Book: Postmortem Culture",
+    url: "https://sre.google/sre-book/postmortem-culture/",
+  },
+  "google-sre-workbook-postmortem-culture": {
+    title: "Google SRE Workbook: Postmortem Culture",
+    url: "https://sre.google/workbook/postmortem-culture/",
+  },
+  "google-sre-incident-metrics": {
+    title: "Google SRE: Incident Metrics in SRE",
+    url: "https://sre.google/static/pdf/IncidentMetricsInSRE.pdf",
+  },
+  "google-sre-being-on-call": {
+    title: "Google SRE Book: Being On-Call",
+    url: "https://sre.google/sre-book/being-on-call/",
+  },
+  "pagerduty-incident-response": {
+    title: "PagerDuty Docs: Incident response",
+    url: "https://support.pagerduty.com/main/docs/incident-response",
+  },
+  "pagerduty-escalation-policies": {
+    title: "PagerDuty Docs: Escalation policies",
+    url: "https://support.pagerduty.com/main/docs/escalation-policies",
+  },
+  "atlassian-incident-runbook": {
+    title: "Atlassian: Incident management runbook",
+    url: "https://www.atlassian.com/incident-management/incident-response/runbook",
+  },
+  "atlassian-postmortem-template": {
+    title: "Atlassian: Incident postmortem process",
+    url: "https://www.atlassian.com/incident-management/postmortem/templates",
+  },
+  "pagerduty-postmortem-guide": {
+    title: "PagerDuty: Postmortem documentation guide",
+    url: "https://www.pagerduty.com/resources/insights/learn/how-to-write-postmortem/",
+  },
+  "google-sre-emergency-response": {
+    title: "Google SRE Book: Emergency Response",
+    url: "https://sre.google/sre-book/emergency-response/",
+  },
+  "azure-automation-runbooks": {
+    title: "Microsoft Learn: Azure Automation runbooks",
+    url: "https://learn.microsoft.com/en-us/azure/automation/automation-runbook-types",
+  },
+  "google-sre-handling-overload": {
+    title: "Google SRE Book: Handling Overload",
+    url: "https://sre.google/sre-book/handling-overload/",
+  },
+  "google-sre-cascading-failures": {
+    title: "Google SRE Book: Addressing Cascading Failures",
+    url: "https://sre.google/sre-book/addressing-cascading-failures/",
+  },
+  "aws-load-shedding": {
+    title: "AWS Builders' Library: Using load shedding to avoid overload",
+    url: "https://aws.amazon.com/builders-library/using-load-shedding-to-avoid-overload/",
+  },
+  "envoy-overload-manager": {
+    title: "Envoy Docs: Overload manager",
+    url: "https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/operations/overload_manager",
+  },
+  "netflix-concurrency-limits": {
+    title: "Netflix Concurrency Limits",
+    url: "https://github.com/Netflix/concurrency-limits",
+  },
+  "reactive-streams-spec": {
+    title: "Reactive Streams Specification",
+    url: "https://www.reactive-streams.org/",
+  },
+  "nodejs-backpressuring-streams": {
+    title: "Node.js Docs: Backpressuring in Streams",
+    url: "https://nodejs.org/en/learn/modules/backpressuring-in-streams",
+  },
+  "rabbitmq-flow-control": {
+    title: "RabbitMQ Docs: Flow Control",
+    url: "https://www.rabbitmq.com/docs/flow-control",
+  },
+  "spring-kafka-pause-resume": {
+    title: "Spring Kafka Docs: Pausing and Resuming Listener Containers",
+    url: "https://docs.spring.io/spring-kafka/reference/kafka/pause-resume.html",
+  },
+  "launchdarkly-kill-switch": {
+    title: "LaunchDarkly Docs: Kill switch flags",
+    url: "https://launchdarkly.com/docs/home/flags/killswitch/",
+  },
+  "openfeature-introduction": {
+    title: "OpenFeature Docs: Introduction",
+    url: "https://openfeature.dev/docs/reference/intro/",
+  },
+  "microsoft-feature-management": {
+    title: "Microsoft Learn: Feature management overview",
+    url: "https://learn.microsoft.com/en-us/azure/azure-app-configuration/concept-feature-management",
+  },
+  "unleash-feature-flag-best-practices": {
+    title: "Unleash Docs: Feature flag best practices",
+    url: "https://docs.getunleash.io/topics/feature-flags/feature-flag-best-practices",
+  },
+  "martin-fowler-feature-toggles": {
+    title: "Martin Fowler: Feature Toggles",
+    url: "https://martinfowler.com/articles/feature-toggles.html",
+  },
+  "google-sre-canarying-releases": {
+    title: "Google SRE Workbook: Canarying Releases",
+    url: "https://sre.google/workbook/canarying-releases/",
+  },
+  "argo-rollouts-canary": {
+    title: "Argo Rollouts Docs: Canary Deployment Strategy",
+    url: "https://argoproj.github.io/argo-rollouts/features/canary/",
+  },
+  "flagger-deployment-strategies": {
+    title: "Flagger Docs: Deployment Strategies",
+    url: "https://docs.flagger.app/main/usage/deployment-strategies",
+  },
+  "google-cloud-deploy-canary": {
+    title: "Google Cloud Deploy: Use a canary deployment strategy",
+    url: "https://cloud.google.com/deploy/docs/deployment-strategies/canary",
+  },
+  "aliyun-alb-canary-release": {
+    title: "阿里云帮助中心：使用 ALB 实现灰度发布",
+    url: "https://help.aliyun.com/zh/slb/application-load-balancer/use-cases/use-alb-to-implement-canary-releases/",
+  },
+  "kubernetes-deployment-rollback": {
+    title: "Kubernetes Docs: Update a Deployment Without Downtime",
+    url: "https://kubernetes.io/docs/tasks/run-application/update-deployment-rolling/",
+  },
+  "aws-codedeploy-rollback": {
+    title: "AWS CodeDeploy Docs: Redeploy and roll back a deployment",
+    url: "https://docs.aws.amazon.com/codedeploy/latest/userguide/deployments-rollback-and-redeploy.html",
+  },
+  "google-cloud-deploy-rollback": {
+    title: "Google Cloud Deploy Docs: Roll back a target",
+    url: "https://cloud.google.com/deploy/docs/roll-back",
+  },
+  "argo-rollouts-rollback": {
+    title: "Argo Rollouts Docs: Rollback Window",
+    url: "https://argoproj.github.io/argo-rollouts/features/rollback/",
+  },
+  "liquibase-rollback": {
+    title: "Liquibase Docs: rollback",
+    url: "https://docs.liquibase.com/commands/rollback/rollback.html",
+  },
+  "prisma-expand-contract-migration": {
+    title: "Prisma Docs: Data migrations with expand and contract",
+    url: "https://docs.prisma.io/docs/guides/database/data-migration",
+  },
+  "flyway-migrations": {
+    title: "Redgate Flyway Docs: Migrations",
+    url: "https://documentation.red-gate.com/flyway/flyway-concepts/migrations",
+  },
+  "flyway-migrate-command": {
+    title: "Redgate Flyway Docs: Migrate",
+    url: "https://documentation.red-gate.com/flyway/reference/commands/migrate",
+  },
+  "rails-active-record-migrations": {
+    title: "Ruby on Rails Guides: Active Record Migrations",
+    url: "https://guides.rubyonrails.org/active_record_migrations.html",
+  },
+  "django-migrations": {
+    title: "Django Documentation: Migrations",
+    url: "https://docs.djangoproject.com/en/dev/topics/migrations/",
+  },
+  "mysql-online-ddl-performance": {
+    title: "MySQL 8.0 Reference Manual: Online DDL Performance and Concurrency",
+    url: "https://dev.mysql.com/doc/mysql/8.0/en/innodb-online-ddl-performance.html",
+  },
+  "martin-fowler-evolutionary-database-design": {
+    title: "Martin Fowler: Evolutionary Database Design",
+    url: "https://martinfowler.com/articles/evodb.html",
+  },
   "prometheus-metric-naming": {
     title: "Prometheus Docs: Metric and label naming",
     url: "https://prometheus.io/docs/practices/naming/",
+  },
+  "prometheus-overview": {
+    title: "Prometheus Docs: Overview",
+    url: "https://prometheus.io/docs/introduction/overview/",
+  },
+  "prometheus-data-model": {
+    title: "Prometheus Docs: Data model",
+    url: "https://prometheus.io/docs/concepts/data_model/",
+  },
+  "prometheus-querying-basics": {
+    title: "Prometheus Docs: Querying basics",
+    url: "https://prometheus.io/docs/prometheus/latest/querying/basics/",
+  },
+  "prometheus-recording-rules": {
+    title: "Prometheus Docs: Recording rules",
+    url: "https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/",
+  },
+  "prometheus-alerting-rules": {
+    title: "Prometheus Docs: Alerting rules",
+    url: "https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/",
+  },
+  "prometheus-metric-types": {
+    title: "Prometheus Docs: Metric types",
+    url: "https://prometheus.io/docs/concepts/metric_types/",
+  },
+  "prometheus-histograms": {
+    title: "Prometheus Docs: Histograms and summaries",
+    url: "https://prometheus.io/docs/practices/histograms/",
+  },
+  "prometheus-alertmanager": {
+    title: "Prometheus Docs: Alertmanager",
+    url: "https://prometheus.io/docs/alerting/latest/alertmanager/",
+  },
+  "prometheus-alertmanager-config": {
+    title: "Prometheus Docs: Alertmanager configuration",
+    url: "https://prometheus.io/docs/alerting/latest/configuration/",
+  },
+  "opentelemetry-metrics": {
+    title: "OpenTelemetry Docs: Metrics",
+    url: "https://opentelemetry.io/docs/concepts/signals/metrics/",
+  },
+  "opentelemetry-traces": {
+    title: "OpenTelemetry Docs: Traces",
+    url: "https://opentelemetry.io/docs/concepts/signals/traces/",
+  },
+  "opentelemetry-trace-api": {
+    title: "OpenTelemetry Spec: Tracing API",
+    url: "https://opentelemetry.io/docs/specs/otel/trace/api/",
+  },
+  "opentelemetry-context-propagation": {
+    title: "OpenTelemetry Docs: Context propagation",
+    url: "https://opentelemetry.io/docs/concepts/context-propagation/",
+  },
+  "opentelemetry-logging-trace-context": {
+    title: "OpenTelemetry Spec: Trace Context in non-OTLP Log Formats",
+    url: "https://opentelemetry.io/docs/specs/otel/compatibility/logging_trace_context/",
+  },
+  "opentelemetry-sampling": {
+    title: "OpenTelemetry Docs: Sampling",
+    url: "https://opentelemetry.io/docs/concepts/sampling/",
+  },
+  "w3c-trace-context": {
+    title: "W3C Recommendation: Trace Context",
+    url: "https://www.w3.org/TR/trace-context/",
+  },
+  "jaeger-architecture": {
+    title: "Jaeger Docs: Architecture",
+    url: "https://www.jaegertracing.io/docs/latest/architecture/",
+  },
+  "jaeger-terminology": {
+    title: "Jaeger Docs: Terminology",
+    url: "https://www.jaegertracing.io/docs/latest/architecture/terminology/",
+  },
+  "jaeger-deployment": {
+    title: "Jaeger Docs: Deployment",
+    url: "https://www.jaegertracing.io/docs/latest/deployment/",
+  },
+  "jaeger-sampling": {
+    title: "Jaeger Docs: Sampling",
+    url: "https://www.jaegertracing.io/docs/latest/architecture/sampling/",
+  },
+  "jaeger-spm": {
+    title: "Jaeger Docs: Service Performance Monitoring",
+    url: "https://www.jaegertracing.io/docs/latest/spm/",
+  },
+  "jaeger-performance-tuning": {
+    title: "Jaeger Docs: Performance Tuning",
+    url: "https://www.jaegertracing.io/docs/latest/performance-tuning/",
+  },
+  "jaeger-opentelemetry-migration": {
+    title: "Jaeger Docs: Migration to OpenTelemetry",
+    url: "https://www.jaegertracing.io/docs/latest/migration/",
+  },
+  "grafana-dashboards": {
+    title: "Grafana Docs: Dashboards",
+    url: "https://grafana.com/docs/grafana/latest/dashboards/",
+  },
+  "grafana-panels": {
+    title: "Grafana Docs: Panels and visualizations",
+    url: "https://grafana.com/docs/grafana/latest/panels-visualizations/",
+  },
+  "grafana-variables": {
+    title: "Grafana Docs: Variables",
+    url: "https://grafana.com/docs/grafana/latest/dashboards/variables/",
+  },
+  "grafana-data-sources": {
+    title: "Grafana Docs: Data sources",
+    url: "https://grafana.com/docs/grafana/latest/datasources/",
+  },
+  "grafana-prometheus-data-source": {
+    title: "Grafana Docs: Prometheus data source",
+    url: "https://grafana.com/docs/grafana/latest/datasources/prometheus/",
+  },
+  "grafana-alerting": {
+    title: "Grafana Docs: Alerting",
+    url: "https://grafana.com/docs/grafana/latest/alerting/",
+  },
+  "grafana-notification-policies": {
+    title: "Grafana Docs: Notification policies",
+    url: "https://grafana.com/docs/grafana/latest/alerting/fundamentals/notifications/notification-policies/",
+  },
+  "grafana-silences": {
+    title: "Grafana Docs: Silences",
+    url: "https://grafana.com/docs/grafana/latest/alerting/configure-notifications/create-silence/",
+  },
+  "grafana-provisioning": {
+    title: "Grafana Docs: Provision Grafana",
+    url: "https://grafana.com/docs/grafana/latest/administration/provisioning/",
   },
   "khan-bandwidth-latency": {
     title: "Khan Academy: Bit rate, bandwidth, and latency",
@@ -505,6 +2673,110 @@ export const knowledgeSources = {
     title: "doocs advanced-java",
     url: "https://github.com/doocs/advanced-java",
   },
+  "aws-backoff-jitter": {
+    title: "AWS Builders' Library: Timeouts, Retries, and Backoff with Jitter",
+    url: "https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/",
+  },
+  "aws-architecture-exponential-backoff-jitter": {
+    title: "AWS Architecture Blog: Exponential Backoff and Jitter",
+    url: "https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/",
+  },
+  "polly-timeout": {
+    title: "Polly Docs: Timeout resilience strategy",
+    url: "https://www.pollydocs.org/strategies/timeout.html",
+  },
+  "polly-retry": {
+    title: "Polly Docs: Retry resilience strategy",
+    url: "https://www.pollydocs.org/strategies/retry",
+  },
+  "google-cloud-retry-strategy": {
+    title: "Google Cloud Docs: Retry strategy",
+    url: "https://cloud.google.com/storage/docs/retry-strategy",
+  },
+  "grpc-retry": {
+    title: "gRPC Docs: Retry",
+    url: "https://grpc.io/docs/guides/retry/",
+  },
+  "grpc-status-codes": {
+    title: "gRPC Docs: Status Codes",
+    url: "https://grpc.io/docs/guides/status-codes/",
+  },
+  "microsoft-httpclient": {
+    title: "Microsoft Learn: System.Net.Http.HttpClient class",
+    url: "https://learn.microsoft.com/en-us/dotnet/fundamentals/runtime-libraries/system-net-http-httpclient",
+  },
+  "rfc-9110-http-semantics": {
+    title: "RFC 9110: HTTP Semantics",
+    url: "https://www.rfc-editor.org/rfc/rfc9110",
+  },
+  "stripe-idempotent-requests": {
+    title: "Stripe Docs: Idempotent requests",
+    url: "https://docs.stripe.com/api/idempotent_requests",
+  },
+  "paypal-idempotency": {
+    title: "PayPal Docs: Idempotency",
+    url: "https://developer.paypal.com/api/rest/reference/idempotency/",
+  },
+  "aws-idempotent-api-requests": {
+    title: "AWS EC2 Docs: Ensuring idempotency in API requests",
+    url: "https://docs.aws.amazon.com/ec2/latest/devguide/ec2-api-idempotency.html",
+  },
+  "ietf-idempotency-key-header": {
+    title: "IETF Datatracker: The Idempotency-Key HTTP Header Field",
+    url: "https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header",
+  },
+  "mdn-idempotency-key": {
+    title: "MDN Web Docs: Idempotency-Key header",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Idempotency-Key",
+  },
+  "keda-rabbitmq-scaler": {
+    title: "KEDA Docs: RabbitMQ Queue Scaler",
+    url: "https://keda.sh/docs/2.19/scalers/rabbitmq-queue/",
+  },
+  "microservices-idempotent-consumer": {
+    title: "Microservices.io: Idempotent Consumer Pattern",
+    url: "https://microservices.io/patterns/communication-style/idempotent-consumer.html",
+  },
+  "microservices-transactional-outbox": {
+    title: "Microservices.io: Transactional Outbox Pattern",
+    url: "https://microservices.io/patterns/data/transactional-outbox.html",
+  },
+  "debezium-outbox-event-router": {
+    title: "Debezium Docs: Outbox Event Router",
+    url: "https://debezium.io/documentation/reference/stable/transformations/outbox-event-router.html",
+  },
+  "eventuate-tram-outbox": {
+    title: "Eventuate Tram: Transactional Outbox",
+    url: "https://eventuate.io/docs/manual/eventuate-tram/latest/getting-started-eventuate-tram.html",
+  },
+  "microservices-transaction-log-tailing": {
+    title: "Microservices.io: Transaction Log Tailing Pattern",
+    url: "https://microservices.io/patterns/data/transaction-log-tailing.html",
+  },
+  "debezium-mysql-connector": {
+    title: "Debezium Docs: MySQL Connector",
+    url: "https://debezium.io/documentation/reference/stable/connectors/mysql.html",
+  },
+  "debezium-postgresql-connector": {
+    title: "Debezium Docs: PostgreSQL Connector",
+    url: "https://debezium.io/documentation/reference/stable/connectors/postgresql.html",
+  },
+  "debezium-incremental-snapshots": {
+    title: "Debezium Docs: Incremental Snapshots",
+    url: "https://debezium.io/documentation/reference/stable/connectors/mysql.html#mysql-incremental-snapshots",
+  },
+  "confluent-schema-registry": {
+    title: "Confluent Docs: Schema Registry",
+    url: "https://docs.confluent.io/platform/current/schema-registry/index.html",
+  },
+  "confluent-schema-evolution": {
+    title: "Confluent Docs: Schema Evolution and Compatibility",
+    url: "https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html",
+  },
+  "apache-avro-spec": {
+    title: "Apache Avro Specification",
+    url: "https://avro.apache.org/docs/current/specification/",
+  },
   "rabbitmq-exchanges": {
     title: "RabbitMQ Docs: Exchanges",
     url: "https://www.rabbitmq.com/docs/exchanges",
@@ -513,6 +2785,178 @@ export const knowledgeSources = {
     title: "RabbitMQ Tutorials: AMQP 0-9-1 Model Explained",
     url: "https://www.rabbitmq.com/tutorials/amqp-concepts",
   },
+  "rabbitmq-queues": {
+    title: "RabbitMQ Docs: Queues",
+    url: "https://www.rabbitmq.com/docs/queues",
+  },
+  "rabbitmq-priority-queues": {
+    title: "RabbitMQ Docs: Priority Support in Queues",
+    url: "https://www.rabbitmq.com/docs/priority",
+  },
+  "rabbitmq-consumers": {
+    title: "RabbitMQ Docs: Consumers",
+    url: "https://www.rabbitmq.com/docs/consumers",
+  },
+  "rabbitmq-consumer-prefetch": {
+    title: "RabbitMQ Docs: Consumer Prefetch",
+    url: "https://www.rabbitmq.com/docs/consumer-prefetch",
+  },
+  "rabbitmq-confirms": {
+    title: "RabbitMQ Docs: Consumer Acknowledgements and Publisher Confirms",
+    url: "https://www.rabbitmq.com/docs/confirms",
+  },
+  "rabbitmq-negative-acknowledgements": {
+    title: "RabbitMQ Docs: Negative Acknowledgements",
+    url: "https://www.rabbitmq.com/docs/nack",
+  },
+  "rabbitmq-dead-letter-exchanges": {
+    title: "RabbitMQ Docs: Dead Letter Exchanges",
+    url: "https://www.rabbitmq.com/docs/dlx",
+  },
+  "enterprise-integration-patterns-dead-letter": {
+    title: "Enterprise Integration Patterns: Dead Letter Channel",
+    url: "https://www.enterpriseintegrationpatterns.com/patterns/messaging/DeadLetterChannel.html",
+  },
+  "enterprise-integration-patterns-correlation-id": {
+    title: "Enterprise Integration Patterns: Correlation Identifier",
+    url: "https://www.enterpriseintegrationpatterns.com/patterns/messaging/CorrelationIdentifier.html",
+  },
+  "rabbitmq-publishers": {
+    title: "RabbitMQ Docs: Publishers",
+    url: "https://www.rabbitmq.com/docs/publishers",
+  },
+  "rabbitmq-reliability": {
+    title: "RabbitMQ Docs: Reliability Guide",
+    url: "https://www.rabbitmq.com/docs/reliability",
+  },
+  "rabbitmq-ha-dr-101": {
+    title: "RabbitMQ Blog: Disaster Recovery and High Availability 101",
+    url: "https://www.rabbitmq.com/blog/2020/07/07/disaster-recovery-and-high-availability-101",
+  },
+  "rabbitmq-java-client-api-guide": {
+    title: "RabbitMQ Docs: Java Client API Guide",
+    url: "https://www.rabbitmq.com/client-libraries/java-api-guide",
+  },
+  "rabbitmq-work-queues-tutorial": {
+    title: "RabbitMQ Tutorials: Work Queues",
+    url: "https://www.rabbitmq.com/tutorials/tutorial-two-java",
+  },
+  "rabbitmq-publish-subscribe-tutorial": {
+    title: "RabbitMQ Tutorials: Publish/Subscribe",
+    url: "https://www.rabbitmq.com/tutorials/tutorial-three-java",
+  },
+  "rabbitmq-rpc-tutorial": {
+    title: "RabbitMQ Tutorials: Remote Procedure Call (RPC)",
+    url: "https://www.rabbitmq.com/tutorials/tutorial-six-java",
+  },
+  "rabbitmq-direct-reply-to": {
+    title: "RabbitMQ Docs: Direct Reply-to",
+    url: "https://www.rabbitmq.com/docs/direct-reply-to",
+  },
+  "rabbitmq-publisher-confirms-tutorial": {
+    title: "RabbitMQ Tutorials: Reliable Publishing with Publisher Confirms",
+    url: "https://www.rabbitmq.com/tutorials/tutorial-seven-java",
+  },
+  "rabbitmq-message-ttl": {
+    title: "RabbitMQ Docs: Time-To-Live and Expiration",
+    url: "https://www.rabbitmq.com/docs/ttl",
+  },
+  "rabbitmq-delayed-message-exchange": {
+    title: "RabbitMQ Plugin: Delayed Message Exchange",
+    url: "https://github.com/rabbitmq/rabbitmq-delayed-message-exchange",
+  },
+  "rabbitmq-modulus-hash-exchange": {
+    title: "RabbitMQ Docs: Modulus Hash Exchange",
+    url: "https://www.rabbitmq.com/docs/modulus-hash-exchange",
+  },
+  "rabbitmq-persistence-conf": {
+    title: "RabbitMQ Docs: Persistence Configuration",
+    url: "https://www.rabbitmq.com/docs/persistence-conf",
+  },
+  "rabbitmq-disk-alarms": {
+    title: "RabbitMQ Docs: Free Disk Space Alarms",
+    url: "https://www.rabbitmq.com/docs/disk-alarms",
+  },
+  "rabbitmq-flow-control-docs": {
+    title: "RabbitMQ Docs: Flow Control",
+    url: "https://www.rabbitmq.com/docs/flow-control",
+  },
+  "rabbitmq-memory-alarms": {
+    title: "RabbitMQ Docs: Memory Alarms",
+    url: "https://www.rabbitmq.com/docs/memory",
+  },
+  "rabbitmq-lazy-queues-313": {
+    title: "RabbitMQ 3.13 Docs: Lazy Queues",
+    url: "https://www.rabbitmq.com/docs/3.13/lazy-queues",
+  },
+  "rabbitmq-classic-queues": {
+    title: "RabbitMQ Docs: Classic Queues",
+    url: "https://www.rabbitmq.com/docs/classic-queues",
+  },
+  "rabbitmq-quorum-queues": {
+    title: "RabbitMQ Docs: Quorum Queues",
+    url: "https://www.rabbitmq.com/docs/quorum-queues",
+  },
+  "rabbitmq-312-blog": {
+    title: "RabbitMQ Blog: Native MQTT, New Classic Queue Storage, and More",
+    url: "https://www.rabbitmq.com/blog/2023/05/17/rabbitmq-3.12-performance-improvements",
+  },
+  "rabbitmq-connections": {
+    title: "RabbitMQ Docs: Connections",
+    url: "https://www.rabbitmq.com/docs/connections",
+  },
+  "rabbitmq-channels": {
+    title: "RabbitMQ Docs: Channels",
+    url: "https://www.rabbitmq.com/docs/channels",
+  },
+  "rabbitmq-heartbeats": {
+    title: "RabbitMQ Docs: Heartbeats",
+    url: "https://www.rabbitmq.com/docs/heartbeats",
+  },
+  "rabbitmq-networking": {
+    title: "RabbitMQ Docs: Networking",
+    url: "https://www.rabbitmq.com/docs/networking",
+  },
+  "rabbitmq-clustering": {
+    title: "RabbitMQ Docs: Clustering Guide",
+    url: "https://www.rabbitmq.com/docs/clustering",
+  },
+  "rabbitmq-cluster-formation": {
+    title: "RabbitMQ Docs: Cluster Formation and Peer Discovery",
+    url: "https://www.rabbitmq.com/docs/cluster-formation",
+  },
+  "rabbitmq-network-partitions": {
+    title: "RabbitMQ Docs: Clustering and Network Partitions",
+    url: "https://www.rabbitmq.com/docs/partitions",
+  },
+  "rabbitmq-limits": {
+    title: "RabbitMQ Docs: Configurable Limits",
+    url: "https://www.rabbitmq.com/docs/limits",
+  },
+  "rabbitmq-amqp-1": {
+    title: "RabbitMQ Docs: AMQP 1.0",
+    url: "https://www.rabbitmq.com/docs/amqp",
+  },
+  "rabbitmq-protocols": {
+    title: "RabbitMQ Docs: Protocols",
+    url: "https://www.rabbitmq.com/docs/protocols",
+  },
+  "rabbitmq-management": {
+    title: "RabbitMQ Docs: Management Plugin",
+    url: "https://www.rabbitmq.com/docs/management",
+  },
+  "rabbitmq-monitoring": {
+    title: "RabbitMQ Docs: Monitoring",
+    url: "https://www.rabbitmq.com/docs/monitoring",
+  },
+  "rabbitmq-vhosts": {
+    title: "RabbitMQ Docs: Virtual Hosts",
+    url: "https://www.rabbitmq.com/docs/vhosts",
+  },
+  "rabbitmq-access-control": {
+    title: "RabbitMQ Docs: Authentication, Authorisation, Access Control",
+    url: "https://www.rabbitmq.com/docs/access-control",
+  },
   "rabbitmq-alternate-exchanges": {
     title: "RabbitMQ Docs: Alternate Exchanges",
     url: "https://www.rabbitmq.com/docs/ae",
@@ -520,6 +2964,10 @@ export const knowledgeSources = {
   "rabbitmq-exchange-to-exchange-bindings": {
     title: "RabbitMQ Docs: Exchange to Exchange Bindings",
     url: "https://www.rabbitmq.com/docs/e2e",
+  },
+  "cloudamqp-exchanges-routing-bindings": {
+    title: "CloudAMQP: RabbitMQ Exchanges, Routing Keys and Bindings",
+    url: "https://www.cloudamqp.com/blog/part4-rabbitmq-for-beginners-exchanges-routing-keys-bindings.html",
   },
   "devinterview-docker": {
     title: "Devinterview Docker Interview Questions",
@@ -613,9 +3061,529 @@ export const knowledgeSources = {
     title: "Redis Documentation",
     url: "https://redis.io/docs/latest/",
   },
+  "redis-about": {
+    title: "Redis Docs: About Redis",
+    url: "https://redis.io/docs/latest/develop/get-started/about/",
+  },
+  "redis-data-types-docs": {
+    title: "Redis Docs: Data types",
+    url: "https://redis.io/docs/latest/develop/data-types/",
+  },
+  "redis-compare-data-types": {
+    title: "Redis Docs: Compare data types",
+    url: "https://redis.io/docs/latest/develop/data-types/compare-data-types/",
+  },
+  "redis-strings-docs": {
+    title: "Redis Docs: Strings",
+    url: "https://redis.io/docs/latest/develop/data-types/strings/",
+  },
+  "redis-set-command": {
+    title: "Redis Commands: SET",
+    url: "https://redis.io/docs/latest/commands/set/",
+  },
+  "redis-incr-command": {
+    title: "Redis Commands: INCR",
+    url: "https://redis.io/docs/latest/commands/incr/",
+  },
+  "redis-hashes-docs": {
+    title: "Redis Docs: Hashes",
+    url: "https://redis.io/docs/latest/develop/data-types/hashes/",
+  },
+  "redis-hset-command": {
+    title: "Redis Commands: HSET",
+    url: "https://redis.io/docs/latest/commands/hset/",
+  },
+  "redis-hscan-command": {
+    title: "Redis Commands: HSCAN",
+    url: "https://redis.io/docs/latest/commands/hscan/",
+  },
+  "redis-lists-docs": {
+    title: "Redis Docs: Lists",
+    url: "https://redis.io/docs/latest/develop/data-types/lists/",
+  },
+  "redis-blpop-command": {
+    title: "Redis Commands: BLPOP",
+    url: "https://redis.io/docs/latest/commands/blpop/",
+  },
+  "redis-lrange-command": {
+    title: "Redis Commands: LRANGE",
+    url: "https://redis.io/docs/latest/commands/lrange/",
+  },
+  "redis-ltrim-command": {
+    title: "Redis Commands: LTRIM",
+    url: "https://redis.io/docs/latest/commands/ltrim/",
+  },
+  "redis-sets-docs": {
+    title: "Redis Docs: Sets",
+    url: "https://redis.io/docs/latest/develop/data-types/sets/",
+  },
+  "redis-sinter-command": {
+    title: "Redis Commands: SINTER",
+    url: "https://redis.io/docs/latest/commands/sinter/",
+  },
+  "redis-sscan-command": {
+    title: "Redis Commands: SSCAN",
+    url: "https://redis.io/docs/latest/commands/sscan/",
+  },
+  "redis-sorted-sets-docs": {
+    title: "Redis Docs: Sorted sets",
+    url: "https://redis.io/docs/latest/develop/data-types/sorted-sets/",
+  },
+  "redis-rate-limiter-docs": {
+    title: "Redis Docs: Rate limiter",
+    url: "https://redis.io/docs/latest/develop/use-cases/rate-limiter/",
+  },
+  "redis-zadd-command": {
+    title: "Redis Commands: ZADD",
+    url: "https://redis.io/docs/latest/commands/zadd/",
+  },
+  "redis-zremrangebyscore-command": {
+    title: "Redis Commands: ZREMRANGEBYSCORE",
+    url: "https://redis.io/docs/latest/commands/zremrangebyscore/",
+  },
+  "redis-zcard-command": {
+    title: "Redis Commands: ZCARD",
+    url: "https://redis.io/docs/latest/commands/zcard/",
+  },
+  "redis-rate-limiting-dotnet": {
+    title: "Redis Tutorial: Rate limiting in .NET with Redis",
+    url: "https://redis.io/tutorials/rate-limiting-in-dotnet-with-redis/",
+  },
+  "redis-zrange-command": {
+    title: "Redis Commands: ZRANGE",
+    url: "https://redis.io/docs/latest/commands/zrange/",
+  },
+  "redis-bitmaps-docs": {
+    title: "Redis Docs: Bitmaps",
+    url: "https://redis.io/docs/latest/develop/data-types/strings/bitmaps/",
+  },
+  "redis-setbit-command": {
+    title: "Redis Commands: SETBIT",
+    url: "https://redis.io/docs/latest/commands/setbit/",
+  },
+  "redis-bitcount-command": {
+    title: "Redis Commands: BITCOUNT",
+    url: "https://redis.io/docs/latest/commands/bitcount/",
+  },
+  "redis-hyperloglog-docs": {
+    title: "Redis Docs: HyperLogLog",
+    url: "https://redis.io/docs/latest/develop/data-types/probabilistic/hyperloglogs/",
+  },
+  "redis-pfadd-command": {
+    title: "Redis Commands: PFADD",
+    url: "https://redis.io/docs/latest/commands/pfadd/",
+  },
+  "redis-pfcount-command": {
+    title: "Redis Commands: PFCOUNT",
+    url: "https://redis.io/docs/latest/commands/pfcount/",
+  },
+  "redis-pfmerge-command": {
+    title: "Redis Commands: PFMERGE",
+    url: "https://redis.io/docs/latest/commands/pfmerge/",
+  },
+  "redis-geospatial-docs": {
+    title: "Redis Docs: Geospatial",
+    url: "https://redis.io/docs/latest/develop/data-types/geospatial/",
+  },
+  "redis-geoadd-command": {
+    title: "Redis Commands: GEOADD",
+    url: "https://redis.io/docs/latest/commands/geoadd/",
+  },
+  "redis-geosearch-command": {
+    title: "Redis Commands: GEOSEARCH",
+    url: "https://redis.io/docs/latest/commands/geosearch/",
+  },
+  "redis-geodist-command": {
+    title: "Redis Commands: GEODIST",
+    url: "https://redis.io/docs/latest/commands/geodist/",
+  },
+  "redis-streams-docs": {
+    title: "Redis Docs: Streams",
+    url: "https://redis.io/docs/latest/develop/data-types/streams/",
+  },
+  "redis-streaming-use-case": {
+    title: "Redis Docs: Redis streaming",
+    url: "https://redis.io/docs/latest/develop/use-cases/streaming/",
+  },
+  "redis-xread-command": {
+    title: "Redis Commands: XREAD",
+    url: "https://redis.io/docs/latest/commands/xread/",
+  },
+  "redis-xreadgroup-command": {
+    title: "Redis Commands: XREADGROUP",
+    url: "https://redis.io/docs/latest/commands/xreadgroup/",
+  },
+  "redis-xack-command": {
+    title: "Redis Commands: XACK",
+    url: "https://redis.io/docs/latest/commands/xack/",
+  },
+  "redis-xpending-command": {
+    title: "Redis Commands: XPENDING",
+    url: "https://redis.io/docs/latest/commands/xpending/",
+  },
+  "redis-xgroup-command": {
+    title: "Redis Commands: XGROUP",
+    url: "https://redis.io/docs/latest/commands/xgroup/",
+  },
+  "redis-xautoclaim-command": {
+    title: "Redis Commands: XAUTOCLAIM",
+    url: "https://redis.io/docs/latest/commands/xautoclaim/",
+  },
+  "redis-pubsub-docs": {
+    title: "Redis Docs: Pub/Sub",
+    url: "https://redis.io/docs/latest/develop/pubsub/",
+  },
+  "redis-pubsub-use-case": {
+    title: "Redis Docs: Pub/sub messaging",
+    url: "https://redis.io/docs/latest/develop/use-cases/pub-sub/",
+  },
+  "redis-publish-command": {
+    title: "Redis Commands: PUBLISH",
+    url: "https://redis.io/docs/latest/commands/publish/",
+  },
+  "redis-subscribe-command": {
+    title: "Redis Commands: SUBSCRIBE",
+    url: "https://redis.io/docs/latest/commands/subscribe/",
+  },
+  "redis-pubsub-command": {
+    title: "Redis Commands: PUBSUB",
+    url: "https://redis.io/docs/latest/commands/pubsub/",
+  },
+  "redis-persistence-docs": {
+    title: "Redis Docs: Persistence",
+    url: "https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/",
+  },
+  "redis-persistence-learn": {
+    title: "Redis Learn: Persistence and durability",
+    url: "https://redis.io/learn/operate/redis-at-scale/persistence-and-durability",
+  },
+  "redis-bgsave-command": {
+    title: "Redis Commands: BGSAVE",
+    url: "https://redis.io/docs/latest/commands/bgsave/",
+  },
+  "redis-bgrewriteaof-command": {
+    title: "Redis Commands: BGREWRITEAOF",
+    url: "https://redis.io/docs/latest/commands/bgrewriteaof/",
+  },
+  "redis-latency-docs": {
+    title: "Redis Docs: Diagnosing latency issues",
+    url: "https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/latency/",
+  },
+  "redis-latency-monitor-docs": {
+    title: "Redis Docs: Latency monitoring",
+    url: "https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/latency-monitor/",
+  },
+  "redis-info-command": {
+    title: "Redis Commands: INFO",
+    url: "https://redis.io/docs/latest/commands/info/",
+  },
+  "redis-replication-docs": {
+    title: "Redis Docs: Replication",
+    url: "https://redis.io/docs/latest/operate/oss_and_stack/management/replication/",
+  },
+  "redis-wait-command": {
+    title: "Redis Commands: WAIT",
+    url: "https://redis.io/docs/latest/commands/wait/",
+  },
+  "redis-replication-consistency-docs": {
+    title: "Redis Docs: Consistency during replication",
+    url: "https://redis.io/docs/latest/operate/rs/databases/durability-ha/consistency/",
+  },
+  "redis-role-command": {
+    title: "Redis Commands: ROLE",
+    url: "https://redis.io/docs/latest/commands/role/",
+  },
+  "redis-psync-command": {
+    title: "Redis Commands: PSYNC",
+    url: "https://redis.io/docs/latest/commands/psync/",
+  },
+  "redis-sentinel-docs": {
+    title: "Redis Docs: High availability with Redis Sentinel",
+    url: "https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/",
+  },
+  "redis-sentinel-client-spec": {
+    title: "Redis Docs: Sentinel client spec",
+    url: "https://redis.io/docs/latest/develop/reference/sentinel-clients/",
+  },
+  "redis-sentinel-learn": {
+    title: "Redis Learn: Understanding Sentinels",
+    url: "https://redis.io/learn/operate/redis-at-scale/high-availability/understanding-sentinels",
+  },
+  "redis-cluster-docs": {
+    title: "Redis Docs: Scale with Redis Cluster",
+    url: "https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/",
+  },
+  "redis-cluster-spec": {
+    title: "Redis Docs: Redis Cluster specification",
+    url: "https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/",
+  },
+  "redis-cluster-keyslot-command": {
+    title: "Redis Commands: CLUSTER KEYSLOT",
+    url: "https://redis.io/docs/latest/commands/cluster-keyslot/",
+  },
+  "redis-cluster-shards-command": {
+    title: "Redis Commands: CLUSTER SHARDS",
+    url: "https://redis.io/docs/latest/commands/cluster-shards/",
+  },
+  "redis-cluster-setslot-command": {
+    title: "Redis Commands: CLUSTER SETSLOT",
+    url: "https://redis.io/docs/latest/commands/cluster-setslot/",
+  },
+  "redis-readonly-command": {
+    title: "Redis Commands: READONLY",
+    url: "https://redis.io/docs/latest/commands/readonly/",
+  },
+  "redis-readwrite-command": {
+    title: "Redis Commands: READWRITE",
+    url: "https://redis.io/docs/latest/commands/readwrite/",
+  },
+  "redis-migrate-command": {
+    title: "Redis Commands: MIGRATE",
+    url: "https://redis.io/docs/latest/commands/migrate/",
+  },
+  "redis-asking-command": {
+    title: "Redis Commands: ASKING",
+    url: "https://redis.io/docs/latest/commands/asking/",
+  },
+  "redis-slowlog-command": {
+    title: "Redis Commands: SLOWLOG",
+    url: "https://redis.io/docs/latest/commands/slowlog/",
+  },
+  "redis-slowlog-get-command": {
+    title: "Redis Commands: SLOWLOG GET",
+    url: "https://redis.io/docs/latest/commands/slowlog-get/",
+  },
+  "redis-slowlog-len-command": {
+    title: "Redis Commands: SLOWLOG LEN",
+    url: "https://redis.io/docs/latest/commands/slowlog-len/",
+  },
+  "redis-monitor-command": {
+    title: "Redis Commands: MONITOR",
+    url: "https://redis.io/docs/latest/commands/monitor/",
+  },
+  "redis-client-list-command": {
+    title: "Redis Commands: CLIENT LIST",
+    url: "https://redis.io/docs/latest/commands/client-list/",
+  },
+  "aws-redis-caching-strategies": {
+    title: "AWS Whitepaper: Database Caching Strategies Using Redis",
+    url: "https://d1.awsstatic.com/whitepapers/Database/database-caching-strategies-using-redis.73adbc8708febc9f3e5efc88382ab86f092bda82.pdf",
+  },
+  "redis-key-eviction-docs": {
+    title: "Redis Docs: Key eviction",
+    url: "https://redis.io/docs/latest/develop/reference/eviction/",
+  },
+  "redis-memory-optimization-docs": {
+    title: "Redis Docs: Memory optimization",
+    url: "https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/memory-optimization/",
+  },
+  "redis-memory-usage-command": {
+    title: "Redis Commands: MEMORY USAGE",
+    url: "https://redis.io/docs/latest/commands/memory-usage/",
+  },
+  "redis-memory-doctor-command": {
+    title: "Redis Commands: MEMORY DOCTOR",
+    url: "https://redis.io/docs/latest/commands/memory-doctor/",
+  },
+  "redis-memory-stats-command": {
+    title: "Redis Commands: MEMORY STATS",
+    url: "https://redis.io/docs/latest/commands/memory-stats/",
+  },
+  "redis-object-freq-command": {
+    title: "Redis Commands: OBJECT FREQ",
+    url: "https://redis.io/docs/latest/commands/object-freq/",
+  },
+  "redis-unlink-command": {
+    title: "Redis Commands: UNLINK",
+    url: "https://redis.io/docs/latest/commands/unlink/",
+  },
+  "redis-hotkeys-command": {
+    title: "Redis Commands: HOTKEYS",
+    url: "https://redis.io/docs/latest/commands/hotkeys/",
+  },
+  "redis-observability-docs": {
+    title: "Redis Docs: Observability and monitoring guidance",
+    url: "https://redis.io/docs/latest/operate/rs/monitoring/observability/",
+  },
+  "redis-cache-aside-docs": {
+    title: "Redis Docs: Cache-aside",
+    url: "https://redis.io/docs/latest/develop/use-cases/cache-aside/",
+  },
+  "redis-cache-consistency-blog": {
+    title: "Redis Blog: Three Ways to Maintain Cache Consistency",
+    url: "https://redis.io/blog/three-ways-to-maintain-cache-consistency/",
+  },
+  "alibaba-cache-consistency": {
+    title: "阿里云开发者社区：Redis 缓存与数据库双写一致性",
+    url: "https://developer.aliyun.com/article/1732763",
+  },
+  "aws-cloudfront-swr": {
+    title: "AWS CloudFront: stale-while-revalidate and stale-if-error",
+    url: "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Expiration.html",
+  },
+  "aws-architecture-jitter": {
+    title: "AWS Architecture Blog: Exponential Backoff and Jitter",
+    url: "https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/",
+  },
+  "azure-cache-aside-pattern": {
+    title: "Microsoft Azure Architecture: Cache-Aside pattern",
+    url: "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside",
+  },
+  "caffeine-eviction": {
+    title: "Caffeine Wiki: Eviction",
+    url: "https://github.com/ben-manes/caffeine/wiki/Eviction",
+  },
+  "caffeine-refresh": {
+    title: "Caffeine Wiki: Refresh",
+    url: "https://github.com/ben-manes/caffeine/wiki/Refresh",
+  },
+  "caffeine-statistics": {
+    title: "Caffeine Wiki: Statistics",
+    url: "https://github.com/ben-manes/caffeine/wiki/Statistics",
+  },
+  "guava-caches-explained": {
+    title: "Guava Wiki: Caches Explained",
+    url: "https://github.com/google/guava/wiki/CachesExplained",
+  },
+  "spring-cache-abstraction": {
+    title: "Spring Framework Docs: Cache Abstraction",
+    url: "https://docs.spring.io/spring-framework/reference/integration/cache.html",
+  },
+  "redis-caching-use-case": {
+    title: "Redis Solutions: Caching",
+    url: "https://redis.io/solutions/use-cases/caching/",
+  },
+  "redis-bloom-filter-docs": {
+    title: "Redis Docs: Bloom filter",
+    url: "https://redis.io/docs/latest/develop/data-types/probabilistic/bloom-filter/",
+  },
+  "redis-bf-reserve-command": {
+    title: "Redis Commands: BF.RESERVE",
+    url: "https://redis.io/docs/latest/commands/bf.reserve/",
+  },
+  "redis-bf-add-command": {
+    title: "Redis Commands: BF.ADD",
+    url: "https://redis.io/docs/latest/commands/bf.add/",
+  },
+  "redis-bf-exists-command": {
+    title: "Redis Commands: BF.EXISTS",
+    url: "https://redis.io/docs/latest/commands/bf.exists/",
+  },
+  "redis-distributed-locks-docs": {
+    title: "Redis Docs: Distributed locks with Redis",
+    url: "https://redis.io/docs/latest/develop/clients/patterns/distributed-locks/",
+  },
+  "etcd-locks": {
+    title: "etcd Docs: How to create locks",
+    url: "https://etcd.io/docs/v3.6/tasks/developer/how-to-create-locks/",
+  },
+  "zookeeper-recipes-locks": {
+    title: "ZooKeeper Docs: Recipes and Solutions - Locks",
+    url: "https://zookeeper.apache.org/doc/current/recipes.html",
+  },
+  "curator-shared-reentrant-lock": {
+    title: "Apache Curator Docs: Shared Reentrant Lock",
+    url: "https://curator.apache.org/docs/recipes-shared-reentrant-lock/",
+  },
+  "kleppmann-redlock-critique": {
+    title: "Martin Kleppmann: How to do distributed locking",
+    url: "https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html",
+  },
+  "antirez-redlock-safe": {
+    title: "antirez: Is Redlock safe?",
+    url: "https://antirez.com/news/101",
+  },
+  "etcd-concurrency-api": {
+    title: "etcd Docs: Concurrency API Reference",
+    url: "https://etcd.io/docs/v3.2/dev-guide/api_concurrency_reference_v3/",
+  },
+  "etcd-why": {
+    title: "etcd Docs: Why etcd?",
+    url: "https://etcd.io/docs/v3.6/learning/why/",
+  },
+  "dynamodb-optimistic-locking": {
+    title: "Amazon DynamoDB Docs: Optimistic locking with version number",
+    url: "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/BestPractices_OptimisticLocking.html",
+  },
+  "hibernate-optimistic-locking": {
+    title: "Hibernate User Guide: Locking",
+    url: "https://docs.jboss.org/hibernate/orm/5.0/userguide/en-US/html/ch08.html",
+  },
+  "microsoft-ef-core-concurrency": {
+    title: "Microsoft Learn: Handling Concurrency Conflicts in EF Core",
+    url: "https://learn.microsoft.com/en-us/ef/core/saving/concurrency",
+  },
+  "elasticsearch-optimistic-concurrency": {
+    title: "Elastic Docs: Optimistic concurrency control",
+    url: "https://www.elastic.co/guide/en/elasticsearch/reference/current/optimistic-concurrency-control.html",
+  },
+  "martin-fowler-optimistic-offline-lock": {
+    title: "Martin Fowler: Optimistic Offline Lock",
+    url: "https://martinfowler.com/eaaCatalog/optimisticOfflineLock.html",
+  },
+  "redis-lua-scripting-docs": {
+    title: "Redis Docs: Scripting with Lua",
+    url: "https://redis.io/docs/latest/develop/programmability/eval-intro/",
+  },
+  "redis-eval-command": {
+    title: "Redis Commands: EVAL",
+    url: "https://redis.io/docs/latest/commands/eval/",
+  },
+  "redis-script-command": {
+    title: "Redis Commands: SCRIPT",
+    url: "https://redis.io/docs/latest/commands/script/",
+  },
+  "redis-del-command": {
+    title: "Redis Commands: DEL",
+    url: "https://redis.io/docs/latest/commands/del/",
+  },
+  "redis-get-command": {
+    title: "Redis Commands: GET",
+    url: "https://redis.io/docs/latest/commands/get/",
+  },
+  "redis-expire-command": {
+    title: "Redis Commands: EXPIRE",
+    url: "https://redis.io/docs/latest/commands/expire/",
+  },
+  "redis-pexpire-command": {
+    title: "Redis Commands: PEXPIRE",
+    url: "https://redis.io/docs/latest/commands/pexpire/",
+  },
+  "redis-ttl-command": {
+    title: "Redis Commands: TTL",
+    url: "https://redis.io/docs/latest/commands/ttl/",
+  },
+  "redis-keyspace-docs": {
+    title: "Redis Docs: Keys and values",
+    url: "https://redis.io/docs/latest/develop/using-commands/keyspace/",
+  },
+  "redisson-locks": {
+    title: "Redisson Reference Guide: Locks and synchronizers",
+    url: "https://redisson.pro/docs/data-and-services/locks-and-synchronizers/index.html",
+  },
+  "redis-persist-command": {
+    title: "Redis Commands: PERSIST",
+    url: "https://redis.io/docs/latest/commands/persist/",
+  },
+  "redis-keyspace-notifications": {
+    title: "Redis Docs: Keyspace notifications",
+    url: "https://redis.io/docs/latest/develop/pubsub/keyspace-notifications/",
+  },
   "redis-commands": {
     title: "Redis Commands",
     url: "https://redis.io/docs/latest/commands/",
+  },
+  "redis-cli-docs": {
+    title: "Redis Docs: Redis CLI",
+    url: "https://redis.io/docs/latest/develop/tools/cli/",
+  },
+  "redis-acl-docs": {
+    title: "Redis Docs: Access Control List",
+    url: "https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/",
+  },
+  "redis-scan-command": {
+    title: "Redis Commands: SCAN",
+    url: "https://redis.io/docs/latest/commands/scan/",
   },
   "mysql-reference": {
     title: "MySQL 8.4 Reference Manual",
@@ -625,17 +3593,685 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: InnoDB Storage Engine",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-storage-engine.html",
   },
+  "postgresql-transactions": {
+    title: "PostgreSQL Docs: Transactions",
+    url: "https://www.postgresql.org/docs/current/tutorial-transactions.html",
+  },
+  "mysql-innodb-transaction-model": {
+    title: "MySQL Reference Manual: InnoDB Transaction Model",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-transaction-model.html",
+  },
+  "mysql-commit-rollback": {
+    title: "MySQL Reference Manual: START TRANSACTION, COMMIT, and ROLLBACK",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/commit.html",
+  },
+  "microsoft-sql-transactions": {
+    title: "Microsoft Learn: Transactions",
+    url: "https://learn.microsoft.com/en-us/sql/t-sql/language-elements/transactions-transact-sql",
+  },
+  "spring-transaction-management": {
+    title: "Spring Framework Docs: Transaction Management",
+    url: "https://docs.spring.io/spring-framework/reference/data-access/transaction.html",
+  },
+  "spring-declarative-transactions": {
+    title: "Spring Framework Docs: Declarative Transaction Management",
+    url: "https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative.html",
+  },
+  "postgresql-savepoints": {
+    title: "PostgreSQL Docs: SAVEPOINT",
+    url: "https://www.postgresql.org/docs/current/sql-savepoint.html",
+  },
+  "mysql-savepoint": {
+    title: "MySQL Reference Manual: SAVEPOINT, ROLLBACK TO SAVEPOINT, and RELEASE SAVEPOINT",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/savepoint.html",
+  },
+  "microsoft-sql-locking-row-versioning": {
+    title: "Microsoft Learn: SQL Server transaction locking and row versioning guide",
+    url: "https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-transaction-locking-and-row-versioning-guide",
+  },
+  "postgresql-explicit-locking": {
+    title: "PostgreSQL Docs: Explicit Locking",
+    url: "https://www.postgresql.org/docs/current/explicit-locking.html",
+  },
+  "postgresql-select-locking": {
+    title: "PostgreSQL Docs: SELECT locking clauses",
+    url: "https://www.postgresql.org/docs/current/sql-select.html",
+  },
+  "mysql-innodb-locking-reads": {
+    title: "MySQL Reference Manual: InnoDB Locking Reads",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-locking-reads.html",
+  },
+  "mysql-innodb-locks-set": {
+    title: "MySQL Reference Manual: Locks Set by Different SQL Statements in InnoDB",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-locks-set.html",
+  },
+  "postgresql-monitoring-locks": {
+    title: "PostgreSQL Docs: Monitoring Locks",
+    url: "https://www.postgresql.org/docs/current/monitoring-locks.html",
+  },
+  "mysql-innodb-deadlocks": {
+    title: "MySQL Reference Manual: Deadlocks in InnoDB",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-deadlocks.html",
+  },
+  "mysql-innodb-deadlock-detection": {
+    title: "MySQL Reference Manual: InnoDB Deadlock Detection",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-deadlock-detection.html",
+  },
+  "microsoft-sql-deadlocks-guide": {
+    title: "Microsoft Learn: SQL Server deadlocks guide",
+    url: "https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-deadlocks-guide",
+  },
+  "ibm-acid-properties": {
+    title: "IBM Docs: ACID properties of transactions",
+    url: "https://www.ibm.com/docs/en/cics-tx/11.1.0?topic=processing-acid-properties-transactions",
+  },
+  "mysql-acid-model": {
+    title: "MySQL Reference Manual: InnoDB and the ACID Model",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/mysql-acid.html",
+  },
+  "postgresql-transaction-isolation": {
+    title: "PostgreSQL Docs: Transaction Isolation",
+    url: "https://www.postgresql.org/docs/current/transaction-iso.html",
+  },
+  "mysql-transaction-isolation-levels": {
+    title: "MySQL Reference Manual: Transaction Isolation Levels",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-transaction-isolation-levels.html",
+  },
+  "microsoft-sql-set-isolation": {
+    title: "Microsoft Learn: SET TRANSACTION ISOLATION LEVEL",
+    url: "https://learn.microsoft.com/en-us/sql/t-sql/statements/set-transaction-isolation-level-transact-sql",
+  },
+  "microsoft-sql-snapshot-isolation": {
+    title: "Microsoft Learn: Snapshot Isolation in SQL Server",
+    url: "https://learn.microsoft.com/en-us/sql/connect/ado-net/sql/snapshot-isolation-sql-server",
+  },
+  "martin-fowler-unit-of-work": {
+    title: "Martin Fowler: Unit of Work",
+    url: "https://martinfowler.com/eaaCatalog/unitOfWork.html",
+  },
+  "oracle-microtx-saga": {
+    title: "Oracle MicroTx Docs: Saga Transaction Protocol",
+    url: "https://docs.oracle.com/en/database/oracle/transaction-manager-for-microservices/24.2/tmmdg/lra-transaction-protocol.html",
+  },
+  "oracle-microtx-xa": {
+    title: "Oracle MicroTx Docs: XA Transaction Protocol",
+    url: "https://docs.oracle.com/en/database/oracle/transaction-manager-for-microservices/24.2/tmmdg/xa-transaction-protocol.html",
+  },
+  "microservices-saga-pattern": {
+    title: "microservices.io: Saga pattern",
+    url: "https://microservices.io/patterns/data/saga.html",
+  },
+  "azure-compensating-transaction": {
+    title: "Azure Architecture Center: Compensating Transaction pattern",
+    url: "https://learn.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction",
+  },
+  "aws-saga-pattern": {
+    title: "AWS Prescriptive Guidance: Saga pattern",
+    url: "https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/saga.html",
+  },
+  "temporal-saga-compensations": {
+    title: "Temporal Docs: Saga pattern with compensations",
+    url: "https://docs.temporal.io/develop/java/saga",
+  },
+  "camunda-saga-pattern": {
+    title: "Camunda: Saga Pattern",
+    url: "https://camunda.com/blog/2020/06/camunda-bpm-and-microservices-orchestration-part-two-graphical-models/",
+  },
+  "camunda-compensation-events": {
+    title: "Camunda Docs: Compensation Events",
+    url: "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/",
+  },
+  "microservices-idempotent-consumer-pattern": {
+    title: "microservices.io: Idempotent Consumer pattern",
+    url: "https://microservices.io/patterns/communication-style/idempotent-consumer.html",
+  },
+  "seata-tcc-mode": {
+    title: "Apache Seata Docs: TCC Mode",
+    url: "https://seata.apache.org/docs/user/mode/tcc/",
+  },
+  "seata-tcc-design": {
+    title: "Apache Seata Docs: TCC Transaction Mode",
+    url: "https://seata.apache.org/docs/dev/mode/tcc-mode/",
+  },
+  "oracle-microtx-tcc": {
+    title: "Oracle MicroTx Docs: TCC Transaction Protocol",
+    url: "https://docs.oracle.com/en/database/oracle/transaction-manager-for-microservices/24.2/tmmdg/tcc-transaction-protocol.html",
+  },
+  "ibm-saga-microservices": {
+    title: "IBM Developer: Manage microservice transactions with Saga pattern",
+    url: "https://developer.ibm.com/articles/use-saga-to-solve-distributed-transaction-management-problems-in-a-microservices-architecture/",
+  },
   "rabbitmq-docs": {
     title: "RabbitMQ Documentation",
     url: "https://www.rabbitmq.com/docs",
+  },
+  "apache-kafka-docs": {
+    title: "Apache Kafka Documentation",
+    url: "https://kafka.apache.org/documentation/",
+  },
+  "kafka-design-docs": {
+    title: "Apache Kafka Documentation: Design",
+    url: "https://kafka.apache.org/documentation/#design",
+  },
+  "kafka-producer-configs": {
+    title: "Apache Kafka Documentation: Producer Configs",
+    url: "https://kafka.apache.org/documentation/#producerconfigs",
+  },
+  "kafka-consumer-configs": {
+    title: "Apache Kafka Documentation: Consumer Configs",
+    url: "https://kafka.apache.org/documentation/#consumerconfigs",
+  },
+  "confluent-kafka-consumer": {
+    title: "Confluent Docs: Kafka Consumer",
+    url: "https://docs.confluent.io/platform/current/clients/consumer.html",
+  },
+  "confluent-consumer-design": {
+    title: "Confluent Docs: Kafka Consumer Design",
+    url: "https://docs.confluent.io/kafka/design/consumer-design.html",
+  },
+  "confluent-kafka-rebalancing": {
+    title: "Confluent Learn: Kafka Rebalancing Explained",
+    url: "https://www.confluent.io/learn/kafka-rebalancing/",
+  },
+  "kafka-transactions": {
+    title: "Apache Kafka Documentation: Transactions",
+    url: "https://kafka.apache.org/documentation/#transactions",
+  },
+  "confluent-kafka-exactly-once": {
+    title: "Confluent Blog: Exactly-Once Semantics Are Possible",
+    url: "https://www.confluent.io/blog/simplified-robust-exactly-one-semantics-in-kafka-2-5/",
+  },
+  "aws-sqs-docs": {
+    title: "Amazon SQS Documentation",
+    url: "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html",
+  },
+  "aws-sqs-dead-letter-queues": {
+    title: "Amazon SQS Docs: Using dead-letter queues",
+    url: "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html",
+  },
+  "aws-sqs-standard-fifo": {
+    title: "Amazon SQS Docs: Queue types",
+    url: "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/standard-queues.html",
+  },
+  "aws-sqs-fifo-exactly-once": {
+    title: "Amazon SQS Docs: Exactly-once processing in FIFO queues",
+    url: "https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues-exactly-once-processing.html",
+  },
+  "google-pubsub-message-ordering": {
+    title: "Google Cloud Pub/Sub Docs: Ordering messages",
+    url: "https://cloud.google.com/pubsub/docs/ordering",
+  },
+  "google-pubsub-exactly-once": {
+    title: "Google Cloud Pub/Sub Docs: Exactly-once delivery",
+    url: "https://cloud.google.com/pubsub/docs/exactly-once-delivery",
+  },
+  "google-pubsub-dead-letter-topics": {
+    title: "Google Cloud Pub/Sub Docs: Dead-letter topics",
+    url: "https://cloud.google.com/pubsub/docs/dead-letter-topics",
+  },
+  "azure-servicebus-dead-letter-queues": {
+    title: "Microsoft Learn: Service Bus dead-letter queues",
+    url: "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-dead-letter-queues",
+  },
+  "azure-servicebus-message-transfers": {
+    title: "Microsoft Learn: Service Bus messages, payloads, and serialization",
+    url: "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messages-payloads",
+  },
+  "cloudevents-spec": {
+    title: "CloudEvents Specification",
+    url: "https://github.com/cloudevents/spec",
+  },
+  "cloudevents-distributed-tracing": {
+    title: "CloudEvents Extension: Distributed Tracing",
+    url: "https://github.com/cloudevents/spec/blob/main/cloudevents/extensions/distributed-tracing.md",
+  },
+  "aws-eventbridge-docs": {
+    title: "Amazon EventBridge Documentation",
+    url: "https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html",
+  },
+  "google-event-driven-architecture": {
+    title: "Google Cloud: Event-driven architecture",
+    url: "https://cloud.google.com/eventarc/docs/event-driven-architectures",
+  },
+  "asyncapi-docs": {
+    title: "AsyncAPI Documentation",
+    url: "https://www.asyncapi.com/docs",
+  },
+  "asyncapi-message-docs": {
+    title: "AsyncAPI Specification: Message Object",
+    url: "https://www.asyncapi.com/docs/reference/specification/latest#messageObject",
+  },
+  "martin-fowler-domain-event": {
+    title: "Martin Fowler: Domain Event",
+    url: "https://martinfowler.com/eaaDev/DomainEvent.html",
+  },
+  "microsoft-domain-events": {
+    title: "Microsoft Learn: Domain events design and implementation",
+    url: "https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/domain-events-design-implementation",
+  },
+  "microsoft-integration-events": {
+    title: "Microsoft Learn: Integration events in microservices",
+    url: "https://learn.microsoft.com/en-us/dotnet/architecture/microservices/multi-container-microservice-net-applications/integration-event-based-microservice-communications",
+  },
+  "udi-dahan-domain-events": {
+    title: "Udi Dahan: Domain Events",
+    url: "https://udidahan.com/2009/06/14/domain-events-salvation/",
   },
   "docker-docs": {
     title: "Docker Docs",
     url: "https://docs.docker.com/",
   },
+  "docker-overview-docs": {
+    title: "Docker Docs: Docker overview",
+    url: "https://docs.docker.com/get-started/docker-overview/",
+  },
+  "docker-engine-docs": {
+    title: "Docker Docs: Docker Engine",
+    url: "https://docs.docker.com/engine/",
+  },
+  "docker-engine-api-docs": {
+    title: "Docker Docs: Engine API",
+    url: "https://docs.docker.com/reference/api/engine/",
+  },
+  "docker-cli-reference": {
+    title: "Docker Docs: Docker CLI reference",
+    url: "https://docs.docker.com/reference/cli/docker/",
+  },
+  "docker-cli-commandline": {
+    title: "Docker Docs: Use the Docker command line",
+    url: "https://docs.docker.com/engine/reference/commandline/cli/",
+  },
+  "docker-cli-info": {
+    title: "Docker Docs: docker system info",
+    url: "https://docs.docker.com/reference/cli/docker/system/info/",
+  },
+  "docker-cli-system-df": {
+    title: "Docker Docs: docker system df",
+    url: "https://docs.docker.com/reference/cli/docker/system/df/",
+  },
+  "docker-context-docs": {
+    title: "Docker Docs: Docker contexts",
+    url: "https://docs.docker.com/engine/context/working-with-contexts/",
+  },
+  "docker-compose-cli-docs": {
+    title: "Docker Docs: docker compose",
+    url: "https://docs.docker.com/reference/cli/docker/compose/",
+  },
+  "docker-login-cli": {
+    title: "Docker Docs: docker login",
+    url: "https://docs.docker.com/reference/cli/docker/login/",
+  },
+  "docker-run-cli": {
+    title: "Docker Docs: docker container run",
+    url: "https://docs.docker.com/reference/cli/docker/container/run/",
+  },
+  "docker-run-containers-docs": {
+    title: "Docker Docs: Running containers",
+    url: "https://docs.docker.com/engine/containers/run/",
+  },
+  "docker-multi-service-container": {
+    title: "Docker Docs: Run multiple processes in a container",
+    url: "https://docs.docker.com/engine/containers/multi-service_container/",
+  },
+  "docker-restart-policy-docs": {
+    title: "Docker Docs: Start containers automatically",
+    url: "https://docs.docker.com/engine/containers/start-containers-automatically/",
+  },
+  "docker-port-publishing-docs": {
+    title: "Docker Docs: Port publishing and mapping",
+    url: "https://docs.docker.com/engine/network/port-publishing/",
+  },
+  "docker-publishing-ports-guide": {
+    title: "Docker Docs: Publishing and exposing ports",
+    url: "https://docs.docker.com/get-started/docker-concepts/running-containers/publishing-ports/",
+  },
+  "docker-cli-docs": {
+    title: "Docker Docs: Use the Docker command line",
+    url: "https://docs.docker.com/engine/reference/commandline/cli/",
+  },
+  "docker-storage-volumes": {
+    title: "Docker Docs: Volumes",
+    url: "https://docs.docker.com/engine/storage/volumes/",
+  },
+  "docker-storage-bind-mounts": {
+    title: "Docker Docs: Bind mounts",
+    url: "https://docs.docker.com/engine/storage/bind-mounts/",
+  },
+  "docker-compose-env-vars": {
+    title: "Docker Docs: Environment variables in Compose",
+    url: "https://docs.docker.com/compose/environment-variables/",
+  },
+  "docker-compose-set-env-vars": {
+    title: "Docker Docs: Set environment variables within your container's environment",
+    url: "https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/",
+  },
+  "docker-compose-services-reference": {
+    title: "Docker Docs: Compose services reference",
+    url: "https://docs.docker.com/reference/compose-file/services/",
+  },
+  "docker-secrets-docs": {
+    title: "Docker Docs: Secrets",
+    url: "https://docs.docker.com/engine/swarm/secrets/",
+  },
+  "docker-container-create-cli": {
+    title: "Docker Docs: docker container create",
+    url: "https://docs.docker.com/reference/cli/docker/container/create/",
+  },
+  "docker-container-ls-cli": {
+    title: "Docker Docs: docker container ls",
+    url: "https://docs.docker.com/reference/cli/docker/container/ls/",
+  },
+  "docker-container-start-cli": {
+    title: "Docker Docs: docker container start",
+    url: "https://docs.docker.com/reference/cli/docker/container/start/",
+  },
+  "docker-container-stop-cli": {
+    title: "Docker Docs: docker container stop",
+    url: "https://docs.docker.com/reference/cli/docker/container/stop/",
+  },
+  "docker-container-restart-cli": {
+    title: "Docker Docs: docker container restart",
+    url: "https://docs.docker.com/reference/cli/docker/container/restart/",
+  },
+  "docker-container-update-cli": {
+    title: "Docker Docs: docker container update",
+    url: "https://docs.docker.com/reference/cli/docker/container/update/",
+  },
+  "docker-container-pause-cli": {
+    title: "Docker Docs: docker container pause",
+    url: "https://docs.docker.com/reference/cli/docker/container/pause/",
+  },
+  "docker-container-kill-cli": {
+    title: "Docker Docs: docker container kill",
+    url: "https://docs.docker.com/reference/cli/docker/container/kill/",
+  },
+  "docker-container-wait-cli": {
+    title: "Docker Docs: docker container wait",
+    url: "https://docs.docker.com/reference/cli/docker/container/wait/",
+  },
+  "docker-container-rm-cli": {
+    title: "Docker Docs: docker container rm",
+    url: "https://docs.docker.com/reference/cli/docker/container/rm/",
+  },
+  "docker-container-exec-cli": {
+    title: "Docker Docs: docker container exec",
+    url: "https://docs.docker.com/reference/cli/docker/container/exec/",
+  },
+  "docker-container-logs-cli": {
+    title: "Docker Docs: docker container logs",
+    url: "https://docs.docker.com/reference/cli/docker/container/logs/",
+  },
+  "docker-container-port-cli": {
+    title: "Docker Docs: docker container port",
+    url: "https://docs.docker.com/reference/cli/docker/container/port/",
+  },
+  "docker-inspect-cli": {
+    title: "Docker Docs: docker inspect",
+    url: "https://docs.docker.com/reference/cli/docker/inspect/",
+  },
+  "docker-container-inspect-cli": {
+    title: "Docker Docs: docker container inspect",
+    url: "https://docs.docker.com/reference/cli/docker/container/inspect/",
+  },
+  "docker-formatting-docs": {
+    title: "Docker Docs: Format command and log output",
+    url: "https://docs.docker.com/go/formatting/",
+  },
+  "docker-volume-inspect-cli": {
+    title: "Docker Docs: docker volume inspect",
+    url: "https://docs.docker.com/reference/cli/docker/volume/inspect/",
+  },
+  "docker-network-cli": {
+    title: "Docker Docs: docker network",
+    url: "https://docs.docker.com/reference/cli/docker/network/",
+  },
+  "docker-daemon-docs": {
+    title: "Docker Docs: dockerd",
+    url: "https://docs.docker.com/reference/cli/dockerd/",
+  },
+  "docker-containerd-docs": {
+    title: "containerd Docs: Getting started",
+    url: "https://containerd.io/docs/getting-started/",
+  },
+  "containerd-project": {
+    title: "containerd: An industry-standard container runtime",
+    url: "https://containerd.io/",
+  },
+  "containerd-namespaces": {
+    title: "containerd Docs: Namespaces",
+    url: "https://github.com/containerd/containerd/blob/main/docs/namespaces.md",
+  },
+  "opencontainers-runc": {
+    title: "Open Containers: runc",
+    url: "https://github.com/opencontainers/runc",
+  },
+  "kubernetes-container-runtimes": {
+    title: "Kubernetes Docs: Container Runtimes",
+    url: "https://kubernetes.io/docs/setup/production-environment/container-runtimes/",
+  },
+  "kubernetes-cri": {
+    title: "Kubernetes Blog: Introducing CRI",
+    url: "https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes/",
+  },
+  "docker-practice-architecture": {
+    title: "Docker 从入门到实践: Docker 架构",
+    url: "https://yeasy.gitbook.io/docker_practice/introduction/what",
+  },
+  "docker-container-concepts": {
+    title: "Docker Docs: What is a container?",
+    url: "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/",
+  },
+  "docker-container-resource": {
+    title: "Docker: What is a Container?",
+    url: "https://www.docker.com/resources/what-container/",
+  },
+  "docker-image-concepts": {
+    title: "Docker Docs: What is an image?",
+    url: "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/",
+  },
+  "docker-image-inspect-cli": {
+    title: "Docker Docs: docker image inspect",
+    url: "https://docs.docker.com/reference/cli/docker/image/inspect/",
+  },
+  "docker-image-ls-cli": {
+    title: "Docker Docs: docker image ls",
+    url: "https://docs.docker.com/reference/cli/docker/image/ls/",
+  },
+  "docker-image-history-cli": {
+    title: "Docker Docs: docker image history",
+    url: "https://docs.docker.com/reference/cli/docker/image/history/",
+  },
+  "docker-pull-cli": {
+    title: "Docker Docs: docker image pull",
+    url: "https://docs.docker.com/reference/cli/docker/image/pull/",
+  },
+  "docker-storage-drivers": {
+    title: "Docker Docs: Storage drivers",
+    url: "https://docs.docker.com/engine/storage/drivers/",
+  },
+  "docker-overlay2-driver": {
+    title: "Docker Docs: OverlayFS storage driver",
+    url: "https://docs.docker.com/engine/storage/drivers/overlayfs-driver/",
+  },
+  "docker-select-storage-driver": {
+    title: "Docker Docs: Select a storage driver",
+    url: "https://docs.docker.com/engine/storage/drivers/select-storage-driver/",
+  },
+  "docker-container-diff-cli": {
+    title: "Docker Docs: docker container diff",
+    url: "https://docs.docker.com/reference/cli/docker/container/diff/",
+  },
+  "docker-container-commit-cli": {
+    title: "Docker Docs: docker container commit",
+    url: "https://docs.docker.com/reference/cli/docker/container/commit/",
+  },
+  "docker-container-cp-cli": {
+    title: "Docker Docs: docker container cp",
+    url: "https://docs.docker.com/reference/cli/docker/container/cp/",
+  },
+  "docker-practice-unionfs": {
+    title: "Docker 从入门到实践: 联合文件系统",
+    url: "https://docker-practice.github.io/zh-cn/underly/ufs.html",
+  },
+  "docker-build-cache": {
+    title: "Docker Docs: Build cache",
+    url: "https://docs.docker.com/build/cache/",
+  },
+  "dockerfile-overview": {
+    title: "Docker Docs: Dockerfile overview",
+    url: "https://docs.docker.com/build/building/packaging/",
+  },
+  "docker-build-cache-invalidation": {
+    title: "Docker Docs: Build cache invalidation",
+    url: "https://docs.docker.com/build/cache/invalidation/",
+  },
+  "oci-image-spec": {
+    title: "Open Container Initiative: Image Specification",
+    url: "https://github.com/opencontainers/image-spec",
+  },
+  "docker-image-tag-cli": {
+    title: "Docker Docs: docker image tag",
+    url: "https://docs.docker.com/reference/cli/docker/image/tag/",
+  },
+  "docker-image-push-cli": {
+    title: "Docker Docs: docker image push",
+    url: "https://docs.docker.com/reference/cli/docker/image/push/",
+  },
+  "docker-image-digests": {
+    title: "Docker Docs: Image digests",
+    url: "https://docs.docker.com/dhi/core-concepts/digests/",
+  },
+  "docker-content-trust": {
+    title: "Docker Docs: Content trust in Docker",
+    url: "https://docs.docker.com/engine/security/trust/",
+  },
+  "oci-descriptor-spec": {
+    title: "OCI Image Spec: Descriptor",
+    url: "https://specs.opencontainers.org/image-spec/descriptor/",
+  },
+  "docker-hub-images": {
+    title: "Docker Docs: Repositories and images",
+    url: "https://docs.docker.com/docker-hub/repos/",
+  },
+  "docker-hub-docs": {
+    title: "Docker Docs: Docker Hub",
+    url: "https://docs.docker.com/docker-hub/",
+  },
+  "docker-scout-docs": {
+    title: "Docker Docs: Docker Scout",
+    url: "https://docs.docker.com/scout/",
+  },
+  "docker-scout-base-images": {
+    title: "Docker Docs: Docker Scout base image recommendations",
+    url: "https://docs.docker.com/scout/policy/#up-to-date-base-images",
+  },
+  "docker-multistage-builds": {
+    title: "Docker Docs: Multi-stage builds",
+    url: "https://docs.docker.com/build/building/multi-stage/",
+  },
+  "docker-build-context": {
+    title: "Docker Docs: Build context",
+    url: "https://docs.docker.com/build/building/context/",
+  },
+  "docker-build-cache-optimize": {
+    title: "Docker Docs: Optimize cache usage in builds",
+    url: "https://docs.docker.com/build/cache/optimize/",
+  },
+  "docker-build-secrets": {
+    title: "Docker Docs: Build secrets",
+    url: "https://docs.docker.com/build/building/secrets/",
+  },
+  "docker-build-variables": {
+    title: "Docker Docs: Build variables",
+    url: "https://docs.docker.com/build/building/variables/",
+  },
+  "dockerfile-best-practices": {
+    title: "Docker Docs: Dockerfile best practices",
+    url: "https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/",
+  },
+  "docker-official-images": {
+    title: "Docker Docs: Docker Official Images",
+    url: "https://docs.docker.com/docker-hub/image-library/",
+  },
+  "docker-scratch-image": {
+    title: "Docker Hub: scratch Official Image",
+    url: "https://hub.docker.com/_/scratch",
+  },
+  "docker-hardened-images": {
+    title: "Docker Docs: Docker Hardened Images",
+    url: "https://docs.docker.com/dhi/",
+  },
+  "distroless-images": {
+    title: "GoogleContainerTools: Distroless images",
+    url: "https://github.com/GoogleContainerTools/distroless",
+  },
+  "oci-runtime-spec": {
+    title: "Open Container Initiative: Runtime Specification",
+    url: "https://github.com/opencontainers/runtime-spec",
+  },
+  "linux-man-pages-namespaces": {
+    title: "Linux man-pages: namespaces(7)",
+    url: "https://man7.org/linux/man-pages/man7/namespaces.7.html",
+  },
+  "linux-man-pages-user-namespaces": {
+    title: "Linux man-pages: user_namespaces(7)",
+    url: "https://man7.org/linux/man-pages/man7/user_namespaces.7.html",
+  },
+  "linux-man-pages-network-namespaces": {
+    title: "Linux man-pages: network_namespaces(7)",
+    url: "https://man7.org/linux/man-pages/man7/network_namespaces.7.html",
+  },
+  "docker-userns-remap": {
+    title: "Docker Docs: Isolate containers with a user namespace",
+    url: "https://docs.docker.com/engine/security/userns-remap/",
+  },
+  "docker-resource-constraints": {
+    title: "Docker Docs: Resource constraints",
+    url: "https://docs.docker.com/engine/containers/resource_constraints/",
+  },
+  "docker-runtime-metrics": {
+    title: "Docker Docs: Runtime metrics",
+    url: "https://docs.docker.com/engine/containers/runmetrics/",
+  },
+  "docker-container-stats": {
+    title: "Docker Docs: docker container stats",
+    url: "https://docs.docker.com/reference/cli/docker/container/stats/",
+  },
+  "linux-cgroup-v2": {
+    title: "Linux Kernel Docs: Control Group v2",
+    url: "https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html",
+  },
+  "kubernetes-cgroup-v2": {
+    title: "Kubernetes Docs: About cgroup v2",
+    url: "https://kubernetes.io/docs/concepts/architecture/cgroups/",
+  },
+  "docker-network-docs": {
+    title: "Docker Docs: Networking overview",
+    url: "https://docs.docker.com/engine/network/",
+  },
+  "docker-storage-docs": {
+    title: "Docker Docs: Storage",
+    url: "https://docs.docker.com/engine/storage/",
+  },
   "dockerfile-reference": {
     title: "Dockerfile reference",
     url: "https://docs.docker.com/reference/dockerfile/",
+  },
+  "dockerfile-json-args-recommended": {
+    title: "Docker Docs: JSONArgsRecommended build check",
+    url: "https://docs.docker.com/reference/build-checks/json-args-recommended/",
+  },
+  "dockerfile-multiple-instructions": {
+    title: "Docker Docs: MultipleInstructionsDisallowed build check",
+    url: "https://docs.docker.com/reference/build-checks/multiple-instructions-disallowed/",
+  },
+  "dockerfile-secrets-used-in-arg-or-env": {
+    title: "Docker Docs: SecretsUsedInArgOrEnv build check",
+    url: "https://docs.docker.com/reference/build-checks/secrets-used-in-arg-or-env/",
+  },
+  "dockerfile-workdir-relative-path": {
+    title: "Docker Docs: WorkdirRelativePath build check",
+    url: "https://docs.docker.com/reference/build-checks/workdir-relative-path/",
   },
   "kubernetes-docs": {
     title: "Kubernetes Documentation",
