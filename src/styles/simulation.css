@@ -267,6 +267,40 @@
   overflow: visible;
 }
 
+.buffer-pool-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.buffer-pool-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .buffer-pool-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.buffer-pool-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
 .arp-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -890,6 +924,321 @@
 }
 
 .tcp-ip-model-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.buffer-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 30%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.buffer-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.buffer-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.buffer-client rect,
+.buffer-main-panel > rect,
+.buffer-side-panel > rect,
+.buffer-disk-panel > rect,
+.buffer-metrics-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#buffer-soft-shadow);
+}
+
+.buffer-client,
+.buffer-read-path,
+.buffer-miss-path,
+.buffer-promote-path,
+.buffer-dirty-path,
+.buffer-flush-path,
+.buffer-list-row,
+.buffer-metric,
+.buffer-page-frame {
+  opacity: 0.26;
+  transition: opacity 180ms ease;
+}
+
+.buffer-client.active,
+.buffer-read-path.active,
+.buffer-miss-path.active,
+.buffer-promote-path.active,
+.buffer-dirty-path.active,
+.buffer-flush-path.active,
+.buffer-list-row.active,
+.buffer-metric.active,
+.buffer-page-frame.active {
+  opacity: 1;
+}
+
+.buffer-node-title,
+.buffer-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.buffer-panel-title {
+  text-anchor: start;
+}
+
+.buffer-panel-subtitle {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-anchor: start;
+}
+
+.buffer-client text,
+.buffer-disk-panel text,
+.buffer-read-path text,
+.buffer-miss-path text,
+.buffer-promote-path text,
+.buffer-dirty-path text,
+.buffer-flush-path text,
+.buffer-list-row text,
+.buffer-metric text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.buffer-client .buffer-node-title,
+.buffer-disk-panel .buffer-node-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.buffer-main-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+}
+
+.buffer-lru-young,
+.buffer-lru-old {
+  fill: color-mix(in srgb, var(--brand) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 28%, var(--border));
+  stroke-width: 1.1;
+}
+
+.buffer-lru-old {
+  fill: color-mix(in srgb, #f59e0b 8%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 28%, var(--border));
+}
+
+.buffer-zone-title {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.buffer-midpoint {
+  fill: none;
+  stroke: color-mix(in srgb, var(--muted) 42%, transparent);
+  stroke-dasharray: 8 8;
+  stroke-width: 2;
+  opacity: 0.3;
+}
+
+.buffer-midpoint.active {
+  opacity: 1;
+  stroke: #f59e0b;
+}
+
+.buffer-midpoint-label {
+  fill: var(--faint);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  opacity: 0.3;
+  text-anchor: middle;
+}
+
+.buffer-midpoint-label.active {
+  fill: #b45309;
+  opacity: 1;
+}
+
+.buffer-page-frame rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 22%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#buffer-soft-shadow);
+}
+
+.buffer-page-frame.hot rect {
+  fill: color-mix(in srgb, var(--brand) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.buffer-page-frame.warm rect,
+.buffer-page-frame.new rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 38%, var(--border));
+}
+
+.buffer-page-frame.dirty rect {
+  fill: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 42%, var(--border));
+}
+
+.buffer-page-id,
+.buffer-page-note {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 16px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.buffer-page-note {
+  fill: var(--muted);
+  font-size: 9.5px;
+  font-weight: 850;
+}
+
+.buffer-read-path path,
+.buffer-miss-path path,
+.buffer-promote-path path,
+.buffer-dirty-path path,
+.buffer-flush-path path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.buffer-miss-path path {
+  stroke: var(--tertiary);
+}
+
+.buffer-promote-path path {
+  stroke: #f59e0b;
+}
+
+.buffer-dirty-path path {
+  stroke: var(--danger);
+}
+
+.buffer-flush-path path {
+  stroke: var(--success);
+}
+
+.buffer-read-path rect,
+.buffer-miss-path rect,
+.buffer-promote-path rect,
+.buffer-dirty-path rect,
+.buffer-flush-path rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 28%, var(--border));
+  stroke-width: 1.1;
+  filter: url(#buffer-soft-shadow);
+}
+
+.buffer-miss-path rect {
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.buffer-promote-path rect {
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.buffer-dirty-path rect {
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.buffer-flush-path rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 42%, var(--border));
+}
+
+.buffer-read-path text,
+.buffer-miss-path text,
+.buffer-promote-path text,
+.buffer-dirty-path text,
+.buffer-flush-path text {
+  fill: var(--text);
+  font-size: 10.5px;
+  font-weight: 950;
+}
+
+.buffer-list-row rect,
+.buffer-metric rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  stroke-width: 1.1;
+}
+
+.buffer-list-row.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.buffer-list-row.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 13%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.buffer-list-row.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.buffer-list-row text:first-of-type,
+.buffer-list-row text:nth-of-type(2),
+.buffer-metric text:first-of-type {
+  text-anchor: start;
+}
+
+.buffer-list-row text:nth-of-type(3),
+.buffer-metric text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.buffer-disk-panel ellipse,
+.buffer-disk-panel path {
+  fill: color-mix(in srgb, var(--success) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+  stroke-width: 1.4;
+}
+
+.buffer-metric.success.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.buffer-metric.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.buffer-metric.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.buffer-pool-caption {
   right: 16px;
   bottom: 14px;
 }

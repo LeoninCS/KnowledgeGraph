@@ -165,6 +165,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:buffer-pool") {
+    return (
+      <BufferPoolStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "algorithm:array") {
     return (
       <ArrayIndexStage
@@ -1163,6 +1174,197 @@ function TcpIpModelStage({
           </g>
         </svg>
         <div className="tcp-handshake-caption tcp-ip-model-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BufferPoolStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const pageFrames = [
+    { id: "P08", x: 242, y: 206, tone: "hot", label: "P08", note: "orders.idx", step: 1 },
+    { id: "P12", x: 346, y: 206, tone: "hot", label: "P12", note: "user.pk", step: 3 },
+    { id: "P42", x: 450, y: 206, tone: "dirty", label: "P42", note: "dirty", step: 4 },
+    { id: "P31", x: 242, y: 338, tone: "warm", label: "P31", note: "old", step: 3 },
+    { id: "P77", x: 346, y: 338, tone: "new", label: "P77", note: "miss", step: 2 },
+    { id: "P05", x: 450, y: 338, tone: "warm", label: "P05", note: "scan", step: 3 },
+  ];
+  const listRows = [
+    { name: "Free List", zh: "空闲 frame", en: "free frames", value: "18", step: 2, tone: "teal" },
+    { name: "Flush List", zh: "脏页队列", en: "dirty queue", value: "P42", step: 4, tone: "danger" },
+    { name: "LRU old%", zh: "old 区比例", en: "old ratio", value: "37%", step: 3, tone: "warning" },
+  ];
+  const metrics = [
+    { zh: "命中率", en: "Hit ratio", value: "98.7%", step: 1, tone: "success" },
+    { zh: "脏页比例", en: "Dirty ratio", value: "12%", step: 4, tone: "danger" },
+    { zh: "checkpoint age", en: "checkpoint age", value: "low", step: 5, tone: "brand" },
+  ];
+
+  return (
+    <div className="visual-stage buffer-pool-stage">
+      <div className="buffer-pool-card">
+        <svg
+          className="buffer-pool-diagram"
+          viewBox="0 0 1120 620"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["buffer-arrow-brand", "var(--brand)"],
+              ["buffer-arrow-teal", "var(--tertiary)"],
+              ["buffer-arrow-warning", "#f59e0b"],
+              ["buffer-arrow-danger", "var(--danger)"],
+              ["buffer-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="buffer-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="buffer-bg" x="24" y="24" width="1072" height="548" rx="28" />
+          <text className="buffer-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="buffer-subtitle" x="560" y="99">
+            {label(
+              "page hash -> LRU young/old -> Free List -> Flush List -> Page Cleaner",
+              "page hash -> LRU young/old -> Free List -> Flush List -> Page Cleaner",
+            )}
+          </text>
+
+          <g className={`buffer-client ${completedSteps >= 1 ? "active" : ""}`}>
+            <rect x="74" y="184" width="124" height="104" rx="20" />
+            <text className="buffer-node-title" x="136" y="224">{label("SQL 请求", "SQL request")}</text>
+            <text x="136" y="252">SELECT / UPDATE</text>
+            <text x="136" y="272">page_id=P42</text>
+          </g>
+
+          <g className="buffer-main-panel">
+            <rect x="222" y="134" width="392" height="346" rx="24" />
+            <text className="buffer-panel-title" x="250" y="170">Buffer Pool</text>
+            <text className="buffer-panel-subtitle" x="250" y="194">
+              {label("缓存 16KB 数据页和索引页", "Caches 16KB data and index pages")}
+            </text>
+            <rect className="buffer-lru-young" x="242" y="218" width="292" height="92" rx="18" />
+            <rect className="buffer-lru-old" x="242" y="350" width="292" height="92" rx="18" />
+            <text className="buffer-zone-title" x="556" y="244">young</text>
+            <text className="buffer-zone-title" x="556" y="376">old</text>
+            <path className={`buffer-midpoint ${completedSteps >= 3 ? "active" : ""}`} d="M 224 330 L 612 330" />
+            <text className={`buffer-midpoint-label ${completedSteps >= 3 ? "active" : ""}`} x="556" y="329">
+              midpoint
+            </text>
+            {pageFrames.map((frame) => (
+              <g
+                key={frame.id}
+                className={`buffer-page-frame ${frame.tone} ${completedSteps >= frame.step ? "active" : ""}`}
+              >
+                <rect x={frame.x} y={frame.y} width="78" height="72" rx="14" />
+                <text className="buffer-page-id" x={frame.x + 39} y={frame.y + 31}>{frame.label}</text>
+                <text className="buffer-page-note" x={frame.x + 39} y={frame.y + 53}>{frame.note}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`buffer-read-path ${completedSteps >= 1 ? "active" : ""}`}>
+            <path d="M 198 236 C 226 236, 216 236, 242 236" markerEnd="url(#buffer-arrow-brand)" />
+            <rect x="164" y="305" width="150" height="36" rx="18" />
+            <text x="239" y="328">{label("Page hash 命中", "Page hash hit")}</text>
+          </g>
+
+          <g className={`buffer-miss-path ${completedSteps >= 2 ? "active" : ""}`}>
+            <path d="M 778 452 C 668 452, 608 408, 424 374" markerEnd="url(#buffer-arrow-teal)" />
+            <rect x="656" y="496" width="172" height="36" rx="18" />
+            <text x="742" y="519">{label("缺页装入 frame", "Miss loads frame")}</text>
+          </g>
+
+          <g className={`buffer-promote-path ${completedSteps >= 3 ? "active" : ""}`}>
+            <path d="M 386 350 C 374 324, 372 306, 374 278" markerEnd="url(#buffer-arrow-warning)" />
+            <rect x="396" y="302" width="136" height="34" rx="17" />
+            <text x="464" y="324">{label("二次访问晋升", "Promote on touch")}</text>
+          </g>
+
+          <g className="buffer-side-panel">
+            <rect x="648" y="134" width="188" height="346" rx="24" />
+            <text className="buffer-panel-title" x="676" y="170">{label("管理链表", "Management lists")}</text>
+            {listRows.map((row, index) => (
+              <g
+                key={row.name}
+                className={`buffer-list-row ${row.tone} ${completedSteps >= row.step ? "active" : ""}`}
+              >
+                <rect x="676" y={202 + index * 74} width="132" height="52" rx="15" />
+                <text x="692" y={224 + index * 74}>{row.name}</text>
+                <text x="692" y={242 + index * 74}>{locale === "zh" ? row.zh : row.en}</text>
+                <text x="796" y={233 + index * 74}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`buffer-dirty-path ${completedSteps >= 4 ? "active" : ""}`}>
+            <path d="M 488 242 C 560 230, 608 314, 676 314" markerEnd="url(#buffer-arrow-danger)" />
+            <rect x="506" y="264" width="144" height="34" rx="17" />
+            <text x="578" y="286">{label("脏页进入队列", "Dirty page queued")}</text>
+          </g>
+
+          <g className="buffer-disk-panel">
+            <rect x="876" y="146" width="156" height="252" rx="28" />
+            <ellipse cx="954" cy="196" rx="54" ry="22" />
+            <path d="M 900 196 L 900 330 C 900 342, 924 352, 954 352 C 984 352, 1008 342, 1008 330 L 1008 196" />
+            <ellipse cx="954" cy="330" rx="54" ry="22" />
+            <text className="buffer-node-title" x="954" y="247">{label("表空间", "Tablespace")}</text>
+            <text x="954" y="274">ibd files</text>
+            <text x="954" y="294">page P42</text>
+          </g>
+
+          <g className={`buffer-flush-path ${completedSteps >= 5 ? "active" : ""}`}>
+            <path d="M 808 314 C 850 312, 860 274, 900 274" markerEnd="url(#buffer-arrow-success)" />
+            <rect x="790" y="402" width="190" height="42" rx="21" />
+            <text x="885" y="427">Page Cleaner</text>
+          </g>
+
+          <g className="buffer-metrics-panel">
+            <rect x="168" y="508" width="784" height="48" rx="20" />
+            <text className="buffer-panel-title" x="196" y="538">{label("观察指标", "Signals")}</text>
+            {metrics.map((metric, index) => (
+              <g
+                key={metric.zh}
+                className={`buffer-metric ${metric.tone} ${completedSteps >= metric.step ? "active" : ""}`}
+              >
+                <rect x={356 + index * 174} y="518" width="138" height="28" rx="14" />
+                <text x={372 + index * 174} y="537">{locale === "zh" ? metric.zh : metric.en}</text>
+                <text x={480 + index * 174} y="537">{metric.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="tcp-handshake-caption buffer-pool-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

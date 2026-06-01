@@ -290,6 +290,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
   mysql: [
     "select",
     "join",
+    "buffer-pool",
     "mysql-index",
     "b-plus-tree",
     "transaction",

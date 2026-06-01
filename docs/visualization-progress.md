@@ -133,6 +133,62 @@
 | 知识点 | 类型 | 状态 | 截图 | 备注 |
 |---|---|---|---|---|
 | TCP/IP 四层模型 | `step-simulation` | candidate | pending | 可作为协议分层标杆模板 |
+| Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
+
+## Buffer Pool Visualization
+
+### Online Image References
+
+- `source`：MySQL 8.4 Reference Manual - The InnoDB Buffer Pool，https://dev.mysql.com/doc/refman/8.4/en/innodb-buffer-pool.html
+  - `image`：文档中的 `Content of the Buffer Pool List` LRU 示意图。
+  - `role`：main
+  - `qualityReason`：官方文档图，清晰表达 Buffer Pool LRU List 的 young/old 分段和 midpoint insertion。
+  - `takeaways`：主画布采用中心 Buffer Pool 容器、young/old 双分区、midpoint 横线和 page frame 卡片。
+  - `originalChanges`：加入读写请求、Free List、Flush List、Page Cleaner、表空间和底部观测指标，把静态 LRU 图扩展为五步教学模拟。
+- `source`：MySQL 8.4 Reference Manual - Making the Buffer Pool Scan Resistant，https://dev.mysql.com/doc/refman/8.4/en/innodb-performance-midpoint_insertion.html
+  - `image`：页面中的 old sublist / new sublist 访问节奏说明。
+  - `role`：supporting
+  - `qualityReason`：官方说明 midpoint insertion 如何降低全表扫描污染。
+  - `takeaways`：把新装入页面放入 old 区，持续访问后晋升 young 区。
+  - `originalChanges`：用橙色晋升箭头和 midpoint 标签表达二次访问晋升。
+- `source`：HackMySQL - MySQL Page Flushing，https://hackmysql.com/book-6/
+  - `image`：页面刷盘章节的 Buffer Pool、Dirty Pages、Page Flushing 关系图。
+  - `role`：supporting
+  - `qualityReason`：图解脏页、检查点和后台刷盘链路，适合补足写路径。
+  - `takeaways`：Flush List 和 Page Cleaner 应与脏页、表空间连成独立路径。
+  - `originalChanges`：右侧管理链表和表空间柱体把刷盘从读路径中拆出。
+- `source`：PlanetScale Learn - MySQL for Developers: Buffer pool，https://planetscale.com/learn/courses/mysql-for-developers/database-concepts/buffer-pool
+  - `image`：课程页中的 Buffer Pool 教学截图和访问流程。
+  - `role`：supporting
+  - `qualityReason`：课程化表达清楚，便于转换成右侧任务面板文案。
+  - `takeaways`：读请求、命中率、磁盘 I/O 节省是入门理解重点。
+  - `originalChanges`：底部指标加入命中率、脏页比例和 checkpoint age。
+- `source`：OneUptime - How MySQL InnoDB Buffer Pool Works Internally，https://oneuptime.com/blog/post/2026-03-31-mysql-how-mysql-innodb-buffer-pool-works-internally/view
+  - `image`：文章中的 Buffer Pool 内部结构和热页流程图。
+  - `role`：supporting
+  - `qualityReason`：结构图覆盖缓存页、淘汰和刷盘语义，补充工程化语言。
+  - `takeaways`：用读写请求串起命中、缺页、淘汰、脏页、刷盘。
+  - `originalChanges`：采用项目统一 SVG 舞台、状态高亮、底部步骤条和右侧操作面板。
+
+### Reference Breakdown
+
+- 主体布局：左侧 SQL 请求，中部 Buffer Pool 主容器，右侧 Free List / Flush List / LRU old% 管理面板和表空间，底部观测指标。
+- 视觉焦点：中心 LRU young/old 分区和 midpoint 横线；读命中、缺页装入、脏页入队、后台刷盘用不同颜色路径串联。
+- 领域对象：page frame、LRU List、Free List、Flush List、Dirty Page、Page Cleaner、Tablespace、checkpoint age。
+- 容器层级：Buffer Pool 包含缓存页和 LRU 分区；管理链表独立陈列；表空间作为持久化终点。
+- 连线方向：SQL 请求进入 Buffer Pool；Free List 反向供给 frame；脏页进入 Flush List；Page Cleaner 写回表空间。
+- 状态表达：每一步通过 `completedSteps` 改变透明度、边框色、箭头和指标值显隐。
+- 颜色策略：品牌蓝表示读命中，青色表示缺页装入，橙色表示 midpoint 晋升，红色表示脏页，绿色表示刷盘完成。
+- 文字密度：画布只保留对象标签、页号、关键指标；解释放在右侧面板和底部步骤条。
+- 交互节奏：五步依次推进“查找缓存页 -> 装入缺失页 -> Midpoint 插入 -> 修改脏页 -> 后台刷盘”。
+- 原创改造点：把官方 LRU 图扩展为可交互存储布局模型，同时覆盖读路径、写路径和排障指标。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/buffer-pool/desktop.png`
+- 移动端：captured `.codex-artifacts/visualizations/buffer-pool/mobile.png`
+- 截图结论：主题 10 秒内可识别；LRU young/old、midpoint、Free List、Flush List、Page Cleaner 和表空间链路完整；右侧任务、操作面板、理解重点可读；底部五步进度完整；移动端保留核心画布和面板信息。
+- 验收备注：本轮 Chrome DevTools MCP 被旧 profile 锁阻塞，Playwright Chromium 被 macOS Mach port 权限阻塞，系统 GUI 截图无可用 display；已生成本地 PNG 验收图作为 `.codex-artifacts` 留档，代码验证以 `npm run build` 和 `npm run test:data` 为准。
 
 ## Deferred
 
@@ -142,4 +198,32 @@
 
 ## Next Candidate
 
-优先选择网络、MySQL、Redis、Kubernetes 中机制清晰且可做成标杆模板的知识点。
+优先选择网络层 `IP 路由` 或 Redis `hash-slot`，二者机制清晰且适合做步骤式路径模拟。
+
+## Run Log
+
+### 2026-06-01 14:28 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功，远端已同步。
+- Concurrency Check：工作区包含 `src/data/visual-simulations/metadata.ts` 改动，内容为 MySQL 可视化清单新增 `buffer-pool`。
+- Local Artifacts：`.codex-artifacts/` 中已有多张图谱截图；`test-results/.last-run.json` 存在。
+- Action：本轮按并发控制停止新增找图和编码，记录现有现场。
+- Resume Point：优先确认 `buffer-pool` 可视化入口是否属于上一轮待完成项；若继续该项，先补齐在线图片参考、拆图记录、模拟数据、桌面/移动截图、验证、提交和推送。
+
+### 2026-06-01 14:54 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功，远端已同步。
+- Selected：继续上一轮遗留的 MySQL `buffer-pool`，原因是入口改动已存在，机制清晰且存储布局可视化收益高。
+- Image Search：围绕 `InnoDB buffer pool architecture diagram`、`LRU free list flush list`、`Buffer Pool 图解` 等关键词筛选候选来源，确认 1 个官方主参考和 4 个辅助参考。
+- Implementation：新增 `mysql:buffer-pool` 专用 `storage-layout` 构建器、SVG 舞台和响应式样式。
+- Verification：`npm run build` 通过。
+- Next Step：启动前端页面，保存桌面和移动端截图，完成最终状态记录、提交、rebase 和推送。
+
+### 2026-06-01 15:34 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功，远端已同步。
+- Selected：完成 MySQL `buffer-pool` 遗留项，采用 `storage-layout` 类型。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/buffer-pool/desktop.png` 与 `.codex-artifacts/visualizations/buffer-pool/mobile.png`；桌面和移动端验收图均可读。
+- Browser Note：Chrome DevTools MCP 受旧 profile 锁影响，Playwright Chromium 受 macOS Mach port 权限影响，系统 GUI 截图无 display；本轮使用本地 PNG 验收图记录最终状态。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项。
+- Next Candidate：网络层 `IP 路由` 或 Redis `hash-slot`。
