@@ -373,6 +373,44 @@
   display: none;
 }
 
+.k8s-service-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.k8s-service-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .k8s-service-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.k8s-service-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.k8s-service-mobile-map {
+  display: none;
+}
+
 .ip-route-mobile-path,
 .ip-route-mobile-facts {
   display: grid;
@@ -1917,6 +1955,282 @@
 }
 
 .ip-routing-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.k8s-service-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 30%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.k8s-service-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.k8s-service-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.k8s-service-client,
+.k8s-service-entry,
+.k8s-service-endpoints,
+.k8s-service-proxy,
+.k8s-service-pod,
+.k8s-service-selector-path,
+.k8s-service-entry-path,
+.k8s-service-sync-path,
+.k8s-service-forward-path,
+.k8s-service-diagnosis,
+.k8s-service-return-path,
+.k8s-service-rule,
+.k8s-service-endpoint-row,
+.k8s-service-signal {
+  opacity: 0.26;
+  transition: opacity 180ms ease;
+}
+
+.k8s-service-client.active,
+.k8s-service-entry.active,
+.k8s-service-endpoints.active,
+.k8s-service-proxy.active,
+.k8s-service-pod.active,
+.k8s-service-selector-path.active,
+.k8s-service-entry-path.active,
+.k8s-service-sync-path.active,
+.k8s-service-forward-path.active,
+.k8s-service-diagnosis.active,
+.k8s-service-return-path.active,
+.k8s-service-rule.active,
+.k8s-service-endpoint-row.active,
+.k8s-service-signal.active {
+  opacity: 1;
+}
+
+.k8s-service-client rect,
+.k8s-service-entry rect,
+.k8s-service-endpoints > rect,
+.k8s-service-proxy > rect,
+.k8s-service-pod-zone > rect,
+.k8s-service-diagnosis > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#k8s-service-soft-shadow);
+}
+
+.k8s-service-entry.active rect,
+.k8s-service-client.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.k8s-service-endpoints.active > rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.k8s-service-proxy.active > rect {
+  fill: color-mix(in srgb, #f59e0b 9%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 36%, var(--border));
+}
+
+.k8s-service-pod-zone > rect {
+  fill: color-mix(in srgb, var(--surface) 78%, rgb(220 252 231 / 0.66));
+  stroke: color-mix(in srgb, var(--success) 22%, var(--border));
+}
+
+.k8s-service-node-title,
+.k8s-service-panel-title,
+.k8s-service-pod-name {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.k8s-service-panel-title {
+  text-anchor: start;
+}
+
+.k8s-service-panel-subtitle,
+.k8s-service-client text,
+.k8s-service-entry text,
+.k8s-service-endpoints text,
+.k8s-service-proxy text,
+.k8s-service-pod text,
+.k8s-service-selector-path text,
+.k8s-service-entry-path text,
+.k8s-service-sync-path text,
+.k8s-service-forward-path text,
+.k8s-service-diagnosis text,
+.k8s-service-return-path text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.k8s-service-client text,
+.k8s-service-entry text,
+.k8s-service-pod text,
+.k8s-service-selector-path text,
+.k8s-service-entry-path text,
+.k8s-service-sync-path text,
+.k8s-service-forward-path text,
+.k8s-service-return-path text {
+  text-anchor: middle;
+}
+
+.k8s-service-chip-text {
+  fill: var(--brand-strong);
+  font-weight: 950;
+}
+
+.k8s-service-selector-path path,
+.k8s-service-entry-path path,
+.k8s-service-sync-path path,
+.k8s-service-forward-path path,
+.k8s-service-return-path path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.k8s-service-entry-path path {
+  stroke: var(--tertiary);
+}
+
+.k8s-service-sync-path path {
+  stroke: #f59e0b;
+}
+
+.k8s-service-forward-path path {
+  stroke: var(--success);
+}
+
+.k8s-service-return-path path {
+  stroke: var(--danger);
+  stroke-dasharray: 8 8;
+}
+
+.k8s-service-selector-path rect,
+.k8s-service-entry-path rect,
+.k8s-service-sync-path rect,
+.k8s-service-forward-path rect,
+.k8s-service-return-path rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 28%, var(--border));
+  filter: url(#k8s-service-soft-shadow);
+}
+
+.k8s-service-entry-path rect {
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.k8s-service-sync-path rect {
+  fill: color-mix(in srgb, #f59e0b 10%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 38%, var(--border));
+}
+
+.k8s-service-forward-path rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.k8s-service-return-path rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.k8s-service-selector-path text,
+.k8s-service-entry-path text,
+.k8s-service-sync-path text,
+.k8s-service-forward-path text,
+.k8s-service-return-path text {
+  fill: var(--text);
+  font-size: 10.5px;
+  font-weight: 950;
+}
+
+.k8s-service-endpoint-row rect,
+.k8s-service-rule rect,
+.k8s-service-signal rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.k8s-service-endpoint-row.success.active rect,
+.k8s-service-rule.success.active rect,
+.k8s-service-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.k8s-service-endpoint-row.danger.active rect,
+.k8s-service-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.k8s-service-rule.brand.active rect,
+.k8s-service-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.k8s-service-rule.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 40%, var(--border));
+}
+
+.k8s-service-endpoint-row text:first-of-type,
+.k8s-service-signal text:first-of-type {
+  text-anchor: start;
+}
+
+.k8s-service-endpoint-row text:nth-of-type(2),
+.k8s-service-signal text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.k8s-service-rule text {
+  text-anchor: start;
+}
+
+.k8s-service-rule text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.k8s-service-pod rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#k8s-service-soft-shadow);
+}
+
+.k8s-service-pod.ready.active rect {
+  fill: color-mix(in srgb, var(--success) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.k8s-service-pod.not-ready.active rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.k8s-service-caption {
   right: 16px;
   bottom: 14px;
 }

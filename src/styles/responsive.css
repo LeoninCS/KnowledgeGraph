@@ -220,6 +220,11 @@
     justify-content: start;
   }
 
+  .k8s-service-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .arp-stage {
     overflow-x: auto;
     justify-content: start;
@@ -488,5 +493,60 @@
     display: grid;
     gap: 16px;
     padding: 18px;
+  }
+
+  .k8s-service-stage {
+    padding-inline: 12px;
+  }
+
+  .k8s-service-card {
+    width: 100%;
+  }
+
+  .k8s-service-diagram {
+    display: none;
+  }
+
+  .k8s-service-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
+  .k8s-service-mobile-flow,
+  .k8s-service-mobile-facts {
+    display: grid;
+    gap: 10px;
+  }
+
+  .k8s-service-mobile-hop,
+  .k8s-service-mobile-fact {
+    display: grid;
+    gap: 4px;
+    padding: 12px;
+    border: 1px solid color-mix(in srgb, var(--muted) 18%, var(--border));
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+  }
+
+  .k8s-service-mobile-hop.active,
+  .k8s-service-mobile-fact.active {
+    border-color: color-mix(in srgb, var(--brand) 36%, var(--border));
+    background: color-mix(in srgb, var(--brand) 8%, var(--surface));
+  }
+
+  .k8s-service-mobile-hop span,
+  .k8s-service-mobile-fact span {
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-weight: 800;
+  }
+
+  .k8s-service-mobile-hop strong,
+  .k8s-service-mobile-fact strong {
+    color: var(--text);
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.82rem;
+    line-height: 1.35;
   }
 }

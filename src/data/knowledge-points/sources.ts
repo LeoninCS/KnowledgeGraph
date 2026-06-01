@@ -3009,6 +3009,18 @@ export const knowledgeSources = {
     title: "Kubernetes Docs: Service",
     url: "https://kubernetes.io/docs/concepts/services-networking/service/",
   },
+  "kubernetes-virtual-ips": {
+    title: "Kubernetes Docs: Virtual IPs and Service Proxies",
+    url: "https://kubernetes.io/docs/reference/networking/virtual-ips/",
+  },
+  "kubernetes-endpoint-slices": {
+    title: "Kubernetes Docs: EndpointSlices",
+    url: "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/",
+  },
+  "tkng-clusterip": {
+    title: "The Kubernetes Networking Guide: ClusterIP",
+    url: "https://www.tkng.io/services/clusterip/",
+  },
   "kubernetes-dns": {
     title: "Kubernetes Docs: DNS for Services and Pods",
     url: "https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/",

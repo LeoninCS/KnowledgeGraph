@@ -198,6 +198,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "kubernetes:service") {
+    return (
+      <KubernetesServiceStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "algorithm:array") {
     return (
       <ArrayIndexStage
@@ -1823,6 +1834,237 @@ function IpRoutingStage({
           </div>
         </div>
         <div className="tcp-handshake-caption ip-routing-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KubernetesServiceStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const selectorActive = completedSteps >= 1;
+  const entryActive = completedSteps >= 2;
+  const proxyActive = completedSteps >= 3;
+  const forwardActive = completedSteps >= 4;
+  const diagnoseActive = completedSteps >= 5;
+  const pods = [
+    { id: "pod-a", name: "checkout-7c9f-a", ip: "10.244.1.7", node: "node-a", ready: true, x: 744, y: 224, active: selectorActive },
+    { id: "pod-b", name: "checkout-7c9f-b", ip: "10.244.2.9", node: "node-b", ready: true, x: 914, y: 224, active: forwardActive },
+    { id: "pod-c", name: "checkout-7c9f-c", ip: "10.244.3.11", node: "node-c", ready: false, x: 828, y: 356, active: diagnoseActive },
+  ];
+  const endpointRows = [
+    { addr: "10.244.1.7:8080", zone: "node-a", state: "Ready", active: selectorActive, tone: "success" },
+    { addr: "10.244.2.9:8080", zone: "node-b", state: "Ready", active: selectorActive, tone: "success" },
+    { addr: "10.244.3.11:8080", zone: "node-c", state: "NotReady", active: diagnoseActive, tone: "danger" },
+  ];
+  const ruleRows = [
+    { name: "KUBE-SVC", value: entryActive ? "10.96.12.34:80" : "pending", active: entryActive, tone: "brand" },
+    { name: "KUBE-SEP", value: proxyActive ? "2 Ready endpoints" : "pending", active: proxyActive, tone: "warning" },
+    { name: "DNAT", value: forwardActive ? "10.244.2.9:8080" : "pending", active: forwardActive, tone: "success" },
+  ];
+  const signalRows = [
+    { name: "endpoints", value: diagnoseActive ? "2/3 Ready" : selectorActive ? "2 Ready" : "pending", active: selectorActive, tone: "success" },
+    { name: "policy", value: diagnoseActive ? "allow ns=prod" : "pending", active: diagnoseActive, tone: "danger" },
+    { name: "sessionAffinity", value: diagnoseActive ? "ClientIP off" : "pending", active: diagnoseActive, tone: "brand" },
+  ];
+
+  return (
+    <div className="visual-stage k8s-service-stage">
+      <div className="k8s-service-card">
+        <svg
+          className="k8s-service-diagram"
+          viewBox="0 0 1120 620"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["k8s-service-arrow-brand", "var(--brand)"],
+              ["k8s-service-arrow-teal", "var(--tertiary)"],
+              ["k8s-service-arrow-warning", "#f59e0b"],
+              ["k8s-service-arrow-success", "var(--success)"],
+              ["k8s-service-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="k8s-service-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="k8s-service-bg" x="24" y="24" width="1072" height="548" rx="28" />
+          <text className="k8s-service-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="k8s-service-subtitle" x="560" y="100">
+            {label(
+              "selector -> EndpointSlice -> ClusterIP / DNS -> kube-proxy rules -> Ready Pod",
+              "selector -> EndpointSlice -> ClusterIP / DNS -> kube-proxy rules -> Ready Pod",
+            )}
+          </text>
+
+          <g className={`k8s-service-client ${entryActive ? "active" : ""}`}>
+            <rect x="64" y="178" width="164" height="112" rx="22" />
+            <text className="k8s-service-node-title" x="146" y="214">{label("集群内客户端", "In-cluster client")}</text>
+            <text x="146" y="242">GET checkout:80</text>
+            <text x="146" y="264">checkout.default.svc</text>
+          </g>
+
+          <g className={`k8s-service-entry ${entryActive ? "active" : ""}`}>
+            <rect x="290" y="146" width="196" height="130" rx="24" />
+            <text className="k8s-service-node-title" x="388" y="184">Service</text>
+            <text x="388" y="212">ClusterIP 10.96.12.34</text>
+            <text x="388" y="236">port 80 {"->"} targetPort 8080</text>
+            <text className="k8s-service-chip-text" x="388" y="260">selector app=checkout</text>
+          </g>
+
+          <g className={`k8s-service-endpoints ${selectorActive ? "active" : ""}`}>
+            <rect x="276" y="326" width="246" height="178" rx="24" />
+            <text className="k8s-service-panel-title" x="304" y="360">EndpointSlice</text>
+            <text className="k8s-service-panel-subtitle" x="304" y="382">kubernetes.io/service-name=checkout</text>
+            {endpointRows.map((endpoint, index) => (
+              <g
+                key={endpoint.addr}
+                className={`k8s-service-endpoint-row ${endpoint.tone} ${endpoint.active ? "active" : ""}`}
+              >
+                <rect x="304" y={402 + index * 32} width="188" height="25" rx="13" />
+                <text x="318" y={419 + index * 32}>{endpoint.addr}</text>
+                <text x="484" y={419 + index * 32}>{endpoint.state}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-service-proxy ${proxyActive ? "active" : ""}`}>
+            <rect x="560" y="146" width="154" height="358" rx="24" />
+            <text className="k8s-service-node-title" x="637" y="184">kube-proxy</text>
+            <text x="637" y="210">node-b</text>
+            <text x="637" y="236">watch Service</text>
+            <text x="637" y="256">watch EndpointSlice</text>
+            <g className="k8s-service-rule-stack">
+              {ruleRows.map((rule, index) => (
+                <g
+                  key={rule.name}
+                  className={`k8s-service-rule ${rule.tone} ${rule.active ? "active" : ""}`}
+                >
+                  <rect x="584" y={300 + index * 48} width="106" height="36" rx="14" />
+                  <text x="598" y={315 + index * 48}>{rule.name}</text>
+                  <text x="598" y={331 + index * 48}>{rule.value}</text>
+                </g>
+              ))}
+            </g>
+          </g>
+
+          <g className="k8s-service-pod-zone">
+            <rect x="734" y="146" width="322" height="358" rx="28" />
+            <text className="k8s-service-panel-title" x="762" y="184">{label("后端工作负载", "Backend workload")}</text>
+            <text className="k8s-service-panel-subtitle" x="762" y="206">Deployment checkout · replicas=3</text>
+            {pods.map((pod) => (
+              <g
+                key={pod.id}
+                className={`k8s-service-pod ${pod.ready ? "ready" : "not-ready"} ${pod.active ? "active" : ""}`}
+              >
+                <rect x={pod.x - 62} y={pod.y - 42} width="124" height="84" rx="18" />
+                <text className="k8s-service-pod-name" x={pod.x} y={pod.y - 14}>{pod.name}</text>
+                <text x={pod.x} y={pod.y + 9}>{pod.ip}</text>
+                <text x={pod.x} y={pod.y + 31}>{pod.ready ? "Ready" : "NotReady"} · {pod.node}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-service-selector-path ${selectorActive ? "active" : ""}`}>
+            <path d="M 388 276 C 386 304, 376 312, 376 326" markerEnd="url(#k8s-service-arrow-brand)" />
+            <rect x="86" y="334" width="152" height="42" rx="18" />
+            <text x="162" y="360">selector app=checkout</text>
+          </g>
+
+          <g className={`k8s-service-entry-path ${entryActive ? "active" : ""}`}>
+            <path d="M 228 234 C 252 226, 264 214, 290 214" markerEnd="url(#k8s-service-arrow-teal)" />
+            <rect x="72" y="120" width="180" height="42" rx="18" />
+            <text x="162" y="146">DNS {"->"} ClusterIP</text>
+          </g>
+
+          <g className={`k8s-service-sync-path ${proxyActive ? "active" : ""}`}>
+            <path d="M 522 412 C 544 392, 550 366, 560 338" markerEnd="url(#k8s-service-arrow-warning)" />
+            <path d="M 486 214 C 528 210, 536 210, 560 210" markerEnd="url(#k8s-service-arrow-warning)" />
+            <rect x="438" y="516" width="206" height="38" rx="17" />
+            <text x="541" y="540">control loop sync rules</text>
+          </g>
+
+          <g className={`k8s-service-forward-path ${forwardActive ? "active" : ""}`}>
+            <path d="M 714 342 C 752 314, 812 286, 852 252" markerEnd="url(#k8s-service-arrow-success)" />
+            <rect x="744" y="520" width="246" height="38" rx="17" />
+            <text x="867" y="544">DNAT 10.96.12.34:80 {"->"} 10.244.2.9:8080</text>
+          </g>
+
+          <g className={`k8s-service-diagnosis ${diagnoseActive ? "active" : ""}`}>
+            <rect x="66" y="402" width="176" height="102" rx="22" />
+            <text className="k8s-service-panel-title" x="92" y="434">{label("排障信号", "Debug signals")}</text>
+            {signalRows.map((signal, index) => (
+              <g
+                key={signal.name}
+                className={`k8s-service-signal ${signal.tone} ${signal.active ? "active" : ""}`}
+              >
+                <rect x="92" y={452 + index * 24} width="124" height="18" rx="9" />
+                <text x="102" y={465 + index * 24}>{signal.name}</text>
+                <text x="210" y={465 + index * 24}>{signal.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-service-return-path ${diagnoseActive ? "active" : ""}`}>
+            <path d="M 914 182 C 802 78, 306 72, 146 178" markerEnd="url(#k8s-service-arrow-danger)" />
+            <rect x="786" y="86" width="226" height="38" rx="17" />
+            <text x="899" y="110">response path + NetworkPolicy</text>
+          </g>
+        </svg>
+        <div className="k8s-service-mobile-map">
+          <div className="k8s-service-mobile-flow" aria-hidden="true">
+            {[
+              { name: "Service", value: "checkout.default.svc -> 10.96.12.34", active: entryActive },
+              { name: "EndpointSlice", value: selectorActive ? "2 Ready / 1 NotReady" : "pending", active: selectorActive },
+              { name: "kube-proxy", value: proxyActive ? "iptables rules synced" : "watching", active: proxyActive },
+              { name: "Pod", value: forwardActive ? "10.244.2.9:8080" : "pending", active: forwardActive },
+            ].map((item) => (
+              <div key={item.name} className={`k8s-service-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="k8s-service-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`k8s-service-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption k8s-service-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

@@ -136,6 +136,7 @@
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
 | 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
+| Service | `step-simulation` | completed | desktop/mobile captured | Kubernetes Service 数据面转发模拟器，覆盖 selector、EndpointSlice、ClusterIP/DNS、kube-proxy 规则和 Ready Pod |
 
 ## Buffer Pool Visualization
 
@@ -200,7 +201,56 @@
 
 ## Next Candidate
 
-优先选择 Kubernetes `Service`，机制清晰且适合做 Service -> EndpointSlice -> kube-proxy -> Pod 的流量转发模拟。
+优先选择 Kubernetes `Ingress`，机制清晰且适合做外部请求 -> Ingress Controller -> rule/path match -> Service -> Pod 的流量转发模拟。
+
+## Kubernetes Service Visualization
+
+### Online Image References
+
+- `source`：Kubernetes Docs - Virtual IPs and Service Proxies，https://kubernetes.io/docs/reference/networking/virtual-ips/
+  - `image`：页面中的 `Virtual IP mechanism for Services, using iptables mode` SVG 图，图片 URL：`https://kubernetes.io/images/docs/services-iptables-overview.svg`。
+  - `role`：main
+  - `qualityReason`：官方图直接展示 Service 虚拟 IP、kube-proxy、iptables 转发规则和后端 endpoint，是 Service 数据面构图的权威主参考。
+  - `takeaways`：主画布采用左侧客户端和 Service，中心 kube-proxy 规则，右侧后端 Pod 的横向流量路径。
+  - `originalChanges`：把官方静态 iptables 图扩展为五步交互：selector 匹配、ClusterIP/DNS、规则同步、DNAT 转发、排障信号。
+- `source`：Kubernetes Docs - Service，https://kubernetes.io/docs/concepts/services-networking/service/
+  - `image`：Service 概念页中的 selector、port、targetPort、ClusterIP 和后端 Pod 说明。
+  - `role`：supporting
+  - `qualityReason`：官方概念页覆盖 Service API 字段和稳定入口语义，适合补充右侧任务文案和画布标签。
+  - `takeaways`：画布明确写出 `port 80 -> targetPort 8080`，并把 DNS/ClusterIP 作为稳定入口。
+  - `originalChanges`：用项目统一表格和高亮表达 port/targetPort 映射，降低字段理解门槛。
+- `source`：Kubernetes Docs - EndpointSlices，https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/
+  - `image`：EndpointSlice 文档中的可扩展 endpoint 集合、地址类型、条件和服务关联说明。
+  - `role`：supporting
+  - `qualityReason`：官方解释 EndpointSlice 如何发布后端地址和就绪状态，补齐 selector 到转发目标之间的资源模型。
+  - `takeaways`：画布加入 EndpointSlice 面板，列出两个 Ready endpoint 和一个 NotReady endpoint。
+  - `originalChanges`：把 EndpointSlice 从背景资源提升为模拟器中间层，连接控制面对象和数据面规则。
+- `source`：The Kubernetes Networking Guide - ClusterIP，https://www.tkng.io/services/clusterip/
+  - `image`：ClusterIP 章节中的 Service 5 行 YAML 到控制面/数据面状态扩展的讲解结构。
+  - `role`：supporting
+  - `qualityReason`：工程化讲解强调一个简短 Service YAML 会在所有节点生成数据面状态，适合表达 kube-proxy 每节点同步。
+  - `takeaways`：把 `control loop sync rules` 放在 kube-proxy 与 EndpointSlice 之间，突出 Watch 和同步成本。
+  - `originalChanges`：右侧排障信号同时展示 endpoints、NetworkPolicy、sessionAffinity，把教程型说明改造成线上排查面板。
+
+### Reference Breakdown
+
+- 主体布局：左侧集群内客户端，中部 Service 和 EndpointSlice，中心 kube-proxy 节点规则，右侧后端工作负载 Pod，左下排障信号。
+- 视觉焦点：访问路径从 DNS/ClusterIP 进入 Service，经 kube-proxy 同步规则和 DNAT，最终落到 Ready Pod B；回程与策略信号用红色虚线强调。
+- 领域对象：Service selector、ClusterIP、DNS、EndpointSlice、Ready/NotReady endpoint、kube-proxy、iptables/nftables/IPVS、DNAT、targetPort、NetworkPolicy、sessionAffinity。
+- 容器层级：Service 提供稳定入口；EndpointSlice 发布后端集合；kube-proxy 在节点上维护规则；Pod 是真实业务终点。
+- 连线方向：selector 到 EndpointSlice，客户端到 Service，EndpointSlice/Service 到 kube-proxy，kube-proxy 到 Pod，Pod 到排障信号。
+- 状态表达：每一步通过透明度、边框、箭头和规则面板值显隐表达控制面对象和数据面路径的推进。
+- 颜色策略：品牌蓝表示稳定入口，青色表示 DNS/ClusterIP，橙色表示规则同步，绿色表示 Ready endpoint 转发，红色表示策略和异常观察。
+- 文字密度：画布保留 Service 字段、endpoint 地址、规则名和排障读数；概念解释放在右侧任务、操作面板和底部步骤条。
+- 交互节奏：五步依次推进“匹配后端 -> 稳定入口 -> 同步规则 -> 转发到 Pod -> 观察异常”。
+- 原创改造点：融合官方虚拟 IP 图、EndpointSlice 资源模型和 TKNG 控制面/数据面视角，做成可操作的 Service 排障模拟器。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/service/desktop.png`
+- 移动端：captured `.codex-artifacts/visualizations/service/mobile.png`
+- 截图结论：本地 Playwright 进入 Kubernetes `Service` 详情页和模拟器，推进到第 5 步“观察异常”；桌面截图包含 Service、EndpointSlice、kube-proxy、后端 Pod、排障信号、右侧任务面板和底部五步进度；移动端采用纵向摘要，Service、EndpointSlice、kube-proxy、Pod 和排障读数完整可读。
+- 代码验收：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过；截图文件尺寸为 desktop `2880 x 1880`、mobile `1000 x 4392`。
 
 ## IP Routing Visualization
 
@@ -395,3 +445,14 @@
 - Screenshot Review：保存 `.codex-artifacts/visualizations/routing/desktop.png` 与 `.codex-artifacts/visualizations/routing/mobile.png`；桌面和移动端验收图均可读。
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项。
 - Next Candidate：Kubernetes `Service`。
+
+### 2026-06-01 19:40 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功，远端已同步。
+- Selected：Kubernetes `Service`，原因是 selector、EndpointSlice、ClusterIP/DNS、kube-proxy 和 Ready Pod 形成清晰控制面到数据面的转发链路。
+- Image Search：围绕 `Kubernetes Service EndpointSlice kube-proxy diagram`、`ClusterIP traffic flow diagram`、`Service virtual IP iptables diagram` 筛选候选来源，确认 1 个官方主参考和 3 个辅助参考。
+- Implementation：新增 `kubernetes:service` 专用 `step-simulation` 构建器、Service SVG 舞台、移动端纵向摘要、响应式样式和 3 个 Kubernetes 可视化来源。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/service/desktop.png` 与 `.codex-artifacts/visualizations/service/mobile.png`；桌面和移动端验收图均可读。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
+- Browser Note：Chrome DevTools MCP profile 锁定，in-app browser 返回不可用；本轮使用本地 Playwright 完成页面交互和截图验收。
+- Next Candidate：Kubernetes `Ingress`。
