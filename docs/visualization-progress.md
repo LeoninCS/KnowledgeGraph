@@ -296,3 +296,27 @@
 - Push Blocker：`git push --force-with-lease origin main` 连续失败，原因是 `Could not resolve host: github.com`。本地 `main` 保留 amend 提交，当前相对 `origin/main` 显示 ahead 1 / behind 1。
 - Resume Point：网络恢复后执行 `git push --force-with-lease origin main`；浏览器权限恢复后，进入 `http://127.0.0.1:4174/KnowledgeGraph/`，搜索 `哈希槽`，打开模拟器并保存桌面/移动截图。
 - Next Candidate：网络层 `IP 路由`。
+
+### 2026-06-01 17:02 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 中止，原因是本地 `main` 与 `origin/main` 已分叉。
+- Divergence：本地独有提交为 `444f74f feat: add hash-slot visualization`；远端独有提交为 `9c004e5 feat: add hash-slot visualization`；两者来自同一哈希槽可视化提交链的 amend 差异。
+- Working Tree：仅有未跟踪验收产物 `.codex-artifacts/` 和 `test-results/`。
+- Action：本轮按同步门禁停止新增找图、设计和编码，保留本地现场。
+- Resume Point：下一轮先处理哈希槽提交分叉，可执行 `git push --force-with-lease origin main` 完成 amend 版本推送；浏览器权限恢复后补齐哈希槽桌面与移动截图。
+
+### 2026-06-01 18:03 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 仍中止，原因是本地 `main` 与 `origin/main` 已分叉。
+- Divergence：本地独有提交为 `444f74f feat: add hash-slot visualization`；远端独有提交为 `9c004e5 feat: add hash-slot visualization`；代码文件一致，差异集中在进度文档 6 行记录。
+- Push Attempt：执行 `git push --force-with-lease origin main`，失败原因是 `Could not resolve host: github.com`。
+- Working Tree：`docs/visualization-progress.md` 保留本轮记录；`.codex-artifacts/` 和 `test-results/` 仍为本地验收产物。
+- Action：本轮按同步门禁停止新增找图、设计和编码，保留本地 `hash-slot` amend 提交。
+- Resume Point：DNS 恢复后先执行 `git push --force-with-lease origin main`；推送成功后补齐哈希槽浏览器截图，再进入网络层 `IP 路由` 候选。
+
+### 2026-06-01 18:20 CST
+
+- Fix：DNS 已恢复，执行 `git push --force-with-lease origin main` 成功，将远端 `main` 从 `9c004e5` 更新到本地 `444f74f`。
+- Pull Gate：随后执行 `git pull --ff-only origin main`，结果为 `Already up to date`。
+- Workspace Hygiene：新增 `.gitignore` 规则忽略 `.codex-artifacts/` 和 `test-results/`，避免本地验收产物持续触发并发控制。
+- Result：下一轮自动化可从同步后的 `main` 继续，优先补齐哈希槽截图；浏览器仍受限时进入网络层 `IP 路由` 候选。

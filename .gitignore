@@ -2,6 +2,8 @@ node_modules
 dist/
 *.tsbuildinfo
 .DS_Store
+.codex-artifacts/
+test-results/
 .visualization-progress.json
 .visualization-claims.json
 .visualization-research/
