@@ -3889,6 +3889,22 @@ export const knowledgeSources = {
     title: "Docker Docs: docker system df",
     url: "https://docs.docker.com/reference/cli/docker/system/df/",
   },
+  "docker-system-prune": {
+    title: "Docker Docs: docker system prune",
+    url: "https://docs.docker.com/reference/cli/docker/system/prune/",
+  },
+  "docker-builder-prune": {
+    title: "Docker Docs: docker builder prune",
+    url: "https://docs.docker.com/reference/cli/docker/builder/prune/",
+  },
+  "docker-image-prune": {
+    title: "Docker Docs: docker image prune",
+    url: "https://docs.docker.com/reference/cli/docker/image/prune/",
+  },
+  "docker-system-events": {
+    title: "Docker Docs: docker system events",
+    url: "https://docs.docker.com/reference/cli/docker/system/events/",
+  },
   "docker-context-docs": {
     title: "Docker Docs: Docker contexts",
     url: "https://docs.docker.com/engine/context/working-with-contexts/",
@@ -3896,6 +3912,50 @@ export const knowledgeSources = {
   "docker-compose-cli-docs": {
     title: "Docker Docs: docker compose",
     url: "https://docs.docker.com/reference/cli/docker/compose/",
+  },
+  "docker-compose-docs": {
+    title: "Docker Docs: Docker Compose",
+    url: "https://docs.docker.com/compose/",
+  },
+  "docker-compose-application-model": {
+    title: "Docker Docs: How Compose works",
+    url: "https://docs.docker.com/compose/intro/compose-application-model/",
+  },
+  "docker-compose-file-reference": {
+    title: "Docker Docs: Compose file reference",
+    url: "https://docs.docker.com/compose/compose-file/",
+  },
+  "docker-compose-interpolation": {
+    title: "Docker Docs: Compose file interpolation",
+    url: "https://docs.docker.com/reference/compose-file/interpolation/",
+  },
+  "docker-compose-merge": {
+    title: "Docker Docs: Merge Compose files",
+    url: "https://docs.docker.com/compose/how-tos/multiple-compose-files/merge/",
+  },
+  "docker-compose-include": {
+    title: "Docker Docs: Include Compose files",
+    url: "https://docs.docker.com/reference/compose-file/include/",
+  },
+  "docker-compose-up-cli": {
+    title: "Docker Docs: docker compose up",
+    url: "https://docs.docker.com/reference/cli/docker/compose/up/",
+  },
+  "docker-compose-profiles": {
+    title: "Docker Docs: Using profiles with Compose",
+    url: "https://docs.docker.com/compose/how-tos/profiles/",
+  },
+  "docker-compose-startup-order": {
+    title: "Docker Docs: Control startup and shutdown order in Compose",
+    url: "https://docs.docker.com/compose/how-tos/startup-order/",
+  },
+  "docker-compose-networking": {
+    title: "Docker Docs: Compose networking",
+    url: "https://docs.docker.com/compose/how-tos/networking/",
+  },
+  "docker-compose-networks-reference": {
+    title: "Docker Docs: Compose networks reference",
+    url: "https://docs.docker.com/reference/compose-file/networks/",
   },
   "docker-login-cli": {
     title: "Docker Docs: docker login",
@@ -3908,6 +3968,26 @@ export const knowledgeSources = {
   "docker-run-containers-docs": {
     title: "Docker Docs: Running containers",
     url: "https://docs.docker.com/engine/containers/run/",
+  },
+  "docker-engine-security": {
+    title: "Docker Docs: Docker Engine security",
+    url: "https://docs.docker.com/engine/security/",
+  },
+  "docker-rootless-mode": {
+    title: "Docker Docs: Rootless mode",
+    url: "https://docs.docker.com/engine/security/rootless/",
+  },
+  "docker-seccomp-profile": {
+    title: "Docker Docs: Seccomp security profiles for Docker",
+    url: "https://docs.docker.com/engine/security/seccomp/",
+  },
+  "docker-apparmor-profile": {
+    title: "Docker Docs: AppArmor security profiles for Docker",
+    url: "https://docs.docker.com/engine/security/apparmor/",
+  },
+  "owasp-docker-security-cheatsheet": {
+    title: "OWASP Cheat Sheet Series: Docker Security",
+    url: "https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html",
   },
   "docker-multi-service-container": {
     title: "Docker Docs: Run multiple processes in a container",
@@ -3937,6 +4017,10 @@ export const knowledgeSources = {
     title: "Docker Docs: Bind mounts",
     url: "https://docs.docker.com/engine/storage/bind-mounts/",
   },
+  "docker-storage-tmpfs-mounts": {
+    title: "Docker Docs: tmpfs mounts",
+    url: "https://docs.docker.com/engine/storage/tmpfs/",
+  },
   "docker-compose-env-vars": {
     title: "Docker Docs: Environment variables in Compose",
     url: "https://docs.docker.com/compose/environment-variables/",
@@ -3945,9 +4029,33 @@ export const knowledgeSources = {
     title: "Docker Docs: Set environment variables within your container's environment",
     url: "https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/",
   },
+  "docker-compose-env-precedence": {
+    title: "Docker Docs: Environment variables precedence in Compose",
+    url: "https://docs.docker.com/compose/how-tos/environment-variables/envvars-precedence/",
+  },
+  "docker-compose-variable-interpolation": {
+    title: "Docker Docs: Variable interpolation in Compose",
+    url: "https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/",
+  },
   "docker-compose-services-reference": {
     title: "Docker Docs: Compose services reference",
     url: "https://docs.docker.com/reference/compose-file/services/",
+  },
+  "docker-compose-build-reference": {
+    title: "Docker Docs: Compose Build Specification",
+    url: "https://docs.docker.com/reference/compose-file/build/",
+  },
+  "docker-compose-build-cli": {
+    title: "Docker Docs: docker compose build",
+    url: "https://docs.docker.com/reference/cli/docker/compose/build/",
+  },
+  "docker-compose-volumes-reference": {
+    title: "Docker Docs: Compose volumes reference",
+    url: "https://docs.docker.com/reference/compose-file/volumes/",
+  },
+  "docker-compose-down-cli": {
+    title: "Docker Docs: docker compose down",
+    url: "https://docs.docker.com/reference/cli/docker/compose/down/",
   },
   "docker-secrets-docs": {
     title: "Docker Docs: Secrets",
@@ -4001,6 +4109,30 @@ export const knowledgeSources = {
     title: "Docker Docs: docker container logs",
     url: "https://docs.docker.com/reference/cli/docker/container/logs/",
   },
+  "docker-logging-overview": {
+    title: "Docker Docs: View container logs",
+    url: "https://docs.docker.com/engine/logging/",
+  },
+  "docker-logging-configure": {
+    title: "Docker Docs: Configure logging drivers",
+    url: "https://docs.docker.com/engine/logging/configure/",
+  },
+  "docker-json-file-logging-driver": {
+    title: "Docker Docs: JSON File logging driver",
+    url: "https://docs.docker.com/engine/logging/drivers/json-file/",
+  },
+  "docker-local-logging-driver": {
+    title: "Docker Docs: Local file logging driver",
+    url: "https://docs.docker.com/engine/logging/drivers/local/",
+  },
+  "docker-dual-logging": {
+    title: "Docker Docs: Use docker logs with remote logging drivers",
+    url: "https://docs.docker.com/engine/logging/dual-logging/",
+  },
+  "docker-compose-logs-cli": {
+    title: "Docker Docs: docker compose logs",
+    url: "https://docs.docker.com/reference/cli/docker/compose/logs/",
+  },
   "docker-container-port-cli": {
     title: "Docker Docs: docker container port",
     url: "https://docs.docker.com/reference/cli/docker/container/port/",
@@ -4020,6 +4152,22 @@ export const knowledgeSources = {
   "docker-volume-inspect-cli": {
     title: "Docker Docs: docker volume inspect",
     url: "https://docs.docker.com/reference/cli/docker/volume/inspect/",
+  },
+  "docker-volume-docs": {
+    title: "Docker Docs: Volumes",
+    url: "https://docs.docker.com/engine/storage/volumes/",
+  },
+  "docker-volume-create-cli": {
+    title: "Docker Docs: docker volume create",
+    url: "https://docs.docker.com/reference/cli/docker/volume/create/",
+  },
+  "docker-volume-ls-cli": {
+    title: "Docker Docs: docker volume ls",
+    url: "https://docs.docker.com/reference/cli/docker/volume/ls/",
+  },
+  "docker-volume-prune-cli": {
+    title: "Docker Docs: docker volume prune",
+    url: "https://docs.docker.com/reference/cli/docker/volume/prune/",
   },
   "docker-network-cli": {
     title: "Docker Docs: docker network",
@@ -4133,6 +4281,10 @@ export const knowledgeSources = {
     title: "Docker Docs: docker image tag",
     url: "https://docs.docker.com/reference/cli/docker/image/tag/",
   },
+  "docker-image-pull-cli": {
+    title: "Docker Docs: docker image pull",
+    url: "https://docs.docker.com/reference/cli/docker/image/pull/",
+  },
   "docker-image-push-cli": {
     title: "Docker Docs: docker image push",
     url: "https://docs.docker.com/reference/cli/docker/image/push/",
@@ -4157,6 +4309,54 @@ export const knowledgeSources = {
     title: "Docker Docs: Docker Hub",
     url: "https://docs.docker.com/docker-hub/",
   },
+  "docker-hub-usage-limits": {
+    title: "Docker Docs: Docker Hub usage and limits",
+    url: "https://docs.docker.com/docker-hub/usage/storage/",
+  },
+  "docker-hub-access-management": {
+    title: "Docker Docs: Docker Hub access management",
+    url: "https://docs.docker.com/docker-hub/repos/manage/access/",
+  },
+  "docker-hub-trusted-content": {
+    title: "Docker Docs: Docker Hub trusted content",
+    url: "https://docs.docker.com/docker-hub/image-library/trusted-content/",
+  },
+  "docker-personal-access-tokens": {
+    title: "Docker Docs: Personal access tokens",
+    url: "https://docs.docker.com/security/for-developers/access-tokens/",
+  },
+  "docker-hub-access-tokens": {
+    title: "Docker Docs: Docker Hub personal access tokens",
+    url: "https://docs.docker.com/docker-hub/access-tokens/",
+  },
+  "cncf-distribution-docs": {
+    title: "CNCF Distribution: Registry",
+    url: "https://distribution.github.io/distribution/",
+  },
+  "cncf-distribution-token-auth": {
+    title: "CNCF Distribution: Token authentication",
+    url: "https://distribution.github.io/distribution/spec/auth/token/",
+  },
+  "cncf-distribution-token-scope": {
+    title: "CNCF Distribution: Token scope and access",
+    url: "https://distribution.github.io/distribution/spec/auth/scope/",
+  },
+  "cncf-distribution-deploy": {
+    title: "CNCF Distribution: Deploy a registry server",
+    url: "https://distribution.github.io/distribution/about/deploying/",
+  },
+  "cncf-distribution-config": {
+    title: "CNCF Distribution: Configuring a registry",
+    url: "https://distribution.github.io/distribution/about/configuration/",
+  },
+  "cncf-distribution-gc": {
+    title: "CNCF Distribution: Garbage collection",
+    url: "https://distribution.github.io/distribution/about/garbage-collection/",
+  },
+  "docker-registry-certs": {
+    title: "Docker Docs: Verify repository client with certificates",
+    url: "https://docs.docker.com/engine/security/certificates/",
+  },
   "docker-scout-docs": {
     title: "Docker Docs: Docker Scout",
     url: "https://docs.docker.com/scout/",
@@ -4173,9 +4373,37 @@ export const knowledgeSources = {
     title: "Docker Docs: Build context",
     url: "https://docs.docker.com/build/building/context/",
   },
+  "docker-buildkit-docs": {
+    title: "Docker Docs: BuildKit",
+    url: "https://docs.docker.com/build/buildkit/",
+  },
+  "docker-build-overview": {
+    title: "Docker Docs: Docker Build overview",
+    url: "https://docs.docker.com/build/concepts/overview/",
+  },
+  "docker-builders": {
+    title: "Docker Docs: Builders",
+    url: "https://docs.docker.com/build/builders/",
+  },
+  "docker-build-drivers": {
+    title: "Docker Docs: Build drivers",
+    url: "https://docs.docker.com/build/builders/drivers/",
+  },
+  "docker-multi-platform-builds": {
+    title: "Docker Docs: Multi-platform builds",
+    url: "https://docs.docker.com/build/building/multi-platform/",
+  },
   "docker-build-cache-optimize": {
     title: "Docker Docs: Optimize cache usage in builds",
     url: "https://docs.docker.com/build/cache/optimize/",
+  },
+  "docker-cache-backends": {
+    title: "Docker Docs: Cache storage backends",
+    url: "https://docs.docker.com/build/cache/backends/",
+  },
+  "docker-buildx-build-cli": {
+    title: "Docker Docs: docker buildx build",
+    url: "https://docs.docker.com/reference/cli/docker/buildx/build/",
   },
   "docker-build-secrets": {
     title: "Docker Docs: Build secrets",
@@ -4248,6 +4476,58 @@ export const knowledgeSources = {
   "docker-network-docs": {
     title: "Docker Docs: Networking overview",
     url: "https://docs.docker.com/engine/network/",
+  },
+  "docker-dns-services": {
+    title: "Docker Docs: DNS services",
+    url: "https://docs.docker.com/engine/network/#dns-services",
+  },
+  "docker-network-drivers": {
+    title: "Docker Docs: Network drivers",
+    url: "https://docs.docker.com/engine/network/drivers/",
+  },
+  "docker-bridge-network-docs": {
+    title: "Docker Docs: Bridge network driver",
+    url: "https://docs.docker.com/engine/network/drivers/bridge/",
+  },
+  "docker-host-network-docs": {
+    title: "Docker Docs: Host network driver",
+    url: "https://docs.docker.com/engine/network/drivers/host/",
+  },
+  "docker-none-network-docs": {
+    title: "Docker Docs: None network driver",
+    url: "https://docs.docker.com/engine/network/drivers/none/",
+  },
+  "docker-overlay-network-docs": {
+    title: "Docker Docs: Overlay network driver",
+    url: "https://docs.docker.com/engine/network/drivers/overlay/",
+  },
+  "docker-swarm-networking": {
+    title: "Docker Docs: Manage swarm service networks",
+    url: "https://docs.docker.com/engine/swarm/networking/",
+  },
+  "docker-network-create-cli": {
+    title: "Docker Docs: docker network create",
+    url: "https://docs.docker.com/reference/cli/docker/network/create/",
+  },
+  "docker-network-inspect-cli": {
+    title: "Docker Docs: docker network inspect",
+    url: "https://docs.docker.com/reference/cli/docker/network/inspect/",
+  },
+  "docker-network-connect-cli": {
+    title: "Docker Docs: docker network connect",
+    url: "https://docs.docker.com/reference/cli/docker/network/connect/",
+  },
+  "docker-network-disconnect-cli": {
+    title: "Docker Docs: docker network disconnect",
+    url: "https://docs.docker.com/reference/cli/docker/network/disconnect/",
+  },
+  "docker-swarm-init-cli": {
+    title: "Docker Docs: docker swarm init",
+    url: "https://docs.docker.com/reference/cli/docker/swarm/init/",
+  },
+  "docker-service-create-cli": {
+    title: "Docker Docs: docker service create",
+    url: "https://docs.docker.com/reference/cli/docker/service/create/",
   },
   "docker-storage-docs": {
     title: "Docker Docs: Storage",
