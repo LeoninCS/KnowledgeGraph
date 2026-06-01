@@ -230,6 +230,11 @@
     justify-content: start;
   }
 
+  .binlog-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .ip-routing-stage {
     overflow-x: auto;
     justify-content: start;
@@ -601,6 +606,20 @@
     padding: 18px;
   }
 
+  .binlog-card {
+    width: 100%;
+  }
+
+  .binlog-diagram {
+    display: none;
+  }
+
+  .binlog-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
   .k8s-service-stage,
   .k8s-ingress-stage {
     padding-inline: 12px;
@@ -633,6 +652,8 @@
   .redo-log-mobile-facts,
   .undo-log-mobile-flow,
   .undo-log-mobile-facts,
+  .binlog-mobile-flow,
+  .binlog-mobile-facts,
   .docker-layer-mobile-flow,
   .docker-layer-mobile-facts {
     display: grid;
@@ -649,6 +670,8 @@
   .redo-log-mobile-fact,
   .undo-log-mobile-hop,
   .undo-log-mobile-fact,
+  .binlog-mobile-hop,
+  .binlog-mobile-fact,
   .docker-layer-mobile-hop,
   .docker-layer-mobile-fact {
     display: grid;
@@ -669,6 +692,8 @@
   .redo-log-mobile-fact.active,
   .undo-log-mobile-hop.active,
   .undo-log-mobile-fact.active,
+  .binlog-mobile-hop.active,
+  .binlog-mobile-fact.active,
   .docker-layer-mobile-hop.active,
   .docker-layer-mobile-fact.active {
     border-color: color-mix(in srgb, var(--brand) 36%, var(--border));
@@ -685,6 +710,8 @@
   .redo-log-mobile-fact span,
   .undo-log-mobile-hop span,
   .undo-log-mobile-fact span,
+  .binlog-mobile-hop span,
+  .binlog-mobile-fact span,
   .docker-layer-mobile-hop span,
   .docker-layer-mobile-fact span {
     color: var(--muted);
@@ -702,6 +729,8 @@
   .redo-log-mobile-fact strong,
   .undo-log-mobile-hop strong,
   .undo-log-mobile-fact strong,
+  .binlog-mobile-hop strong,
+  .binlog-mobile-fact strong,
   .docker-layer-mobile-hop strong,
   .docker-layer-mobile-fact strong {
     color: var(--text);

@@ -220,6 +220,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:binlog") {
+    return (
+      <BinlogStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "redis:hash-slot") {
     return (
       <RedisHashSlotStage
@@ -2414,6 +2425,227 @@ function UndoLogStage({
           </div>
         </div>
         <div className="tcp-handshake-caption undo-log-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BinlogStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const executeActive = completedSteps >= 1;
+  const eventActive = completedSteps >= 2;
+  const commitActive = completedSteps >= 3;
+  const streamActive = completedSteps >= 4;
+  const applyActive = completedSteps >= 5;
+  const eventRows = [
+    { name: "GTID_LOG_EVENT", value: "uuid:42", active: eventActive, tone: "brand" },
+    { name: "TABLE_MAP_EVENT", value: "orders", active: eventActive, tone: "teal" },
+    { name: "UPDATE_ROWS_EVENT", value: "amount 120 -> 140", active: eventActive, tone: "warning" },
+    { name: "XID_EVENT", value: "commit T42", active: commitActive, tone: "success" },
+  ];
+  const commitRows = [
+    { name: "flush", active: commitActive },
+    { name: "sync", active: commitActive },
+    { name: "commit", active: commitActive },
+  ];
+  const signalRows = [
+    { name: "Source file/pos", value: eventActive ? "mysql-bin.000142:328" : "mysql-bin.000142:154", active: eventActive },
+    { name: "Retrieved GTID", value: streamActive ? "uuid:1-42" : "uuid:1-41", active: streamActive },
+    { name: "Relay backlog", value: applyActive ? "0 events" : streamActive ? "4 events" : "idle", active: streamActive },
+    { name: "Apply lag", value: applyActive ? "0s" : streamActive ? "2s" : "n/a", active: applyActive },
+  ];
+  const mobileFlow = [
+    { name: "Client transaction", value: executeActive ? "T42 UPDATE orders" : "waiting", active: executeActive },
+    { name: "Source binlog", value: eventActive ? "GTID + rows + Xid" : "open file", active: eventActive },
+    { name: "Group commit", value: commitActive ? "flush -> sync -> commit" : "queued", active: commitActive },
+    { name: "Relay log", value: streamActive ? "mysql-relay.000087:612" : "I/O idle", active: streamActive },
+    { name: "Replica apply", value: applyActive ? "Executed_Gtid_Set includes T42" : "SQL thread pending", active: applyActive },
+  ];
+
+  return (
+    <div className="visual-stage binlog-stage">
+      <div className="binlog-card">
+        <svg
+          className="binlog-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["binlog-arrow-brand", "var(--brand)"],
+              ["binlog-arrow-teal", "var(--tertiary)"],
+              ["binlog-arrow-warning", "#f59e0b"],
+              ["binlog-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="binlog-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="binlog-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="binlog-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="binlog-subtitle" x="560" y="100">
+            {label(
+              "source commit order -> binlog events -> group commit -> relay log -> replica apply",
+              "source commit order -> binlog events -> group commit -> relay log -> replica apply",
+            )}
+          </text>
+
+          <g className={`binlog-client-panel ${executeActive ? "active" : ""}`}>
+            <rect x="64" y="144" width="222" height="144" rx="24" />
+            <text className="binlog-panel-title" x="92" y="180">{label("客户端事务", "Client transaction")}</text>
+            <text className="binlog-panel-subtitle" x="92" y="204">UPDATE orders SET amount=140</text>
+            <g className={`binlog-sql-chip ${executeActive ? "active" : ""}`}>
+              <rect x="92" y="230" width="156" height="32" rx="16" />
+              <text x="170" y="251">T42 COMMIT</text>
+            </g>
+          </g>
+
+          <g className={`binlog-source-panel ${executeActive ? "active" : ""}`}>
+            <rect x="344" y="126" width="304" height="190" rx="26" />
+            <text className="binlog-panel-title" x="372" y="162">Source MySQL</text>
+            <text className="binlog-panel-subtitle" x="372" y="186">{label("执行器修改行，提交阶段编码事件", "Executor changes rows, commit stage encodes events")}</text>
+            <g className={`binlog-row-card ${executeActive ? "active" : ""}`}>
+              <rect x="372" y="216" width="222" height="54" rx="16" />
+              <text x="392" y="238">orders#42 amount</text>
+              <text x="580" y="256">{executeActive ? "120 -> 140" : "120"}</text>
+            </g>
+          </g>
+
+          <g className={`binlog-execute-path ${executeActive ? "active" : ""}`}>
+            <path d="M 286 218 C 312 218, 318 218, 344 218" markerEnd="url(#binlog-arrow-brand)" />
+            <rect x="238" y="328" width="160" height="34" rx="17" />
+            <text x="318" y="350">{label("提交进入 source", "commit enters source")}</text>
+          </g>
+
+          <g className={`binlog-file-panel ${eventActive ? "active" : ""}`}>
+            <rect x="718" y="122" width="330" height="224" rx="28" />
+            <text className="binlog-panel-title" x="746" y="160">mysql-bin.000142</text>
+            <text className="binlog-panel-subtitle" x="746" y="184">{"file position 154 -> 328"}</text>
+            {eventRows.map((row, index) => (
+              <g key={row.name} className={`binlog-event-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="746" y={210 + index * 32} width="244" height="24" rx="12" />
+                <text x="762" y={227 + index * 32}>{row.name}</text>
+                <text x="974" y={227 + index * 32}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`binlog-event-path ${eventActive ? "active" : ""}`}>
+            <path d="M 648 218 C 680 212, 696 214, 718 224" markerEnd="url(#binlog-arrow-teal)" />
+            <rect x="612" y="324" width="178" height="34" rx="17" />
+            <text x="701" y="346">GTID + Rows + Xid</text>
+          </g>
+
+          <g className={`binlog-commit-panel ${commitActive ? "active" : ""}`}>
+            <rect x="382" y="390" width="280" height="128" rx="26" />
+            <text className="binlog-panel-title" x="410" y="428">Binlog Group Commit</text>
+            <text className="binlog-panel-subtitle" x="410" y="450">ordered queues keep commit order</text>
+            {commitRows.map((row, index) => (
+              <g key={row.name} className={`binlog-commit-row ${row.active ? "active" : ""}`}>
+                <rect x={410 + index * 78} y="472" width="64" height="28" rx="14" />
+                <text x={442 + index * 78} y="490">{row.name}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`binlog-commit-path ${commitActive ? "active" : ""}`}>
+            <path d="M 842 346 C 792 396, 726 432, 662 456" markerEnd="url(#binlog-arrow-warning)" />
+            <rect x="674" y="408" width="160" height="34" rx="17" />
+            <text x="754" y="430">{label("刷盘确认顺序", "fsync seals order")}</text>
+          </g>
+
+          <g className={`binlog-channel-panel ${streamActive ? "active" : ""}`}>
+            <rect x="704" y="410" width="330" height="120" rx="26" />
+            <text className="binlog-panel-title" x="732" y="448">{label("复制通道 / Relay Log", "Replication channel / relay log")}</text>
+            <text className="binlog-panel-subtitle" x="732" y="472">I/O thread writes mysql-relay.000087</text>
+            <g className={`binlog-relay-chip ${streamActive ? "active" : ""}`}>
+              <rect x="732" y="492" width="214" height="28" rx="14" />
+              <text x="748" y="511">relay pos=612, ACK={streamActive ? "sent" : "waiting"}</text>
+            </g>
+          </g>
+
+          <g className={`binlog-stream-path ${streamActive ? "active" : ""}`}>
+            <path d="M 884 346 C 910 372, 910 392, 878 410" markerEnd="url(#binlog-arrow-brand)" />
+            <rect x="912" y="360" width="112" height="34" rx="17" />
+            <text x="968" y="382">{label("拉取事件", "pull events")}</text>
+          </g>
+
+          <g className={`binlog-replica-panel ${applyActive ? "active" : ""}`}>
+            <rect x="82" y="406" width="246" height="132" rx="26" />
+            <text className="binlog-panel-title" x="110" y="444">{label("Replica SQL 线程", "Replica SQL thread")}</text>
+            <text className="binlog-panel-subtitle" x="110" y="468">{label("按 relay log 顺序应用", "Applies relay log in order")}</text>
+            <g className={`binlog-apply-chip ${applyActive ? "active" : ""}`}>
+              <rect x="110" y="492" width="172" height="30" rx="15" />
+              <text x="126" y="512">Executed_Gtid_Set += T42</text>
+            </g>
+          </g>
+
+          <g className={`binlog-apply-path ${applyActive ? "active" : ""}`}>
+            <path d="M 704 486 C 568 590, 420 568, 282 508" markerEnd="url(#binlog-arrow-success)" />
+            <rect x="402" y="548" width="158" height="34" rx="17" />
+            <text x="481" y="570">{label("重放事务", "apply transaction")}</text>
+          </g>
+
+          <g className="binlog-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`binlog-signal ${signal.active ? "active" : ""}`}>
+                <rect x={66 + index * 252} y="588" width="210" height="34" rx="16" />
+                <text x={86 + index * 252} y="602">{signal.name}</text>
+                <text x={256 + index * 252} y="614">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="binlog-mobile-map">
+          <div className="binlog-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`binlog-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="binlog-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`binlog-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption binlog-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

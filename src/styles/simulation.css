@@ -449,6 +449,44 @@
   display: none;
 }
 
+.binlog-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.binlog-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .binlog-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.binlog-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.binlog-mobile-map {
+  display: none;
+}
+
 .docker-layer-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -3131,6 +3169,217 @@
 .redo-recovery-path text {
   fill: var(--text);
   font-weight: 950;
+}
+
+.binlog-bg {
+  fill: color-mix(in srgb, var(--brand) 4%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+}
+
+.binlog-title {
+  fill: var(--text);
+  font-size: 22px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.binlog-subtitle {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.binlog-client-panel,
+.binlog-source-panel,
+.binlog-file-panel,
+.binlog-commit-panel,
+.binlog-channel-panel,
+.binlog-replica-panel,
+.binlog-execute-path,
+.binlog-event-path,
+.binlog-commit-path,
+.binlog-stream-path,
+.binlog-apply-path,
+.binlog-sql-chip,
+.binlog-row-card,
+.binlog-event-row,
+.binlog-commit-row,
+.binlog-relay-chip,
+.binlog-apply-chip,
+.binlog-signal {
+  opacity: 0.26;
+  transition: opacity 180ms ease;
+}
+
+.binlog-client-panel.active,
+.binlog-source-panel.active,
+.binlog-file-panel.active,
+.binlog-commit-panel.active,
+.binlog-channel-panel.active,
+.binlog-replica-panel.active,
+.binlog-execute-path.active,
+.binlog-event-path.active,
+.binlog-commit-path.active,
+.binlog-stream-path.active,
+.binlog-apply-path.active,
+.binlog-sql-chip.active,
+.binlog-row-card.active,
+.binlog-event-row.active,
+.binlog-commit-row.active,
+.binlog-relay-chip.active,
+.binlog-apply-chip.active,
+.binlog-signal.active {
+  opacity: 1;
+}
+
+.binlog-client-panel > rect,
+.binlog-source-panel > rect,
+.binlog-file-panel > rect,
+.binlog-commit-panel > rect,
+.binlog-channel-panel > rect,
+.binlog-replica-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#binlog-soft-shadow);
+}
+
+.binlog-client-panel.active > rect,
+.binlog-source-panel.active > rect,
+.binlog-sql-chip.active rect,
+.binlog-row-card.active rect {
+  fill: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.binlog-file-panel.active > rect,
+.binlog-event-row.brand.active rect,
+.binlog-event-row.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 36%, var(--border));
+}
+
+.binlog-commit-panel.active > rect,
+.binlog-commit-row.active rect,
+.binlog-event-row.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 9%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 36%, var(--border));
+}
+
+.binlog-channel-panel.active > rect,
+.binlog-relay-chip.active rect {
+  fill: color-mix(in srgb, var(--brand) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.binlog-replica-panel.active > rect,
+.binlog-apply-chip.active rect,
+.binlog-event-row.success.active rect {
+  fill: color-mix(in srgb, var(--success) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.binlog-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.binlog-panel-subtitle,
+.binlog-client-panel text,
+.binlog-source-panel text,
+.binlog-file-panel text,
+.binlog-commit-panel text,
+.binlog-channel-panel text,
+.binlog-replica-panel text,
+.binlog-execute-path text,
+.binlog-event-path text,
+.binlog-commit-path text,
+.binlog-stream-path text,
+.binlog-apply-path text,
+.binlog-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.binlog-sql-chip rect,
+.binlog-row-card rect,
+.binlog-event-row rect,
+.binlog-commit-row rect,
+.binlog-relay-chip rect,
+.binlog-apply-chip rect,
+.binlog-execute-path rect,
+.binlog-event-path rect,
+.binlog-commit-path rect,
+.binlog-stream-path rect,
+.binlog-apply-path rect,
+.binlog-signal rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#binlog-soft-shadow);
+}
+
+.binlog-panel-title,
+.binlog-sql-chip text,
+.binlog-row-card text:first-of-type,
+.binlog-event-row text:first-of-type,
+.binlog-relay-chip text,
+.binlog-apply-chip text,
+.binlog-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.binlog-row-card text:nth-of-type(2),
+.binlog-event-row text:nth-of-type(2),
+.binlog-signal text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.binlog-sql-chip text,
+.binlog-commit-row text,
+.binlog-execute-path text,
+.binlog-event-path text,
+.binlog-commit-path text,
+.binlog-stream-path text,
+.binlog-apply-path text {
+  text-anchor: middle;
+}
+
+.binlog-execute-path path,
+.binlog-event-path path,
+.binlog-commit-path path,
+.binlog-stream-path path,
+.binlog-apply-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.binlog-execute-path path,
+.binlog-stream-path path {
+  stroke: var(--brand);
+}
+
+.binlog-event-path path {
+  stroke: var(--tertiary);
+}
+
+.binlog-commit-path path {
+  stroke: #f59e0b;
+}
+
+.binlog-apply-path path {
+  stroke: var(--success);
 }
 
 .redo-ring-axis,

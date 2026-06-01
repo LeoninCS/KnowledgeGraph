@@ -141,6 +141,7 @@
 | 镜像层 | `storage-layout` | completed | desktop/mobile captured | Docker 镜像层结构模型，覆盖 Dockerfile 指令、Build Cache、只读层共享、overlay2 和可写层 |
 | MVCC | `state-model` | completed | desktop/mobile captured | MySQL MVCC 版本可见性状态模型，覆盖隐藏列、Undo 版本链、ReadView、可见性判断和长事务 Purge 风险 |
 | Redo Log | `state-model` | completed | desktop/mobile captured | MySQL Redo Log WAL 与恢复状态模型，覆盖 redo record、log buffer、write/fsync、checkpoint 和 crash recovery |
+| Binlog | `step-simulation` | completed | desktop/mobile captured | MySQL Binlog 提交与复制通道模拟器，覆盖 GTID、Rows Event、Group Commit、Relay Log 和副本应用延迟 |
 
 ## Buffer Pool Visualization
 
@@ -201,11 +202,66 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 MySQL `MVCC` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 MySQL `Two Phase Commit` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 MySQL `Undo Log` 或 `Binlog`，它们能与已完成的 MVCC、Redo Log 串成事务日志链路，适合继续做状态模型或两阶段提交模拟。
+优先选择 MySQL `Two Phase Commit`，它能串联已完成的 Redo Log 与 Binlog，适合继续做提交一致性状态模型。
+
+## MySQL Binlog Visualization
+
+### Online Image References
+
+- `source`：MySQL Reference Manual - Replication Implementation Details，https://dev.mysql.com/doc/refman/8.4/en/replication-implementation-details.html
+  - `image`：页面中的异步复制结构图，展示 source 执行、写 binary log、提交、replica 读取 relay log、apply 和提交。
+  - `role`：main
+  - `qualityReason`：官方文档图，直接呈现 Binlog 在 source 到 replica 链路中的位置，结构清楚且对象命名权威。
+  - `takeaways`：主画布采用左侧 source 提交、中间 Binlog 文件、右侧复制通道和底部 replica apply 的分层路径。
+  - `originalChanges`：扩展为五步交互模拟，加入 GTID、Rows Event、file/pos、Group Commit、relay backlog 和 apply lag。
+- `source`：MySQL Reference Manual - The Binary Log，https://dev.mysql.com/doc/refman/8.4/en/binary-log.html
+  - `image`：页面中的 binary log 语义、恢复用途和 mysqlbinlog 上下文。
+  - `role`：supporting
+  - `qualityReason`：官方定义 Binlog 用于复制和按时间点恢复，适合确定右侧理解重点和底部指标。
+  - `takeaways`：画布保留 binary log、file/position、事件顺序和恢复入口语言。
+  - `originalChanges`：把文档语义转成 `Source file/pos` 和 `GTID event` 信号卡，减少长文本说明。
+- `source`：MySQL Reference Manual - Binary Logging Formats，https://dev.mysql.com/doc/refman/8.4/en/replication-formats.html
+  - `image`：页面中的 statement、row、mixed 格式说明。
+  - `role`：supporting
+  - `qualityReason`：官方说明 row-based logging 的行级变化语义，适合补足 `TABLE_MAP_EVENT` 与 `UPDATE_ROWS_EVENT`。
+  - `takeaways`：Binlog event 区域展示 GTID、TABLE_MAP、UPDATE_ROWS、XID 四个事务边界对象。
+  - `originalChanges`：用简化事件列表突出本模拟关注的一次 UPDATE，而非展开全部格式差异。
+- `source`：MySQL Reference Manual - Semisynchronous Replication，https://dev.mysql.com/doc/refman/8.4/en/replication-semisync.html
+  - `image`：页面中的半同步提交等待和副本确认语义。
+  - `role`：supporting
+  - `qualityReason`：官方解释半同步 ACK 对提交返回和复制安全性的影响，适合补充通道状态。
+  - `takeaways`：复制通道面板需要表达 relay log 落盘和 ACK 返回。
+  - `originalChanges`：把半同步细节压缩为 `ACK=sent`，避免把主画布改成复制模式对比。
+- `source`：HackMySQL - MySQL Binary Log Group Commit，https://hackmysql.com/book-4/
+  - `image`：页面中的 Binlog Group Commit 阶段图与 flush/sync/commit 队列说明。
+  - `role`：supporting
+  - `qualityReason`：高质量工程图解，清楚解释组提交队列、fsync 和提交延迟。
+  - `takeaways`：中下部加入 `flush -> sync -> commit` 阶段条。
+  - `originalChanges`：使用项目统一卡片与高亮节奏，把 Group Commit 作为第三步连接事件写入和复制传输。
+
+### Reference Breakdown
+
+- 主体布局：左上客户端事务，左中 Source MySQL，右上 `mysql-bin.000142` 事件文件，中下 Binlog Group Commit，右下复制通道和 Relay Log，左下 Replica SQL 线程，底部四个复制信号。
+- 视觉焦点：一次 `UPDATE orders` 从 source 执行进入 Binlog 事件列表，file position 从 `154` 推进到 `328`，随后 group commit 刷盘、I/O thread 写 relay log、SQL thread 应用 GTID。
+- 领域对象：client transaction、Source MySQL、Binary Log、GTID_LOG_EVENT、TABLE_MAP_EVENT、UPDATE_ROWS_EVENT、XID_EVENT、Binlog Group Commit、replication channel、relay log、Replica SQL thread、Executed_Gtid_Set。
+- 容器层级：Source MySQL 负责执行与编码事件；Binary Log 负责提交顺序和 file/pos；Group Commit 负责 flush/sync/commit；Replication channel 负责 relay log 和 ACK；Replica 负责顺序应用。
+- 连线方向：客户端进入 source；source 写 binlog；binlog 向下进入 group commit；binlog 同时流向复制通道；relay log 回到 replica apply。
+- 状态表达：五步通过透明度、边框色、箭头和信号值显隐表达执行、编码、刷盘、传输和应用。
+- 颜色策略：品牌蓝表示事务提交和通道，青色表示事件编码，橙色表示刷盘队列，绿色表示副本应用完成。
+- 文字密度：画布保留事件名、file/pos、GTID 和延迟指标；解释放在右侧面板与底部步骤条。
+- 交互节奏：五步依次推进“执行事务 -> 编码事件 -> 组提交刷盘 -> 传输到 Relay Log -> 副本应用”。
+- 原创改造点：把官方复制结构图、Binary Log 语义、row logging、半同步 ACK 和 Group Commit 队列融合成一个可交互复制链路模拟器。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/binlog/desktop.png`
+- 移动端：captured `.codex-artifacts/visualizations/binlog/mobile.png`
+- 截图结论：桌面画布可识别 source、binary log、group commit、relay log、replica apply 和底部信号；移动端纵向摘要完整展示五步和四个复制指标。
+- 验收备注：本轮 in-app browser 返回不可用，Chrome DevTools MCP profile 被占用；使用构建产物与本地渲染截图完成视觉验收，代码验证以 `npm run build`、`npm run test:data` 和 `git diff --check` 为准。
 
 ## MySQL Redo Log Visualization
 
@@ -781,3 +837,21 @@
 - Existing Work：工作区已有未提交的 MySQL `Undo Log` 可视化现场，涉及 `docs/visualization-progress.md`、`src/data/knowledge-points/mysql.ts`、`src/data/knowledge-points/sources.ts`、`src/data/visual-simulations/index.ts`、`src/features/simulation/stages.tsx`、`src/styles/responsive.css`、`src/styles/simulation.css`。
 - Action：本轮停在同步门禁，仅记录阻塞和恢复点；保留现有 Undo Log 实现现场。
 - Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后继续完成 Undo Log 截图验收、`npm run test:data`、`git diff --check`、提交、rebase 和推送。
+
+### 2026-06-02 03:02 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 失败，原因是 `Could not resolve host: github.com`。
+- Working Tree：开始时 `main...origin/main` 工作区干净；本条记录写入后仅 `docs/visualization-progress.md` 发生变化。
+- Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
+- Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后继续 MySQL `Binlog` 或 `Two Phase Commit` 候选。
+
+### 2026-06-02 04:14 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功，远端已同步。
+- Selected：MySQL `Binlog`，原因是 source commit order、GTID、Rows Event、Group Commit、relay log 和 replica apply 形成清晰复制链路。
+- Candidate Sources：普通搜索筛选约 12 个候选来源，保留 MySQL 官方复制结构图为主参考，Binary Log、Binary Logging Formats、Semisynchronous Replication、HackMySQL Group Commit 和小林 coding MySQL 日志为辅助参考。
+- Browser Note：in-app browser 返回不可用，Chrome DevTools MCP profile 被占用；Playwright Chromium 受 macOS Mach port 权限限制，本轮使用页面 URL、官方资料和本地渲染图完成参考确认与截图验收。
+- Implementation：新增 `mysql:binlog` 专用 `step-simulation` 构建器、Binlog SVG 舞台、移动端纵向摘要、响应式样式和 Binlog 专用来源。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/binlog/desktop.png`（2880x1882）与 `.codex-artifacts/visualizations/binlog/mobile.png`（1000x2200）；桌面和移动端验收图均可读。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
+- Next Candidate：MySQL `Two Phase Commit`。

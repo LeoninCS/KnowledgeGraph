@@ -403,6 +403,14 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["mvcc", "read-view", "crash-recovery"],
   },
   "binlog": {
+    sourceRefs: [
+      "mysql-binary-log",
+      "mysql-replication-implementation",
+      "mysql-semisync-replication",
+      "mysql-replication-formats",
+      "hackmysql-binary-log-group-commit",
+      "xiaolincoding-mysql-log",
+    ],
     prerequisites: ["transaction"],
     related: ["two-phase-commit", "replication"],
   },

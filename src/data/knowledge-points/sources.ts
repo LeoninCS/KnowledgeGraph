@@ -3697,6 +3697,26 @@ export const knowledgeSources = {
     title: "小林 coding: MySQL 日志",
     url: "https://xiaolincoding.com/mysql/log/how_update.html",
   },
+  "mysql-binary-log": {
+    title: "MySQL Reference Manual: The Binary Log",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/binary-log.html",
+  },
+  "mysql-replication-implementation": {
+    title: "MySQL Reference Manual: Replication Implementation Details",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-implementation-details.html",
+  },
+  "mysql-semisync-replication": {
+    title: "MySQL Reference Manual: Semisynchronous Replication",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-semisync.html",
+  },
+  "mysql-replication-formats": {
+    title: "MySQL Reference Manual: Binary Logging Formats",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-formats.html",
+  },
+  "hackmysql-binary-log-group-commit": {
+    title: "HackMySQL: MySQL Binary Log Group Commit",
+    url: "https://hackmysql.com/book-4/",
+  },
   "sobyte-mysql-mvcc": {
     title: "SoByte: MVCC in MySQL",
     url: "https://www.sobyte.net/post/2022-04/mysql-mvcc/",
