@@ -28,6 +28,10 @@ const maxCanvasZoom = 2.35;
 const canvasZoomStep = 0.16;
 const canvasControlAnimationMs = 180;
 const canvasResetAnimationMs = 120;
+const desktopSidebarWidth = 264;
+const desktopTopbarHeight = 68;
+const mobileTopbarHeight = 64;
+const fallbackStageRect = { width: 960, height: 620 };
 
 const transformExcludedTargets = [
   "graph-toolbar",
@@ -38,8 +42,36 @@ const transformExcludedTargets = [
 ];
 const panningExcludedTargets = [...transformExcludedTargets, "sphere-node"];
 
+type CanvasStageRect = Pick<DOMRect, "width" | "height">;
+
+function getViewportStageRect(): CanvasStageRect {
+  if (typeof window === "undefined") {
+    return fallbackStageRect;
+  }
+
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const isMobile = viewportWidth <= 900;
+  const isSidebarHidden = viewportWidth <= 1100;
+  const canvasWidth = isSidebarHidden ? viewportWidth : viewportWidth - desktopSidebarWidth;
+  const canvasHeight = viewportHeight - (isMobile ? mobileTopbarHeight : desktopTopbarHeight);
+  const stageInset = isMobile
+    ? { top: 118, right: -30, bottom: 106, left: -30 }
+    : {
+        top: 58,
+        right: viewportWidth <= 1180 ? 320 : 360,
+        bottom: 106,
+        left: 34,
+      };
+
+  return {
+    width: Math.max(320, canvasWidth - stageInset.left - stageInset.right),
+    height: Math.max(320, canvasHeight - stageInset.top - stageInset.bottom),
+  };
+}
+
 function getDefaultCanvasView(
-  rect: DOMRect | undefined | null,
+  rect: CanvasStageRect | undefined | null,
   graph: Pick<SphereGraph, "width" | "height" | "nodes">,
   focusPointId?: string,
 ): CanvasView {
@@ -187,11 +219,14 @@ export function HomePage({
     graphBoard,
     searchQuery,
     locale,
-    graphFocusId,
     points.length,
     graph.width,
     graph.height,
   ].join(":");
+  const initialCanvasView = useMemo(
+    () => getDefaultCanvasView(getViewportStageRect(), graph, graphFocusId),
+    [graph, graphFocusId],
+  );
   const hasResults = graph.nodes.some(
     (node) => node.kind === "knowledge" && node.matched,
   );
@@ -209,7 +244,7 @@ export function HomePage({
     return getDefaultCanvasView(
       ref?.instance.wrapperComponent?.getBoundingClientRect(),
       graph,
-      selectedKnowledgeId,
+      graphFocusId,
     );
   }
 
@@ -315,7 +350,9 @@ export function HomePage({
             <TransformWrapper
               key={graphTransformKey}
               ref={transformRef}
-              initialScale={defaultCanvasZoom}
+              initialScale={initialCanvasView.zoom}
+              initialPositionX={initialCanvasView.x}
+              initialPositionY={initialCanvasView.y}
               minScale={minCanvasZoom}
               maxScale={maxCanvasZoom}
               limitToBounds={false}
