@@ -142,6 +142,7 @@
 | MVCC | `state-model` | completed | desktop/mobile captured | MySQL MVCC 版本可见性状态模型，覆盖隐藏列、Undo 版本链、ReadView、可见性判断和长事务 Purge 风险 |
 | Redo Log | `state-model` | completed | desktop/mobile captured | MySQL Redo Log WAL 与恢复状态模型，覆盖 redo record、log buffer、write/fsync、checkpoint 和 crash recovery |
 | Binlog | `step-simulation` | completed | desktop/mobile captured | MySQL Binlog 提交与复制通道模拟器，覆盖 GTID、Rows Event、Group Commit、Relay Log 和副本应用延迟 |
+| 两阶段提交 | `state-model` | completed | desktop/mobile captured | MySQL Two Phase Commit 提交一致性状态模型，覆盖 redo prepare、Binlog Xid、redo commit 和崩溃恢复判定 |
 
 ## Buffer Pool Visualization
 
@@ -202,11 +203,11 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 MySQL `Two Phase Commit` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 MySQL `Deadlock` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 MySQL `Two Phase Commit`，它能串联已完成的 Redo Log 与 Binlog，适合继续做提交一致性状态模型。
+优先选择 MySQL `Deadlock`，它能展示事务持锁、等待边、检测环、回滚牺牲者和线上排障信号，适合做锁等待状态模型。
 
 ## MySQL Binlog Visualization
 
@@ -262,6 +263,61 @@
 - 移动端：captured `.codex-artifacts/visualizations/binlog/mobile.png`
 - 截图结论：桌面画布可识别 source、binary log、group commit、relay log、replica apply 和底部信号；移动端纵向摘要完整展示五步和四个复制指标。
 - 验收备注：本轮 in-app browser 返回不可用，Chrome DevTools MCP profile 被占用；使用构建产物与本地渲染截图完成视觉验收，代码验证以 `npm run build`、`npm run test:data` 和 `git diff --check` 为准。
+
+## MySQL Two Phase Commit Visualization
+
+### Online Image References
+
+- `source`：小林 coding - MySQL 日志，https://xiaolincoding.com/mysql/log/how_update.html
+  - `image`：页面中的 redo log、binlog、两阶段提交和崩溃点图解。
+  - `role`：main
+  - `qualityReason`：高传播中文图解，直接展示 redo prepare、写 Binlog、redo commit 和异常重启判定，最适合做主流程构图。
+  - `takeaways`：主画布采用左到右提交时间线，并单独列出 prepare 后、Binlog 后、commit 后三个崩溃点。
+  - `originalChanges`：改造为五步状态模型，加入 InnoDB 数据页、Redo Log 状态、Binlog Xid、恢复判定表和底部观测信号。
+- `source`：MySQL Reference Manual - Replication Implementation Details，https://dev.mysql.com/doc/refman/8.4/en/replication-implementation-details.html
+  - `image`：页面中的 source 写 binary log、replica 读取 relay log 和 apply 的复制结构图。
+  - `role`：supporting
+  - `qualityReason`：官方复制图说明 Binlog 是复制顺序入口，适合补足 2PC 与复制一致性的关系。
+  - `takeaways`：Binlog 面板保留 GTID/Xid 与 file position，并在底部信号展示 replication order。
+  - `originalChanges`：把复制链路压缩成提交顺序信号，主画布聚焦单事务提交边界。
+- `source`：MySQL Reference Manual - The Binary Log，https://dev.mysql.com/doc/refman/8.4/en/binary-log.html
+  - `image`：页面中的 binary log 语义、恢复用途和 mysqlbinlog 上下文。
+  - `role`：supporting
+  - `qualityReason`：官方定义 Binlog 用于复制和恢复，适合确定 Binlog Xid/GTID 的教学语义。
+  - `takeaways`：Binlog 卡片显示 `GTID T42` 与 `Xid=42`，恢复规则使用 Xid/GTID 完整性判定。
+  - `originalChanges`：只保留事务边界事件，降低画布文字密度。
+- `source`：HackMySQL - MySQL Binary Log Group Commit，https://hackmysql.com/book-4/
+  - `image`：页面中的 Binary Log Group Commit 阶段图，展示 flush、sync、commit 队列。
+  - `role`：supporting
+  - `qualityReason`：工程图解清晰表达 Binlog 刷盘和提交延迟来源，适合补充第三步等待点。
+  - `takeaways`：写 Binlog 阶段标注 `flush + sync binlog`，底部信号加入 `group commit fsync`。
+  - `originalChanges`：把组提交细节作为延迟信号，避免主画布变成队列内部实现。
+- `source`：MySQL Reference Manual - Binary Log Transaction Dependency Tracking，https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html#sysvar_binlog_transaction_dependency_tracking
+  - `image`：页面中的 Binlog 事务依赖与提交顺序配置说明。
+  - `role`：supporting
+  - `qualityReason`：官方说明 Binlog 事务依赖跟踪和并行复制顺序，适合强化提交顺序与复制应用边界。
+  - `takeaways`：底部信号保留 replication order，右侧恢复判定强调提交顺序。
+  - `originalChanges`：把配置项语言转成提交顺序观测信号。
+
+### Reference Breakdown
+
+- 主体布局：左上客户端事务，左中 InnoDB 脏页与 undo，右上 Redo Log 状态卡，中右 Binlog 事件卡，左下提交时间线，右下崩溃恢复判定表，底部四个观测信号。
+- 视觉焦点：一次 `COMMIT T42` 从数据页变更推进到 `redo PREPARE LSN=8612`，再写入 `GTID T42 / Xid=42`，最后写 `redo COMMIT LSN=8678`。
+- 领域对象：Client COMMIT、InnoDB transaction、dirty page、undo before image、Redo Log prepare、Binlog GTID/Xid、Redo Log commit、crash point、recovery decision、replication order。
+- 容器层级：InnoDB 管理页修改与 redo 状态；Server 层写 Binlog；恢复流程读取 redo prepare 与 Binlog 事件完整性；底部信号展示 LSN、Xid 和最终判定。
+- 连线方向：客户端进入 InnoDB；InnoDB 写 redo prepare；Redo Log 推动 Binlog flush/sync；Binlog 完整后回写 redo commit；恢复扫描从 redo 回到判定表。
+- 状态表达：五步通过透明度、边框色、箭头、时间线节点和崩溃判定行显隐表达执行、prepare、Binlog、commit 与恢复。
+- 颜色策略：品牌蓝表示事务进入与恢复扫描，青色表示 redo prepare，橙色表示 Binlog 写入和刷盘，绿色表示 redo commit 和确定提交。
+- 文字密度：画布保留对象标签、LSN、Xid、关键状态和判定短语；解释放在右侧任务、操作面板和底部步骤条。
+- 交互节奏：五步依次推进“修改数据页 -> Redo Prepare -> 写入 Binlog -> Redo Commit -> 恢复判定”。
+- 原创改造点：融合中文两阶段提交图、官方复制/Binlog 语义、Group Commit 和事务依赖配置，做成面向崩溃恢复与复制一致性的状态模型。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/two-phase-commit/desktop.png`
+- 移动端：captured `.codex-artifacts/visualizations/two-phase-commit/mobile.png`
+- 截图结论：桌面画布可识别客户端事务、InnoDB、Redo Log、Binlog、提交时间线、崩溃恢复判定和底部信号；移动端纵向摘要完整展示五步和四个一致性指标。
+- 验收备注：Chrome DevTools MCP profile 被占用；使用构建产物、数据测试和本地渲染截图完成视觉验收。
 
 ## MySQL Redo Log Visualization
 
@@ -855,3 +911,15 @@
 - Screenshot Review：保存 `.codex-artifacts/visualizations/binlog/desktop.png`（2880x1882）与 `.codex-artifacts/visualizations/binlog/mobile.png`（1000x2200）；桌面和移动端验收图均可读。
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Next Candidate：MySQL `Two Phase Commit`。
+
+### 2026-06-02 05:13 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功，远端已同步。
+- Selected：MySQL `Two Phase Commit`，原因是 redo prepare、Binlog Xid、redo commit 和崩溃恢复判定能串联已完成的 Redo Log 与 Binlog。
+- Candidate Sources：普通搜索筛选约 12 个候选来源，保留小林 coding MySQL 日志中的两阶段提交图为主参考，MySQL 官方复制实现、Binary Log、Binlog 事务依赖跟踪和 HackMySQL Group Commit 为辅助参考。
+- Browser Note：Chrome DevTools MCP profile 被占用，Playwright Chromium 受 macOS Mach port 权限限制；本轮使用页面 URL、官方资料、构建产物和本地渲染图完成参考确认与截图验收。
+- Implementation：新增 `mysql:two-phase-commit` 专用 `state-model` 构建器、Two Phase Commit SVG 舞台、移动端纵向摘要、响应式样式和 Two Phase Commit 专用来源。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/two-phase-commit/desktop.png`（2880x1882）与 `.codex-artifacts/visualizations/two-phase-commit/mobile.png`（1000x2200）；桌面和移动端验收图均可读。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
+- Commit/Push：首版提交 `5af77bb feat: add two phase commit visualization` 已推送到 `origin/main`；随后把本轮 run log amend 到本地提交 `9c71695`。`git push --force-with-lease origin main` 失败，原因是 `Could not resolve host: github.com`；当前本地 `main` 相对 `origin/main` 显示 ahead 1 / behind 1。
+- Next Candidate：MySQL `Deadlock`。

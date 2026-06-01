@@ -231,6 +231,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:two-phase-commit") {
+    return (
+      <TwoPhaseCommitStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "redis:hash-slot") {
     return (
       <RedisHashSlotStage
@@ -2646,6 +2657,253 @@ function BinlogStage({
           </div>
         </div>
         <div className="tcp-handshake-caption binlog-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TwoPhaseCommitStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const executeActive = completedSteps >= 1;
+  const prepareActive = completedSteps >= 2;
+  const binlogActive = completedSteps >= 3;
+  const commitActive = completedSteps >= 4;
+  const recoveryActive = completedSteps >= 5;
+  const timelineRows = [
+    { name: "1", label: label("数据页变更", "page change"), value: executeActive ? "dirty page + undo" : "pending", active: executeActive, tone: "brand" },
+    { name: "2", label: "redo prepare", value: prepareActive ? "prepare LSN=8612" : "pending", active: prepareActive, tone: "teal" },
+    { name: "3", label: "binlog write", value: binlogActive ? "Xid + GTID persisted" : "pending", active: binlogActive, tone: "warning" },
+    { name: "4", label: "redo commit", value: commitActive ? "commit LSN=8678" : "pending", active: commitActive, tone: "success" },
+  ];
+  const crashRows = [
+    {
+      name: label("崩溃 A", "Crash A"),
+      value: prepareActive ? label("prepare 后，Binlog 缺失：rollback", "after prepare, binary log missing: rollback") : label("等待 prepare", "awaiting prepare"),
+      active: prepareActive,
+      tone: "teal",
+    },
+    {
+      name: label("崩溃 B", "Crash B"),
+      value: binlogActive ? label("Binlog 完整，redo commit 缺失：commit", "binary log complete, redo commit missing: commit") : label("等待 Binlog", "awaiting binary log"),
+      active: binlogActive,
+      tone: "warning",
+    },
+    {
+      name: label("崩溃 C", "Crash C"),
+      value: commitActive ? label("redo commit 已写：commit", "redo commit written: commit") : label("等待 commit", "awaiting commit"),
+      active: commitActive,
+      tone: "success",
+    },
+  ];
+  const signalRows = [
+    { name: "prepare_lsn", value: prepareActive ? "8612" : "pending", active: prepareActive },
+    { name: "binlog_xid", value: binlogActive ? "Xid=42" : "pending", active: binlogActive },
+    { name: "redo_state", value: commitActive ? "commit" : prepareActive ? "prepare" : "open", active: prepareActive },
+    { name: "recovery", value: recoveryActive ? "T42 commit" : "standby", active: recoveryActive },
+  ];
+  const mobileFlow = [
+    { name: "Client COMMIT", value: executeActive ? "T42 UPDATE orders" : "waiting", active: executeActive },
+    { name: "Redo prepare", value: prepareActive ? "prepare LSN=8612" : "pending", active: prepareActive },
+    { name: "Binary log", value: binlogActive ? "GTID + rows + Xid" : "pending", active: binlogActive },
+    { name: "Redo commit", value: commitActive ? "commit LSN=8678" : "pending", active: commitActive },
+    { name: "Recovery rule", value: recoveryActive ? "prepared + Xid => commit" : "waiting crash point", active: recoveryActive },
+  ];
+
+  return (
+    <div className="visual-stage two-phase-stage">
+      <div className="two-phase-card">
+        <svg
+          className="two-phase-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["two-phase-arrow-brand", "var(--brand)"],
+              ["two-phase-arrow-teal", "var(--tertiary)"],
+              ["two-phase-arrow-warning", "#f59e0b"],
+              ["two-phase-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="two-phase-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="two-phase-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="two-phase-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="two-phase-subtitle" x="560" y="100">
+            {label(
+              "UPDATE -> redo prepare -> binlog Xid -> redo commit -> crash recovery decision",
+              "UPDATE -> redo prepare -> binary-log Xid -> redo commit -> crash recovery decision",
+            )}
+          </text>
+
+          <g className={`two-phase-client-panel ${executeActive ? "active" : ""}`}>
+            <rect x="66" y="140" width="224" height="132" rx="24" />
+            <text className="two-phase-panel-title" x="94" y="176">{label("客户端事务", "Client transaction")}</text>
+            <text className="two-phase-panel-subtitle" x="94" y="200">COMMIT T42</text>
+            <g className={`two-phase-sql-chip ${executeActive ? "active" : ""}`}>
+              <rect x="94" y="226" width="160" height="30" rx="15" />
+              <text x="174" y="246">UPDATE orders#42</text>
+            </g>
+          </g>
+
+          <g className={`two-phase-engine-panel ${executeActive ? "active" : ""}`}>
+            <rect x="344" y="126" width="266" height="176" rx="26" />
+            <text className="two-phase-panel-title" x="372" y="162">InnoDB</text>
+            <text className="two-phase-panel-subtitle" x="372" y="186">{label("脏页、undo、事务上下文", "dirty page, undo, trx context")}</text>
+            <g className={`two-phase-page-card ${executeActive ? "active" : ""}`}>
+              <rect x="372" y="214" width="190" height="52" rx="16" />
+              <text x="390" y="236">orders page P42</text>
+              <text x="548" y="254">{executeActive ? "120 -> 140" : "120"}</text>
+            </g>
+          </g>
+
+          <g className={`two-phase-start-path ${executeActive ? "active" : ""}`}>
+            <path d="M 290 210 C 312 210, 322 210, 344 210" markerEnd="url(#two-phase-arrow-brand)" />
+            <rect x="248" y="318" width="150" height="32" rx="16" />
+            <text x="323" y="339">{label("进入提交", "enter commit")}</text>
+          </g>
+
+          <g className={`two-phase-redo-panel ${prepareActive ? "active" : ""}`}>
+            <rect x="676" y="122" width="180" height="190" rx="26" />
+            <text className="two-phase-panel-title" x="704" y="160">Redo Log</text>
+            <text className="two-phase-panel-subtitle" x="704" y="184">trx_id=42</text>
+            <g className={`two-phase-redo-row teal ${prepareActive ? "active" : ""}`}>
+              <rect x="704" y="214" width="126" height="28" rx="14" />
+              <text x="720" y="233">PREPARE</text>
+              <text x="820" y="233">8612</text>
+            </g>
+            <g className={`two-phase-redo-row success ${commitActive ? "active" : ""}`}>
+              <rect x="704" y="254" width="126" height="28" rx="14" />
+              <text x="720" y="273">COMMIT</text>
+              <text x="820" y="273">8678</text>
+            </g>
+          </g>
+
+          <g className={`two-phase-prepare-path ${prepareActive ? "active" : ""}`}>
+            <path d="M 610 216 C 636 214, 650 214, 676 220" markerEnd="url(#two-phase-arrow-teal)" />
+            <rect x="586" y="324" width="146" height="32" rx="16" />
+            <text x="659" y="345">redo prepare</text>
+          </g>
+
+          <g className={`two-phase-binlog-panel ${binlogActive ? "active" : ""}`}>
+            <rect x="902" y="142" width="156" height="176" rx="26" />
+            <text className="two-phase-panel-title" x="930" y="180">Binlog</text>
+            <text className="two-phase-panel-subtitle" x="930" y="204">mysql-bin.000142</text>
+            <g className={`two-phase-binlog-row brand ${binlogActive ? "active" : ""}`}>
+              <rect x="930" y="230" width="98" height="26" rx="13" />
+              <text x="944" y="248">GTID T42</text>
+            </g>
+            <g className={`two-phase-binlog-row warning ${binlogActive ? "active" : ""}`}>
+              <rect x="930" y="262" width="98" height="26" rx="13" />
+              <text x="944" y="280">Xid=42</text>
+            </g>
+          </g>
+
+          <g className={`two-phase-binlog-path ${binlogActive ? "active" : ""}`}>
+            <path d="M 856 222 C 876 220, 884 220, 902 228" markerEnd="url(#two-phase-arrow-warning)" />
+            <rect x="820" y="334" width="164" height="32" rx="16" />
+            <text x="902" y="355">flush + sync binlog</text>
+          </g>
+
+          <g className={`two-phase-commit-path ${commitActive ? "active" : ""}`}>
+            <path d="M 902 280 C 858 336, 810 342, 766 312" markerEnd="url(#two-phase-arrow-success)" />
+            <rect x="696" y="350" width="126" height="32" rx="16" />
+            <text x="759" y="371">redo commit</text>
+          </g>
+
+          <g className={`two-phase-timeline-panel ${executeActive ? "active" : ""}`}>
+            <rect x="66" y="394" width="568" height="130" rx="26" />
+            <text className="two-phase-panel-title" x="94" y="432">{label("提交时间线", "Commit timeline")}</text>
+            <line className="two-phase-timeline-axis" x1="112" y1="472" x2="586" y2="472" />
+            {timelineRows.map((row, index) => (
+              <g key={row.label} className={`two-phase-timeline-node ${row.tone} ${row.active ? "active" : ""}`}>
+                <circle cx={128 + index * 150} cy="472" r="18" />
+                <text x={128 + index * 150} y="477">{row.name}</text>
+                <text x={96 + index * 150} y="512">{row.label}</text>
+                <text x={96 + index * 150} y="532">{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`two-phase-recovery-panel ${recoveryActive ? "active" : ""}`}>
+            <rect x="668" y="398" width="394" height="144" rx="26" />
+            <text className="two-phase-panel-title" x="696" y="436">{label("崩溃恢复判定", "Crash recovery decision")}</text>
+            {crashRows.map((row, index) => (
+              <g key={row.name} className={`two-phase-crash-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="696" y={460 + index * 34} width="324" height="26" rx="13" />
+                <text x="712" y={478 + index * 34}>{row.name}</text>
+                <text x="1000" y={478 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`two-phase-recovery-path ${recoveryActive ? "active" : ""}`}>
+            <path d="M 778 312 C 760 362, 788 382, 844 398" markerEnd="url(#two-phase-arrow-brand)" />
+            <rect x="830" y="362" width="130" height="32" rx="16" />
+            <text x="895" y="383">{label("重启扫描", "restart scan")}</text>
+          </g>
+
+          <g className="two-phase-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`two-phase-signal ${signal.active ? "active" : ""}`}>
+                <rect x={66 + index * 252} y="588" width="210" height="34" rx="16" />
+                <text x={86 + index * 252} y="602">{signal.name}</text>
+                <text x={256 + index * 252} y="614">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="two-phase-mobile-map">
+          <div className="two-phase-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`two-phase-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="two-phase-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`two-phase-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption two-phase-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

@@ -3717,6 +3717,10 @@ export const knowledgeSources = {
     title: "HackMySQL: MySQL Binary Log Group Commit",
     url: "https://hackmysql.com/book-4/",
   },
+  "mysql-binary-log-transaction-dependency": {
+    title: "MySQL Reference Manual: Binary Log Transaction Dependency Tracking",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html#sysvar_binlog_transaction_dependency_tracking",
+  },
   "sobyte-mysql-mvcc": {
     title: "SoByte: MVCC in MySQL",
     url: "https://www.sobyte.net/post/2022-04/mysql-mvcc/",

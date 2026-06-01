@@ -487,6 +487,44 @@
   display: none;
 }
 
+.two-phase-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.two-phase-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .two-phase-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.two-phase-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.two-phase-mobile-map {
+  display: none;
+}
+
 .docker-layer-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -3380,6 +3418,244 @@
 
 .binlog-apply-path path {
   stroke: var(--success);
+}
+
+.two-phase-bg {
+  fill: color-mix(in srgb, var(--tertiary-soft) 28%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 20%, var(--border));
+}
+
+.two-phase-title {
+  fill: var(--text);
+  font-size: 22px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.two-phase-subtitle {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.two-phase-client-panel,
+.two-phase-engine-panel,
+.two-phase-redo-panel,
+.two-phase-binlog-panel,
+.two-phase-timeline-panel,
+.two-phase-recovery-panel,
+.two-phase-start-path,
+.two-phase-prepare-path,
+.two-phase-binlog-path,
+.two-phase-commit-path,
+.two-phase-recovery-path,
+.two-phase-sql-chip,
+.two-phase-page-card,
+.two-phase-redo-row,
+.two-phase-binlog-row,
+.two-phase-timeline-node,
+.two-phase-crash-row,
+.two-phase-signal {
+  opacity: 0.26;
+  transition: opacity 180ms ease;
+}
+
+.two-phase-client-panel.active,
+.two-phase-engine-panel.active,
+.two-phase-redo-panel.active,
+.two-phase-binlog-panel.active,
+.two-phase-timeline-panel.active,
+.two-phase-recovery-panel.active,
+.two-phase-start-path.active,
+.two-phase-prepare-path.active,
+.two-phase-binlog-path.active,
+.two-phase-commit-path.active,
+.two-phase-recovery-path.active,
+.two-phase-sql-chip.active,
+.two-phase-page-card.active,
+.two-phase-redo-row.active,
+.two-phase-binlog-row.active,
+.two-phase-timeline-node.active,
+.two-phase-crash-row.active,
+.two-phase-signal.active {
+  opacity: 1;
+}
+
+.two-phase-client-panel > rect,
+.two-phase-engine-panel > rect,
+.two-phase-redo-panel > rect,
+.two-phase-binlog-panel > rect,
+.two-phase-timeline-panel > rect,
+.two-phase-recovery-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#two-phase-soft-shadow);
+}
+
+.two-phase-client-panel.active > rect,
+.two-phase-engine-panel.active > rect,
+.two-phase-sql-chip.active rect,
+.two-phase-page-card.active rect,
+.two-phase-timeline-node.brand.active circle {
+  fill: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.two-phase-redo-panel.active > rect,
+.two-phase-redo-row.teal.active rect,
+.two-phase-timeline-node.teal.active circle,
+.two-phase-crash-row.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 36%, var(--border));
+}
+
+.two-phase-binlog-panel.active > rect,
+.two-phase-binlog-row.warning.active rect,
+.two-phase-timeline-node.warning.active circle,
+.two-phase-crash-row.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 9%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 38%, var(--border));
+}
+
+.two-phase-redo-row.success.active rect,
+.two-phase-timeline-node.success.active circle,
+.two-phase-crash-row.success.active rect {
+  fill: color-mix(in srgb, var(--success) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 36%, var(--border));
+}
+
+.two-phase-recovery-panel.active > rect,
+.two-phase-signal.active rect {
+  fill: color-mix(in srgb, var(--brand) 6%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 28%, var(--border));
+}
+
+.two-phase-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.two-phase-panel-subtitle,
+.two-phase-client-panel text,
+.two-phase-engine-panel text,
+.two-phase-redo-panel text,
+.two-phase-binlog-panel text,
+.two-phase-timeline-panel text,
+.two-phase-recovery-panel text,
+.two-phase-start-path text,
+.two-phase-prepare-path text,
+.two-phase-binlog-path text,
+.two-phase-commit-path text,
+.two-phase-recovery-path text,
+.two-phase-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.two-phase-sql-chip rect,
+.two-phase-page-card rect,
+.two-phase-redo-row rect,
+.two-phase-binlog-row rect,
+.two-phase-start-path rect,
+.two-phase-prepare-path rect,
+.two-phase-binlog-path rect,
+.two-phase-commit-path rect,
+.two-phase-recovery-path rect,
+.two-phase-crash-row rect,
+.two-phase-signal rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#two-phase-soft-shadow);
+}
+
+.two-phase-panel-title,
+.two-phase-sql-chip text,
+.two-phase-page-card text:first-of-type,
+.two-phase-redo-row text:first-of-type,
+.two-phase-binlog-row text,
+.two-phase-timeline-node text:first-of-type,
+.two-phase-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.two-phase-page-card text:nth-of-type(2),
+.two-phase-redo-row text:nth-of-type(2),
+.two-phase-signal text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.two-phase-sql-chip text,
+.two-phase-start-path text,
+.two-phase-prepare-path text,
+.two-phase-binlog-path text,
+.two-phase-commit-path text,
+.two-phase-recovery-path text,
+.two-phase-timeline-node circle + text {
+  text-anchor: middle;
+}
+
+.two-phase-crash-row text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-size: 9.5px;
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.two-phase-timeline-axis {
+  stroke: color-mix(in srgb, var(--muted) 34%, transparent);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.two-phase-timeline-node circle {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 22%, var(--border));
+  stroke-width: 2;
+  filter: url(#two-phase-soft-shadow);
+}
+
+.two-phase-start-path path,
+.two-phase-prepare-path path,
+.two-phase-binlog-path path,
+.two-phase-commit-path path,
+.two-phase-recovery-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.two-phase-start-path path,
+.two-phase-recovery-path path {
+  stroke: var(--brand);
+}
+
+.two-phase-prepare-path path {
+  stroke: var(--tertiary);
+}
+
+.two-phase-binlog-path path {
+  stroke: #f59e0b;
+}
+
+.two-phase-commit-path path {
+  stroke: var(--success);
+}
+
+.two-phase-caption {
+  right: 16px;
+  bottom: 14px;
 }
 
 .redo-ring-axis,

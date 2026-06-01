@@ -415,6 +415,14 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["two-phase-commit", "replication"],
   },
   "two-phase-commit": {
+    sourceRefs: [
+      "mysql-replication-implementation",
+      "mysql-binary-log",
+      "mysql-binary-log-transaction-dependency",
+      "mysql-innodb-redo-log",
+      "hackmysql-binary-log-group-commit",
+      "xiaolincoding-mysql-log",
+    ],
     prerequisites: ["redo-log", "binlog"],
     related: ["crash-recovery"],
   },

@@ -235,6 +235,11 @@
     justify-content: start;
   }
 
+  .two-phase-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .ip-routing-stage {
     overflow-x: auto;
     justify-content: start;
@@ -374,6 +379,16 @@
   }
 
   .undo-log-diagram {
+    height: 548px;
+  }
+
+  .two-phase-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .two-phase-diagram {
     height: 548px;
   }
 
@@ -620,6 +635,20 @@
     padding: 18px;
   }
 
+  .two-phase-card {
+    width: 100%;
+  }
+
+  .two-phase-diagram {
+    display: none;
+  }
+
+  .two-phase-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
   .k8s-service-stage,
   .k8s-ingress-stage {
     padding-inline: 12px;
@@ -654,6 +683,8 @@
   .undo-log-mobile-facts,
   .binlog-mobile-flow,
   .binlog-mobile-facts,
+  .two-phase-mobile-flow,
+  .two-phase-mobile-facts,
   .docker-layer-mobile-flow,
   .docker-layer-mobile-facts {
     display: grid;
@@ -672,6 +703,8 @@
   .undo-log-mobile-fact,
   .binlog-mobile-hop,
   .binlog-mobile-fact,
+  .two-phase-mobile-hop,
+  .two-phase-mobile-fact,
   .docker-layer-mobile-hop,
   .docker-layer-mobile-fact {
     display: grid;
@@ -694,6 +727,8 @@
   .undo-log-mobile-fact.active,
   .binlog-mobile-hop.active,
   .binlog-mobile-fact.active,
+  .two-phase-mobile-hop.active,
+  .two-phase-mobile-fact.active,
   .docker-layer-mobile-hop.active,
   .docker-layer-mobile-fact.active {
     border-color: color-mix(in srgb, var(--brand) 36%, var(--border));
@@ -712,6 +747,8 @@
   .undo-log-mobile-fact span,
   .binlog-mobile-hop span,
   .binlog-mobile-fact span,
+  .two-phase-mobile-hop span,
+  .two-phase-mobile-fact span,
   .docker-layer-mobile-hop span,
   .docker-layer-mobile-fact span {
     color: var(--muted);
@@ -731,6 +768,8 @@
   .undo-log-mobile-fact strong,
   .binlog-mobile-hop strong,
   .binlog-mobile-fact strong,
+  .two-phase-mobile-hop strong,
+  .two-phase-mobile-fact strong,
   .docker-layer-mobile-hop strong,
   .docker-layer-mobile-fact strong {
     color: var(--text);
