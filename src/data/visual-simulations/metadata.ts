@@ -362,6 +362,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
   docker: [
     "containerization",
     "image",
+    "image-layer",
     "container",
     "dockerfile",
     "build-cache",

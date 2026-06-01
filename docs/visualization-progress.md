@@ -138,6 +138,7 @@
 | 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
 | Service | `step-simulation` | completed | desktop/mobile captured | Kubernetes Service 数据面转发模拟器，覆盖 selector、EndpointSlice、ClusterIP/DNS、kube-proxy 规则和 Ready Pod |
 | Ingress | `step-simulation` | completed | desktop/mobile captured | Kubernetes Ingress 七层入口路由模拟器，覆盖公网入口、Ingress Controller、TLS Secret、host/path 规则和 Service 后端 |
+| 镜像层 | `storage-layout` | completed | desktop/mobile captured | Docker 镜像层结构模型，覆盖 Dockerfile 指令、Build Cache、只读层共享、overlay2 和可写层 |
 
 ## Buffer Pool Visualization
 
@@ -198,11 +199,66 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Docker `镜像层` 或 MySQL `MVCC` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 MySQL `MVCC` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 Docker `镜像层` 或 MySQL `MVCC`，两者机制清晰且适合做分层结构或状态模型。
+优先选择 MySQL `MVCC`，它具备版本链、ReadView、事务可见性和长事务排障价值，适合做状态模型。
+
+## Docker Image Layer Visualization
+
+### Online Image References
+
+- `source`：Docker Docs - Understanding image layers，https://docs.docker.com/get-started/docker-concepts/building-images/understanding-image-layers/
+  - `image`：页面中的 `Container layers` 图，图片 URL：`https://docs.docker.com/get-started/docker-concepts/building-images/images/container-layers.webp`。
+  - `role`：main
+  - `qualityReason`：Docker 官方教学图，直接展示容器可写层位于只读镜像层之上，是表达镜像层和容器层关系的最佳主构图。
+  - `takeaways`：主画布采用垂直 layer stack，中间突出 base/deps/app 只读层，上方放置容器 upperdir。
+  - `originalChanges`：把静态上下层结构扩展为五步模型：指令生成 diff、缓存命中、共享只读层、overlay2 合并、写时复制与 whiteout 排障。
+- `source`：Docker Docs - Understanding image layers，https://docs.docker.com/get-started/docker-concepts/building-images/understanding-image-layers/
+  - `image`：页面中的 `Sharing layers` 图，图片 URL：`https://docs.docker.com/get-started/docker-concepts/building-images/images/sharing-layers.webp`。
+  - `role`：supporting
+  - `qualityReason`：官方图清晰表达多个容器共享同一批只读镜像层，各自拥有独立可写层。
+  - `takeaways`：画布右上展示 container A/B 同时引用 same lowerdir，并用独立 upperdir 表达运行期差异。
+  - `originalChanges`：用信号面板加入 `system df shared`，把共享层从概念图扩展到磁盘占用排查。
+- `source`：Docker Docs - OverlayFS storage driver，https://docs.docker.com/engine/storage/drivers/overlayfs-driver/
+  - `image`：页面中的 `How Docker constructs map to OverlayFS constructs` 图，图片 URL：`https://docs.docker.com/engine/storage/drivers/images/overlay_constructs.webp`。
+  - `role`：supporting
+  - `qualityReason`：官方图把 image layer、container layer、lowerdir、upperdir、workdir 和 merged 映射到 OverlayFS 术语。
+  - `takeaways`：右下 overlay2 面板列出 lowerdir、upperdir、merged 三行，并用箭头表示容器进程看到 merged rootfs。
+  - `originalChanges`：把驱动术语压缩到可读表格，同时保留 copy-on-write 路径和 whiteout 信号。
+- `source`：Docker Docs - Build cache，https://docs.docker.com/build/cache/
+  - `image`：页面中的构建缓存层级图和说明，展示缓存如何按指令与上下文匹配。
+  - `role`：supporting
+  - `qualityReason`：官方构建缓存资料适合解释层顺序、依赖层复用和源码变化导致局部重建。
+  - `takeaways`：左下 Build Cache 面板展示 base/deps HIT、src MISS；路径连接 Dockerfile 与层栈。
+  - `originalChanges`：用 package lock unchanged 与 COPY src 触发重建表达真实工程优化点。
+- `source`：OCI Image Specification，https://github.com/opencontainers/image-spec/blob/main/spec.md
+  - `image`：规范中的 image manifest、config、layers 结构说明。
+  - `role`：supporting
+  - `qualityReason`：OCI 规范补充镜像 manifest/config/layers 结构，便于把 Docker layer 放入标准镜像模型。
+  - `takeaways`：只读层栈标题加入 `RootFS layers + config history`，底部信号展示 `inspect RootFS layers=4`。
+  - `originalChanges`：保持 UI 聚焦层存储布局，把规范术语作为排障信号辅助呈现。
+
+### Reference Breakdown
+
+- 主体布局：左侧 Dockerfile 和 Build Cache，中间只读镜像层栈，右上两个容器共享层，右下 overlay2 面板，底部排障信号。
+- 视觉焦点：层栈从 base、apt libs、npm deps 到 app src 逐层叠加；共享箭头指向 container A/B；overlay2 把 lowerdir 与 upperdir 合并为 merged rootfs。
+- 领域对象：Dockerfile、build context、layer diff、Build Cache、read-only layers、RootFS、lowerdir、upperdir、workdir、merged、container writable layer、copy-on-write、whiteout、docker history。
+- 容器层级：Dockerfile 指令产生 diff；layer stack 作为镜像不可变层；多个容器引用同一 lower layers；upperdir 保存容器差异；merged 暴露给容器进程。
+- 连线方向：Dockerfile 指令进入层栈；缓存路径回到依赖层；只读层共享给两个容器；层栈和 upperdir 一起进入 overlay2；copy-on-write 从容器写入回到 upperdir。
+- 状态表达：五步通过 `completedSteps` 控制 Dockerfile 行、缓存 HIT/MISS、共享箭头、overlay2 表格、copy-on-write 虚线和诊断信号显隐。
+- 颜色策略：品牌蓝表示层 diff，青色表示 Build Cache，绿色表示共享层，橙色表示 overlay2 合并，红色表示写入与排障风险。
+- 文字密度：画布保留指令、层名、大小、lowerdir/upperdir/merged 和排障命令；解释放到右侧任务、操作面板和底部进度。
+- 交互节奏：五步依次推进“生成层差异 -> 命中构建缓存 -> 共享只读层 -> 合并文件系统 -> 写入与排障”。
+- 原创改造点：融合 Docker 官方 layer 图、sharing 图、OverlayFS 映射图、Build Cache 说明和 OCI 结构，做成面向构建优化与磁盘排障的存储布局模拟器。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/image-layer/desktop.png`
+- 移动端：captured `.codex-artifacts/visualizations/image-layer/mobile.png`
+- 截图结论：桌面本地渲染图包含 Dockerfile、Build Cache、只读层栈、container A/B、overlay2 和底部排障信号；移动端本地渲染图采用纵向层级摘要和信号卡片，文字可读且无明显溢出。
+- 验收备注：in-app browser 返回不可用，Chrome DevTools MCP profile 锁定，Playwright Chromium 受 macOS Mach port 权限限制；本轮使用构建产物、数据测试、静态渲染 PNG 和代码检查完成验收。
 
 ## Kubernetes Ingress Visualization
 
@@ -539,3 +595,17 @@
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Browser Note：Chrome DevTools MCP 完成页面搜索、详情页进入、五步交互和桌面/移动截图验收。
 - Next Candidate：Docker `镜像层` 或 MySQL `MVCC`。
+
+### 2026-06-01 22:10 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功。
+- Selected：Docker `镜像层`，原因是只读层栈、构建缓存、共享 layer、overlay2 和容器可写层具有清晰结构和工程排障价值。
+- Candidate Sources：普通搜索筛选约 12 个候选来源，保留 Docker 官方 `Understanding image layers` 主参考图和 4 个辅助参考来源。
+- Browser Note：in-app browser 返回不可用，Chrome DevTools MCP profile 锁定；本轮使用 Docker 官方图片 URL、页面上下文和搜索结果完成参考确认。
+- Main Reference：Docker Docs - Understanding image layers，主图为 `container-layers.webp`。
+- Supporting References：Docker `sharing-layers.webp`、OverlayFS `overlay_constructs.webp`、Docker Build cache、OCI Image Specification。
+- Reference Breakdown：采用左侧构建输入、中间只读层栈、右侧共享容器与 overlay2、底部排障信号的存储布局。
+- Implementation：新增 `docker:image-layer` 专用 `storage-layout` 构建器、Docker 镜像层 SVG 舞台、移动端纵向摘要、响应式样式和进度记录。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/image-layer/desktop.png` 与 `.codex-artifacts/visualizations/image-layer/mobile.png`；截图为本地渲染验收图。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
+- Next Candidate：MySQL `MVCC`。

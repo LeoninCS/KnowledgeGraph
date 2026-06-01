@@ -198,6 +198,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "docker:image-layer") {
+    return (
+      <DockerImageLayerStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:service") {
     return (
       <KubernetesServiceStage
@@ -2303,6 +2314,244 @@ function KubernetesIngressStage({
           </div>
         </div>
         <div className="tcp-handshake-caption k8s-ingress-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DockerImageLayerStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const buildActive = completedSteps >= 1;
+  const cacheActive = completedSteps >= 2;
+  const shareActive = completedSteps >= 3;
+  const overlayActive = completedSteps >= 4;
+  const diagnosisActive = completedSteps >= 5;
+  const layerRows = [
+    { name: "app src", command: "COPY src /app", size: "18 MB", tone: "brand", active: buildActive },
+    { name: "npm deps", command: "RUN npm ci", size: "142 MB", tone: "teal", active: cacheActive },
+    { name: "apt libs", command: "RUN apt-get install", size: "86 MB", tone: "warning", active: buildActive },
+    { name: "base", command: "FROM node:22-alpine", size: "78 MB", tone: "success", active: buildActive },
+  ];
+  const dockerfileRows = [
+    { line: "FROM node:22-alpine", active: buildActive },
+    { line: "COPY package*.json ./", active: cacheActive },
+    { line: "RUN npm ci --omit=dev", active: cacheActive },
+    { line: "COPY src ./src", active: buildActive },
+  ];
+  const cacheRows = [
+    { name: "base", value: cacheActive ? "HIT" : "pending", active: cacheActive, tone: "success" },
+    { name: "deps", value: cacheActive ? "HIT" : "pending", active: cacheActive, tone: "success" },
+    { name: "src", value: cacheActive ? "MISS" : "pending", active: cacheActive, tone: "danger" },
+  ];
+  const overlayRows = [
+    { name: "lowerdir", value: "base:deps:app", active: overlayActive },
+    { name: "upperdir", value: diagnosisActive ? "+ /tmp/report.log" : "empty", active: overlayActive },
+    { name: "merged", value: overlayActive ? "/var/lib/docker/overlay2/.../merged" : "pending", active: overlayActive },
+  ];
+  const signalRows = [
+    { name: "history", value: diagnosisActive ? "RUN npm ci 142 MB" : "--", active: diagnosisActive },
+    { name: "inspect", value: buildActive ? "RootFS layers=4" : "--", active: buildActive },
+    { name: "system df", value: shareActive ? "shared=306 MB" : "--", active: shareActive },
+    { name: "whiteout", value: diagnosisActive ? ".wh.secret" : "--", active: diagnosisActive },
+  ];
+
+  return (
+    <div className="visual-stage docker-layer-stage">
+      <div className="docker-layer-card">
+        <svg
+          className="docker-layer-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["docker-layer-arrow-brand", "var(--brand)"],
+              ["docker-layer-arrow-teal", "var(--tertiary)"],
+              ["docker-layer-arrow-success", "var(--success)"],
+              ["docker-layer-arrow-warning", "#f59e0b"],
+              ["docker-layer-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="docker-layer-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="docker-layer-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="docker-layer-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="docker-layer-subtitle" x="560" y="100">
+            {label(
+              "Dockerfile -> layer diffs -> shared lowerdir -> upperdir -> merged rootfs",
+              "Dockerfile -> layer diffs -> shared lowerdir -> upperdir -> merged rootfs",
+            )}
+          </text>
+
+          <g className={`docker-layer-dockerfile ${buildActive ? "active" : ""}`}>
+            <rect x="56" y="136" width="222" height="216" rx="24" />
+            <text className="docker-layer-panel-title" x="84" y="172">Dockerfile</text>
+            <text className="docker-layer-panel-subtitle" x="84" y="194">{label("指令顺序决定层边界", "Instruction order defines layer boundaries")}</text>
+            {dockerfileRows.map((row, index) => (
+              <g key={row.line} className={`docker-layer-code-row ${row.active ? "active" : ""}`}>
+                <rect x="82" y={218 + index * 32} width="168" height="24" rx="10" />
+                <text x="96" y={234 + index * 32}>{row.line}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-layer-cache ${cacheActive ? "active" : ""}`}>
+            <rect x="56" y="382" width="222" height="130" rx="24" />
+            <text className="docker-layer-panel-title" x="84" y="418">Build Cache</text>
+            {cacheRows.map((row, index) => (
+              <g key={row.name} className={`docker-layer-cache-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="82" y={436 + index * 28} width="166" height="22" rx="11" />
+                <text x="96" y={451 + index * 28}>{row.name}</text>
+                <text x="234" y={451 + index * 28}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-layer-stack ${buildActive ? "active" : ""}`}>
+            <rect x="358" y="128" width="274" height="392" rx="28" />
+            <text className="docker-layer-panel-title" x="386" y="166">{label("只读镜像层栈", "Read-only image stack")}</text>
+            <text className="docker-layer-panel-subtitle" x="386" y="188">RootFS layers + config history</text>
+            {layerRows.map((row, index) => {
+              const y = 224 + index * 66;
+              return (
+                <g key={row.name} className={`docker-layer-row ${row.tone} ${row.active ? "active" : ""}`}>
+                  <rect x="394" y={y} width="202" height="48" rx="16" />
+                  <text x="416" y={y + 20}>{row.name}</text>
+                  <text x="416" y={y + 36}>{row.command}</text>
+                  <text x="578" y={y + 30}>{row.size}</text>
+                </g>
+              );
+            })}
+            <path className={`docker-layer-midline ${shareActive ? "active" : ""}`} d="M 382 536 L 608 536" />
+            <text className={`docker-layer-shared-label ${shareActive ? "active" : ""}`} x="495" y="560">
+              {label("shared lower layers", "shared lower layers")}
+            </text>
+          </g>
+
+          <g className={`docker-layer-containers ${shareActive ? "active" : ""}`}>
+            <rect x="694" y="128" width="352" height="188" rx="28" />
+            <text className="docker-layer-panel-title" x="722" y="166">{label("多个容器共享镜像层", "Containers share image layers")}</text>
+            {[
+              { name: "container A", x: 728, upper: diagnosisActive ? "+ log" : "upperdir A" },
+              { name: "container B", x: 886, upper: "upperdir B" },
+            ].map((container) => (
+              <g key={container.name} className={`docker-layer-container ${shareActive ? "active" : ""}`}>
+                <rect x={container.x} y="198" width="126" height="78" rx="18" />
+                <text x={container.x + 63} y="224">{container.name}</text>
+                <text x={container.x + 63} y="246">{container.upper}</text>
+                <text x={container.x + 63} y="264">same lowerdir</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-layer-overlay ${overlayActive ? "active" : ""}`}>
+            <rect x="694" y="342" width="352" height="178" rx="28" />
+            <text className="docker-layer-panel-title" x="722" y="380">overlay2</text>
+            <text className="docker-layer-panel-subtitle" x="722" y="402">{label("组合容器进程看到的根文件系统", "Composes the rootfs seen by the process")}</text>
+            {overlayRows.map((row, index) => (
+              <g key={row.name} className={`docker-layer-overlay-row ${row.active ? "active" : ""}`}>
+                <rect x="728" y={424 + index * 28} width="274" height="22" rx="11" />
+                <text x="744" y={439 + index * 28}>{row.name}</text>
+                <text x="992" y={439 + index * 28}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-layer-build-path ${buildActive ? "active" : ""}`}>
+            <path d="M 278 240 C 308 238, 330 238, 358 244" markerEnd="url(#docker-layer-arrow-brand)" />
+            <rect x="246" y="198" width="170" height="32" rx="16" />
+            <text x="331" y="219">layer diff</text>
+          </g>
+
+          <g className={`docker-layer-cache-path ${cacheActive ? "active" : ""}`}>
+            <path d="M 278 440 C 326 436, 342 356, 394 314" markerEnd="url(#docker-layer-arrow-teal)" />
+            <rect x="264" y="364" width="136" height="32" rx="16" />
+            <text x="332" y="385">cache key</text>
+          </g>
+
+          <g className={`docker-layer-share-path ${shareActive ? "active" : ""}`}>
+            <path d="M 632 290 C 660 272, 676 246, 728 236" markerEnd="url(#docker-layer-arrow-success)" />
+            <path d="M 632 340 C 700 330, 770 258, 886 236" markerEnd="url(#docker-layer-arrow-success)" />
+          </g>
+
+          <g className={`docker-layer-overlay-path ${overlayActive ? "active" : ""}`}>
+            <path d="M 870 316 L 870 342" markerEnd="url(#docker-layer-arrow-warning)" />
+            <path d="M 632 440 C 674 442, 700 438, 728 436" markerEnd="url(#docker-layer-arrow-warning)" />
+          </g>
+
+          <g className={`docker-layer-cow-path ${diagnosisActive ? "active" : ""}`}>
+            <path d="M 916 276 C 978 314, 982 382, 950 424" markerEnd="url(#docker-layer-arrow-danger)" />
+            <rect x="866" y="304" width="154" height="34" rx="17" />
+            <text x="943" y="326">copy-on-write</text>
+          </g>
+
+          <g className="docker-layer-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`docker-layer-signal ${signal.active ? "active" : ""}`}>
+                <rect x={64 + index * 258} y="536" width="218" height="34" rx="16" />
+                <text x={84 + index * 258} y="550">{signal.name}</text>
+                <text x={262 + index * 258} y="562">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="docker-layer-mobile-map">
+          <div className="docker-layer-mobile-flow" aria-hidden="true">
+            {[
+              { name: "Dockerfile", value: buildActive ? "FROM/RUN/COPY -> layer diff" : "pending", active: buildActive },
+              { name: "Build Cache", value: cacheActive ? "base/deps HIT, src MISS" : "pending", active: cacheActive },
+              { name: "Read-only Layers", value: shareActive ? "base/deps/app shared" : "waiting", active: shareActive },
+              { name: "overlay2", value: overlayActive ? "lowerdir + upperdir -> merged" : "waiting", active: overlayActive },
+              { name: "Writable Layer", value: diagnosisActive ? "copy-on-write + whiteout visible" : "empty", active: diagnosisActive },
+            ].map((item) => (
+              <div key={item.name} className={`docker-layer-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="docker-layer-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`docker-layer-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption docker-layer-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

@@ -335,6 +335,44 @@
   overflow: visible;
 }
 
+.docker-layer-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.docker-layer-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .docker-layer-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.docker-layer-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.docker-layer-mobile-map {
+  display: none;
+}
+
 .ip-routing-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -2236,6 +2274,246 @@
 }
 
 .k8s-service-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.docker-layer-bg {
+  fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 20%, transparent);
+}
+
+.docker-layer-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.docker-layer-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.docker-layer-dockerfile,
+.docker-layer-cache,
+.docker-layer-stack,
+.docker-layer-containers,
+.docker-layer-overlay,
+.docker-layer-build-path,
+.docker-layer-cache-path,
+.docker-layer-share-path,
+.docker-layer-overlay-path,
+.docker-layer-cow-path,
+.docker-layer-code-row,
+.docker-layer-cache-row,
+.docker-layer-row,
+.docker-layer-container,
+.docker-layer-overlay-row,
+.docker-layer-signal,
+.docker-layer-midline,
+.docker-layer-shared-label {
+  opacity: 0.26;
+  transition: opacity 180ms ease;
+}
+
+.docker-layer-dockerfile.active,
+.docker-layer-cache.active,
+.docker-layer-stack.active,
+.docker-layer-containers.active,
+.docker-layer-overlay.active,
+.docker-layer-build-path.active,
+.docker-layer-cache-path.active,
+.docker-layer-share-path.active,
+.docker-layer-overlay-path.active,
+.docker-layer-cow-path.active,
+.docker-layer-code-row.active,
+.docker-layer-cache-row.active,
+.docker-layer-row.active,
+.docker-layer-container.active,
+.docker-layer-overlay-row.active,
+.docker-layer-signal.active,
+.docker-layer-midline.active,
+.docker-layer-shared-label.active {
+  opacity: 1;
+}
+
+.docker-layer-dockerfile > rect,
+.docker-layer-cache > rect,
+.docker-layer-stack > rect,
+.docker-layer-containers > rect,
+.docker-layer-overlay > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#docker-layer-soft-shadow);
+}
+
+.docker-layer-dockerfile.active > rect {
+  fill: color-mix(in srgb, var(--brand) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.docker-layer-cache.active > rect {
+  fill: color-mix(in srgb, var(--tertiary) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.docker-layer-stack.active > rect,
+.docker-layer-containers.active > rect {
+  fill: color-mix(in srgb, var(--success) 7%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 28%, var(--border));
+}
+
+.docker-layer-overlay.active > rect {
+  fill: color-mix(in srgb, #f59e0b 8%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 34%, var(--border));
+}
+
+.docker-layer-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.docker-layer-panel-subtitle,
+.docker-layer-dockerfile text,
+.docker-layer-cache text,
+.docker-layer-stack text,
+.docker-layer-containers text,
+.docker-layer-overlay text,
+.docker-layer-build-path text,
+.docker-layer-cache-path text,
+.docker-layer-cow-path text,
+.docker-layer-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.docker-layer-code-row rect,
+.docker-layer-cache-row rect,
+.docker-layer-row rect,
+.docker-layer-container rect,
+.docker-layer-overlay-row rect,
+.docker-layer-build-path rect,
+.docker-layer-cache-path rect,
+.docker-layer-cow-path rect,
+.docker-layer-signal rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#docker-layer-soft-shadow);
+}
+
+.docker-layer-code-row.active rect,
+.docker-layer-cache-row.success.active rect,
+.docker-layer-row.success.active rect,
+.docker-layer-container.active rect,
+.docker-layer-overlay-row.active rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 36%, var(--border));
+}
+
+.docker-layer-row.brand.active rect,
+.docker-layer-build-path.active rect,
+.docker-layer-signal.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.docker-layer-row.teal.active rect,
+.docker-layer-cache-path.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.docker-layer-row.warning.active rect,
+.docker-layer-cache-row.danger.active rect,
+.docker-layer-cow-path.active rect {
+  fill: color-mix(in srgb, #f59e0b 11%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 40%, var(--border));
+}
+
+.docker-layer-cache-row.success.active text:last-child,
+.docker-layer-row text:first-of-type,
+.docker-layer-container text:first-of-type,
+.docker-layer-overlay-row text:first-of-type,
+.docker-layer-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.docker-layer-cache-row.danger.active text:last-child,
+.docker-layer-signal.active text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+}
+
+.docker-layer-row text:nth-of-type(3),
+.docker-layer-cache-row text:nth-of-type(2),
+.docker-layer-overlay-row text:nth-of-type(2),
+.docker-layer-signal text:nth-of-type(2) {
+  text-anchor: end;
+}
+
+.docker-layer-container text,
+.docker-layer-build-path text,
+.docker-layer-cache-path text,
+.docker-layer-cow-path text {
+  text-anchor: middle;
+}
+
+.docker-layer-build-path path,
+.docker-layer-cache-path path,
+.docker-layer-share-path path,
+.docker-layer-overlay-path path,
+.docker-layer-cow-path path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.docker-layer-cache-path path {
+  stroke: var(--tertiary);
+}
+
+.docker-layer-share-path path {
+  stroke: var(--success);
+}
+
+.docker-layer-overlay-path path {
+  stroke: #f59e0b;
+}
+
+.docker-layer-cow-path path {
+  stroke: var(--danger);
+  stroke-dasharray: 8 7;
+}
+
+.docker-layer-midline {
+  fill: none;
+  stroke: color-mix(in srgb, var(--success) 54%, transparent);
+  stroke-dasharray: 8 8;
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.docker-layer-shared-label {
+  fill: var(--success);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.docker-layer-caption {
   right: 16px;
   bottom: 14px;
 }
