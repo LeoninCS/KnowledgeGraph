@@ -147,10 +147,11 @@
 
 .sphere-graph-stage {
   position: absolute;
-  inset: 58px 34px 106px;
+  inset: 58px 360px 106px 34px;
   z-index: 2;
   width: auto;
   height: auto;
+  overflow: hidden;
   cursor: grab;
   touch-action: none;
 }
@@ -177,7 +178,8 @@
 }
 
 .sphere-edge-layer,
-.sphere-edge-wrap {
+.sphere-edge-wrap,
+.sphere-node-occluder-layer {
   pointer-events: none;
 }
 
@@ -230,6 +232,24 @@
   opacity: 0.72;
 }
 
+.sphere-edge-wrap.focus-relation .sphere-edge-halo {
+  stroke-dasharray: none;
+  stroke-width: 8;
+  opacity: 0.76;
+}
+
+.sphere-edge.focus-relation {
+  stroke-dasharray: none;
+  stroke-width: 1.9;
+  opacity: 0.86;
+}
+
+.sphere-edge.related.focus-relation {
+  stroke: color-mix(in srgb, var(--category-color) 62%, var(--muted));
+  stroke-width: 1.8;
+  opacity: 0.78;
+}
+
 .sphere-edge.is-hovered-relation {
   stroke-dasharray: none;
   stroke: color-mix(in srgb, var(--category-color) 72%, var(--brand));
@@ -253,6 +273,20 @@
 
 .sphere-node-shell {
   overflow: visible;
+}
+
+.sphere-node-occluder {
+  fill: var(--surface);
+  stroke: none;
+}
+
+.sphere-node-occluder.category,
+.sphere-node-occluder.group {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+
+:root[data-theme="dark"] .sphere-node-occluder {
+  fill: color-mix(in srgb, var(--surface) 96%, var(--bg));
 }
 
 .sphere-node {
@@ -342,6 +376,133 @@
   font-size: 12px;
   font-weight: 850;
   font-variant-numeric: tabular-nums;
+}
+
+.graph-relation-panel {
+  position: absolute;
+  top: 90px;
+  right: 20px;
+  z-index: 7;
+  display: grid;
+  gap: 12px;
+  width: 300px;
+  max-height: calc(100vh - var(--topbar-height) - 190px);
+  overflow: auto;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 91%, transparent);
+  padding: 14px;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.72) inset,
+    0 20px 48px rgb(23 32 51 / 0.15);
+  backdrop-filter: blur(18px);
+}
+
+@media (width <= 1180px) {
+  .sphere-graph-stage {
+    inset-right: 320px;
+  }
+
+  .graph-relation-panel {
+    width: 270px;
+  }
+}
+
+.graph-relation-panel header {
+  display: grid;
+  gap: 7px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+.graph-relation-panel header > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--faint);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.graph-relation-panel h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.graph-relation-panel p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.graph-relation-panel header button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: fit-content;
+  min-height: 30px;
+  border: 1px solid color-mix(in srgb, var(--brand) 28%, var(--border));
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  padding: 0 11px;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.graph-relation-panel section {
+  display: grid;
+  gap: 8px;
+}
+
+.graph-relation-panel h3 {
+  margin: 0;
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.graph-relation-list {
+  display: grid;
+  gap: 6px;
+}
+
+.graph-relation-list button {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface-low) 68%, transparent);
+  color: var(--text);
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.graph-relation-list button:hover {
+  border-color: color-mix(in srgb, var(--brand) 22%, var(--border));
+  background: color-mix(in srgb, var(--brand-soft) 72%, var(--surface));
+}
+
+.graph-relation-list span {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.graph-relation-list small,
+.graph-relation-empty {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .sphere-node:hover,
@@ -531,15 +692,26 @@
 .sphere-graph:has(.flow-lane-layer) .sphere-edge.prerequisite {
   marker-end: url(#flowArrow);
   stroke: color-mix(in srgb, var(--category-color) 68%, var(--brand));
-  stroke-width: 2;
-  opacity: 0.86;
+  stroke-width: 1.65;
+  opacity: 0.44;
   filter: none;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-edge.prerequisite.focus-relation {
+  stroke-width: 1.95;
+  opacity: 0.82;
 }
 
 .sphere-graph:has(.flow-lane-layer) .sphere-edge.related {
   marker-end: url(#flowArrow);
   stroke: color-mix(in srgb, var(--muted) 58%, var(--line));
-  opacity: 0.52;
+  opacity: 0.44;
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-edge.related.focus-relation {
+  stroke: color-mix(in srgb, var(--category-color) 62%, var(--muted));
+  stroke-width: 1.7;
+  opacity: 0.66;
 }
 
 .sphere-graph:has(.flow-lane-layer) .sphere-edge.is-hovered-relation {
@@ -620,12 +792,20 @@
 }
 
 .sphere-graph:has(.flow-lane-layer) .sphere-node.knowledge.active,
-.sphere-graph:has(.flow-lane-layer) .sphere-node.knowledge.matched {
+.sphere-graph:has(.flow-lane-layer) .sphere-node.knowledge.matched,
+.sphere-graph:has(.flow-lane-layer) .sphere-node.knowledge.relation-focused {
   border-color: color-mix(in srgb, var(--category-color) 82%, var(--brand));
   color: var(--text);
   box-shadow:
     0 0 0 4px color-mix(in srgb, var(--category-color) 16%, transparent),
     0 18px 34px color-mix(in srgb, var(--category-color) 22%, transparent);
+}
+
+.sphere-graph:has(.flow-lane-layer) .sphere-node.knowledge.relation-focused {
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--brand) 17%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--brand) 34%, transparent),
+    0 20px 36px color-mix(in srgb, var(--category-color) 24%, transparent);
 }
 
 .sphere-graph:has(.flow-lane-layer) .sphere-label {

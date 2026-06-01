@@ -138,6 +138,15 @@
     bottom: 18px;
   }
 
+  .graph-relation-panel {
+    top: auto;
+    right: 16px;
+    bottom: 76px;
+    left: 16px;
+    width: auto;
+    max-height: 240px;
+  }
+
   .graph-canvas-controls button {
     width: 44px;
     height: 44px;

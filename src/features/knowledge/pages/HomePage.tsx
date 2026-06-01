@@ -1,5 +1,5 @@
-import { Minus, Plus, RotateCcw, Search } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { ArrowRight, GitBranch, Minus, Plus, RotateCcw, Search } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   TransformComponent,
   TransformWrapper,
@@ -15,6 +15,8 @@ import { buildSphereGraphLayout, withFocusedRelations } from "../graph-layout";
 import type { CanvasView, SphereGraph } from "../graph-types";
 import {
   categoryIcons,
+  getAreaLabel,
+  getKnowledgeLabel,
   getVisualizablePoints,
   normalizeSearch,
 } from "../knowledge-ui";
@@ -32,6 +34,7 @@ const transformExcludedTargets = [
   "mobile-category-tabs",
   "search-status",
   "graph-canvas-controls",
+  "graph-relation-panel",
 ];
 const panningExcludedTargets = [...transformExcludedTargets, "sphere-node"];
 
@@ -68,6 +71,40 @@ function PageGraphFallback() {
   return <div className="graph-empty-state" aria-busy="true" />;
 }
 
+type GraphRelationItem = {
+  point: GraphKnowledgePoint;
+  relation: "prerequisite" | "dependent" | "related";
+};
+
+function getGraphRelationItems(points: GraphKnowledgePoint[], focusPointId: string) {
+  const pointById = new Map(points.map((point) => [point.id, point]));
+  const focusPoint = pointById.get(focusPointId) ?? points[0];
+
+  if (!focusPoint) {
+    return {
+      focusPoint: undefined,
+      prerequisites: [],
+      dependents: [],
+      related: [],
+    };
+  }
+
+  return {
+    focusPoint,
+    prerequisites: focusPoint.prerequisites
+      .map((id) => pointById.get(id))
+      .filter((point): point is GraphKnowledgePoint => Boolean(point))
+      .map((point) => ({ point, relation: "prerequisite" as const })),
+    dependents: points
+      .filter((point) => point.prerequisites.includes(focusPoint.id))
+      .map((point) => ({ point, relation: "dependent" as const })),
+    related: focusPoint.related
+      .map((id) => pointById.get(id))
+      .filter((point): point is GraphKnowledgePoint => Boolean(point))
+      .map((point) => ({ point, relation: "related" as const })),
+  };
+}
+
 export function HomePage({
   t,
   locale,
@@ -94,7 +131,7 @@ export function HomePage({
   onOpenDetail: (categoryId: CategoryId, pointId: string) => void;
 }) {
   const [graphMode, setGraphMode] = useState<GraphMode>("core");
-  const [hoveredKnowledgeId, setHoveredKnowledgeId] = useState<string>();
+  const [focusedKnowledgeId, setFocusedKnowledgeId] = useState(selectedKnowledgeId);
   const [canvasView, setCanvasView] = useState<CanvasView>(defaultCanvasView);
   const [isCanvasGestureActive, setIsCanvasGestureActive] = useState(false);
   const transformRef = useRef<ReactZoomPanPinchContentRef | null>(null);
@@ -106,6 +143,13 @@ export function HomePage({
   const visualizableIdSet = useMemo(
     () => new Set(visualizablePoints.map((point) => point.id)),
     [visualizablePoints],
+  );
+  const graphFocusId = points.some((point) => point.id === focusedKnowledgeId)
+    ? focusedKnowledgeId
+    : selectedKnowledgeId;
+  const relationPanel = useMemo(
+    () => getGraphRelationItems(points, graphFocusId),
+    [points, graphFocusId],
   );
   const graph = useMemo(
     () => {
@@ -121,7 +165,7 @@ export function HomePage({
         visualizableIdSet,
       });
 
-      return withFocusedRelations(layout, hoveredKnowledgeId ?? selectedKnowledgeId);
+      return withFocusedRelations(layout, graphFocusId);
     },
     [
       t,
@@ -133,7 +177,7 @@ export function HomePage({
       graphBoard,
       searchQuery,
       visualizableIdSet,
-      hoveredKnowledgeId,
+      graphFocusId,
     ],
   );
   const graphTransformKey = [
@@ -143,6 +187,7 @@ export function HomePage({
     graphBoard,
     searchQuery,
     locale,
+    graphFocusId,
     points.length,
     graph.width,
     graph.height,
@@ -155,6 +200,10 @@ export function HomePage({
   const canZoomOut = canvasView.zoom > minCanvasZoom + 0.01;
   const canZoomIn = canvasView.zoom < maxCanvasZoom - 0.01;
   const isCanvasInteracting = isCanvasGestureActive;
+
+  useEffect(() => {
+    setFocusedKnowledgeId(selectedKnowledgeId);
+  }, [selectedCategory, selectedKnowledgeId]);
 
   function getDefaultTransform(ref: ReactZoomPanPinchContentRef | null) {
     return getDefaultCanvasView(
@@ -331,11 +380,22 @@ export function HomePage({
                     <SphereGraphView
                       graph={graph}
                       focusedLabel={t.focused}
-                      highlightedKnowledgeId={hoveredKnowledgeId}
+                      highlightedKnowledgeId={graphFocusId}
                       onOpenDetail={onOpenDetail}
-                      onHoverKnowledge={setHoveredKnowledgeId}
+                      onFocusKnowledge={setFocusedKnowledgeId}
                     />
                   </TransformComponent>
+                  <GraphRelationPanel
+                    t={t}
+                    locale={locale}
+                    categoryId={selectedCategory}
+                    focusPoint={relationPanel.focusPoint}
+                    prerequisites={relationPanel.prerequisites}
+                    dependents={relationPanel.dependents}
+                    related={relationPanel.related}
+                    onFocusKnowledge={setFocusedKnowledgeId}
+                    onOpenDetail={onOpenDetail}
+                  />
                   <div className="graph-canvas-controls" aria-label={t.canvasControls}>
                     <button
                       type="button"
@@ -374,5 +434,108 @@ export function HomePage({
         </section>
       )}
     </main>
+  );
+}
+
+function GraphRelationPanel({
+  t,
+  locale,
+  categoryId,
+  focusPoint,
+  prerequisites,
+  dependents,
+  related,
+  onFocusKnowledge,
+  onOpenDetail,
+}: {
+  t: Copy;
+  locale: Locale;
+  categoryId: CategoryId;
+  focusPoint?: GraphKnowledgePoint;
+  prerequisites: GraphRelationItem[];
+  dependents: GraphRelationItem[];
+  related: GraphRelationItem[];
+  onFocusKnowledge: (pointId: string) => void;
+  onOpenDetail: (categoryId: CategoryId, pointId: string) => void;
+}) {
+  if (!focusPoint) {
+    return null;
+  }
+
+  const title = getKnowledgeLabel(focusPoint, locale);
+  const areaLabel = getAreaLabel(focusPoint.area ?? focusPoint.layer ?? "foundation", locale);
+
+  return (
+    <aside className="graph-relation-panel" aria-label={`${title} ${t.related}`}>
+      <header>
+        <span>
+          <GitBranch size={15} />
+          {t.related}
+        </span>
+        <h2>{title}</h2>
+        <p>{focusPoint.summary ?? focusPoint.concept ?? areaLabel}</p>
+        <button type="button" onClick={() => onOpenDetail(categoryId, focusPoint.id)}>
+          {t.viewDetail}
+          <ArrowRight size={15} />
+        </button>
+      </header>
+      <GraphRelationSection
+        title={t.prerequisites}
+        items={prerequisites}
+        locale={locale}
+        emptyText={areaLabel}
+        onFocusKnowledge={onFocusKnowledge}
+      />
+      <GraphRelationSection
+        title={locale === "zh" ? "后续知识" : "Next"}
+        items={dependents}
+        locale={locale}
+        emptyText={areaLabel}
+        onFocusKnowledge={onFocusKnowledge}
+      />
+      <GraphRelationSection
+        title={t.related}
+        items={related}
+        locale={locale}
+        emptyText={areaLabel}
+        onFocusKnowledge={onFocusKnowledge}
+      />
+    </aside>
+  );
+}
+
+function GraphRelationSection({
+  title,
+  items,
+  locale,
+  emptyText,
+  onFocusKnowledge,
+}: {
+  title: string;
+  items: GraphRelationItem[];
+  locale: Locale;
+  emptyText: string;
+  onFocusKnowledge: (pointId: string) => void;
+}) {
+  return (
+    <section>
+      <h3>{title}</h3>
+      {items.length > 0 ? (
+        <div className="graph-relation-list">
+          {items.slice(0, 8).map(({ point, relation }) => (
+            <button
+              key={`${relation}:${point.id}`}
+              type="button"
+              onClick={() => onFocusKnowledge(point.id)}
+            >
+              <span>{getKnowledgeLabel(point, locale)}</span>
+              <small>{getAreaLabel(point.area ?? point.layer ?? "foundation", locale)}</small>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="graph-relation-empty">{emptyText}</p>
+      )}
+    </section>
   );
 }

@@ -296,9 +296,10 @@ function addEdge(
   source: string,
   target: string,
   relation: KnowledgeGraphRelation,
+  focus = false,
 ) {
   const pairKey = relation === "related" ? [source, target].sort().join("::") : `${source}->${target}`;
-  const key = `${relation}:${pairKey}`;
+  const key = `${focus ? "focus" : "base"}:${relation}:${pairKey}`;
 
   if (edgeKeys.has(key)) {
     return;
@@ -311,6 +312,7 @@ function addEdge(
     target,
     relation,
     categoryId,
+    focus,
   });
 }
 
@@ -460,7 +462,6 @@ function buildFlowGraph({
   const edgeKeys = new Set<string>();
   const sortedPoints = [...boardPoints].sort((a, b) => getPointSortValue(a) - getPointSortValue(b));
   const occupiedByLaneColumn = new Map<string, number>();
-  const pointIdSet = new Set(boardPoints.map((point) => point.id));
 
   laneIds.forEach((laneId, laneIndex) => {
     const lane = lanes[laneIndex];
@@ -526,13 +527,6 @@ function buildFlowGraph({
         { x: nodeX, y: nodeY },
       ),
     );
-    addEdge(edges, edgeKeys, selectedCategory, `group-${laneId}`, point.id, "group");
-
-    point.prerequisites.forEach((prerequisiteId) => {
-      if (pointIdSet.has(prerequisiteId)) {
-        addEdge(edges, edgeKeys, selectedCategory, prerequisiteId, point.id, "prerequisite");
-      }
-    });
   });
 
   const maxNodeX = nodes.reduce((max, node) => Math.max(max, node.x + (node.width ?? 0)), 0);
@@ -621,31 +615,61 @@ export function withFocusedRelations(
   const nodeById = new Map(graph.nodes.map((node) => [node.id, node]));
   const pointById = new Map(graph.points.map((point) => [point.id, point]));
   const focusPoint = relationFocusId ? pointById.get(relationFocusId) : undefined;
+  const focusNode = relationFocusId ? nodeById.get(relationFocusId) : undefined;
   const categoryId = graph.nodes[0]?.categoryId;
 
-  if (!focusPoint || !categoryId) {
+  if (!focusPoint || !focusNode || !categoryId) {
     return graph;
   }
 
-  const edges = [...graph.edges];
+  const edges = graph.edges.filter((edge) => !edge.focus);
   const edgeKeys = new Set(edges.map((edge) => edge.id));
+  const focusDependentLimit = 2;
+  const focusPrerequisiteLimit = 2;
+  const focusRelatedLimit = 1;
+  const getFocusDistance = (targetId: string) => {
+    const target = nodeById.get(targetId);
 
-  focusPoint.prerequisites.forEach((sourceId) => {
-    if (nodeById.has(sourceId)) {
-      addEdge(edges, edgeKeys, categoryId, sourceId, focusPoint.id, "prerequisite");
+    if (!target) {
+      return Number.MAX_SAFE_INTEGER;
     }
+
+    return Math.hypot(target.x - focusNode.x, target.y - focusNode.y);
+  };
+  const byFocusDistance = (leftId: string, rightId: string) => getFocusDistance(leftId) - getFocusDistance(rightId);
+  const pickVisibleRelationIds = (ids: string[], limit: number) => {
+    const visibleIds = ids.filter((id) => nodeById.has(id));
+    const sameLaneIds = visibleIds.filter((id) => nodeById.get(id)?.lane === focusNode.lane);
+    const candidates = sameLaneIds.length > 0 ? sameLaneIds : visibleIds;
+
+    return candidates.sort(byFocusDistance).slice(0, limit);
+  };
+  const drawnRelationTargetIds = new Set<string>();
+  const addFocusEdge = (sourceId: string, targetId: string, relation: KnowledgeGraphRelation) => {
+    const relationTargetId = sourceId === focusPoint.id ? targetId : sourceId;
+
+    if (drawnRelationTargetIds.has(relationTargetId)) {
+      return;
+    }
+
+    drawnRelationTargetIds.add(relationTargetId);
+    addEdge(edges, edgeKeys, categoryId, sourceId, targetId, relation, true);
+  };
+
+  pickVisibleRelationIds(focusPoint.prerequisites, focusPrerequisiteLimit).forEach((sourceId) => {
+    addFocusEdge(sourceId, focusPoint.id, "prerequisite");
   });
 
-  focusPoint.related.slice(0, 2).forEach((relatedId) => {
-    if (nodeById.has(relatedId)) {
-      addEdge(edges, edgeKeys, categoryId, focusPoint.id, relatedId, "related");
-    }
+  const dependentIds = graph.points
+    .filter((point) => point.prerequisites.includes(focusPoint.id))
+    .map((point) => point.id);
+
+  pickVisibleRelationIds(dependentIds, focusDependentLimit).forEach((targetId) => {
+    addFocusEdge(focusPoint.id, targetId, "prerequisite");
   });
 
-  graph.points.forEach((point) => {
-    if (point.prerequisites.includes(focusPoint.id)) {
-      addEdge(edges, edgeKeys, categoryId, focusPoint.id, point.id, "prerequisite");
-    }
+  pickVisibleRelationIds(focusPoint.related, focusRelatedLimit).forEach((relatedId) => {
+    addFocusEdge(focusPoint.id, relatedId, "related");
   });
 
   return {

@@ -46,6 +46,7 @@ export type SphereEdge = {
   target: string;
   relation: KnowledgeGraphRelation;
   categoryId: CategoryId;
+  focus?: boolean;
 };
 
 export type SphereGraph = {
