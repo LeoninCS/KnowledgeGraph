@@ -132,6 +132,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "network:routing") {
+    return (
+      <IpRoutingStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "network:cdn") {
     return (
       <CdnRequestStage
@@ -1586,6 +1597,232 @@ function RedisHashSlotStage({
           </g>
         </svg>
         <div className="tcp-handshake-caption redis-hash-slot-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function IpRoutingStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const routeRows = [
+    { cidr: "192.168.2.80/29", target: "R2 192.168.12.2", match: "29 bits", step: 2, tone: "success" },
+    { cidr: "192.168.2.64/27", target: "R3 192.168.13.2", match: "27 bits", step: 2, tone: "warning" },
+    { cidr: "192.168.2.0/24", target: "R4 192.168.14.2", match: "24 bits", step: 2, tone: "brand" },
+    { cidr: "0.0.0.0/0", target: "default", match: "fallback", step: 0, tone: "muted" },
+  ];
+  const hops = [
+    { id: "H1", x: 102, y: 304, title: "H1", ip: "192.168.1.1", mac: "fa:87:9c", step: 1 },
+    { id: "R1", x: 310, y: 304, title: "R1", ip: "192.168.1.254", mac: "fa:3f:fd", step: 1 },
+    { id: "R2", x: 592, y: 304, title: "R2", ip: "192.168.12.2", mac: "fa:01:0c", step: 4 },
+    { id: "H2", x: 850, y: 304, title: "H2", ip: "192.168.2.82", mac: "fa:4a:f5", step: 5 },
+  ];
+  const routeActive = completedSteps >= 2;
+  const ttlActive = completedSteps >= 3;
+  const rewriteActive = completedSteps >= 4;
+  const returnActive = completedSteps >= 5;
+
+  return (
+    <div className="visual-stage ip-routing-stage">
+      <div className="ip-routing-card">
+        <svg
+          className="ip-routing-diagram"
+          viewBox="0 0 1120 620"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["ip-route-arrow-brand", "var(--brand)"],
+              ["ip-route-arrow-teal", "var(--tertiary)"],
+              ["ip-route-arrow-warning", "#f59e0b"],
+              ["ip-route-arrow-success", "var(--success)"],
+              ["ip-route-arrow-danger", "var(--danger)"],
+              ["ip-route-arrow-muted", "color-mix(in srgb, var(--muted) 58%, transparent)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="ip-route-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="ip-route-bg" x="24" y="24" width="1072" height="548" rx="28" />
+          <text className="ip-route-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="ip-route-subtitle" x="560" y="100">
+            {label(
+              "dst IP -> longest prefix -> next hop -> TTL -1 -> new Ethernet frame -> return route",
+              "dst IP -> longest prefix -> next hop -> TTL -1 -> new Ethernet frame -> return route",
+            )}
+          </text>
+
+          <g className="ip-route-lan left-lan">
+            <rect x="60" y="236" width="338" height="154" rx="26" />
+            <text x="86" y="266">LAN A 192.168.1.0/24</text>
+          </g>
+          <g className="ip-route-lan transit-lan">
+            <rect x="430" y="236" width="278" height="154" rx="26" />
+            <text x="456" y="266">Transit 192.168.12.0/24</text>
+          </g>
+          <g className="ip-route-lan right-lan">
+            <rect x="760" y="236" width="252" height="154" rx="26" />
+            <text x="786" y="266">LAN B 192.168.2.80/29</text>
+          </g>
+
+          {hops.map((hop) => (
+            <g key={hop.id} className={`ip-route-device ${completedSteps >= hop.step ? "active" : ""}`}>
+              <rect x={hop.x - 62} y={hop.y - 42} width="124" height="84" rx="18" />
+              <text className="ip-route-device-title" x={hop.x} y={hop.y - 14}>{hop.title}</text>
+              <text x={hop.x} y={hop.y + 10}>{hop.ip}</text>
+              <text x={hop.x} y={hop.y + 32}>MAC {hop.mac}</text>
+            </g>
+          ))}
+
+          <g className={`ip-route-flow host-gateway ${completedSteps >= 1 ? "active" : ""}`}>
+            <path d="M 164 304 C 202 304, 230 304, 248 304" markerEnd="url(#ip-route-arrow-brand)" />
+            <rect x="134" y="168" width="250" height="54" rx="18" />
+            <text x="259" y="190">{label("远端目标，交给默认网关", "Remote target, use default gateway")}</text>
+            <text x="259" y="210">dst IP 192.168.2.82 / MAC R1</text>
+          </g>
+
+          <g className={`ip-route-panel route-table ${routeActive ? "active" : ""}`}>
+            <rect x="112" y="418" width="456" height="154" rx="22" />
+            <text className="ip-route-panel-title" x="140" y="448">{label("R1 路由表：最长前缀匹配", "R1 route table: longest-prefix match")}</text>
+            <text className="ip-route-table-head" x="140" y="476">Destination</text>
+            <text className="ip-route-table-head" x="318" y="476">Target</text>
+            <text className="ip-route-table-head" x="496" y="476">Match</text>
+            {routeRows.map((row, index) => (
+              <g
+                key={row.cidr}
+                className={`ip-route-row ${row.tone} ${completedSteps >= row.step ? "active" : ""} ${index === 0 && routeActive ? "winner" : ""}`}
+              >
+                <rect x="134" y={488 + index * 20} width="410" height="18" rx="9" />
+                <text x="148" y={501 + index * 20}>{row.cidr}</text>
+                <text x="318" y={501 + index * 20}>{row.target}</text>
+                <text x="500" y={501 + index * 20}>{row.match}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`ip-route-flow lpm-path ${routeActive ? "active" : ""}`}>
+            <path d="M 330 346 C 346 386, 382 404, 430 422" markerEnd="url(#ip-route-arrow-teal)" />
+            <rect x="420" y="176" width="216" height="44" rx="17" />
+            <text x="528" y="202">{label("/29 胜出，下一跳 R2", "/29 wins, next hop R2")}</text>
+          </g>
+
+          <g className={`ip-route-ttl-panel ${ttlActive ? "active" : ""}`}>
+            <rect x="648" y="128" width="196" height="94" rx="20" />
+            <text className="ip-route-panel-title" x="674" y="160">IP Header</text>
+            <text x="676" y="186">TTL 64 {"->"} 63</text>
+            <text x="676" y="206">checksum recalculated</text>
+            <path d="M 370 276 C 444 210, 572 202, 648 174" markerEnd="url(#ip-route-arrow-warning)" />
+          </g>
+
+          <g className={`ip-route-flow rewrite-path ${rewriteActive ? "active" : ""}`}>
+            <path d="M 372 304 C 434 304, 484 304, 530 304" markerEnd="url(#ip-route-arrow-success)" />
+            <rect x="398" y="332" width="236" height="50" rx="18" />
+            <text x="516" y="352">{label("丢弃入站帧，重写二层头", "Discard frame, rewrite L2 header")}</text>
+            <text x="516" y="372">MAC R1-out {"->"} R2-in</text>
+          </g>
+
+          <g className={`ip-route-flow target-path ${returnActive ? "active" : ""}`}>
+            <path d="M 654 304 C 718 304, 748 304, 788 304" markerEnd="url(#ip-route-arrow-success)" />
+            <rect x="736" y="410" width="282" height="80" rx="20" />
+            <text className="ip-route-panel-title" x="762" y="440">{label("目标网络与回程", "Target network and return")}</text>
+            <text x="764" y="466">reply: 192.168.2.82 {"->"} 192.168.1.1</text>
+            <text x="764" y="486">{label("需要回程路由和防火墙状态", "needs return route and firewall state")}</text>
+          </g>
+
+          <g className={`ip-route-flow return-path ${returnActive ? "active" : ""}`}>
+            <path d="M 850 262 C 760 150, 474 146, 310 262" markerEnd="url(#ip-route-arrow-danger)" />
+            <rect x="858" y="142" width="172" height="48" rx="18" />
+            <text x="944" y="162">traceroute / ICMP</text>
+            <text x="944" y="182">return path check</text>
+          </g>
+
+          <g className="ip-route-signal-panel">
+            <rect x="864" y="126" width="206" height="124" rx="22" />
+            <text className="ip-route-panel-title" x="890" y="158">{label("排障读数", "Debug signals")}</text>
+            {[
+              { label: "route", value: routeActive ? "via R2" : "pending", step: 2, tone: "teal" },
+              { label: "TTL", value: ttlActive ? "63 / ICMP" : "idle", step: 3, tone: "warning" },
+              { label: "return path", value: returnActive ? "verified" : "pending", step: 5, tone: "danger" },
+            ].map((signal, index) => (
+              <g key={signal.label} className={`ip-route-signal ${signal.tone} ${completedSteps >= signal.step ? "active" : ""}`}>
+                <rect x="890" y={176 + index * 24} width="150" height="18" rx="9" />
+                <text x="900" y={189 + index * 24}>{signal.label}</text>
+                <text x="1032" y={189 + index * 24}>{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="ip-routing-mobile-map">
+          <div className="ip-route-mobile-path" aria-hidden="true">
+            {hops.map((hop) => (
+              <div key={hop.id} className={`ip-route-mobile-hop ${completedSteps >= hop.step ? "active" : ""}`}>
+                <span>{hop.title}</span>
+                <strong>{hop.ip}</strong>
+                <em>MAC {hop.mac}</em>
+              </div>
+            ))}
+          </div>
+          <div className="ip-route-mobile-facts">
+            {[
+              {
+                title: label("最长前缀", "Longest prefix"),
+                value: routeActive ? "192.168.2.80/29 -> R2" : "pending",
+                active: routeActive,
+              },
+              {
+                title: "TTL",
+                value: ttlActive ? "64 -> 63 / checksum recalculated" : "pending",
+                active: ttlActive,
+              },
+              {
+                title: label("二层头", "L2 header"),
+                value: rewriteActive ? "MAC R1-out -> R2-in" : "pending",
+                active: rewriteActive,
+              },
+              {
+                title: label("回程", "Return path"),
+                value: returnActive ? "reply route verified" : "pending",
+                active: returnActive,
+              },
+            ].map((fact) => (
+              <div key={fact.title} className={`ip-route-mobile-fact ${fact.active ? "active" : ""}`}>
+                <span>{fact.title}</span>
+                <strong>{fact.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption ip-routing-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

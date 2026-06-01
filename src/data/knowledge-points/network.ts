@@ -534,7 +534,18 @@ const networkKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 路由 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 路由 | 2026-05-23 | source_count=5 --> */
   {
-    sourceRefs: ["rfc791-ip", "rfc4632-cidr", "aws-vpc-route-tables", "cloudflare-network-layer", "microsoft-tcpip-networking"],
+    sourceRefs: [
+      "rfc791-ip",
+      "rfc4632-cidr",
+      "networklessons-ip-routing",
+      "networklessons-longest-prefix",
+      "aws-vpc-route-priority",
+      "aws-vpc-route-options",
+      "cloudflare-ip-routing",
+      "aws-vpc-route-tables",
+      "cloudflare-network-layer",
+      "microsoft-tcpip-networking",
+    ],
     id: "routing",
     zh: "路由",
     en: "Routing",
@@ -555,7 +566,7 @@ const networkKnowledgePointBase = [
       "最长前缀匹配如何工作",
       "默认路由、静态路由、动态路由分别是什么",
       "黑洞路由、策略路由、ECMP、Anycast 分别用于什么场景",
-      "单向不通如何排查回程路由",
+      "单向异常如何排查回程路由",
       "云 VPC 路由表 target 配错如何定位",
     ],
     prerequisites: ["ip", "gateway"],

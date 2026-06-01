@@ -215,6 +215,11 @@
     justify-content: start;
   }
 
+  .ip-routing-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .arp-stage {
     overflow-x: auto;
     justify-content: start;
@@ -323,6 +328,16 @@
   }
 
   .redis-hash-slot-diagram {
+    height: 532px;
+  }
+
+  .ip-routing-card {
+    width: min(100%, 960px);
+    max-width: none;
+    justify-self: center;
+  }
+
+  .ip-routing-diagram {
     height: 532px;
   }
 
@@ -437,6 +452,10 @@
     padding-inline: 12px;
   }
 
+  .ip-routing-stage {
+    padding-inline: 12px;
+  }
+
   .switch-stage {
     padding-inline: 12px;
   }
@@ -455,5 +474,19 @@
 
   .ethernet-frame-diagram {
     height: 425px;
+  }
+
+  .ip-routing-card {
+    width: 100%;
+  }
+
+  .ip-routing-diagram {
+    display: none;
+  }
+
+  .ip-routing-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
   }
 }

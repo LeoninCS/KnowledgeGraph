@@ -135,6 +135,7 @@
 | TCP/IP 四层模型 | `step-simulation` | candidate | pending | 可作为协议分层标杆模板 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
+| 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
 
 ## Buffer Pool Visualization
 
@@ -195,11 +196,66 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前没有暂缓中的可视化验收项 | 下一轮优先进入网络层 `IP 路由` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Kubernetes `Service` 找图与设计 |
 
 ## Next Candidate
 
-优先选择网络层 `IP 路由`，机制清晰且适合做逐跳路径模拟。
+优先选择 Kubernetes `Service`，机制清晰且适合做 Service -> EndpointSlice -> kube-proxy -> Pod 的流量转发模拟。
+
+## IP Routing Visualization
+
+### Online Image References
+
+- `source`：NetworkLessons - IP Routing Explained，https://networklessons.com/cisco/ccna-200-301/ip-routing-explained
+  - `image`：页面中的 `two hosts two routers ip mac addresses` 拓扑图，以及 H1->R1、R1->R2、R2->H2 的以太网帧示意图。
+  - `role`：main
+  - `qualityReason`：图中同时展示两台主机、两台路由器、每段 IP/MAC 地址和逐跳封装变化，最适合转换成教学模拟器主舞台。
+  - `takeaways`：采用 H1、R1、R2、H2 的横向路径；每一跳突出 IP 目的地址保持不变、MAC 目的地址随下一跳变化、TTL 递减和 ARP 查下一跳 MAC。
+  - `originalChanges`：把静态拓扑扩展为五步交互：主机选网关、最长前缀匹配、TTL 递减、二层头重写、回程路径验证。
+- `source`：NetworkLessons - Longest Prefix Match Routing，https://networklessons.com/cisco/ccna-200-301/longest-prefix-match-routing
+  - `image`：页面中的 `Four Routers With Switch Middle` 拓扑图、二进制前缀匹配表和 Cisco `show ip route` 输出。
+  - `role`：supporting
+  - `qualityReason`：清晰表达多个前缀同时命中时选择最长前缀，例如 `/29` 优先于 `/27` 和 `/24`。
+  - `takeaways`：右下路由表面板列出 `192.168.2.80/29`、`192.168.2.64/27`、`192.168.2.0/24` 和默认路由，并高亮最具体命中。
+  - `originalChanges`：用项目统一表格、颜色和步骤高亮表达 LPM，形成独立于 Cisco 输出的教学样式。
+- `source`：AWS VPC - How route priority works，https://docs.aws.amazon.com/vpc/latest/userguide/route-tables-priority.html
+  - `image`：页面中的 VPC route table 示例表，覆盖 destination、target、local route、0.0.0.0/0 和更具体前缀。
+  - `role`：supporting
+  - `qualityReason`：官方文档直接说明最长前缀匹配和重叠路由优先级，工程排查价值高。
+  - `takeaways`：把 `destination -> target` 概念放进路由表面板，并把默认路由作为兜底路径。
+  - `originalChanges`：用传统路由器路径结合云路由 target 语言，让模拟器同时服务主机网络和 VPC 排障。
+- `source`：AWS VPC - Example routing options，https://docs.aws.amazon.com/vpc/latest/userguide/route-table-options.html
+  - `image`：页面中的 internet gateway、NAT、peering、middlebox appliance 路由表和中间设备路径图。
+  - `role`：supporting
+  - `qualityReason`：覆盖生产环境常见 target 类型和中间设备场景，可补足回程、NAT 和安全设备排查语言。
+  - `takeaways`：右侧排障信号加入 `return path`，强调去程和回程都要检查。
+  - `originalChanges`：聚焦“target/回程/安全策略”作为可迁移排查概念，画面保持在逐跳路由主线。
+- `source`：Cloudflare Learning Center - What is routing? | IP routing，https://www.cloudflare.com/en-ca/learning/network-layer/what-is-routing/
+  - `image`：页面中的 `ip routing diagram`，展示 Computer A 到 Computer B 的多网络候选路径。
+  - `role`：supporting
+  - `qualityReason`：高层路径选择图直观，适合补充“路由是在多条网络路径中选择转发方向”的整体心智模型。
+  - `takeaways`：主画布顶部用路径箭头表达从源到目的的跨网络选择。
+  - `originalChanges`：把高层路径选择下沉到可操作的逐跳路由表、TTL 和 MAC 重写机制。
+
+### Reference Breakdown
+
+- 主体布局：左侧源主机 H1，中间 R1 与 R2，右侧目标 H2；底部是 R1 路由表；顶部和右侧是 TTL、traceroute/ICMP 和回程检查信号。
+- 视觉焦点：路径箭头从 H1 到 R1，再经 R1 路由表命中 `/29`，转发到 R2，最终到 H2；回程用红色虚线弧线表达。
+- 领域对象：源主机、默认网关、路由表、CIDR 前缀、最长前缀匹配、下一跳、TTL、IPv4 头部校验、ARP、二层帧、回程路由、ICMP。
+- 容器层级：三个网段背景分别表示 LAN A、Transit、LAN B；设备节点位于各自网段中；路由表和排障信号独立面板化。
+- 连线方向：去程为左到右实线；LPM 从 R1 指向路由表；TTL 从 R1 指向 IP Header；回程为右到左红色虚线。
+- 状态表达：每一步通过 `completedSteps` 控制设备、路径、路由表命中行、TTL 面板、二层重写和回程信号显隐。
+- 颜色策略：品牌蓝表示主机到网关，青色表示 LPM，橙色表示 TTL/ICMP，绿色表示成功转发，红色表示回程/风险信号。
+- 文字密度：画布保留 IP、MAC、CIDR、next hop、TTL 和排障命令；长解释放在右侧任务与理解重点。
+- 交互节奏：五步依次推进“判断下一跳 -> 最长前缀匹配 -> 递减 TTL -> 重写二层头 -> 验证回程”。
+- 原创改造点：把传统 H1-R1-R2-H2 静态图和云路由表优先级融合成可交互逐跳模拟器，强调主机、路由器和云网络共同适用的排障路径。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/routing/desktop.png`
+- 移动端：captured `.codex-artifacts/visualizations/routing/mobile.png`
+- 截图结论：Chrome DevTools MCP 进入 `路由` 详情页和模拟器，推进到第 5 步“验证回程”；桌面截图包含完整 H1/R1/R2/H2 拓扑、路由表、TTL、排障信号、右侧任务面板和底部五步进度；移动端采用纵向路径摘要，H1/R1/R2/H2、最长前缀、TTL、二层头和回程读数完整可读。
+- 代码验收：`npm run build` 通过；`npm run test:data` 通过 4 项；截图文件尺寸为 desktop `2880 x 1882`、mobile `1000 x 4748`。
 
 ## Hash Slot Visualization
 
@@ -329,3 +385,13 @@
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项。
 - Action：将哈希槽状态更新为 completed，清空暂缓截图项。
 - Next Candidate：网络层 `IP 路由`。
+
+### 2026-06-01 19:02 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功，远端已同步。
+- Selected：网络层 `路由`，原因是最长前缀匹配、下一跳、TTL、二层头重写和回程路径具备清晰步骤与排障价值。
+- Image Search：围绕 `IP routing explained diagram`、`longest prefix match routing`、`AWS VPC route priority`、`route table target diagram`、`IP routing 图解` 筛选 12 个候选来源，确认 1 个主参考和 4 个辅助参考。
+- Implementation：新增 `network:routing` 专用 `step-simulation` 构建器、IP 路由 SVG 舞台、移动端纵向路径摘要、响应式样式和 5 个路由可视化来源。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/routing/desktop.png` 与 `.codex-artifacts/visualizations/routing/mobile.png`；桌面和移动端验收图均可读。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项。
+- Next Candidate：Kubernetes `Service`。

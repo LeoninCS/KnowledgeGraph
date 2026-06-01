@@ -1249,6 +1249,10 @@ export const knowledgeSources = {
     title: "Cloudflare Learning Center: What is the network layer?",
     url: "https://www.cloudflare.com/learning/network-layer/what-is-the-network-layer/",
   },
+  "cloudflare-ip-routing": {
+    title: "Cloudflare Learning Center: What is routing? | IP routing",
+    url: "https://www.cloudflare.com/en-ca/learning/network-layer/what-is-routing/",
+  },
   "cloudflare-internet-protocol": {
     title: "Cloudflare Learning Center: What is the Internet Protocol?",
     url: "https://www.cloudflare.com/learning/network-layer/internet-protocol/",
@@ -1292,6 +1296,14 @@ export const knowledgeSources = {
   "aws-vpc-route-tables": {
     title: "AWS VPC: Subnet route tables",
     url: "https://docs.aws.amazon.com/vpc/latest/userguide/subnet-route-tables.html",
+  },
+  "aws-vpc-route-priority": {
+    title: "AWS VPC: How route priority works",
+    url: "https://docs.aws.amazon.com/vpc/latest/userguide/route-tables-priority.html",
+  },
+  "aws-vpc-route-options": {
+    title: "AWS VPC: Example routing options",
+    url: "https://docs.aws.amazon.com/vpc/latest/userguide/route-table-options.html",
   },
   "aws-vpc-nat-gateway": {
     title: "AWS VPC: NAT gateways",
@@ -2540,6 +2552,14 @@ export const knowledgeSources = {
   "networklessons-arp": {
     title: "NetworkLessons: ARP explained",
     url: "https://networklessons.com/ip-services/arp-address-resolution-protocol-explained",
+  },
+  "networklessons-ip-routing": {
+    title: "NetworkLessons: IP Routing Explained",
+    url: "https://networklessons.com/cisco/ccna-200-301/ip-routing-explained",
+  },
+  "networklessons-longest-prefix": {
+    title: "NetworkLessons: Longest Prefix Match Routing",
+    url: "https://networklessons.com/cisco/ccna-200-301/longest-prefix-match-routing",
   },
   "rfc826-arp": {
     title: "RFC 826: An Ethernet Address Resolution Protocol",
