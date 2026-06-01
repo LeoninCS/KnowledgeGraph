@@ -134,7 +134,7 @@
 |---|---|---|---|---|
 | TCP/IP 四层模型 | `step-simulation` | candidate | pending | 可作为协议分层标杆模板 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
-| 哈希槽 | `step-simulation` | completed-code | blocked by browser sandbox | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
+| 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
 
 ## Buffer Pool Visualization
 
@@ -195,7 +195,7 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 哈希槽截图 | 当前 macOS 沙箱阻止 Chromium、系统 Chrome/Edge 和 screencapture 获取页面截图；构建和数据测试已通过 | Chrome DevTools MCP 或浏览器权限恢复后，保存 `.codex-artifacts/visualizations/hash-slot/desktop.png` 与 `mobile.png` |
+| 暂无 | 当前没有暂缓中的可视化验收项 | 下一轮优先进入网络层 `IP 路由` 找图与设计 |
 
 ## Next Candidate
 
@@ -251,10 +251,10 @@
 
 ### Screenshot Review
 
-- 桌面：blocked `.codex-artifacts/visualizations/hash-slot/desktop.png`
-- 移动端：blocked `.codex-artifacts/visualizations/hash-slot/mobile.png`
-- 截图阻塞：Chrome DevTools MCP 被既有实例占用；in-app browser 返回 `Browser is not available: iab`；Playwright Chromium 和系统 Chrome/Edge 均因 macOS Mach port / crashpad 权限失败；`screencapture` 无法从 display 0 创建图片。
-- 代码验收：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。前端预览已启动并可访问 `http://127.0.0.1:4174/KnowledgeGraph/`。
+- 桌面：captured `.codex-artifacts/visualizations/hash-slot/desktop.png`
+- 移动端：captured `.codex-artifacts/visualizations/hash-slot/mobile.png`
+- 截图结论：Chrome DevTools MCP 已恢复；从搜索进入 `哈希槽` 详情页，再进入模拟器并推进到第 5 步“刷新 MOVED”；桌面截图包含主画布、右侧当前任务/操作面板/理解重点和底部五步进度；移动端截图可读，核心画布和面板纵向排列完整。
+- 代码验收：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。前端预览可访问 `http://127.0.0.1:4174/KnowledgeGraph/`。
 
 ## Run Log
 
@@ -320,3 +320,12 @@
 - Pull Gate：随后执行 `git pull --ff-only origin main`，结果为 `Already up to date`。
 - Workspace Hygiene：新增 `.gitignore` 规则忽略 `.codex-artifacts/` 和 `test-results/`，避免本地验收产物持续触发并发控制。
 - Result：下一轮自动化可从同步后的 `main` 继续，优先补齐哈希槽截图；浏览器仍受限时进入网络层 `IP 路由` 候选。
+
+### 2026-06-01 18:27 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功，远端已同步。
+- Screenshot Review：Chrome DevTools MCP 恢复，打开 `http://127.0.0.1:4174/KnowledgeGraph/`，搜索 `哈希槽`，进入详情和模拟器，推进到第 5 步“刷新 MOVED”。
+- Artifacts：保存 `.codex-artifacts/visualizations/hash-slot/desktop.png` 和 `.codex-artifacts/visualizations/hash-slot/mobile.png`；截图为本地验收产物。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项。
+- Action：将哈希槽状态更新为 completed，清空暂缓截图项。
+- Next Candidate：网络层 `IP 路由`。
