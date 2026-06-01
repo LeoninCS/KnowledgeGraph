@@ -325,6 +325,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
     "redis-replication",
     "redis-sentinel",
     "redis-cluster",
+    "hash-slot",
   ],
   rabbitmq: [
     "exchange",

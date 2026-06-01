@@ -301,6 +301,40 @@
   overflow: visible;
 }
 
+.redis-hash-slot-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.redis-hash-slot-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--danger) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .redis-hash-slot-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.redis-hash-slot-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
 .arp-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -1239,6 +1273,320 @@
 }
 
 .buffer-pool-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.slot-bg {
+  fill: color-mix(in srgb, var(--danger-soft) 34%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 18%, transparent);
+}
+
+.slot-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.slot-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.slot-client rect,
+.slot-hash-panel > rect,
+.slot-band-panel > rect,
+.slot-migration-panel > rect,
+.slot-signal-panel > rect,
+.slot-nodes-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--danger) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#slot-soft-shadow);
+}
+
+.slot-node rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#slot-soft-shadow);
+}
+
+.slot-client,
+.slot-hash-panel,
+.slot-compute-path,
+.slot-band-panel,
+.slot-map-path,
+.slot-node,
+.slot-hit-path,
+.slot-migration-panel,
+.slot-ask-path,
+.slot-moved-path,
+.slot-state-chip,
+.slot-signal {
+  opacity: 0.25;
+  transition: opacity 180ms ease;
+}
+
+.slot-client.active,
+.slot-hash-panel.active,
+.slot-compute-path.active,
+.slot-band-panel.active,
+.slot-map-path.active,
+.slot-node.active,
+.slot-hit-path.active,
+.slot-migration-panel.active,
+.slot-ask-path.active,
+.slot-moved-path.active,
+.slot-state-chip.active,
+.slot-signal.active {
+  opacity: 1;
+}
+
+.slot-node.owner rect,
+.slot-range.owner rect {
+  stroke-width: 2.2;
+}
+
+.slot-node-title,
+.slot-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.slot-panel-title {
+  text-anchor: start;
+}
+
+.slot-client text,
+.slot-hash-formula,
+.slot-key-row text,
+.slot-compute-path text,
+.slot-band-scale,
+.slot-range text,
+.slot-pointer text,
+.slot-map-path text,
+.slot-node text,
+.slot-hit-path text,
+.slot-migration-panel text,
+.slot-ask-path text,
+.slot-moved-path text,
+.slot-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.slot-client .slot-node-title,
+.slot-node .slot-node-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.slot-route-cache,
+.slot-hash-formula {
+  fill: var(--danger);
+  font-weight: 950;
+}
+
+.slot-key-row rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.slot-key-row.active rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.slot-key-row text:first-of-type {
+  text-anchor: start;
+}
+
+.slot-key-row text:nth-of-type(2) {
+  fill: var(--danger);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.slot-compute-path path,
+.slot-map-path path,
+.slot-hit-path path,
+.slot-ask-path path,
+.slot-moved-path path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.slot-map-path path {
+  stroke: var(--tertiary);
+}
+
+.slot-hit-path path {
+  stroke: var(--success);
+}
+
+.slot-ask-path path {
+  stroke: #f59e0b;
+}
+
+.slot-moved-path path {
+  stroke: var(--danger);
+}
+
+.slot-compute-path rect,
+.slot-map-path rect,
+.slot-hit-path rect,
+.slot-ask-path rect,
+.slot-moved-path rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 30%, var(--border));
+  stroke-width: 1.1;
+  filter: url(#slot-soft-shadow);
+}
+
+.slot-map-path rect {
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.slot-hit-path rect {
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.slot-ask-path rect {
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.slot-moved-path rect {
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.slot-compute-path text,
+.slot-map-path text,
+.slot-hit-path text,
+.slot-ask-path text,
+.slot-moved-path text {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.slot-band-axis {
+  stroke: color-mix(in srgb, var(--muted) 34%, transparent);
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.slot-range rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.slot-range.teal rect {
+  fill: color-mix(in srgb, var(--tertiary) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.slot-range.warning rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 40%, var(--border));
+}
+
+.slot-range text {
+  fill: var(--text);
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.slot-pointer path {
+  fill: none;
+  stroke: var(--danger);
+  stroke-dasharray: 5 6;
+  stroke-linecap: round;
+  stroke-width: 2.2;
+}
+
+.slot-pointer circle {
+  fill: var(--danger);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.slot-pointer text {
+  fill: var(--danger);
+  font-weight: 950;
+}
+
+.slot-node.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.slot-node.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.slot-node.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 40%, var(--border));
+}
+
+.slot-node.owner rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 42%, var(--border));
+}
+
+.slot-state-chip rect,
+.slot-signal rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.slot-state-chip.warning.active rect,
+.slot-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 13%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.slot-state-chip.danger.active rect,
+.slot-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.slot-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.slot-state-chip.active text,
+.slot-signal.active text {
+  fill: var(--text);
+}
+
+.slot-signal text:first-of-type {
+  text-anchor: start;
+}
+
+.slot-signal text:nth-of-type(2) {
+  fill: var(--danger);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.redis-hash-slot-caption {
   right: 16px;
   bottom: 14px;
 }

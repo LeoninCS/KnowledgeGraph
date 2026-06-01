@@ -176,6 +176,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "redis:hash-slot") {
+    return (
+      <RedisHashSlotStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "algorithm:array") {
     return (
       <ArrayIndexStage
@@ -1365,6 +1376,216 @@ function BufferPoolStage({
           </g>
         </svg>
         <div className="tcp-handshake-caption buffer-pool-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RedisHashSlotStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const showAsk = completedSteps >= 4;
+  const showMoved = completedSteps >= 5;
+  const activeOwner = showMoved ? "M3" : "M2";
+  const keyRows = [
+    { key: "user:{42}:cart", hash: "{42}", slot: "8000", active: completedSteps >= 1 },
+    { key: "order:{42}:list", hash: "{42}", slot: "8000", active: completedSteps >= 1 },
+    { key: "session:8842", hash: "full key", slot: "11400", active: false },
+  ];
+  const slotRanges = [
+    { id: "M1", range: "0-5460", x: 250, width: 154, tone: "brand" },
+    { id: "M2", range: showMoved ? "5461-7999" : "5461-10922", x: 404, width: showMoved ? 148 : 300, tone: "teal" },
+    { id: "M3", range: showMoved ? "8000-16383" : "10923-16383", x: showMoved ? 552 : 704, width: showMoved ? 402 : 146, tone: "warning" },
+  ];
+  const nodes = [
+    { id: "M1", x: 246, y: 322, range: "0-5460", replica: "R1", step: 2, tone: "brand" },
+    { id: "M2", x: 458, y: 322, range: showMoved ? "5461-7999" : "5461-10922", replica: "R2", step: 2, tone: "teal" },
+    { id: "M3", x: 670, y: 322, range: showMoved ? "8000-16383" : "10923-16383", replica: "R3", step: 4, tone: "warning" },
+  ];
+  const signals = [
+    { zh: "槽位表", en: "slot map", value: showMoved ? "8000 -> M3" : "8000 -> M2", step: 2, tone: "teal" },
+    { zh: "ASK", en: "ASK", value: showAsk ? "one-shot" : "idle", step: 4, tone: "warning" },
+    { zh: "MOVED", en: "MOVED", value: showMoved ? "refresh" : "idle", step: 5, tone: "danger" },
+  ];
+
+  return (
+    <div className="visual-stage redis-hash-slot-stage">
+      <div className="redis-hash-slot-card">
+        <svg
+          className="redis-hash-slot-diagram"
+          viewBox="0 0 1120 620"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["slot-arrow-brand", "var(--brand)"],
+              ["slot-arrow-teal", "var(--tertiary)"],
+              ["slot-arrow-warning", "#f59e0b"],
+              ["slot-arrow-danger", "var(--danger)"],
+              ["slot-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="slot-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="slot-bg" x="24" y="24" width="1072" height="548" rx="28" />
+          <text className="slot-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="slot-subtitle" x="560" y="100">
+            {label(
+              "key -> CRC16 / key tag -> slot 0-16383 -> primary -> ASK / MOVED",
+              "key -> CRC16 / key tag -> slot 0-16383 -> primary -> ASK / MOVED",
+            )}
+          </text>
+
+          <g className={`slot-client ${completedSteps >= 1 ? "active" : ""}`}>
+            <rect x="64" y="152" width="164" height="136" rx="22" />
+            <text className="slot-node-title" x="146" y="190">{label("集群客户端", "Cluster client")}</text>
+            <text x="146" y="220">GET user:{"{42}"}:cart</text>
+            <text x="146" y="244">{label("缓存槽位表", "slot map cache")}</text>
+            <text className="slot-route-cache" x="146" y="268">slot 8000 {"->"} {showMoved ? "M3" : "M2"}</text>
+          </g>
+
+          <g className={`slot-hash-panel ${completedSteps >= 1 ? "active" : ""}`}>
+            <rect x="274" y="128" width="230" height="188" rx="22" />
+            <text className="slot-panel-title" x="300" y="164">CRC16</text>
+            <text className="slot-hash-formula" x="389" y="198">CRC16(key) mod 16384</text>
+            {keyRows.map((row, index) => (
+              <g key={row.key} className={`slot-key-row ${row.active ? "active" : ""}`}>
+                <rect x="298" y={218 + index * 30} width="182" height="24" rx="12" />
+                <text x="310" y={235 + index * 30}>{row.key}</text>
+                <text x="468" y={235 + index * 30}>{row.slot}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`slot-compute-path ${completedSteps >= 1 ? "active" : ""}`}>
+            <path d="M 228 220 C 248 220, 250 220, 274 220" markerEnd="url(#slot-arrow-brand)" />
+            <rect x="166" y="318" width="178" height="34" rx="17" />
+            <text x="255" y="340">{label("有效 tag: {42}", "valid tag: {42}")}</text>
+          </g>
+
+          <g className={`slot-band-panel ${completedSteps >= 2 ? "active" : ""}`}>
+            <rect x="214" y="372" width="676" height="92" rx="22" />
+            <text className="slot-panel-title" x="240" y="404">{label("哈希槽带", "Hash slot band")}</text>
+            <text className="slot-band-scale" x="246" y="442">0</text>
+            <text className="slot-band-scale" x="542" y="442">8000</text>
+            <text className="slot-band-scale" x="842" y="442">16383</text>
+            <line className="slot-band-axis" x1="250" y1="424" x2="850" y2="424" />
+            {slotRanges.map((range) => (
+              <g key={range.id} className={`slot-range ${range.tone} ${range.id === activeOwner ? "owner" : ""}`}>
+                <rect x={range.x} y="414" width={range.width} height="30" rx="15" />
+                <text x={range.x + range.width / 2} y="434">{range.id} {range.range}</text>
+              </g>
+            ))}
+            <g className={`slot-pointer ${completedSteps >= 2 ? "active" : ""}`}>
+              <path d="M 552 408 L 552 448" />
+              <circle cx="552" cy="424" r="7" />
+              <text x="552" y="482">slot 8000</text>
+            </g>
+          </g>
+
+          <g className={`slot-map-path ${completedSteps >= 2 ? "active" : ""}`}>
+            <path d="M 486 316 C 510 344, 526 352, 552 374" markerEnd="url(#slot-arrow-teal)" />
+            <rect x="526" y="320" width="162" height="34" rx="17" />
+            <text x="607" y="342">slot 8000 {"->"} {activeOwner}</text>
+          </g>
+
+          <g className="slot-nodes-panel">
+            <rect x="206" y="492" width="704" height="68" rx="24" />
+            {nodes.map((node) => (
+              <g
+                key={node.id}
+                className={`slot-node ${node.tone} ${completedSteps >= node.step ? "active" : ""} ${node.id === activeOwner ? "owner" : ""}`}
+              >
+                <rect x={node.x} y="510" width="146" height="76" rx="18" />
+                <text className="slot-node-title" x={node.x + 73} y="536">{node.id}</text>
+                <text x={node.x + 73} y="558">{node.range}</text>
+                <text x={node.x + 73} y="576">{node.replica} replica</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`slot-hit-path ${completedSteps >= 3 ? "active" : ""}`}>
+            <path d="M 552 464 C 548 486, 536 498, 531 510" markerEnd="url(#slot-arrow-success)" />
+            <rect x="742" y="468" width="152" height="34" rx="17" />
+            <text x="818" y="490">{label("负责节点返回值", "owner returns value")}</text>
+          </g>
+
+          <g className={`slot-migration-panel ${showAsk || showMoved ? "active" : ""}`}>
+            <rect x="770" y="130" width="258" height="218" rx="24" />
+            <text className="slot-panel-title" x="798" y="166">{label("槽位迁移窗口", "Resharding window")}</text>
+            <g className={`slot-state-chip ${showAsk ? "active warning" : ""}`}>
+              <rect x="798" y="190" width="194" height="34" rx="17" />
+              <text x="895" y="212">M2 migrating slot 8000</text>
+            </g>
+            <g className={`slot-state-chip ${showAsk ? "active warning" : ""}`}>
+              <rect x="798" y="236" width="194" height="34" rx="17" />
+              <text x="895" y="258">M3 importing slot 8000</text>
+            </g>
+            <g className={`slot-state-chip ${showMoved ? "active danger" : ""}`}>
+              <rect x="798" y="282" width="194" height="34" rx="17" />
+              <text x="895" y="304">owner {"->"} M3</text>
+            </g>
+          </g>
+
+          <g className={`slot-ask-path ${showAsk ? "active" : ""}`}>
+            <path d="M 590 510 C 660 448, 746 314, 798 254" markerEnd="url(#slot-arrow-warning)" />
+            <rect x="598" y="232" width="132" height="34" rx="17" />
+            <text x="664" y="254">ASK 8000 M3</text>
+          </g>
+
+          <g className={`slot-moved-path ${showMoved ? "active" : ""}`}>
+            <path d="M 798 300 C 628 270, 406 168, 228 202" markerEnd="url(#slot-arrow-danger)" />
+            <rect x="548" y="146" width="146" height="34" rx="17" />
+            <text x="621" y="168">MOVED 8000 M3</text>
+          </g>
+
+          <g className="slot-signal-panel">
+            <rect x="930" y="384" width="136" height="176" rx="22" />
+            <text className="slot-panel-title" x="956" y="418">{label("排查信号", "Signals")}</text>
+            {signals.map((signal, index) => (
+              <g
+                key={signal.zh}
+                className={`slot-signal ${signal.tone} ${completedSteps >= signal.step ? "active" : ""}`}
+              >
+                <rect x="956" y={438 + index * 38} width="84" height="28" rx="14" />
+                <text x="966" y={456 + index * 38}>{locale === "zh" ? signal.zh : signal.en}</text>
+                <text x="1032" y={456 + index * 38}>{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="tcp-handshake-caption redis-hash-slot-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

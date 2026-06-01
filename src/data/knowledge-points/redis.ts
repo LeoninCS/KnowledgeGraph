@@ -1896,7 +1896,15 @@ const redisKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 哈希槽 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 哈希槽 | 2026-05-23 | source_count=5 --> */
   {
-    sourceRefs: ["redis-cluster-spec", "redis-cluster-keyslot-command", "redis-cluster-docs", "redis-cluster-shards-command", "xiaolin-redis"],
+    sourceRefs: [
+      "redis-cluster-spec",
+      "redis-cluster-keyslot-command",
+      "redis-cluster-docs",
+      "redis-cluster-shards-command",
+      "severalnines-redis-cluster",
+      "oneuptime-redis-cluster",
+      "xiaolin-redis",
+    ],
     id: "hash-slot",
     zh: "哈希槽",
     en: "Hash Slot",

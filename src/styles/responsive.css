@@ -210,6 +210,11 @@
     justify-content: start;
   }
 
+  .redis-hash-slot-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .arp-stage {
     overflow-x: auto;
     justify-content: start;
@@ -308,6 +313,16 @@
   }
 
   .buffer-pool-diagram {
+    height: 532px;
+  }
+
+  .redis-hash-slot-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .redis-hash-slot-diagram {
     height: 532px;
   }
 

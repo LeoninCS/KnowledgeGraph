@@ -3329,6 +3329,14 @@ export const knowledgeSources = {
     title: "Redis Commands: CLUSTER SETSLOT",
     url: "https://redis.io/docs/latest/commands/cluster-setslot/",
   },
+  "severalnines-redis-cluster": {
+    title: "Severalnines Docs: Redis Cluster",
+    url: "https://docs.severalnines.com/clustercontrol/latest/getting-started/tutorials/day-1-operations/your-first-cluster/redis/redis-cluster/",
+  },
+  "oneuptime-redis-cluster": {
+    title: "OneUptime: Redis Cluster Architecture",
+    url: "https://oneuptime.com/blog/post/2026-04-01-redis-cluster-architecture-explained/view",
+  },
   "redis-readonly-command": {
     title: "Redis Commands: READONLY",
     url: "https://redis.io/docs/latest/commands/readonly/",

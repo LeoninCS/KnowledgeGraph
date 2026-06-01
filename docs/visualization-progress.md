@@ -134,6 +134,7 @@
 |---|---|---|---|---|
 | TCP/IP 四层模型 | `step-simulation` | candidate | pending | 可作为协议分层标杆模板 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
+| 哈希槽 | `step-simulation` | completed-code | blocked by browser sandbox | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
 
 ## Buffer Pool Visualization
 
@@ -194,11 +195,66 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 待补充 | 待筛选 | 出现更强视觉表达场景 |
+| 哈希槽截图 | 当前 macOS 沙箱阻止 Chromium、系统 Chrome/Edge 和 screencapture 获取页面截图；构建和数据测试已通过 | Chrome DevTools MCP 或浏览器权限恢复后，保存 `.codex-artifacts/visualizations/hash-slot/desktop.png` 与 `mobile.png` |
 
 ## Next Candidate
 
-优先选择网络层 `IP 路由` 或 Redis `hash-slot`，二者机制清晰且适合做步骤式路径模拟。
+优先选择网络层 `IP 路由`，机制清晰且适合做逐跳路径模拟。
+
+## Hash Slot Visualization
+
+### Online Image References
+
+- `source`：Severalnines Docs - Redis Cluster，https://docs.severalnines.com/clustercontrol/latest/getting-started/tutorials/day-1-operations/your-first-cluster/redis/redis-cluster/
+  - `image`：页面中的 Redis Cluster 拓扑图，展示三主三从与 Slot 分布。
+  - `role`：main
+  - `qualityReason`：集群拓扑图结构清楚，主从节点、槽位分片和客户端访问关系适合作为主画布构图参考。
+  - `takeaways`：主画布采用客户端、槽位带、三个主节点和副本的分层布局。
+  - `originalChanges`：加入 CRC16 计算、Key Tag 同槽、ASK/MOVED 重定向和迁移窗口，把静态拓扑扩展为五步路由模拟。
+- `source`：Redis Docs - Redis Cluster specification，https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/
+  - `image`：官方文档中的 hash slot、MOVED、ASK、migrating/importing 文字与示例流程。
+  - `role`：supporting
+  - `qualityReason`：官方定义权威，覆盖 16384 槽、CRC16、Key Tag、ASKING、MOVED 和迁移状态语义。
+  - `takeaways`：步骤文案和状态标签采用官方术语，尤其区分 ASK 临时访问与 MOVED 槽位表刷新。
+  - `originalChanges`：用可点亮的迁移窗口展示 `M2 migrating`、`M3 importing` 和 `owner -> M3`。
+- `source`：Redis Docs - Scale with Redis Cluster，https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/
+  - `image`：官方扩缩容和 resharding 操作上下文。
+  - `role`：supporting
+  - `qualityReason`：补充生产扩缩容场景中的槽位迁移、拓扑观察和客户端路由语义。
+  - `takeaways`：把槽位移动放在运维窗口中表达，并加入排查信号面板。
+  - `originalChanges`：右侧信号面板同时展示 slot map、ASK、MOVED 三个线上排查指标。
+- `source`：Redis Commands - CLUSTER KEYSLOT，https://redis.io/docs/latest/commands/cluster-keyslot/
+  - `image`：命令页面中的槽位计算说明。
+  - `role`：supporting
+  - `qualityReason`：官方命令页直接说明单 key 槽位调试方式。
+  - `takeaways`：用 `user:{42}:cart` 和 `order:{42}:list` 展示 Key Tag 同槽。
+  - `originalChanges`：左侧哈希面板列出 key、参与哈希片段和槽位，降低理解门槛。
+- `source`：OneUptime - Redis Cluster Architecture Explained，https://oneuptime.com/blog/post/2026-04-01-redis-cluster-architecture-explained/view
+  - `image`：文章中的 Redis Cluster 节点和客户端重定向图解。
+  - `role`：supporting
+  - `qualityReason`：工程化解释覆盖客户端路由、重定向和故障排查语言。
+  - `takeaways`：把 MOVED/ASK 呈现为客户端可观测反馈。
+  - `originalChanges`：采用本项目统一 SVG 舞台、红色 Redis 主题、底部步骤条和右侧理解重点。
+
+### Reference Breakdown
+
+- 主体布局：左侧客户端与 CRC16 面板，中部 0-16383 槽位带，底部三个 Redis 主节点与副本，右侧迁移窗口和排查信号。
+- 视觉焦点：slot 8000 指针从槽位带落到负责主节点；迁移后从 M2 移到 M3，并通过 MOVED 回写客户端槽位表。
+- 领域对象：Cluster client、CRC16、Key Tag、hash slot、slot map、primary shard、replica、migrating/importing、ASK、MOVED。
+- 容器层级：客户端缓存槽位表；哈希面板负责 key 到 slot；槽位带负责 slot 到主节点；迁移面板展示状态切换。
+- 连线方向：客户端到哈希计算，哈希到槽位表，槽位表到主节点；ASK 从源节点指向目标节点；MOVED 从迁移窗口回到客户端。
+- 状态表达：每一步通过透明度、边框、箭头和 signal 值显隐表达已完成步骤。
+- 颜色策略：红色表示 Redis 主题和 MOVED，蓝色表示计算，青色表示槽位映射，绿色表示命中返回，橙色表示 ASK 迁移窗口。
+- 文字密度：画布只保留 key、slot、节点和信号；概念解释放在右侧任务、操作面板和底部步骤条。
+- 交互节奏：五步依次推进“计算槽位 -> 定位主节点 -> 命中分片 -> 迁移中 ASK -> 刷新 MOVED”。
+- 原创改造点：把参考拓扑图改造成可交互路由模拟器，补充 Key Tag 同槽和迁移期重定向差异。
+
+### Screenshot Review
+
+- 桌面：blocked `.codex-artifacts/visualizations/hash-slot/desktop.png`
+- 移动端：blocked `.codex-artifacts/visualizations/hash-slot/mobile.png`
+- 截图阻塞：Chrome DevTools MCP 被既有实例占用；in-app browser 返回 `Browser is not available: iab`；Playwright Chromium 和系统 Chrome/Edge 均因 macOS Mach port / crashpad 权限失败；`screencapture` 无法从 display 0 创建图片。
+- 代码验收：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。前端预览已启动并可访问 `http://127.0.0.1:4174/KnowledgeGraph/`。
 
 ## Run Log
 
@@ -227,3 +283,16 @@
 - Browser Review：Chrome DevTools MCP 恢复后进入 `http://127.0.0.1:4174/KnowledgeGraph/`，搜索 Buffer Pool、打开详情、进入模拟器并推进到第 4 步“后台刷盘”。
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Next Candidate：网络层 `IP 路由` 或 Redis `hash-slot`。
+
+### 2026-06-01 16:19 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功，远端已同步。
+- Selected：Redis `hash-slot`，原因是 Redis Cluster 槽位路由、Key Tag、ASK/MOVED 和 resharding 具备明确步骤、状态和排障价值。
+- Image Search：围绕 `Redis Cluster hash slots diagram`、`MOVED ASK diagram`、`resharding diagram`、`Redis Cluster 图解` 筛选候选来源，确认 1 个主参考和 4 个辅助参考。
+- Implementation：新增 `redis:hash-slot` 专用 `step-simulation` 构建器、SVG 舞台、响应式样式和 Redis Cluster 可视化来源。
+- Screenshot Review：截图阻塞；Chromium、系统 Chrome/Edge、Chrome DevTools MCP、in-app browser 与 `screencapture` 均受当前平台权限限制。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
+- Commit/Push：首次提交 `9c004e5 feat: add hash-slot visualization` 已推送到 `origin/main`；随后修正进度记录并 amend 为本地提交 `c1dedfc`。
+- Push Blocker：`git push --force-with-lease origin main` 连续失败，原因是 `Could not resolve host: github.com`。本地 `main` 保留 amend 提交，当前相对 `origin/main` 显示 ahead 1 / behind 1。
+- Resume Point：网络恢复后执行 `git push --force-with-lease origin main`；浏览器权限恢复后，进入 `http://127.0.0.1:4174/KnowledgeGraph/`，搜索 `哈希槽`，打开模拟器并保存桌面/移动截图。
+- Next Candidate：网络层 `IP 路由`。
