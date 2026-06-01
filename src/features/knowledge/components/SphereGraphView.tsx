@@ -4,8 +4,22 @@ import { categoryColors } from "../../../data/knowledge-points/sources";
 import type { CategoryId } from "../../../data/types";
 import type { SphereEdge, SphereGraph, SphereNode } from "../graph-types";
 
+const flowEdgeGap = 8;
+const circularEdgeGap = 10;
+const minCurveOffset = 28;
+const maxCurveOffset = 72;
+const smoothStepCorner = 18;
+
 function getNodeById(graph: SphereGraph) {
   return new Map(graph.nodes.map((node) => [node.id, node]));
+}
+
+function formatSvgNumber(value: number) {
+  return Number(value.toFixed(2));
+}
+
+function svgPoint(point: { x: number; y: number }) {
+  return `${formatSvgNumber(point.x)} ${formatSvgNumber(point.y)}`;
 }
 
 function getNodeBox(node: SphereNode) {
@@ -29,28 +43,145 @@ function getNodeBox(node: SphereNode) {
   };
 }
 
-function getEdgePath(edge: SphereEdge, source: SphereNode, target: SphereNode) {
-  if (source.width && target.width) {
-    const sourceBox = getNodeBox(source);
-    const targetBox = getNodeBox(target);
-    const sourceX = source.kind === "group" ? sourceBox.x + sourceBox.width : sourceBox.x + sourceBox.width;
-    const sourceY = sourceBox.y + sourceBox.height / 2;
-    const targetX = targetBox.x;
-    const targetY = targetBox.y + targetBox.height / 2;
-    const distance = Math.max(80, Math.abs(targetX - sourceX) * 0.48);
+function getNodeCenter(node: SphereNode) {
+  const box = getNodeBox(node);
 
-    if (edge.relation === "category") {
-      return `M ${sourceBox.x + sourceBox.width / 2} ${sourceBox.y + sourceBox.height} C ${sourceBox.x + sourceBox.width / 2} ${sourceBox.y + sourceBox.height + 52}, ${targetBox.x + targetBox.width / 2} ${targetY - 52}, ${targetBox.x + targetBox.width / 2} ${targetY}`;
-    }
+  return {
+    x: box.x + box.width / 2,
+    y: box.y + box.height / 2,
+  };
+}
 
-    if (edge.relation === "group") {
-      return `M ${sourceX} ${sourceY} L ${targetX - 22} ${targetY} L ${targetX} ${targetY}`;
-    }
+function getEdgeSide(edge: SphereEdge) {
+  const hash = Array.from(edge.id).reduce((total, character) => total + character.charCodeAt(0), 0);
 
-    return `M ${sourceX} ${sourceY} C ${sourceX + distance} ${sourceY}, ${targetX - distance} ${targetY}, ${targetX} ${targetY}`;
+  return hash % 2 === 0 ? 1 : -1;
+}
+
+function getQuadraticEdgePath(edge: SphereEdge, start: { x: number; y: number }, end: { x: number; y: number }) {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const distance = Math.max(1, Math.hypot(dx, dy));
+  const side = edge.relation === "related" ? getEdgeSide(edge) : 1;
+  const relationScale = edge.relation === "category" ? 0.82 : edge.relation === "related" ? 1.18 : 1;
+  const offset = Math.min(maxCurveOffset, Math.max(minCurveOffset, distance * 0.12)) * side * relationScale;
+  const control = {
+    x: (start.x + end.x) / 2 + (-dy / distance) * offset,
+    y: (start.y + end.y) / 2 + (dx / distance) * offset,
+  };
+
+  return `M ${svgPoint(start)} Q ${svgPoint(control)} ${svgPoint(end)}`;
+}
+
+function getSmoothStepEdgePath(edge: SphereEdge, start: { x: number; y: number }, end: { x: number; y: number }) {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+
+  if (Math.abs(dx) < 36 || Math.abs(dy) < 1) {
+    return getQuadraticEdgePath(edge, start, end);
   }
 
-  return `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
+  const directionX = dx > 0 ? 1 : -1;
+  const directionY = dy > 0 ? 1 : -1;
+  const midX = start.x + dx / 2;
+  const corner = Math.min(smoothStepCorner, Math.abs(dx) / 4, Math.abs(dy) / 2);
+
+  return [
+    `M ${svgPoint(start)}`,
+    `L ${svgPoint({ x: midX - directionX * corner, y: start.y })}`,
+    `Q ${svgPoint({ x: midX, y: start.y })} ${svgPoint({ x: midX, y: start.y + directionY * corner })}`,
+    `L ${svgPoint({ x: midX, y: end.y - directionY * corner })}`,
+    `Q ${svgPoint({ x: midX, y: end.y })} ${svgPoint({ x: midX + directionX * corner, y: end.y })}`,
+    `L ${svgPoint(end)}`,
+  ].join(" ");
+}
+
+function getCircularAnchor(node: SphereNode, toward: { x: number; y: number }) {
+  const center = getNodeCenter(node);
+  const dx = toward.x - center.x;
+  const dy = toward.y - center.y;
+  const distance = Math.max(1, Math.hypot(dx, dy));
+  const radius = node.radius + circularEdgeGap;
+
+  return {
+    x: center.x + (dx / distance) * radius,
+    y: center.y + (dy / distance) * radius,
+  };
+}
+
+function getFlowNodeEdgePath(edge: SphereEdge, source: SphereNode, target: SphereNode) {
+  const sourceBox = getNodeBox(source);
+  const targetBox = getNodeBox(target);
+  const sourceCenter = getNodeCenter(source);
+  const targetCenter = getNodeCenter(target);
+
+  if (edge.relation === "category") {
+    const start = {
+      x: sourceBox.x + sourceBox.width / 2,
+      y: sourceBox.y + sourceBox.height + flowEdgeGap,
+    };
+    const end = {
+      x: targetBox.x + targetBox.width / 2,
+      y: targetBox.y - flowEdgeGap,
+    };
+
+    return `M ${svgPoint(start)} C ${svgPoint({ x: start.x, y: start.y + 56 })}, ${svgPoint({
+      x: end.x,
+      y: end.y - 56,
+    })}, ${svgPoint(end)}`;
+  }
+
+  if (edge.relation === "group") {
+    const start = {
+      x: sourceBox.x + sourceBox.width + flowEdgeGap,
+      y: sourceCenter.y,
+    };
+    const end = {
+      x: targetBox.x - flowEdgeGap,
+      y: targetCenter.y,
+    };
+    const elbowX = end.x - 22;
+
+    return `M ${svgPoint(start)} L ${svgPoint({ x: elbowX, y: end.y })} L ${svgPoint(end)}`;
+  }
+
+  if (Math.abs(targetCenter.x - sourceCenter.x) < 36) {
+    const targetIsBelow = targetCenter.y >= sourceCenter.y;
+    const start = {
+      x: sourceCenter.x,
+      y: targetIsBelow ? sourceBox.y + sourceBox.height + flowEdgeGap : sourceBox.y - flowEdgeGap,
+    };
+    const end = {
+      x: targetCenter.x,
+      y: targetIsBelow ? targetBox.y - flowEdgeGap : targetBox.y + targetBox.height + flowEdgeGap,
+    };
+
+    return getQuadraticEdgePath(edge, start, end);
+  }
+
+  const targetIsRight = targetCenter.x > sourceCenter.x;
+  const start = {
+    x: targetIsRight ? sourceBox.x + sourceBox.width + flowEdgeGap : sourceBox.x - flowEdgeGap,
+    y: sourceCenter.y,
+  };
+  const end = {
+    x: targetIsRight ? targetBox.x - flowEdgeGap : targetBox.x + targetBox.width + flowEdgeGap,
+    y: targetCenter.y,
+  };
+  return getSmoothStepEdgePath(edge, start, end);
+}
+
+function getEdgePath(edge: SphereEdge, source: SphereNode, target: SphereNode) {
+  if (source.width && target.width) {
+    return getFlowNodeEdgePath(edge, source, target);
+  }
+
+  const sourceCenter = getNodeCenter(source);
+  const targetCenter = getNodeCenter(target);
+  const start = getCircularAnchor(source, targetCenter);
+  const end = getCircularAnchor(target, sourceCenter);
+
+  return getQuadraticEdgePath(edge, start, end);
 }
 
 function getSummaryText(summary: string | undefined) {
@@ -130,13 +261,18 @@ export function SphereGraphView({
               (edge.source === highlightedKnowledgeId || edge.target === highlightedKnowledgeId),
           );
 
+          const edgePath = getEdgePath(edge, source, target);
+          const edgeClassName = `${edge.relation} ${isHoveredRelation ? "is-hovered-relation" : ""}`;
+
           return (
-            <path
+            <g
               key={edge.id}
-              className={`sphere-edge ${edge.relation} ${isHoveredRelation ? "is-hovered-relation" : ""}`}
-              d={getEdgePath(edge, source, target)}
+              className={`sphere-edge-wrap ${edgeClassName}`}
               style={{ "--category-color": categoryColors[edge.categoryId] } as CSSProperties}
-            />
+            >
+              <path className="sphere-edge-halo" d={edgePath} />
+              <path className={`sphere-edge ${edgeClassName}`} d={edgePath} />
+            </g>
           );
         })}
       </g>

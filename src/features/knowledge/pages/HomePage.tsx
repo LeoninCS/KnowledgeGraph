@@ -1,57 +1,39 @@
 import { Minus, Plus, RotateCcw, Search } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
 import {
-  type MouseEvent,
-  type PointerEvent,
-  type WheelEvent,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import type { GraphKnowledgePoint } from "../../../data/knowledge-points/types";
-import type { CategoryId } from "../../../data/types";
+  TransformComponent,
+  TransformWrapper,
+  type ReactZoomPanPinchContentRef,
+} from "react-zoom-pan-pinch";
 import type { Copy } from "../../../app/copy";
 import type { GraphBoard, GraphMode, Locale } from "../../../app/ui-types";
+import type { GraphKnowledgePoint } from "../../../data/knowledge-points/types";
+import type { CategoryId } from "../../../data/types";
+import { LearningSidebar } from "../components/LearningSidebar";
+import { SphereGraphView } from "../components/SphereGraphView";
+import { buildSphereGraphLayout, withFocusedRelations } from "../graph-layout";
+import type { CanvasView, SphereGraph } from "../graph-types";
 import {
   categoryIcons,
   getVisualizablePoints,
   normalizeSearch,
 } from "../knowledge-ui";
-import { LearningSidebar } from "../components/LearningSidebar";
-import { SphereGraphView } from "../components/SphereGraphView";
-import { buildSphereGraphLayout, withFocusedRelations } from "../graph-layout";
-import type { CanvasView, SphereGraph } from "../graph-types";
-
-type CanvasDrag = {
-  pointerId: number;
-  startX: number;
-  startY: number;
-  originX: number;
-  originY: number;
-  moved: boolean;
-  deferCapture: boolean;
-};
-
-type ActiveCanvasPointer = {
-  x: number;
-  y: number;
-  pointerType: string;
-};
-
-type CanvasPinchGesture = {
-  startDistance: number;
-  startCenter: { x: number; y: number };
-  originView: CanvasView;
-};
 
 const defaultCanvasZoom = 0.86;
 const defaultCanvasView: CanvasView = { x: 0, y: 0, zoom: defaultCanvasZoom };
-const minCanvasZoom = 0.56;
-const maxCanvasZoom = 1.85;
+const minCanvasZoom = 0.42;
+const maxCanvasZoom = 2.35;
+const canvasZoomStep = 0.16;
+const canvasControlAnimationMs = 180;
+const canvasResetAnimationMs = 120;
 
-function clampCanvasZoom(value: number) {
-  return Math.min(maxCanvasZoom, Math.max(minCanvasZoom, value));
-}
+const transformExcludedTargets = [
+  "graph-toolbar",
+  "mobile-category-tabs",
+  "search-status",
+  "graph-canvas-controls",
+];
+const panningExcludedTargets = [...transformExcludedTargets, "sphere-node"];
 
 function getDefaultCanvasView(
   rect: DOMRect | undefined | null,
@@ -82,113 +64,8 @@ function getDefaultCanvasView(
   };
 }
 
-function getWheelPanUnit(deltaMode: number, rect: DOMRect) {
-  if (deltaMode === 1) {
-    return 18;
-  }
-
-  if (deltaMode === 2) {
-    return rect.height;
-  }
-
-  return 1;
-}
-
-function getWheelZoomDelta(event: WheelEvent<HTMLDivElement>) {
-  if (event.deltaMode === 1) {
-    return event.deltaY * 0.045;
-  }
-
-  if (event.deltaMode === 2) {
-    return event.deltaY * 0.35;
-  }
-
-  return event.deltaY * 0.0012;
-}
-
-function clampCanvasTransform(view: CanvasView): CanvasView {
-  return {
-    ...view,
-    zoom: clampCanvasZoom(view.zoom),
-  };
-}
-
-function getZoomedCanvasView(
-  view: CanvasView,
-  nextZoom: number,
-  point: { x: number; y: number },
-  rect: DOMRect,
-) {
-  const zoom = clampCanvasZoom(nextZoom);
-  const local = {
-    x: (point.x - view.x) / view.zoom,
-    y: (point.y - view.y) / view.zoom,
-  };
-
-  return clampCanvasTransform(
-    {
-      x: point.x - local.x * zoom,
-      y: point.y - local.y * zoom,
-      zoom,
-    },
-  );
-}
-
-function getPinchedCanvasView(
-  view: CanvasView,
-  nextZoom: number,
-  startPoint: { x: number; y: number },
-  currentPoint: { x: number; y: number },
-  rect: DOMRect,
-) {
-  const zoom = clampCanvasZoom(nextZoom);
-  const local = {
-    x: (startPoint.x - view.x) / view.zoom,
-    y: (startPoint.y - view.y) / view.zoom,
-  };
-
-  return clampCanvasTransform(
-    {
-      x: currentPoint.x - local.x * zoom,
-      y: currentPoint.y - local.y * zoom,
-      zoom,
-    },
-  );
-}
-
-function getPinchMetrics(pointers: ActiveCanvasPointer[], rect: DOMRect) {
-  const [first, second] = pointers;
-  const firstPoint = {
-    x: first.x - rect.left,
-    y: first.y - rect.top,
-  };
-  const secondPoint = {
-    x: second.x - rect.left,
-    y: second.y - rect.top,
-  };
-
-  return {
-    center: {
-      x: (firstPoint.x + secondPoint.x) / 2,
-      y: (firstPoint.y + secondPoint.y) / 2,
-    },
-    distance: Math.max(1, Math.hypot(secondPoint.x - firstPoint.x, secondPoint.y - firstPoint.y)),
-  };
-}
-
-function isCanvasControlTarget(target: EventTarget | null) {
-  return (
-    target instanceof Element &&
-    Boolean(
-      target.closest(
-        ".graph-toolbar, .mobile-category-tabs, .search-status, .graph-canvas-controls",
-      ),
-    )
-  );
-}
-
-function isCanvasNodeTarget(target: EventTarget | null) {
-  return target instanceof Element && Boolean(target.closest(".sphere-node"));
+function PageGraphFallback() {
+  return <div className="graph-empty-state" aria-busy="true" />;
 }
 
 export function HomePage({
@@ -219,14 +96,8 @@ export function HomePage({
   const [graphMode, setGraphMode] = useState<GraphMode>("core");
   const [hoveredKnowledgeId, setHoveredKnowledgeId] = useState<string>();
   const [canvasView, setCanvasView] = useState<CanvasView>(defaultCanvasView);
-  const [canvasDrag, setCanvasDrag] = useState<CanvasDrag>();
   const [isCanvasGestureActive, setIsCanvasGestureActive] = useState(false);
-  const graphStageRef = useRef<HTMLDivElement>(null);
-  const canvasViewRef = useRef(canvasView);
-  const activePointersRef = useRef(new Map<number, ActiveCanvasPointer>());
-  const pinchGestureRef = useRef<CanvasPinchGesture | null>(null);
-  const suppressCanvasClickRef = useRef(false);
-  const clickResetTimerRef = useRef<number | null>(null);
+  const transformRef = useRef<ReactZoomPanPinchContentRef | null>(null);
   const hasSearch = normalizeSearch(searchQuery).length > 0;
   const visualizablePoints = useMemo(
     () => getVisualizablePoints(selectedCategory, points),
@@ -265,287 +136,54 @@ export function HomePage({
       hoveredKnowledgeId,
     ],
   );
+  const graphTransformKey = [
+    selectedCategory,
+    selectedKnowledgeId,
+    graphMode,
+    graphBoard,
+    searchQuery,
+    locale,
+    points.length,
+    graph.width,
+    graph.height,
+  ].join(":");
   const hasResults = graph.nodes.some(
     (node) => node.kind === "knowledge" && node.matched,
   );
   const isEmptySearch = hasSearch && !hasResults;
   const zoomPercent = `${Math.round(canvasView.zoom * 100)}%`;
-  const isCanvasInteracting = isCanvasGestureActive || Boolean(canvasDrag?.moved);
+  const canZoomOut = canvasView.zoom > minCanvasZoom + 0.01;
+  const canZoomIn = canvasView.zoom < maxCanvasZoom - 0.01;
+  const isCanvasInteracting = isCanvasGestureActive;
 
-  useEffect(() => {
-    canvasViewRef.current = canvasView;
-  }, [canvasView]);
-
-  useEffect(() => {
-    activePointersRef.current.clear();
-    pinchGestureRef.current = null;
-    setCanvasView(getDefaultCanvasView(
-      graphStageRef.current?.getBoundingClientRect(),
+  function getDefaultTransform(ref: ReactZoomPanPinchContentRef | null) {
+    return getDefaultCanvasView(
+      ref?.instance.wrapperComponent?.getBoundingClientRect(),
       graph,
       selectedKnowledgeId,
-    ));
-    setCanvasDrag(undefined);
-    setIsCanvasGestureActive(false);
-  }, [graph.width, graph.height, selectedCategory, selectedKnowledgeId, graphMode, graphBoard, searchQuery, locale]);
-
-  useEffect(
-    () => () => {
-      if (clickResetTimerRef.current) {
-        window.clearTimeout(clickResetTimerRef.current);
-      }
-    },
-    [],
-  );
-
-  function resetCanvasView() {
-    activePointersRef.current.clear();
-    pinchGestureRef.current = null;
-    setCanvasView(getDefaultCanvasView(
-      graphStageRef.current?.getBoundingClientRect(),
-      graph,
-      selectedKnowledgeId,
-    ));
-    setCanvasDrag(undefined);
-    setIsCanvasGestureActive(false);
+    );
   }
 
-  function scheduleCanvasClickReset() {
-    if (clickResetTimerRef.current) {
-      window.clearTimeout(clickResetTimerRef.current);
-    }
-
-    clickResetTimerRef.current = window.setTimeout(() => {
-      suppressCanvasClickRef.current = false;
-    }, 220);
+  function applyCanvasView(
+    ref: ReactZoomPanPinchContentRef | null,
+    view: CanvasView,
+    animationTime = 0,
+  ) {
+    setCanvasView(view);
+    ref?.setTransform(view.x, view.y, view.zoom, animationTime, "easeOut");
   }
 
-  function startPinchGesture(rect: DOMRect) {
-    const pointers = Array.from(activePointersRef.current.values());
-
-    if (pointers.length < 2) {
-      pinchGestureRef.current = null;
-      return;
-    }
-
-    const metrics = getPinchMetrics(pointers.slice(0, 2), rect);
-    pinchGestureRef.current = {
-      startDistance: metrics.distance,
-      startCenter: metrics.center,
-      originView: canvasViewRef.current,
-    };
-    setCanvasDrag(undefined);
-    setIsCanvasGestureActive(true);
-  }
-
-  function zoomCanvas(multiplier: number) {
-    const rect = graphStageRef.current?.getBoundingClientRect();
-
-    setCanvasView((view) => {
-      if (!rect) {
-        return {
-          ...view,
-          zoom: clampCanvasZoom(view.zoom * multiplier),
-        };
-      }
-
-      return getZoomedCanvasView(
-        view,
-        view.zoom * multiplier,
-        { x: rect.width / 2, y: rect.height / 2 },
-        rect,
-      );
+  function handleTransformInit(ref: ReactZoomPanPinchContentRef) {
+    transformRef.current = ref;
+    window.requestAnimationFrame(() => {
+      applyCanvasView(ref, getDefaultTransform(ref));
     });
   }
 
-  function handleCanvasWheel(event: WheelEvent<HTMLDivElement>) {
-    event.preventDefault();
-
-    const rect = event.currentTarget.getBoundingClientRect();
-    const isZoomGesture = event.ctrlKey || event.metaKey;
-
-    if (!isZoomGesture) {
-      const panUnit = getWheelPanUnit(event.deltaMode, rect);
-      const panX = event.shiftKey && Math.abs(event.deltaX) < 1 ? event.deltaY : event.deltaX;
-      const panY = event.shiftKey && Math.abs(event.deltaX) < 1 ? 0 : event.deltaY;
-
-      setCanvasView((view) =>
-        clampCanvasTransform(
-          {
-            ...view,
-            x: view.x - panX * panUnit,
-            y: view.y - panY * panUnit,
-          },
-        ),
-      );
-      return;
-    }
-
-    const zoomFactor = Math.exp(-getWheelZoomDelta(event));
-    const point = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    };
-
-    setCanvasView((view) => getZoomedCanvasView(view, view.zoom * zoomFactor, point, rect));
-  }
-
-  function handleCanvasPointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (event.pointerType === "mouse" && event.button !== 0) {
-      return;
-    }
-
-    if (isCanvasControlTarget(event.target)) {
-      return;
-    }
-
-    const deferCapture = isCanvasNodeTarget(event.target);
-
-    if (!deferCapture) {
-      event.currentTarget.setPointerCapture(event.pointerId);
-    }
-
-    activePointersRef.current.set(event.pointerId, {
-      x: event.clientX,
-      y: event.clientY,
-      pointerType: event.pointerType,
-    });
-
-    if (activePointersRef.current.size >= 2) {
-      startPinchGesture(event.currentTarget.getBoundingClientRect());
-      return;
-    }
-
-    pinchGestureRef.current = null;
+  function resetCanvasView(animationTime = canvasResetAnimationMs) {
+    const ref = transformRef.current;
+    applyCanvasView(ref, getDefaultTransform(ref), animationTime);
     setIsCanvasGestureActive(false);
-    setCanvasDrag({
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      originX: canvasView.x,
-      originY: canvasView.y,
-      moved: false,
-      deferCapture,
-    });
-  }
-
-  function handleCanvasPointerMove(event: PointerEvent<HTMLDivElement>) {
-    const activePointer = activePointersRef.current.get(event.pointerId);
-
-    if (activePointer) {
-      activePointersRef.current.set(event.pointerId, {
-        ...activePointer,
-        x: event.clientX,
-        y: event.clientY,
-      });
-    }
-
-    if (activePointersRef.current.size >= 2) {
-      event.preventDefault();
-      suppressCanvasClickRef.current = true;
-
-      const rect = event.currentTarget.getBoundingClientRect();
-      const pointers = Array.from(activePointersRef.current.values()).slice(0, 2);
-      const metrics = getPinchMetrics(pointers, rect);
-
-      if (!pinchGestureRef.current) {
-        startPinchGesture(rect);
-      }
-
-      const gesture = pinchGestureRef.current;
-
-      if (!gesture) {
-        return;
-      }
-
-      setCanvasView(
-        getPinchedCanvasView(
-          gesture.originView,
-          gesture.originView.zoom * (metrics.distance / gesture.startDistance),
-          gesture.startCenter,
-          metrics.center,
-          rect,
-        ),
-      );
-      return;
-    }
-
-    if (!canvasDrag || canvasDrag.pointerId !== event.pointerId) {
-      return;
-    }
-
-    const rect = event.currentTarget.getBoundingClientRect();
-    const dx = event.clientX - canvasDrag.startX;
-    const dy = event.clientY - canvasDrag.startY;
-    const moved = canvasDrag.moved || Math.hypot(dx, dy) > 4;
-
-    if (!moved) {
-      return;
-    }
-
-    suppressCanvasClickRef.current = true;
-    setIsCanvasGestureActive(true);
-
-    if (canvasDrag.deferCapture && !event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.setPointerCapture(event.pointerId);
-    }
-
-    setCanvasView((view) => ({
-      ...clampCanvasTransform(
-        {
-          ...view,
-          x: canvasDrag.originX + dx,
-          y: canvasDrag.originY + dy,
-        },
-      ),
-    }));
-
-    if (moved && !canvasDrag.moved) {
-      setCanvasDrag({ ...canvasDrag, moved: true });
-    }
-  }
-
-  function handleCanvasPointerUp(event: PointerEvent<HTMLDivElement>) {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-
-    activePointersRef.current.delete(event.pointerId);
-
-    if (activePointersRef.current.size >= 2) {
-      startPinchGesture(event.currentTarget.getBoundingClientRect());
-      return;
-    }
-
-    pinchGestureRef.current = null;
-
-    if (activePointersRef.current.size === 1) {
-      const [remainingPointerId, pointer] = Array.from(activePointersRef.current.entries())[0];
-      setCanvasDrag({
-        pointerId: remainingPointerId,
-        startX: pointer.x,
-        startY: pointer.y,
-        originX: canvasViewRef.current.x,
-        originY: canvasViewRef.current.y,
-        moved: true,
-        deferCapture: false,
-      });
-      setIsCanvasGestureActive(true);
-      return;
-    }
-
-    setCanvasDrag(undefined);
-    setIsCanvasGestureActive(false);
-    scheduleCanvasClickReset();
-  }
-
-  function handleCanvasClickCapture(event: MouseEvent<HTMLDivElement>) {
-    if (!suppressCanvasClickRef.current) {
-      return;
-    }
-
-    suppressCanvasClickRef.current = false;
-    event.preventDefault();
-    event.stopPropagation();
   }
 
   return (
@@ -564,131 +202,177 @@ export function HomePage({
           className={`graph-canvas ${isCanvasInteracting ? "is-panning" : ""}`}
           aria-label={t.navGraph}
         >
-        <div className="mobile-category-tabs" aria-label={t.learningPath}>
-          {t.categories.map(([id, name], index) => {
-            const categoryId = id as CategoryId;
-            const Icon = categoryIcons[index];
+          <div className="mobile-category-tabs" aria-label={t.learningPath}>
+            {t.categories.map(([id, name], index) => {
+              const categoryId = id as CategoryId;
+              const Icon = categoryIcons[index];
 
-            return (
+              return (
+                <button
+                  key={id}
+                  className={selectedCategory === id ? "active" : ""}
+                  onClick={() => onSelectCategory(categoryId)}
+                >
+                  <Icon size={16} />
+                  <span>{name}</span>
+                </button>
+              );
+            })}
+          </div>
+          {hasSearch && (
+            <div className="search-status">
+              <Search size={16} />
+              <span>{hasResults ? t.searchResults : t.noSearchResult}</span>
+              <strong>{searchQuery}</strong>
+            </div>
+          )}
+          <div className="graph-toolbar">
+            <div className="graph-mode-switch" aria-label={t.graphBoard}>
               <button
-                key={id}
-                className={selectedCategory === id ? "active" : ""}
-                onClick={() => onSelectCategory(categoryId)}
+                className={graphBoard === "knowledge" ? "active" : ""}
+                onClick={() => onChangeGraphBoard("knowledge")}
               >
-                <Icon size={16} />
-                <span>{name}</span>
+                {t.knowledgeBoard}
               </button>
-            );
-          })}
-        </div>
-        {hasSearch && (
-          <div className="search-status">
-            <Search size={16} />
-            <span>{hasResults ? t.searchResults : t.noSearchResult}</span>
-            <strong>{searchQuery}</strong>
-          </div>
-        )}
-        <div className="graph-toolbar">
-          <div className="graph-mode-switch" aria-label={t.graphBoard}>
-            <button
-              className={graphBoard === "knowledge" ? "active" : ""}
-              onClick={() => onChangeGraphBoard("knowledge")}
-            >
-              {t.knowledgeBoard}
-            </button>
-            <button
-              className={graphBoard === "visual" ? "active" : ""}
-              onClick={() => onChangeGraphBoard("visual")}
-            >
-              {t.visualBoard}
-            </button>
-          </div>
-          <div className="graph-mode-switch scope-switch" aria-label={t.graphMode}>
-            <button
-              className={graphMode === "core" ? "active" : ""}
-              onClick={() => setGraphMode("core")}
-            >
-              {t.coreMode}
-            </button>
-            <button
-              className={graphMode === "all" ? "active" : ""}
-              onClick={() => setGraphMode("all")}
-            >
-              {t.allMode}
-            </button>
-          </div>
-        </div>
-        {isEmptySearch ? (
-          <div className="graph-empty-state">
-            <Search size={28} />
-            <h2>{t.noSearchResult}</h2>
-            <p>{searchQuery}</p>
-          </div>
-        ) : (
-          <div
-            ref={graphStageRef}
-            className="sphere-graph-stage"
-            onWheel={handleCanvasWheel}
-            onPointerDown={handleCanvasPointerDown}
-            onPointerMove={handleCanvasPointerMove}
-            onPointerUp={handleCanvasPointerUp}
-            onPointerCancel={handleCanvasPointerUp}
-            onClickCapture={handleCanvasClickCapture}
-            onDoubleClick={resetCanvasView}
-          >
-            <div
-              className="sphere-graph-world"
-              style={{
-                width: `${graph.width}px`,
-                height: `${graph.height}px`,
-                transform: `translate3d(${canvasView.x}px, ${canvasView.y}px, 0) scale(${canvasView.zoom})`,
-              }}
-            >
-              <SphereGraphView
-                graph={graph}
-                focusedLabel={t.focused}
-                highlightedKnowledgeId={hoveredKnowledgeId}
-                onOpenDetail={onOpenDetail}
-                onHoverKnowledge={setHoveredKnowledgeId}
-              />
+              <button
+                className={graphBoard === "visual" ? "active" : ""}
+                onClick={() => onChangeGraphBoard("visual")}
+              >
+                {t.visualBoard}
+              </button>
+            </div>
+            <div className="graph-mode-switch scope-switch" aria-label={t.graphMode}>
+              <button
+                className={graphMode === "core" ? "active" : ""}
+                onClick={() => setGraphMode("core")}
+              >
+                {t.coreMode}
+              </button>
+              <button
+                className={graphMode === "all" ? "active" : ""}
+                onClick={() => setGraphMode("all")}
+              >
+                {t.allMode}
+              </button>
             </div>
           </div>
-        )}
-        <div className="graph-canvas-controls" aria-label={t.canvasControls}>
-          <button
-            type="button"
-            onClick={() => zoomCanvas(0.86)}
-            title={t.zoomOut}
-            aria-label={t.zoomOut}
-          >
-            <Minus size={19} />
-          </button>
-          <output className="canvas-zoom-readout" aria-live="polite">
-            {zoomPercent}
-          </output>
-          <button
-            type="button"
-            onClick={() => zoomCanvas(1.16)}
-            title={t.zoomIn}
-            aria-label={t.zoomIn}
-          >
-            <Plus size={19} />
-          </button>
-          <button
-            type="button"
-            onClick={resetCanvasView}
-            title={t.resetView}
-            aria-label={t.resetView}
-          >
-            <RotateCcw size={18} />
-          </button>
-        </div>
+          {isEmptySearch ? (
+            <div className="graph-empty-state">
+              <Search size={28} />
+              <h2>{t.noSearchResult}</h2>
+              <p>{searchQuery}</p>
+            </div>
+          ) : (
+            <TransformWrapper
+              key={graphTransformKey}
+              ref={transformRef}
+              initialScale={defaultCanvasZoom}
+              minScale={minCanvasZoom}
+              maxScale={maxCanvasZoom}
+              limitToBounds={false}
+              centerZoomedOut={false}
+              wheel={{
+                step: 0.0022,
+                excluded: transformExcludedTargets,
+              }}
+              panning={{
+                excluded: panningExcludedTargets,
+                velocityDisabled: false,
+              }}
+              pinch={{
+                step: 6,
+                excluded: transformExcludedTargets,
+              }}
+              doubleClick={{
+                step: 0.24,
+                mode: "zoomIn",
+                animationTime: canvasControlAnimationMs,
+                animationType: "easeOut",
+                excluded: panningExcludedTargets,
+              }}
+              zoomAnimation={{
+                size: 0.18,
+                animationTime: canvasControlAnimationMs,
+                animationType: "easeOut",
+              }}
+              velocityAnimation={{
+                sensitivityMouse: 1,
+                sensitivityTouch: 1.15,
+                maxStrengthMouse: 16,
+                maxStrengthTouch: 32,
+                inertia: 0.78,
+                animationTime: 260,
+                maxAnimationTime: 520,
+                animationType: "easeOut",
+              }}
+              onInit={handleTransformInit}
+              onTransform={(_, state) =>
+                setCanvasView({
+                  x: state.positionX,
+                  y: state.positionY,
+                  zoom: state.scale,
+                })
+              }
+              onPanningStart={() => setIsCanvasGestureActive(true)}
+              onPanningStop={() => setIsCanvasGestureActive(false)}
+              onPinchStart={() => setIsCanvasGestureActive(true)}
+              onPinchStop={() => setIsCanvasGestureActive(false)}
+            >
+              {({ zoomIn, zoomOut }) => (
+                <>
+                  <TransformComponent
+                    wrapperClass="sphere-graph-stage"
+                    contentClass="sphere-graph-world"
+                    contentStyle={{
+                      width: `${graph.width}px`,
+                      height: `${graph.height}px`,
+                    }}
+                  >
+                    <SphereGraphView
+                      graph={graph}
+                      focusedLabel={t.focused}
+                      highlightedKnowledgeId={hoveredKnowledgeId}
+                      onOpenDetail={onOpenDetail}
+                      onHoverKnowledge={setHoveredKnowledgeId}
+                    />
+                  </TransformComponent>
+                  <div className="graph-canvas-controls" aria-label={t.canvasControls}>
+                    <button
+                      type="button"
+                      onClick={() => zoomOut(canvasZoomStep, canvasControlAnimationMs, "easeOut")}
+                      title={t.zoomOut}
+                      aria-label={t.zoomOut}
+                      disabled={!canZoomOut}
+                    >
+                      <Minus size={19} />
+                    </button>
+                    <output className="canvas-zoom-readout" aria-live="polite">
+                      {zoomPercent}
+                    </output>
+                    <button
+                      type="button"
+                      onClick={() => zoomIn(canvasZoomStep, canvasControlAnimationMs, "easeOut")}
+                      title={t.zoomIn}
+                      aria-label={t.zoomIn}
+                      disabled={!canZoomIn}
+                    >
+                      <Plus size={19} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => resetCanvasView()}
+                      title={t.resetView}
+                      aria-label={t.resetView}
+                    >
+                      <RotateCcw size={18} />
+                    </button>
+                  </div>
+                </>
+              )}
+            </TransformWrapper>
+          )}
         </section>
       )}
     </main>
   );
-}
-
-function PageGraphFallback() {
-  return <div className="graph-empty-state" aria-busy="true" />;
 }

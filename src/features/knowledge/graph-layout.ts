@@ -402,7 +402,7 @@ function buildFlowGraph({
   const laneGap = graphMode === "core" ? 22 : 24;
   const topPadding = 148;
   const leftPadding = 90;
-  const columnGap = graphMode === "core" ? 214 : 214;
+  const columnGap = graphMode === "core" ? 232 : 214;
   const laneSlotCountByColumn = new Map<string, Map<number, number>>();
 
   boardPoints.forEach((point) => {
