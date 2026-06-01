@@ -188,7 +188,7 @@
 - 桌面：captured `.codex-artifacts/visualizations/buffer-pool/desktop.png`
 - 移动端：captured `.codex-artifacts/visualizations/buffer-pool/mobile.png`
 - 截图结论：主题 10 秒内可识别；LRU young/old、midpoint、Free List、Flush List、Page Cleaner 和表空间链路完整；右侧任务、操作面板、理解重点可读；底部五步进度完整；移动端保留核心画布和面板信息。
-- 验收备注：本轮 Chrome DevTools MCP 被旧 profile 锁阻塞，Playwright Chromium 被 macOS Mach port 权限阻塞，系统 GUI 截图无可用 display；已生成本地 PNG 验收图作为 `.codex-artifacts` 留档，代码验证以 `npm run build` 和 `npm run test:data` 为准。
+- 验收备注：Playwright Chromium 在当前 macOS 沙箱中受 Mach port 权限限制；Chrome DevTools MCP 恢复后完成页面交互和截图。代码验证以 `npm run build`、`npm run test:data` 和 `git diff --check` 为准。
 
 ## Deferred
 
@@ -224,6 +224,6 @@
 - Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功，远端已同步。
 - Selected：完成 MySQL `buffer-pool` 遗留项，采用 `storage-layout` 类型。
 - Screenshot Review：保存 `.codex-artifacts/visualizations/buffer-pool/desktop.png` 与 `.codex-artifacts/visualizations/buffer-pool/mobile.png`；桌面和移动端验收图均可读。
-- Browser Note：Chrome DevTools MCP 受旧 profile 锁影响，Playwright Chromium 受 macOS Mach port 权限影响，系统 GUI 截图无 display；本轮使用本地 PNG 验收图记录最终状态。
-- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项。
+- Browser Review：Chrome DevTools MCP 恢复后进入 `http://127.0.0.1:4174/KnowledgeGraph/`，搜索 Buffer Pool、打开详情、进入模拟器并推进到第 4 步“后台刷盘”。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Next Candidate：网络层 `IP 路由` 或 Redis `hash-slot`。
