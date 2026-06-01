@@ -749,3 +749,35 @@
 - Screenshot Review：保存 `.codex-artifacts/visualizations/redo-log/desktop.png` 与 `.codex-artifacts/visualizations/redo-log/mobile.png`；截图为本地渲染验收图。
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项。
 - Next Candidate：MySQL `Undo Log` 或 `Binlog`。
+
+### 2026-06-02 01:02 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 失败，原因是 `Could not resolve host: github.com`。
+- Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
+- Working Tree：开始时 `main...origin/main` 干净；本条记录写入后仅 `docs/visualization-progress.md` 发生变化。
+- Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后继续 MySQL `Undo Log` 或 `Binlog` 候选。
+
+### 2026-06-02 02:01 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功，远端已同步。
+- Selected：MySQL `Undo Log`，原因是 rollback segment、undo slot、before image、DB_ROLL_PTR、history list 和 Purge 形成清晰回滚与快照读状态模型。
+- Candidate Sources：普通搜索与 Chrome MCP 视觉确认筛选约 12 个候选来源，保留 1 张主参考图和 4 个辅助参考来源。
+- Online Image References：
+  - source：Mydbops - An Overview to InnoDB Undo Log；image：页面 `Undo Log Chain` 图；role：main；qualityReason：清晰展示 clustered record、ROLL_PTR、undo record prev 指针和历史版本链；takeaways：主构图采用当前行到 undo 链的纵向版本追踪；originalChanges：改为事务、回滚段、Purge 三栏状态模型，并加入底部排障信号。
+  - source：Mydbops - An Overview to InnoDB Undo Log；image：页面 `InnoDB Row Structure` 图；role：supporting；qualityReason：隐藏列 DB_TRX_ID、DB_ROLL_PTR、DB_ROW_ID 表达直观；takeaways：聚簇记录卡片保留隐藏列；originalChanges：用动态状态展示 amount、trx_id 和 roll pointer。
+  - source：Mydbops - An Overview to InnoDB Undo Log；image：页面事务 T1/T2/T3 读旧版本图；role：supporting；qualityReason：说明 undo 为一致性读提供旧行镜像；takeaways：右侧加入 Rollback / snapshot read 面板；originalChanges：合并回滚恢复和 ReadView 读取两个用途。
+  - source：MySQL Reference Manual - Undo Logs；image：页面结构说明；role：supporting；qualityReason：官方定义 undo log、undo log segment、rollback segment、undo tablespace 和并发事务容量边界；takeaways：中部使用 undo tablespace / rollback segment / undo slot 层级；originalChanges：将表格公式转成容量风险读数。
+  - source：Percona - Chasing a Hung MySQL Transaction；image：`innodb_history_length` 图；role：supporting；qualityReason：展示长事务导致 history length 增长的生产症状；takeaways：底部信号强调 history list length、trx age、Purge lag；originalChanges：用简化进度条表达回收前后变化。
+- Reference Breakdown：主体布局为左侧 T42 事务和聚簇记录，中部 rollback segment 与 undo 记录链，右侧回滚/快照读与 History List / Purge，底部展示 trx age、undo entries、history list、purge state；视觉焦点是 `DB_ROLL_PTR -> undo#42 -> undo#31 -> undo#20`；交互节奏按分配 slot、写 before image、连接版本链、服务回滚/快照读、Purge 回收推进。
+- Implementation：新增 `mysql:undo-log` 专用 `state-model` 构建器、Undo Log SVG 舞台、移动端纵向摘要、响应式样式和 Undo Log 专用来源。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/undo-log/desktop.png`（2880x1882）与 `.codex-artifacts/visualizations/undo-log/mobile.png`（1000x4696）；桌面画布可识别 rollback segment、undo chain、ReadView/Purge 和底部信号，移动端纵向摘要可读。
+- Browser Note：Chrome DevTools MCP 在 `http://127.0.0.1:4199/KnowledgeGraph/` 完成搜索 `Undo Log`、详情页进入、模拟器进入、五步交互和桌面/移动截图验收；旧预览端口 `4180` 载入旧构建，改用 strict port `4199` 验收。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
+- Next Candidate：MySQL `Binlog` 或 `Two Phase Commit`。
+
+### 2026-06-02 02:03 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 失败，原因是 `Could not resolve host: github.com`。
+- Existing Work：工作区已有未提交的 MySQL `Undo Log` 可视化现场，涉及 `docs/visualization-progress.md`、`src/data/knowledge-points/mysql.ts`、`src/data/knowledge-points/sources.ts`、`src/data/visual-simulations/index.ts`、`src/features/simulation/stages.tsx`、`src/styles/responsive.css`、`src/styles/simulation.css`。
+- Action：本轮停在同步门禁，仅记录阻塞和恢复点；保留现有 Undo Log 实现现场。
+- Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后继续完成 Undo Log 截图验收、`npm run test:data`、`git diff --check`、提交、rebase 和推送。

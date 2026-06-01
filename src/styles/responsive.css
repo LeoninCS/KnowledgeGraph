@@ -225,6 +225,11 @@
     justify-content: start;
   }
 
+  .undo-log-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .ip-routing-stage {
     overflow-x: auto;
     justify-content: start;
@@ -354,6 +359,16 @@
   }
 
   .mvcc-diagram {
+    height: 548px;
+  }
+
+  .undo-log-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .undo-log-diagram {
     height: 548px;
   }
 
@@ -572,6 +587,20 @@
     padding: 18px;
   }
 
+  .undo-log-card {
+    width: 100%;
+  }
+
+  .undo-log-diagram {
+    display: none;
+  }
+
+  .undo-log-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
   .k8s-service-stage,
   .k8s-ingress-stage {
     padding-inline: 12px;
@@ -602,6 +631,8 @@
   .mvcc-mobile-facts,
   .redo-log-mobile-flow,
   .redo-log-mobile-facts,
+  .undo-log-mobile-flow,
+  .undo-log-mobile-facts,
   .docker-layer-mobile-flow,
   .docker-layer-mobile-facts {
     display: grid;
@@ -616,6 +647,8 @@
   .mvcc-mobile-fact,
   .redo-log-mobile-hop,
   .redo-log-mobile-fact,
+  .undo-log-mobile-hop,
+  .undo-log-mobile-fact,
   .docker-layer-mobile-hop,
   .docker-layer-mobile-fact {
     display: grid;
@@ -634,6 +667,8 @@
   .mvcc-mobile-fact.active,
   .redo-log-mobile-hop.active,
   .redo-log-mobile-fact.active,
+  .undo-log-mobile-hop.active,
+  .undo-log-mobile-fact.active,
   .docker-layer-mobile-hop.active,
   .docker-layer-mobile-fact.active {
     border-color: color-mix(in srgb, var(--brand) 36%, var(--border));
@@ -648,6 +683,8 @@
   .mvcc-mobile-fact span,
   .redo-log-mobile-hop span,
   .redo-log-mobile-fact span,
+  .undo-log-mobile-hop span,
+  .undo-log-mobile-fact span,
   .docker-layer-mobile-hop span,
   .docker-layer-mobile-fact span {
     color: var(--muted);
@@ -663,6 +700,8 @@
   .mvcc-mobile-fact strong,
   .redo-log-mobile-hop strong,
   .redo-log-mobile-fact strong,
+  .undo-log-mobile-hop strong,
+  .undo-log-mobile-fact strong,
   .docker-layer-mobile-hop strong,
   .docker-layer-mobile-fact strong {
     color: var(--text);

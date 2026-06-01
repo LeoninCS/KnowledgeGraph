@@ -394,6 +394,8 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     sourceRefs: [
       "mysql-innodb-undo-logs",
       "mysql-innodb-multi-versioning",
+      "mydbops-innodb-undo-log",
+      "percona-innodb-history-length",
       "sobyte-mysql-mvcc",
       "javaguide-mysql-mvcc",
     ],

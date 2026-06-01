@@ -411,6 +411,44 @@
   display: none;
 }
 
+.undo-log-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.undo-log-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .undo-log-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.undo-log-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.undo-log-mobile-map {
+  display: none;
+}
+
 .docker-layer-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -3109,6 +3147,252 @@
 }
 
 .redo-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.undo-bg {
+  fill: color-mix(in srgb, var(--tertiary-soft) 30%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 18%, transparent);
+}
+
+.undo-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.undo-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.undo-tx-panel,
+.undo-segment-panel,
+.undo-record-panel,
+.undo-chain-panel,
+.undo-readview-panel,
+.undo-history-panel,
+.undo-slot-path,
+.undo-before-path,
+.undo-rollptr-path,
+.undo-read-path,
+.undo-purge-path,
+.undo-sql-card,
+.undo-slot-row,
+.undo-record-row,
+.undo-version-node,
+.undo-chain-link,
+.undo-readview-chip,
+.undo-history-bar,
+.undo-purge-chip,
+.undo-signal {
+  opacity: 0.26;
+  transition: opacity 180ms ease;
+}
+
+.undo-tx-panel.active,
+.undo-segment-panel.active,
+.undo-record-panel.active,
+.undo-chain-panel.active,
+.undo-readview-panel.active,
+.undo-history-panel.active,
+.undo-slot-path.active,
+.undo-before-path.active,
+.undo-rollptr-path.active,
+.undo-read-path.active,
+.undo-purge-path.active,
+.undo-sql-card.active,
+.undo-slot-row.active,
+.undo-record-row.active,
+.undo-version-node.active,
+.undo-chain-link.active,
+.undo-readview-chip.active,
+.undo-history-bar.active,
+.undo-purge-chip.active,
+.undo-signal.active {
+  opacity: 1;
+}
+
+.undo-tx-panel > rect,
+.undo-segment-panel > rect,
+.undo-record-panel > rect,
+.undo-chain-panel > rect,
+.undo-readview-panel > rect,
+.undo-history-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#undo-soft-shadow);
+}
+
+.undo-tx-panel.active > rect,
+.undo-sql-card.active rect {
+  fill: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.undo-segment-panel.active > rect,
+.undo-slot-row.teal.active rect,
+.undo-version-node.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.undo-record-panel.active > rect,
+.undo-record-row.active rect,
+.undo-slot-row.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.undo-chain-panel.active > rect,
+.undo-slot-row.warning.active rect,
+.undo-version-node.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 8%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 36%, var(--border));
+}
+
+.undo-readview-panel.active > rect,
+.undo-readview-chip.active rect,
+.undo-version-node.brand.active rect {
+  fill: color-mix(in srgb, var(--success) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.undo-history-panel.active > rect,
+.undo-slot-row.danger.active rect,
+.undo-purge-chip.active rect {
+  fill: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.undo-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.undo-panel-subtitle,
+.undo-tx-panel text,
+.undo-segment-panel text,
+.undo-record-panel text,
+.undo-chain-panel text,
+.undo-readview-panel text,
+.undo-history-panel text,
+.undo-slot-path text,
+.undo-before-path text,
+.undo-rollptr-path text,
+.undo-signals text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.undo-sql-card rect,
+.undo-slot-row rect,
+.undo-record-row rect,
+.undo-version-node rect,
+.undo-readview-chip rect,
+.undo-history-bar rect,
+.undo-purge-chip rect,
+.undo-slot-path rect,
+.undo-before-path rect,
+.undo-rollptr-path rect,
+.undo-signal rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#undo-soft-shadow);
+}
+
+.undo-readview-chip.success.active rect,
+.undo-signal.active rect {
+  fill: color-mix(in srgb, var(--success) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.undo-panel-title,
+.undo-sql-card text:first-of-type,
+.undo-slot-row text:first-of-type,
+.undo-record-row text:first-of-type,
+.undo-version-id,
+.undo-readview-chip text,
+.undo-purge-chip text,
+.undo-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.undo-sql-card text:nth-of-type(2),
+.undo-slot-row text:nth-of-type(2),
+.undo-record-row text:nth-of-type(2),
+.undo-version-node text:nth-of-type(3),
+.undo-history-bar text,
+.undo-signal text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.undo-slot-path path,
+.undo-before-path path,
+.undo-rollptr-path path,
+.undo-read-path path,
+.undo-purge-path path,
+.undo-chain-link path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.undo-slot-path path {
+  stroke: var(--brand);
+}
+
+.undo-before-path path {
+  stroke: var(--tertiary);
+}
+
+.undo-rollptr-path path,
+.undo-chain-link path {
+  stroke: #f59e0b;
+}
+
+.undo-read-path path {
+  stroke: var(--success);
+}
+
+.undo-purge-path path {
+  stroke: var(--danger);
+  stroke-dasharray: 8 7;
+}
+
+.undo-slot-path text,
+.undo-before-path text,
+.undo-rollptr-path text {
+  fill: var(--text);
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.undo-history-bar rect:first-of-type {
+  fill: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.undo-history-bar rect:nth-of-type(2) {
+  fill: color-mix(in srgb, var(--success) 54%, var(--tertiary));
+  stroke: none;
+}
+
+.undo-caption {
   right: 16px;
   bottom: 14px;
 }

@@ -209,6 +209,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:undo-log") {
+    return (
+      <UndoLogStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "redis:hash-slot") {
     return (
       <RedisHashSlotStage
@@ -2162,6 +2173,247 @@ function RedoLogStage({
           </div>
         </div>
         <div className="tcp-handshake-caption redo-log-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function UndoLogStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const slotActive = completedSteps >= 1;
+  const beforeImageActive = completedSteps >= 2;
+  const chainActive = completedSteps >= 3;
+  const rollbackActive = completedSteps >= 4;
+  const purgeActive = completedSteps >= 5;
+  const undoRecords = [
+    { id: "undo#42", value: "amount=100", trx: "prev trx=31", y: 220, active: beforeImageActive, tone: "teal" },
+    { id: "undo#31", value: "amount=80", trx: "prev trx=20", y: 318, active: chainActive, tone: "warning" },
+    { id: "undo#20", value: "insert mark", trx: "base image", y: 416, active: chainActive, tone: "brand" },
+  ];
+  const slotRows = [
+    { name: "undo tablespace", value: "undo_001", active: slotActive, tone: "brand" },
+    { name: "rollback segment", value: "rseg#12", active: slotActive, tone: "teal" },
+    { name: "undo slot", value: slotActive ? "#088 owned" : "#088 free", active: slotActive, tone: "warning" },
+    { name: "operation log", value: "UPDATE/DELETE", active: beforeImageActive, tone: "danger" },
+  ];
+  const signalRows = [
+    { name: "trx age", value: purgeActive ? "12m open" : slotActive ? "T42 active" : "idle", active: slotActive },
+    { name: "undo entries", value: chainActive ? "3 records" : beforeImageActive ? "1 record" : "0", active: beforeImageActive },
+    { name: "history list", value: purgeActive ? "3280 -> 42" : chainActive ? "growing" : "stable", active: chainActive },
+    { name: "purge state", value: purgeActive ? "unlinking" : "waiting", active: purgeActive },
+  ];
+  const mobileFlow = [
+    { name: "Transaction", value: slotActive ? "T42 uses rseg#12 slot#088" : "waiting", active: slotActive },
+    { name: "Clustered row", value: beforeImageActive ? "amount=140, DB_ROLL_PTR=undo#42" : "amount=100", active: beforeImageActive },
+    { name: "Undo chain", value: chainActive ? "undo#42 -> undo#31 -> undo#20" : "empty", active: chainActive },
+    { name: "Rollback / ReadView", value: rollbackActive ? "restores or reads amount=100" : "pending", active: rollbackActive },
+    { name: "Purge", value: purgeActive ? "history list reclaimed" : "blocked by active snapshots", active: purgeActive },
+  ];
+
+  return (
+    <div className="visual-stage undo-log-stage">
+      <div className="undo-log-card">
+        <svg
+          className="undo-log-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["undo-arrow-brand", "var(--brand)"],
+              ["undo-arrow-teal", "var(--tertiary)"],
+              ["undo-arrow-warning", "#f59e0b"],
+              ["undo-arrow-danger", "var(--danger)"],
+              ["undo-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="undo-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="undo-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="undo-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="undo-subtitle" x="560" y="100">
+            {label(
+              "transaction -> rollback segment -> undo slot -> before image chain -> ReadView / rollback -> purge",
+              "transaction -> rollback segment -> undo slot -> before image chain -> ReadView / rollback -> purge",
+            )}
+          </text>
+
+          <g className={`undo-tx-panel ${slotActive ? "active" : ""}`}>
+            <rect x="62" y="138" width="254" height="164" rx="24" />
+            <text className="undo-panel-title" x="90" y="174">{label("读写事务 T42", "Read-write transaction T42")}</text>
+            <text className="undo-panel-subtitle" x="90" y="198">UPDATE orders SET amount=140</text>
+            <g className={`undo-sql-card ${slotActive ? "active" : ""}`}>
+              <rect x="90" y="224" width="186" height="48" rx="16" />
+              <text x="108" y="246">trx_id=42</text>
+              <text x="262" y="264">{slotActive ? "active" : "idle"}</text>
+            </g>
+          </g>
+
+          <g className={`undo-segment-panel ${slotActive ? "active" : ""}`}>
+            <rect x="362" y="126" width="282" height="204" rx="26" />
+            <text className="undo-panel-title" x="390" y="162">Rollback Segment</text>
+            <text className="undo-panel-subtitle" x="390" y="186">undo tablespace / undo slot</text>
+            {slotRows.map((row, index) => (
+              <g key={row.name} className={`undo-slot-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="390" y={210 + index * 30} width="218" height="22" rx="11" />
+                <text x="406" y={225 + index * 30}>{row.name}</text>
+                <text x="592" y={225 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`undo-slot-path ${slotActive ? "active" : ""}`}>
+            <path d="M 316 230 C 336 226, 348 226, 362 226" markerEnd="url(#undo-arrow-brand)" />
+            <rect x="254" y="326" width="170" height="34" rx="17" />
+            <text x="339" y="348">{label("分配 slot#088", "allocate slot#088")}</text>
+          </g>
+
+          <g className={`undo-record-panel ${beforeImageActive ? "active" : ""}`}>
+            <rect x="86" y="384" width="286" height="144" rx="26" />
+            <text className="undo-panel-title" x="114" y="422">{label("聚簇记录 orders#42", "Clustered record orders#42")}</text>
+            <text className="undo-panel-subtitle" x="114" y="446">{label("隐藏列连接历史链", "Hidden columns connect the history chain")}</text>
+            {[
+              ["amount", beforeImageActive ? "140" : "100"],
+              ["DB_TRX_ID", beforeImageActive ? "42" : "31"],
+              ["DB_ROLL_PTR", chainActive ? "undo#42" : beforeImageActive ? "undo#42" : "null"],
+            ].map(([name, value], index) => (
+              <g key={name} className={`undo-record-row ${beforeImageActive ? "active" : ""}`}>
+                <rect x="114" y={466 + index * 26} width="202" height="20" rx="10" />
+                <text x="128" y={480 + index * 26}>{name}</text>
+                <text x="302" y={480 + index * 26}>{value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`undo-before-path ${beforeImageActive ? "active" : ""}`}>
+            <path d="M 474 330 C 426 380, 382 422, 316 466" markerEnd="url(#undo-arrow-teal)" />
+            <rect x="374" y="354" width="176" height="34" rx="17" />
+            <text x="462" y="376">{label("写 before image", "write before image")}</text>
+          </g>
+
+          <g className={`undo-chain-panel ${beforeImageActive ? "active" : ""}`}>
+            <rect x="462" y="376" width="270" height="176" rx="28" />
+            <text className="undo-panel-title" x="490" y="412">{label("Undo 记录链", "Undo record chain")}</text>
+            <text className="undo-panel-subtitle" x="490" y="434">before image + prev undo pointer</text>
+            {undoRecords.map((record) => (
+              <g key={record.id} className={`undo-version-node ${record.tone} ${record.active ? "active" : ""}`}>
+                <rect x="506" y={record.y} width="164" height="64" rx="16" />
+                <text className="undo-version-id" x="526" y={record.y + 23}>{record.id}</text>
+                <text x="526" y={record.y + 42}>{record.value}</text>
+                <text x="654" y={record.y + 58}>{record.trx}</text>
+              </g>
+            ))}
+            <g className={`undo-chain-link ${chainActive ? "active" : ""}`}>
+              <path d="M 588 284 C 588 298, 588 304, 588 318" markerEnd="url(#undo-arrow-warning)" />
+              <path d="M 588 382 C 588 396, 588 402, 588 416" markerEnd="url(#undo-arrow-warning)" />
+            </g>
+          </g>
+
+          <g className={`undo-rollptr-path ${chainActive ? "active" : ""}`}>
+            <path d="M 316 518 C 382 542, 462 520, 506 474" markerEnd="url(#undo-arrow-warning)" />
+            <rect x="318" y="552" width="188" height="34" rx="17" />
+            <text x="412" y="574">DB_ROLL_PTR {"->"} undo#42</text>
+          </g>
+
+          <g className={`undo-readview-panel ${rollbackActive ? "active" : ""}`}>
+            <rect x="780" y="138" width="272" height="166" rx="26" />
+            <text className="undo-panel-title" x="808" y="174">{label("回滚 / 快照读", "Rollback / snapshot read")}</text>
+            <text className="undo-panel-subtitle" x="808" y="198">{label("沿 undo 链恢复或读旧版本", "Follow undo chain to restore or read old versions")}</text>
+            <g className={`undo-readview-chip ${rollbackActive ? "active" : ""}`}>
+              <rect x="808" y="224" width="190" height="30" rx="15" />
+              <text x="824" y="244">ROLLBACK: amount=100</text>
+            </g>
+            <g className={`undo-readview-chip success ${rollbackActive ? "active" : ""}`}>
+              <rect x="808" y="262" width="190" height="30" rx="15" />
+              <text x="824" y="282">ReadView sees v31</text>
+            </g>
+          </g>
+
+          <g className={`undo-read-path ${rollbackActive ? "active" : ""}`}>
+            <path d="M 670 252 C 722 216, 746 212, 808 238" markerEnd="url(#undo-arrow-success)" />
+            <path d="M 670 352 C 728 360, 768 338, 808 282" markerEnd="url(#undo-arrow-success)" />
+          </g>
+
+          <g className={`undo-history-panel ${purgeActive ? "active" : ""}`}>
+            <rect x="788" y="370" width="264" height="156" rx="28" />
+            <text className="undo-panel-title" x="816" y="408">History List / Purge</text>
+            <text className="undo-panel-subtitle" x="816" y="432">{label("ReadView 释放后 unlink 历史版本", "Unlink history after ReadViews close")}</text>
+            <g className={`undo-history-bar ${purgeActive ? "active" : ""}`}>
+              <rect x="816" y="458" width="188" height="22" rx="11" />
+              <rect x="816" y="458" width={purgeActive ? "42" : "150"} height="22" rx="11" />
+              <text x="910" y="474">{purgeActive ? "42" : "3280"}</text>
+            </g>
+            <g className={`undo-purge-chip ${purgeActive ? "active" : ""}`}>
+              <rect x="816" y="492" width="182" height="28" rx="14" />
+              <text x="832" y="511">purge worker unlinking</text>
+            </g>
+          </g>
+
+          <g className={`undo-purge-path ${purgeActive ? "active" : ""}`}>
+            <path d="M 670 448 C 734 444, 760 448, 816 468" markerEnd="url(#undo-arrow-danger)" />
+          </g>
+
+          <g className="undo-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`undo-signal ${signal.active ? "active" : ""}`}>
+                <rect x={66 + index * 252} y="588" width="210" height="34" rx="16" />
+                <text x={86 + index * 252} y="602">{signal.name}</text>
+                <text x={256 + index * 252} y="614">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="undo-log-mobile-map">
+          <div className="undo-log-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`undo-log-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="undo-log-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`undo-log-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption undo-log-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

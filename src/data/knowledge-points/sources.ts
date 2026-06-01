@@ -3669,6 +3669,14 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Undo Logs",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-logs.html",
   },
+  "mydbops-innodb-undo-log": {
+    title: "Mydbops: An Overview to InnoDB Undo Log",
+    url: "https://www.mydbops.com/blog/an-overview-to-innodb-undo-log",
+  },
+  "percona-innodb-history-length": {
+    title: "Percona: Chasing a Hung MySQL Transaction",
+    url: "https://www.percona.com/blog/chasing-a-hung-transaction-in-mysql-innodb-history-length-strikes-back/",
+  },
   "mysql-innodb-redo-log": {
     title: "MySQL Reference Manual: The InnoDB Redo Log",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-redo-log.html",
