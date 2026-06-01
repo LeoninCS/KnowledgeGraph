@@ -380,6 +380,13 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["read-committed", "undo-log"],
   },
   "redo-log": {
+    sourceRefs: [
+      "mysql-innodb-redo-log",
+      "mysql-innodb-recovery",
+      "mysql-doxygen-redo-log",
+      "oracle-mysql-dynamic-redo-log",
+      "xiaolincoding-mysql-log",
+    ],
     prerequisites: ["transaction"],
     related: ["two-phase-commit", "crash-recovery"],
   },

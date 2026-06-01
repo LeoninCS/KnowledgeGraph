@@ -220,6 +220,11 @@
     justify-content: start;
   }
 
+  .redo-log-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .ip-routing-stage {
     overflow-x: auto;
     justify-content: start;
@@ -553,6 +558,20 @@
     padding: 18px;
   }
 
+  .redo-log-card {
+    width: 100%;
+  }
+
+  .redo-log-diagram {
+    display: none;
+  }
+
+  .redo-log-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
   .k8s-service-stage,
   .k8s-ingress-stage {
     padding-inline: 12px;
@@ -581,6 +600,8 @@
   .k8s-ingress-mobile-facts,
   .mvcc-mobile-flow,
   .mvcc-mobile-facts,
+  .redo-log-mobile-flow,
+  .redo-log-mobile-facts,
   .docker-layer-mobile-flow,
   .docker-layer-mobile-facts {
     display: grid;
@@ -593,6 +614,8 @@
   .k8s-ingress-mobile-fact,
   .mvcc-mobile-hop,
   .mvcc-mobile-fact,
+  .redo-log-mobile-hop,
+  .redo-log-mobile-fact,
   .docker-layer-mobile-hop,
   .docker-layer-mobile-fact {
     display: grid;
@@ -609,6 +632,8 @@
   .k8s-ingress-mobile-fact.active,
   .mvcc-mobile-hop.active,
   .mvcc-mobile-fact.active,
+  .redo-log-mobile-hop.active,
+  .redo-log-mobile-fact.active,
   .docker-layer-mobile-hop.active,
   .docker-layer-mobile-fact.active {
     border-color: color-mix(in srgb, var(--brand) 36%, var(--border));
@@ -621,6 +646,8 @@
   .k8s-ingress-mobile-fact span,
   .mvcc-mobile-hop span,
   .mvcc-mobile-fact span,
+  .redo-log-mobile-hop span,
+  .redo-log-mobile-fact span,
   .docker-layer-mobile-hop span,
   .docker-layer-mobile-fact span {
     color: var(--muted);
@@ -634,6 +661,8 @@
   .k8s-ingress-mobile-fact strong,
   .mvcc-mobile-hop strong,
   .mvcc-mobile-fact strong,
+  .redo-log-mobile-hop strong,
+  .redo-log-mobile-fact strong,
   .docker-layer-mobile-hop strong,
   .docker-layer-mobile-fact strong {
     color: var(--text);

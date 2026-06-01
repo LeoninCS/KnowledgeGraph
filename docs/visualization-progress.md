@@ -140,6 +140,7 @@
 | Ingress | `step-simulation` | completed | desktop/mobile captured | Kubernetes Ingress 七层入口路由模拟器，覆盖公网入口、Ingress Controller、TLS Secret、host/path 规则和 Service 后端 |
 | 镜像层 | `storage-layout` | completed | desktop/mobile captured | Docker 镜像层结构模型，覆盖 Dockerfile 指令、Build Cache、只读层共享、overlay2 和可写层 |
 | MVCC | `state-model` | completed | desktop/mobile captured | MySQL MVCC 版本可见性状态模型，覆盖隐藏列、Undo 版本链、ReadView、可见性判断和长事务 Purge 风险 |
+| Redo Log | `state-model` | completed | desktop/mobile captured | MySQL Redo Log WAL 与恢复状态模型，覆盖 redo record、log buffer、write/fsync、checkpoint 和 crash recovery |
 
 ## Buffer Pool Visualization
 
@@ -204,7 +205,62 @@
 
 ## Next Candidate
 
-优先选择 MySQL `Redo Log`，它具备 mini-transaction、redo record、log buffer、write/fsync、checkpoint 和 crash recovery 价值，适合做步骤式恢复模拟。
+优先选择 MySQL `Undo Log` 或 `Binlog`，它们能与已完成的 MVCC、Redo Log 串成事务日志链路，适合继续做状态模型或两阶段提交模拟。
+
+## MySQL Redo Log Visualization
+
+### Online Image References
+
+- `source`：MySQL Server Doxygen - InnoDB Redo Log，https://dev.mysql.com/doc/dev/mysql-server/latest/PAGE_INNODB_REDO_LOG.html
+  - `image`：页面中的 `Architecture of writing redo log` 图，图片 URL：`https://dev.mysql.com/doc/dev/mysql-server/latest/dia_arch_writing.png`。
+  - `role`：main
+  - `qualityReason`：MySQL 官方工程文档图，直接展示 user threads、log buffer、log writer、log flusher、checkpointer、dirty pages 和 redo log files，是 Redo Log 写入链路的最佳主构图。
+  - `takeaways`：主画布采用事务/mtr -> log buffer -> writer/flusher -> redo files -> checkpoint/recovery 的分层路径。
+  - `originalChanges`：把内部架构图改造成五步状态模型，加入 LSN 区间、write_lsn/flushed_lsn、checkpoint age 和 crash replay 信号。
+- `source`：MySQL Server Doxygen - InnoDB Redo Log，https://dev.mysql.com/doc/dev/mysql-server/latest/PAGE_INNODB_REDO_LOG.html
+  - `image`：页面中的 `Architecture of deleting redo log files` 图，图片 URL：`https://dev.mysql.com/doc/dev/mysql-server/latest/dia_arch_deleting.png`。
+  - `role`：supporting
+  - `qualityReason`：官方图说明 checkpointer 与 redo 文件回收的关系，适合补足日志空间复用和 checkpoint 推进。
+  - `takeaways`：底部使用 Checkpoint Ring 表达 reusable、checkpoint 和 active redo 区间。
+  - `originalChanges`：把 redo 文件删除/复用流程抽象成一条 checkpoint age 进度带，减少内部线程细节。
+- `source`：MySQL 8.4 Reference Manual - The InnoDB Redo Log，https://dev.mysql.com/doc/refman/8.4/en/innodb-redo-log.html
+  - `image`：官方文档中的 redo log capacity、active redo log files、LSN 和配置说明。
+  - `role`：supporting
+  - `qualityReason`：官方用户文档定义 Redo Log、容量、写入策略和文件位置，适合做右侧任务与底部指标文案。
+  - `takeaways`：画布保留 `#innodb_redo`、`current_lsn`、`flushed_lsn` 和容量压力语言。
+  - `originalChanges`：用项目统一信号卡片表达可观测指标，避免把配置项堆进主画布。
+- `source`：Oracle MySQL Blog - Dynamic redo log sizing，https://blogs.oracle.com/mysql/post/dynamic-innodb-redo-log-in-mysql-80
+  - `image`：文章中的 redo log resize、active files 和 checkpoint 相关示意。
+  - `role`：supporting
+  - `qualityReason`：官方博客面向 MySQL 8.0 动态 redo 容量，补充线上容量调整和日志空间压力视角。
+  - `takeaways`：Redo Log 容量、checkpoint age 和日志空间回收应一起呈现。
+  - `originalChanges`：底部信号将容量主题压缩为 checkpoint age 和恢复窗口。
+- `source`：小林 coding - MySQL 日志，https://xiaolincoding.com/mysql/log/how_update.html
+  - `image`：页面中的 redo log、binlog、两阶段提交和 WAL 图解。
+  - `role`：supporting
+  - `qualityReason`：高传播中文图解，便于把 WAL、redo、崩溃恢复和两阶段提交语义转成中文教学表达。
+  - `takeaways`：步骤文案突出先写 redo、提交刷盘和崩溃后重放。
+  - `originalChanges`：本轮聚焦 Redo Log 单点机制，保留 Binlog 为后续 Two-Phase Commit 可视化候选。
+
+### Reference Breakdown
+
+- 主体布局：左上写事务和脏页，中上 mini-transaction 记录页级 diff，中下 Log Buffer，右上 redo log files，底部 Checkpoint Ring，左下 Crash Recovery。
+- 视觉焦点：一次 UPDATE 先形成 `page P42 diff`，mtr 提交时预留 `LSN 8400-8540`，log writer/flusher 推进 `write_lsn` 与 `flushed_lsn`，checkpoint 释放旧区间，崩溃后从 checkpoint 扫描并重放 P42。
+- 领域对象：redo record、mini-transaction、Log Buffer、LSN、log writer、log flusher、redo log files、write_lsn、flushed_lsn、checkpoint_lsn、checkpoint age、dirty page、crash recovery。
+- 容器层级：Buffer Pool 脏页属于内存数据页；mini-transaction 收集 redo records；Log Buffer 按 LSN 排队；redo files 持久化日志；checkpoint 决定恢复扫描起点和日志复用边界。
+- 连线方向：写事务从左到右进入 mtr；mtr 向下写入 Log Buffer；Log Buffer 向右写入 redo files；files 向下推进 checkpoint；checkpoint 向左回到 crash recovery。
+- 状态表达：五步通过透明度、边框、箭头、LSN 块和信号值显隐表达记录生成、LSN 分配、刷盘、checkpoint 推进和崩溃恢复。
+- 颜色策略：品牌蓝表示 redo record 生成，青色表示 LSN/log buffer，橙色表示 write/fsync，绿色表示 checkpoint 回收，红色表示 crash recovery 风险。
+- 文字密度：画布保留关键字段、LSN、线程名和指标；长解释放在右侧任务、操作面板和底部步骤条。
+- 交互节奏：五步依次推进“生成 redo record -> 预留 LSN 区间 -> 写入并 fsync -> 推进 checkpoint -> 崩溃后重放”。
+- 原创改造点：融合官方 Doxygen 写入/删除架构图、MySQL 8.4 用户文档、动态 redo 容量博客和中文 WAL 图解，做成面向提交延迟、日志空间和崩溃恢复的状态模型。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/redo-log/desktop.png`
+- 移动端：captured `.codex-artifacts/visualizations/redo-log/mobile.png`
+- 截图结论：桌面本地渲染图包含写事务、mini-transaction、Log Buffer、redo log files、Checkpoint Ring、Crash Recovery 和底部 LSN 指标；移动端本地渲染图采用纵向步骤摘要，UPDATE、mtr、log writer/flusher、checkpoint、crash recovery 和四个观测指标可读。
+- 验收备注：Chrome DevTools MCP profile 被占用，in-app browser 返回不可用，Playwright Chromium 受 macOS Mach port 权限限制；本轮使用构建产物、数据测试、静态渲染 PNG 和代码检查完成验收。
 
 ## MySQL MVCC Visualization
 
@@ -679,3 +735,17 @@
 - Screenshot Review：保存 `.codex-artifacts/visualizations/mvcc/desktop.png` 与 `.codex-artifacts/visualizations/mvcc/mobile.png`；截图为本地渲染验收图。
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Next Candidate：MySQL `Redo Log`。
+
+### 2026-06-02 00:12 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功。
+- Selected：MySQL `Redo Log`，原因是 mini-transaction、redo record、LSN、log buffer、write/fsync、checkpoint 和 crash recovery 形成清晰 WAL 状态模型。
+- Candidate Sources：普通搜索筛选约 12 个候选来源，保留 MySQL Doxygen `Architecture of writing redo log` 为主参考，Doxygen redo file deleting、MySQL 8.4 Redo Log、Oracle Dynamic Redo Log 和小林 coding MySQL 日志为辅助参考。
+- Browser Note：Chrome DevTools MCP profile 被占用，in-app browser 返回不可用，Playwright Chromium 受 macOS Mach port 权限限制；本轮使用页面 URL、官方资料、搜索结果和本地渲染图完成参考确认与截图验收。
+- Main Reference：MySQL Server Doxygen - InnoDB Redo Log，主图为 `https://dev.mysql.com/doc/dev/mysql-server/latest/dia_arch_writing.png`。
+- Supporting References：`dia_arch_deleting.png`、MySQL 8.4 The InnoDB Redo Log、Oracle Dynamic redo log sizing、小林 coding MySQL 日志。
+- Reference Breakdown：采用左上写事务、上中 mtr、下中 Log Buffer、右上 redo files、底部 Checkpoint Ring、左下 Crash Recovery 的状态模型。
+- Implementation：新增 `mysql:redo-log` 专用 `state-model` 构建器、Redo Log SVG 舞台、移动端纵向摘要、响应式样式和 Redo Log 专用来源。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/redo-log/desktop.png` 与 `.codex-artifacts/visualizations/redo-log/mobile.png`；截图为本地渲染验收图。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项。
+- Next Candidate：MySQL `Undo Log` 或 `Binlog`。

@@ -3669,6 +3669,26 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Undo Logs",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-logs.html",
   },
+  "mysql-innodb-redo-log": {
+    title: "MySQL Reference Manual: The InnoDB Redo Log",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-redo-log.html",
+  },
+  "mysql-innodb-recovery": {
+    title: "MySQL Reference Manual: InnoDB Recovery",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-recovery.html",
+  },
+  "mysql-doxygen-redo-log": {
+    title: "MySQL Server Doxygen: InnoDB Redo Log",
+    url: "https://dev.mysql.com/doc/dev/mysql-server/latest/PAGE_INNODB_REDO_LOG.html",
+  },
+  "oracle-mysql-dynamic-redo-log": {
+    title: "Oracle MySQL Blog: Dynamic redo log sizing",
+    url: "https://blogs.oracle.com/mysql/post/dynamic-innodb-redo-log-in-mysql-80",
+  },
+  "xiaolincoding-mysql-log": {
+    title: "小林 coding: MySQL 日志",
+    url: "https://xiaolincoding.com/mysql/log/how_update.html",
+  },
   "sobyte-mysql-mvcc": {
     title: "SoByte: MVCC in MySQL",
     url: "https://www.sobyte.net/post/2022-04/mysql-mvcc/",

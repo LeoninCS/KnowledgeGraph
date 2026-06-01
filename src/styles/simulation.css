@@ -373,6 +373,44 @@
   display: none;
 }
 
+.redo-log-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.redo-log-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .redo-log-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.redo-log-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.redo-log-mobile-map {
+  display: none;
+}
+
 .docker-layer-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -2824,6 +2862,253 @@
 }
 
 .mvcc-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.redo-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 26%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.redo-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.redo-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.redo-transaction-panel,
+.redo-mtr-panel,
+.redo-buffer-panel,
+.redo-files-panel,
+.redo-checkpoint-panel,
+.redo-recovery-panel,
+.redo-record-path,
+.redo-lsn-path,
+.redo-flush-path,
+.redo-checkpoint-path,
+.redo-recovery-path,
+.redo-page-card,
+.redo-record-row,
+.redo-log-block,
+.redo-file-stack,
+.redo-ring-segment,
+.redo-checkpoint-pointer,
+.redo-replay-chip,
+.redo-signal {
+  opacity: 0.26;
+  transition: opacity 180ms ease;
+}
+
+.redo-transaction-panel.active,
+.redo-mtr-panel.active,
+.redo-buffer-panel.active,
+.redo-files-panel.active,
+.redo-checkpoint-panel.active,
+.redo-recovery-panel.active,
+.redo-record-path.active,
+.redo-lsn-path.active,
+.redo-flush-path.active,
+.redo-checkpoint-path.active,
+.redo-recovery-path.active,
+.redo-page-card.active,
+.redo-record-row.active,
+.redo-log-block.active,
+.redo-file-stack.active,
+.redo-ring-segment.active,
+.redo-checkpoint-pointer.active,
+.redo-replay-chip.active,
+.redo-signal.active {
+  opacity: 1;
+}
+
+.redo-transaction-panel > rect,
+.redo-mtr-panel > rect,
+.redo-buffer-panel > rect,
+.redo-files-panel > rect,
+.redo-checkpoint-panel > rect,
+.redo-recovery-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#redo-soft-shadow);
+}
+
+.redo-transaction-panel.active > rect,
+.redo-page-card.active rect {
+  fill: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.redo-mtr-panel.active > rect,
+.redo-record-row.active rect,
+.redo-log-block.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.redo-buffer-panel.active > rect,
+.redo-log-block.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.redo-files-panel.active > rect,
+.redo-log-block.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 9%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 36%, var(--border));
+}
+
+.redo-checkpoint-panel.active > rect,
+.redo-ring-segment.success.active rect,
+.redo-ring-segment.brand.active rect {
+  fill: color-mix(in srgb, var(--success) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.redo-recovery-panel.active > rect,
+.redo-replay-chip.active rect,
+.redo-ring-segment.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.redo-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.redo-panel-subtitle,
+.redo-transaction-panel text,
+.redo-mtr-panel text,
+.redo-buffer-panel text,
+.redo-files-panel text,
+.redo-checkpoint-panel text,
+.redo-recovery-panel text,
+.redo-record-path text,
+.redo-lsn-path text,
+.redo-flush-path text,
+.redo-checkpoint-path text,
+.redo-recovery-path text,
+.redo-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.redo-page-card rect,
+.redo-record-row rect,
+.redo-log-block rect,
+.redo-file-stack rect,
+.redo-record-path rect,
+.redo-lsn-path rect,
+.redo-flush-path rect,
+.redo-checkpoint-path rect,
+.redo-recovery-path rect,
+.redo-ring-segment rect,
+.redo-replay-chip rect,
+.redo-signal rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#redo-soft-shadow);
+}
+
+.redo-panel-title,
+.redo-page-card text:first-of-type,
+.redo-record-row text:first-of-type,
+.redo-file-stack text:first-of-type,
+.redo-replay-chip text,
+.redo-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.redo-page-card text:nth-of-type(2),
+.redo-record-row text:nth-of-type(2),
+.redo-file-stack text:nth-of-type(2),
+.redo-signal text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.redo-log-block text,
+.redo-record-path text,
+.redo-lsn-path text,
+.redo-flush-path text,
+.redo-checkpoint-path text,
+.redo-recovery-path text,
+.redo-ring-segment text {
+  text-anchor: middle;
+}
+
+.redo-record-path path,
+.redo-lsn-path path,
+.redo-flush-path path,
+.redo-checkpoint-path path,
+.redo-recovery-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.redo-record-path path {
+  stroke: var(--brand);
+}
+
+.redo-lsn-path path {
+  stroke: var(--tertiary);
+}
+
+.redo-flush-path path {
+  stroke: #f59e0b;
+}
+
+.redo-checkpoint-path path {
+  stroke: var(--success);
+}
+
+.redo-recovery-path path {
+  stroke: var(--danger);
+  stroke-dasharray: 8 7;
+}
+
+.redo-record-path text,
+.redo-lsn-path text,
+.redo-flush-path text,
+.redo-checkpoint-path text,
+.redo-recovery-path text {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.redo-ring-axis,
+.redo-checkpoint-pointer path {
+  stroke: color-mix(in srgb, var(--muted) 30%, transparent);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.redo-checkpoint-pointer circle {
+  fill: color-mix(in srgb, var(--success) 20%, var(--surface));
+  stroke: var(--success);
+  stroke-width: 2;
+}
+
+.redo-caption {
   right: 16px;
   bottom: 14px;
 }

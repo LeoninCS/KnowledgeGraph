@@ -198,6 +198,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:redo-log") {
+    return (
+      <RedoLogStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "redis:hash-slot") {
     return (
       <RedisHashSlotStage
@@ -1915,6 +1926,242 @@ function MvccStage({
           </div>
         </div>
         <div className="tcp-handshake-caption mvcc-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RedoLogStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const recordActive = completedSteps >= 1;
+  const lsnActive = completedSteps >= 2;
+  const flushActive = completedSteps >= 3;
+  const checkpointActive = completedSteps >= 4;
+  const recoveryActive = completedSteps >= 5;
+  const logBufferBlocks = [
+    { id: "blk#421", lsn: "8400", x: 432, active: lsnActive, tone: "brand" },
+    { id: "blk#422", lsn: "8480", x: 526, active: lsnActive, tone: "teal" },
+    { id: "blk#423", lsn: "8540", x: 620, active: flushActive, tone: "warning" },
+  ];
+  const redoFileSegments = [
+    { label: "reusable", x: 502, width: 116, active: checkpointActive, tone: "success" },
+    { label: "checkpoint", x: 622, width: 126, active: checkpointActive, tone: "brand" },
+    { label: "active redo", x: 752, width: 176, active: flushActive, tone: "danger" },
+  ];
+  const signalRows = [
+    { name: "current_lsn", value: recoveryActive ? "8540" : lsnActive ? "8540" : "8390", active: lsnActive },
+    { name: "write_lsn", value: flushActive ? "8540" : "8400", active: flushActive },
+    { name: "flushed_lsn", value: flushActive ? "8540" : "8390", active: flushActive },
+    { name: "checkpoint_age", value: checkpointActive ? "60" : "340", active: checkpointActive },
+  ];
+  const mobileFlow = [
+    { name: "UPDATE + dirty page", value: recordActive ? "P42 diff captured" : "waiting", active: recordActive },
+    { name: "Mini-transaction", value: lsnActive ? "LSN 8400-8540 reserved" : "pending", active: lsnActive },
+    { name: "Log writer / flusher", value: flushActive ? "write_lsn=flushed_lsn=8540" : "idle", active: flushActive },
+    { name: "Checkpoint", value: checkpointActive ? "checkpoint_lsn -> 8480" : "stable", active: checkpointActive },
+    { name: "Crash recovery", value: recoveryActive ? "redo after checkpoint replays P42" : "ready", active: recoveryActive },
+  ];
+
+  return (
+    <div className="visual-stage redo-log-stage">
+      <div className="redo-log-card">
+        <svg
+          className="redo-log-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["redo-arrow-brand", "var(--brand)"],
+              ["redo-arrow-teal", "var(--tertiary)"],
+              ["redo-arrow-warning", "#f59e0b"],
+              ["redo-arrow-danger", "var(--danger)"],
+              ["redo-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="redo-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="redo-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="redo-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="redo-subtitle" x="560" y="100">
+            {label(
+              "dirty page -> mini-transaction -> log buffer -> write/fsync -> checkpoint -> crash recovery",
+              "dirty page -> mini-transaction -> log buffer -> write/fsync -> checkpoint -> crash recovery",
+            )}
+          </text>
+
+          <g className={`redo-transaction-panel ${recordActive ? "active" : ""}`}>
+            <rect x="62" y="140" width="250" height="168" rx="24" />
+            <text className="redo-panel-title" x="90" y="176">{label("写事务", "Write transaction")}</text>
+            <text className="redo-panel-subtitle" x="90" y="200">UPDATE orders SET amount=140</text>
+            <g className={`redo-page-card ${recordActive ? "active" : ""}`}>
+              <rect x="90" y="224" width="188" height="52" rx="16" />
+              <text x="108" y="246">Buffer Pool P42</text>
+              <text x="262" y="264">{recordActive ? "dirty" : "clean"}</text>
+            </g>
+          </g>
+
+          <g className={`redo-mtr-panel ${recordActive ? "active" : ""}`}>
+            <rect x="350" y="130" width="300" height="192" rx="26" />
+            <text className="redo-panel-title" x="378" y="166">Mini-transaction</text>
+            <text className="redo-panel-subtitle" x="378" y="190">{label("把页内修改编码成 redo records", "Encodes page changes into redo records")}</text>
+            {[
+              ["space_id=7", "page_no=42"],
+              ["offset=0x1c8", "field amount"],
+              ["before=120", "after=140"],
+            ].map(([left, right], index) => (
+              <g key={left} className={`redo-record-row ${recordActive ? "active" : ""}`}>
+                <rect x="378" y={214 + index * 32} width="228" height="24" rx="12" />
+                <text x="394" y={231 + index * 32}>{left}</text>
+                <text x="590" y={231 + index * 32}>{right}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redo-record-path ${recordActive ? "active" : ""}`}>
+            <path d="M 312 224 C 330 224, 330 224, 350 224" markerEnd="url(#redo-arrow-brand)" />
+            <rect x="226" y="326" width="150" height="34" rx="17" />
+            <text x="301" y="348">{label("先写日志意图", "record intent first")}</text>
+          </g>
+
+          <g className={`redo-buffer-panel ${lsnActive ? "active" : ""}`}>
+            <rect x="392" y="376" width="330" height="120" rx="26" />
+            <text className="redo-panel-title" x="420" y="414">Log Buffer</text>
+            <text className="redo-panel-subtitle" x="420" y="438">mtr_commit reserves LSN range</text>
+            {logBufferBlocks.map((block) => (
+              <g key={block.id} className={`redo-log-block ${block.tone} ${block.active ? "active" : ""}`}>
+                <rect x={block.x} y="456" width="78" height="46" rx="14" />
+                <text x={block.x + 39} y="475">{block.id}</text>
+                <text x={block.x + 39} y="493">LSN {block.lsn}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redo-lsn-path ${lsnActive ? "active" : ""}`}>
+            <path d="M 500 322 C 500 346, 510 358, 528 376" markerEnd="url(#redo-arrow-teal)" />
+            <rect x="526" y="334" width="158" height="34" rx="17" />
+            <text x="605" y="356">LSN 8400-8540</text>
+          </g>
+
+          <g className={`redo-files-panel ${flushActive ? "active" : ""}`}>
+            <rect x="770" y="138" width="286" height="218" rx="28" />
+            <text className="redo-panel-title" x="798" y="176">#innodb_redo</text>
+            <text className="redo-panel-subtitle" x="798" y="200">write_lsn / flushed_to_disk_lsn</text>
+            <g className={`redo-file-stack ${flushActive ? "active" : ""}`}>
+              <rect x="798" y="224" width="212" height="48" rx="16" />
+              <text x="818" y="246">#ib_redo42</text>
+              <text x="994" y="264">active</text>
+              <rect x="798" y="282" width="212" height="48" rx="16" />
+              <text x="818" y="304">#ib_redo43</text>
+              <text x="994" y="322">{checkpointActive ? "reusable" : "pending"}</text>
+            </g>
+          </g>
+
+          <g className={`redo-flush-path ${flushActive ? "active" : ""}`}>
+            <path d="M 722 444 C 792 414, 812 328, 832 272" markerEnd="url(#redo-arrow-warning)" />
+            <rect x="724" y="364" width="178" height="34" rx="17" />
+            <text x="813" y="386">{label("write + fsync", "write + fsync")}</text>
+          </g>
+
+          <g className={`redo-checkpoint-panel ${checkpointActive ? "active" : ""}`}>
+            <rect x="452" y="528" width="526" height="58" rx="24" />
+            <text className="redo-panel-title" x="480" y="562">Checkpoint Ring</text>
+            <line className="redo-ring-axis" x1="502" y1="548" x2="928" y2="548" />
+            {redoFileSegments.map((segment) => (
+              <g key={segment.label} className={`redo-ring-segment ${segment.tone} ${segment.active ? "active" : ""}`}>
+                <rect x={segment.x} y="536" width={segment.width} height="24" rx="12" />
+                <text x={segment.x + segment.width / 2} y="553">{segment.label}</text>
+              </g>
+            ))}
+            <g className={`redo-checkpoint-pointer ${checkpointActive ? "active" : ""}`}>
+              <path d="M 748 522 L 748 572" />
+              <circle cx="748" cy="548" r="7" />
+            </g>
+          </g>
+
+          <g className={`redo-checkpoint-path ${checkpointActive ? "active" : ""}`}>
+            <path d="M 878 356 C 836 428, 814 478, 748 528" markerEnd="url(#redo-arrow-success)" />
+            <rect x="802" y="474" width="168" height="34" rx="17" />
+            <text x="886" y="496">{label("释放旧日志空间", "reclaim old redo")}</text>
+          </g>
+
+          <g className={`redo-recovery-panel ${recoveryActive ? "active" : ""}`}>
+            <rect x="70" y="420" width="268" height="132" rx="26" />
+            <text className="redo-panel-title" x="98" y="458">{label("崩溃恢复", "Crash recovery")}</text>
+            <text className="redo-panel-subtitle" x="98" y="482">{label("从 checkpoint 后扫描 redo", "Scan redo after checkpoint")}</text>
+            <g className={`redo-replay-chip ${recoveryActive ? "active" : ""}`}>
+              <rect x="98" y="504" width="192" height="28" rx="14" />
+              <text x="114" y="523">apply P42 amount=140</text>
+            </g>
+          </g>
+
+          <g className={`redo-recovery-path ${recoveryActive ? "active" : ""}`}>
+            <path d="M 748 560 C 526 604, 390 560, 292 506" markerEnd="url(#redo-arrow-danger)" />
+            <rect x="348" y="554" width="154" height="34" rx="17" />
+            <text x="425" y="576">{label("重放已刷日志", "replay flushed redo")}</text>
+          </g>
+
+          <g className="redo-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`redo-signal ${signal.active ? "active" : ""}`}>
+                <rect x={68 + index * 250} y="588" width="210" height="34" rx="16" />
+                <text x={88 + index * 250} y="602">{signal.name}</text>
+                <text x={258 + index * 250} y="614">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="redo-log-mobile-map">
+          <div className="redo-log-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`redo-log-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="redo-log-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`redo-log-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption redo-log-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>
