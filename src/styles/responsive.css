@@ -220,7 +220,8 @@
     justify-content: start;
   }
 
-  .k8s-service-stage {
+  .k8s-service-stage,
+  .k8s-ingress-stage {
     overflow-x: auto;
     justify-content: start;
   }
@@ -495,32 +496,40 @@
     padding: 18px;
   }
 
-  .k8s-service-stage {
+  .k8s-service-stage,
+  .k8s-ingress-stage {
     padding-inline: 12px;
   }
 
-  .k8s-service-card {
+  .k8s-service-card,
+  .k8s-ingress-card {
     width: 100%;
   }
 
-  .k8s-service-diagram {
+  .k8s-service-diagram,
+  .k8s-ingress-diagram {
     display: none;
   }
 
-  .k8s-service-mobile-map {
+  .k8s-service-mobile-map,
+  .k8s-ingress-mobile-map {
     display: grid;
     gap: 16px;
     padding: 18px;
   }
 
   .k8s-service-mobile-flow,
-  .k8s-service-mobile-facts {
+  .k8s-service-mobile-facts,
+  .k8s-ingress-mobile-flow,
+  .k8s-ingress-mobile-facts {
     display: grid;
     gap: 10px;
   }
 
   .k8s-service-mobile-hop,
-  .k8s-service-mobile-fact {
+  .k8s-service-mobile-fact,
+  .k8s-ingress-mobile-hop,
+  .k8s-ingress-mobile-fact {
     display: grid;
     gap: 4px;
     padding: 12px;
@@ -530,20 +539,26 @@
   }
 
   .k8s-service-mobile-hop.active,
-  .k8s-service-mobile-fact.active {
+  .k8s-service-mobile-fact.active,
+  .k8s-ingress-mobile-hop.active,
+  .k8s-ingress-mobile-fact.active {
     border-color: color-mix(in srgb, var(--brand) 36%, var(--border));
     background: color-mix(in srgb, var(--brand) 8%, var(--surface));
   }
 
   .k8s-service-mobile-hop span,
-  .k8s-service-mobile-fact span {
+  .k8s-service-mobile-fact span,
+  .k8s-ingress-mobile-hop span,
+  .k8s-ingress-mobile-fact span {
     color: var(--muted);
     font-size: 0.76rem;
     font-weight: 800;
   }
 
   .k8s-service-mobile-hop strong,
-  .k8s-service-mobile-fact strong {
+  .k8s-service-mobile-fact strong,
+  .k8s-ingress-mobile-hop strong,
+  .k8s-ingress-mobile-fact strong {
     color: var(--text);
     font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.82rem;

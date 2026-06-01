@@ -209,6 +209,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "kubernetes:ingress") {
+    return (
+      <KubernetesIngressStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "algorithm:array") {
     return (
       <ArrayIndexStage
@@ -2065,6 +2076,233 @@ function KubernetesServiceStage({
           </div>
         </div>
         <div className="tcp-handshake-caption k8s-service-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KubernetesIngressStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const edgeActive = completedSteps >= 1;
+  const syncActive = completedSteps >= 2;
+  const tlsActive = completedSteps >= 3;
+  const routeActive = completedSteps >= 4;
+  const backendActive = completedSteps >= 5;
+  const ruleRows = [
+    { host: "shop.example.com", path: "/api", type: "Prefix", backend: "cart-svc:80", active: routeActive, tone: "success" },
+    { host: "shop.example.com", path: "/assets", type: "Prefix", backend: "static-svc:80", active: syncActive, tone: "brand" },
+    { host: "admin.example.com", path: "/", type: "Exact", backend: "admin-svc:443", active: syncActive, tone: "warning" },
+  ];
+  const resourceRows = [
+    { name: "Ingress", value: syncActive ? "ingressClassName=nginx" : "pending", active: syncActive, tone: "brand" },
+    { name: "TLS Secret", value: tlsActive ? "shop-tls loaded" : "pending", active: tlsActive, tone: "teal" },
+    { name: "EndpointSlice", value: backendActive ? "3 Ready endpoints" : "watching", active: syncActive, tone: "success" },
+  ];
+  const backendRows = [
+    { name: "cart-svc", value: backendActive ? "10.244.2.18:8080" : "waiting", active: backendActive, tone: "success" },
+    { name: "static-svc", value: routeActive ? "10.244.1.12:8080" : "ready", active: routeActive, tone: "brand" },
+    { name: "defaultBackend", value: backendActive ? "404 backend" : "configured", active: syncActive, tone: "warning" },
+  ];
+  const signalRows = [
+    { name: "ADDRESS", value: edgeActive ? "203.0.113.20" : "pending", active: edgeActive, tone: "brand" },
+    { name: "Events", value: syncActive ? "Sync: OK" : "pending", active: syncActive, tone: "warning" },
+    { name: "TLS", value: tlsActive ? "CN shop.example.com" : "pending", active: tlsActive, tone: "teal" },
+    { name: "Upstream", value: backendActive ? "3/3 healthy" : "pending", active: backendActive, tone: "success" },
+  ];
+
+  return (
+    <div className="visual-stage k8s-ingress-stage">
+      <div className="k8s-ingress-card">
+        <svg
+          className="k8s-ingress-diagram"
+          viewBox="0 0 1120 620"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["k8s-ingress-arrow-brand", "var(--brand)"],
+              ["k8s-ingress-arrow-teal", "var(--tertiary)"],
+              ["k8s-ingress-arrow-warning", "#f59e0b"],
+              ["k8s-ingress-arrow-success", "var(--success)"],
+              ["k8s-ingress-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="k8s-ingress-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="k8s-ingress-bg" x="24" y="24" width="1072" height="548" rx="28" />
+          <text className="k8s-ingress-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="k8s-ingress-subtitle" x="560" y="100">
+            {label(
+              "Client -> Public endpoint -> Ingress Controller -> TLS + Host/Path rules -> Service backend",
+              "Client -> Public endpoint -> Ingress Controller -> TLS + Host/Path rules -> Service backend",
+            )}
+          </text>
+
+          <g className={`k8s-ingress-client ${edgeActive ? "active" : ""}`}>
+            <rect x="58" y="150" width="186" height="124" rx="24" />
+            <text className="k8s-ingress-node-title" x="151" y="187">{label("外部客户端", "External client")}</text>
+            <text x="151" y="216">GET /api/cart</text>
+            <text x="151" y="238">Host shop.example.com</text>
+            <text x="151" y="260">SNI shop.example.com</text>
+          </g>
+
+          <g className={`k8s-ingress-edge ${edgeActive ? "active" : ""}`}>
+            <rect x="310" y="146" width="190" height="132" rx="24" />
+            <text className="k8s-ingress-node-title" x="405" y="183">{label("公网入口 / LB", "Public endpoint / LB")}</text>
+            <text x="405" y="212">ADDRESS 203.0.113.20</text>
+            <text x="405" y="236">80 / 443</text>
+            <text x="405" y="260">externalTrafficPolicy=Local</text>
+          </g>
+
+          <g className={`k8s-ingress-controller ${syncActive ? "active" : ""}`}>
+            <rect x="562" y="128" width="214" height="178" rx="26" />
+            <text className="k8s-ingress-node-title" x="669" y="166">Ingress Controller</text>
+            <text x="669" y="192">nginx / envoy / alb</text>
+            <text x="669" y="216">config version v42</text>
+            <text x="669" y="240">worker reload OK</text>
+            <text className="k8s-ingress-chip-text" x="669" y="267">ingressClassName=nginx</text>
+          </g>
+
+          <g className={`k8s-ingress-rules ${routeActive ? "active" : ""}`}>
+            <rect x="56" y="342" width="448" height="164" rx="24" />
+            <text className="k8s-ingress-panel-title" x="88" y="376">{label("Host / Path 规则", "Host / path rules")}</text>
+            <text className="k8s-ingress-panel-subtitle" x="88" y="398">{label("先匹配 host，再按 pathType 和路径选择后端", "Match host first, then pathType and path")}</text>
+            {ruleRows.map((rule, index) => (
+              <g key={`${rule.host}-${rule.path}`} className={`k8s-ingress-row ${rule.tone} ${rule.active ? "active" : ""}`}>
+                <rect x="88" y={420 + index * 28} width="376" height="22" rx="11" />
+                <text x="102" y={435 + index * 28}>{rule.host}</text>
+                <text x="240" y={435 + index * 28}>{rule.path}</text>
+                <text x="304" y={435 + index * 28}>{rule.type}</text>
+                <text x="452" y={435 + index * 28}>{rule.backend}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-ingress-resources ${syncActive ? "active" : ""}`}>
+            <rect x="534" y="342" width="236" height="164" rx="24" />
+            <text className="k8s-ingress-panel-title" x="562" y="376">{label("资源缓存", "Resource cache")}</text>
+            <text className="k8s-ingress-panel-subtitle" x="562" y="398">Informer + workqueue</text>
+            {resourceRows.map((resource, index) => (
+              <g key={resource.name} className={`k8s-ingress-row ${resource.tone} ${resource.active ? "active" : ""}`}>
+                <rect x="562" y={416 + index * 28} width="178" height="24" rx="12" />
+                <text x="576" y={426 + index * 28}>{resource.name}</text>
+                <text x="576" y={438 + index * 28}>{resource.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-ingress-backends ${backendActive ? "active" : ""}`}>
+            <rect x="818" y="128" width="242" height="378" rx="28" />
+            <text className="k8s-ingress-panel-title" x="846" y="166">{label("Service 后端", "Service backends")}</text>
+            <text className="k8s-ingress-panel-subtitle" x="846" y="188">Service {"->"} EndpointSlice {"->"} Pod</text>
+            {backendRows.map((backend, index) => (
+              <g key={backend.name} className={`k8s-ingress-backend ${backend.tone} ${backend.active ? "active" : ""}`}>
+                <rect x="852" y={220 + index * 66} width="174" height="50" rx="16" />
+                <text x="872" y={242 + index * 66}>{backend.name}</text>
+                <text x="872" y={260 + index * 66}>{backend.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-ingress-edge-path ${edgeActive ? "active" : ""}`}>
+            <path d="M 244 212 C 268 208, 286 208, 310 210" markerEnd="url(#k8s-ingress-arrow-brand)" />
+            <rect x="142" y="112" width="220" height="34" rx="17" />
+            <text x="252" y="133">DNS A {"->"} ADDRESS</text>
+          </g>
+
+          <g className={`k8s-ingress-sync-path ${syncActive ? "active" : ""}`}>
+            <path d="M 500 212 C 524 208, 538 208, 562 210" markerEnd="url(#k8s-ingress-arrow-warning)" />
+            <path d="M 652 306 C 652 322, 652 330, 652 342" markerEnd="url(#k8s-ingress-arrow-warning)" />
+          </g>
+
+          <g className={`k8s-ingress-tls-path ${tlsActive ? "active" : ""}`}>
+            <path d="M 168 274 C 246 332, 482 332, 624 274" markerEnd="url(#k8s-ingress-arrow-teal)" />
+            <rect x="298" y="298" width="214" height="38" rx="17" />
+            <text x="405" y="322">TLS Secret shop-tls</text>
+          </g>
+
+          <g className={`k8s-ingress-rule-path ${routeActive ? "active" : ""}`}>
+            <path d="M 610 306 C 520 348, 500 372, 464 420" markerEnd="url(#k8s-ingress-arrow-success)" />
+          </g>
+
+          <g className={`k8s-ingress-backend-path ${backendActive ? "active" : ""}`}>
+            <path d="M 776 226 C 794 224, 804 226, 818 232" markerEnd="url(#k8s-ingress-arrow-danger)" />
+            <path d="M 464 431 C 626 410, 742 326, 852 246" markerEnd="url(#k8s-ingress-arrow-danger)" />
+          </g>
+
+          <g className={`k8s-ingress-diagnosis ${backendActive ? "active" : ""}`}>
+            <rect x="850" y="430" width="190" height="44" rx="17" />
+            <text x="945" y="449">502/503 diagnostics</text>
+            <text x="945" y="465">service, endpoints, readiness</text>
+          </g>
+
+          <g className="k8s-ingress-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`k8s-ingress-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={70 + index * 250} y="526" width="212" height="32" rx="15" />
+                <text x={88 + index * 250} y="539">{signal.name}</text>
+                <text x={264 + index * 250} y="552">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="k8s-ingress-mobile-map">
+          <div className="k8s-ingress-mobile-flow" aria-hidden="true">
+            {[
+              { name: "ADDRESS", value: edgeActive ? "shop.example.com -> 203.0.113.20" : "pending", active: edgeActive },
+              { name: "Controller", value: syncActive ? "config v42 reload OK" : "watching", active: syncActive },
+              { name: "TLS", value: tlsActive ? "shop-tls, SNI matched" : "pending", active: tlsActive },
+              { name: "Rule", value: routeActive ? "shop.example.com /api -> cart-svc" : "pending", active: routeActive },
+              { name: "Backend", value: backendActive ? "10.244.2.18:8080 healthy" : "waiting", active: backendActive },
+            ].map((item) => (
+              <div key={item.name} className={`k8s-ingress-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="k8s-ingress-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`k8s-ingress-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption k8s-ingress-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

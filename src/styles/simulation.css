@@ -373,13 +373,15 @@
   display: none;
 }
 
-.k8s-service-stage {
+.k8s-service-stage,
+.k8s-ingress-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
   padding: clamp(12px, 2.4vw, 28px);
 }
 
-.k8s-service-card {
+.k8s-service-card,
+.k8s-ingress-card {
   position: relative;
   justify-self: center;
   width: min(100%, 1120px);
@@ -393,13 +395,15 @@
   overflow: visible;
 }
 
-:root[data-theme="dark"] .k8s-service-card {
+:root[data-theme="dark"] .k8s-service-card,
+:root[data-theme="dark"] .k8s-ingress-card {
   background:
     linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
     var(--surface);
 }
 
-.k8s-service-diagram {
+.k8s-service-diagram,
+.k8s-ingress-diagram {
   display: block;
   width: 100%;
   height: auto;
@@ -407,7 +411,8 @@
   overflow: visible;
 }
 
-.k8s-service-mobile-map {
+.k8s-service-mobile-map,
+.k8s-ingress-mobile-map {
   display: none;
 }
 
@@ -2231,6 +2236,279 @@
 }
 
 .k8s-service-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.k8s-ingress-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 26%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.k8s-ingress-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.k8s-ingress-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.k8s-ingress-client,
+.k8s-ingress-edge,
+.k8s-ingress-controller,
+.k8s-ingress-rules,
+.k8s-ingress-resources,
+.k8s-ingress-backends,
+.k8s-ingress-edge-path,
+.k8s-ingress-sync-path,
+.k8s-ingress-tls-path,
+.k8s-ingress-rule-path,
+.k8s-ingress-backend-path,
+.k8s-ingress-diagnosis,
+.k8s-ingress-row,
+.k8s-ingress-backend,
+.k8s-ingress-signal {
+  opacity: 0.26;
+  transition: opacity 180ms ease;
+}
+
+.k8s-ingress-client.active,
+.k8s-ingress-edge.active,
+.k8s-ingress-controller.active,
+.k8s-ingress-rules.active,
+.k8s-ingress-resources.active,
+.k8s-ingress-backends.active,
+.k8s-ingress-edge-path.active,
+.k8s-ingress-sync-path.active,
+.k8s-ingress-tls-path.active,
+.k8s-ingress-rule-path.active,
+.k8s-ingress-backend-path.active,
+.k8s-ingress-diagnosis.active,
+.k8s-ingress-row.active,
+.k8s-ingress-backend.active,
+.k8s-ingress-signal.active {
+  opacity: 1;
+}
+
+.k8s-ingress-client rect,
+.k8s-ingress-edge rect,
+.k8s-ingress-controller > rect,
+.k8s-ingress-rules > rect,
+.k8s-ingress-resources > rect,
+.k8s-ingress-backends > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#k8s-ingress-soft-shadow);
+}
+
+.k8s-ingress-client.active rect,
+.k8s-ingress-edge.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.k8s-ingress-controller.active > rect {
+  fill: color-mix(in srgb, #f59e0b 9%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 36%, var(--border));
+}
+
+.k8s-ingress-rules.active > rect,
+.k8s-ingress-resources.active > rect {
+  fill: color-mix(in srgb, var(--tertiary) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.k8s-ingress-backends.active > rect {
+  fill: color-mix(in srgb, var(--success) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 30%, var(--border));
+}
+
+.k8s-ingress-node-title,
+.k8s-ingress-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.k8s-ingress-panel-title {
+  text-anchor: start;
+}
+
+.k8s-ingress-panel-subtitle,
+.k8s-ingress-client text,
+.k8s-ingress-edge text,
+.k8s-ingress-controller text,
+.k8s-ingress-rules text,
+.k8s-ingress-resources text,
+.k8s-ingress-backends text,
+.k8s-ingress-edge-path text,
+.k8s-ingress-sync-path text,
+.k8s-ingress-tls-path text,
+.k8s-ingress-rule-path text,
+.k8s-ingress-backend-path text,
+.k8s-ingress-diagnosis text,
+.k8s-ingress-signals text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.k8s-ingress-client text,
+.k8s-ingress-edge text,
+.k8s-ingress-controller text,
+.k8s-ingress-edge-path text,
+.k8s-ingress-sync-path text,
+.k8s-ingress-tls-path text,
+.k8s-ingress-rule-path text,
+.k8s-ingress-backend-path text,
+.k8s-ingress-diagnosis text {
+  text-anchor: middle;
+}
+
+.k8s-ingress-chip-text {
+  fill: var(--brand-strong);
+  font-weight: 950;
+}
+
+.k8s-ingress-edge-path path,
+.k8s-ingress-sync-path path,
+.k8s-ingress-tls-path path,
+.k8s-ingress-rule-path path,
+.k8s-ingress-backend-path path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.k8s-ingress-sync-path path {
+  stroke: #f59e0b;
+}
+
+.k8s-ingress-tls-path path {
+  stroke: var(--tertiary);
+}
+
+.k8s-ingress-rule-path path {
+  stroke: var(--success);
+}
+
+.k8s-ingress-backend-path path {
+  stroke: var(--danger);
+}
+
+.k8s-ingress-edge-path rect,
+.k8s-ingress-sync-path rect,
+.k8s-ingress-tls-path rect,
+.k8s-ingress-rule-path rect,
+.k8s-ingress-backend-path rect,
+.k8s-ingress-diagnosis rect,
+.k8s-ingress-signal rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 28%, var(--border));
+  filter: url(#k8s-ingress-soft-shadow);
+}
+
+.k8s-ingress-sync-path rect {
+  fill: color-mix(in srgb, #f59e0b 10%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 38%, var(--border));
+}
+
+.k8s-ingress-tls-path rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.k8s-ingress-rule-path rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.k8s-ingress-backend-path rect,
+.k8s-ingress-diagnosis rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.k8s-ingress-edge-path text,
+.k8s-ingress-sync-path text,
+.k8s-ingress-tls-path text,
+.k8s-ingress-rule-path text,
+.k8s-ingress-backend-path text,
+.k8s-ingress-diagnosis text {
+  fill: var(--text);
+  font-size: 10.5px;
+  font-weight: 950;
+}
+
+.k8s-ingress-row rect,
+.k8s-ingress-backend rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.k8s-ingress-row.success.active rect,
+.k8s-ingress-backend.success.active rect,
+.k8s-ingress-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.k8s-ingress-row.brand.active rect,
+.k8s-ingress-backend.brand.active rect,
+.k8s-ingress-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.k8s-ingress-row.warning.active rect,
+.k8s-ingress-backend.warning.active rect,
+.k8s-ingress-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 40%, var(--border));
+}
+
+.k8s-ingress-row.teal.active rect,
+.k8s-ingress-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.k8s-ingress-row text:first-of-type,
+.k8s-ingress-backend text:first-of-type,
+.k8s-ingress-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.k8s-ingress-row text:last-of-type,
+.k8s-ingress-signal text:last-of-type {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.k8s-ingress-resources .k8s-ingress-row text:last-of-type {
+  text-anchor: start;
+}
+
+.k8s-ingress-backend text {
+  text-anchor: start;
+}
+
+.k8s-ingress-caption {
   right: 16px;
   bottom: 14px;
 }

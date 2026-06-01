@@ -137,6 +137,7 @@
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
 | 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
 | Service | `step-simulation` | completed | desktop/mobile captured | Kubernetes Service 数据面转发模拟器，覆盖 selector、EndpointSlice、ClusterIP/DNS、kube-proxy 规则和 Ready Pod |
+| Ingress | `step-simulation` | completed | desktop/mobile captured | Kubernetes Ingress 七层入口路由模拟器，覆盖公网入口、Ingress Controller、TLS Secret、host/path 规则和 Service 后端 |
 
 ## Buffer Pool Visualization
 
@@ -197,11 +198,72 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Kubernetes `Service` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Docker `镜像层` 或 MySQL `MVCC` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 Kubernetes `Ingress`，机制清晰且适合做外部请求 -> Ingress Controller -> rule/path match -> Service -> Pod 的流量转发模拟。
+优先选择 Docker `镜像层` 或 MySQL `MVCC`，两者机制清晰且适合做分层结构或状态模型。
+
+## Kubernetes Ingress Visualization
+
+### Online Image References
+
+- `source`：Kubernetes Docs - Ingress，https://kubernetes.io/docs/concepts/services-networking/ingress/
+  - `image`：页面中的 `Ingress` 官方 SVG 图，图片 URL：`https://kubernetes.io/docs/images/ingress.svg`。
+  - `role`：main
+  - `qualityReason`：官方概念图直接展示外部客户端、Ingress、Service 和 Pod 的入口关系，且页面同时覆盖 host/path、TLS、defaultBackend 和规则字段。
+  - `takeaways`：主画布采用左到右的外部请求 -> 公网入口 -> Ingress Controller -> Service backend 路径，保留 Ingress rules 作为核心决策面板。
+  - `originalChanges`：把官方静态入口图扩展为五步模拟：ADDRESS/DNS、Controller 同步、TLS Secret、host/path 匹配、Service 后端健康。
+- `source`：Kubernetes Docs - Ingress Controllers，https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/
+  - `image`：页面中的控制器列表和 `ingressClassName` 说明。
+  - `role`：supporting
+  - `qualityReason`：官方明确 Ingress 需要控制器落地，并说明多控制器和 IngressClass 选择。
+  - `takeaways`：模拟器把 `ingressClassName=nginx` 放入控制器同步阶段，强调资源只有被正确控制器接管后才会生效。
+  - `originalChanges`：用右侧任务和画布资源缓存表达多控制器选择，把 Ingress 放入入口控制链路讲解。
+- `source`：NGINX Docs - The design of NGINX Ingress Controller，https://docs.nginx.com/nginx-ingress-controller/overview/design/
+  - `image`：页面中的 `ic-high-level.png`、`ic-pod.png`、`control-loop.png` 和 `controller-sync.png`。
+  - `role`：supporting
+  - `qualityReason`：图像分辨率高，覆盖公网入口、Kubernetes API、Ingress Controller pod、NGINX worker、control loop、config reload 和 TLS Secret 文件同步。
+  - `takeaways`：在模拟器中加入 Controller 资源缓存、配置版本、worker reload、TLS Secret 加载和 Events 信号。
+  - `originalChanges`：把 NGINX 内部设计抽象成通用 Ingress Controller 模型，兼容 NGINX、Envoy 和云 ALB 语义。
+- `source`：Ingress-NGINX Controller - How it works，https://kubernetes.github.io/ingress-nginx/how-it-works/
+  - `image`：页面中的 NGINX model、workqueue、reload 条件和 endpoint 变化说明。
+  - `role`：supporting
+  - `qualityReason`：解释控制器如何用 Informer、workqueue 和模型比较生成 NGINX 配置，适合补足动态同步机制。
+  - `takeaways`：资源缓存面板列出 Ingress、TLS Secret、EndpointSlice，并展示 `Informer + workqueue`。
+  - `originalChanges`：把模型构建和 reload 条件浓缩为一步“同步规则”，突出线上排查可观察信号。
+- `source`：Amazon EKS - Route application and HTTP traffic with Application Load Balancers，https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html
+  - `image`：页面中的 AWS ALB Ingress 示例、L7/L4 对比、target type、IngressGroup 和 `kubectl get ingress` 输出。
+  - `role`：supporting
+  - `qualityReason`：生产环境常见云入口实现，补充 ADDRESS、ALB、instance/IP targets、IngressGroup 和 controller logs 等工程信号。
+  - `takeaways`：诊断面板加入 ADDRESS、Events、TLS、Upstream，并把 502/503 与 Service、EndpointSlice、readiness 关联。
+  - `originalChanges`：把云厂商实现抽象成“公网入口 / LB”对象，主线保持 Kubernetes 通用 Ingress 机制。
+- `source`：AWS Load Balancer Controller - Ingress specification，https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/ingress/spec/
+  - `image`：页面中的 Ingress manifest、host、pathType、backend service 和规则排序说明。
+  - `role`：supporting
+  - `qualityReason`：明确 Exact、Prefix、ImplementationSpecific 的排序和后端 service 约束，适合补充 host/path 规则表。
+  - `takeaways`：规则表展示 host、path、pathType 和 backend 四列，把 `/api Prefix -> cart-svc:80` 作为选中行。
+  - `originalChanges`：采用项目统一表格和状态高亮表达规则优先级，把 manifest 字段转成可交互决策模型。
+
+### Reference Breakdown
+
+- 主体布局：左侧外部客户端，中部公网入口 / LB 与 Ingress Controller，底部 Host/Path 规则和资源缓存，右侧 Service 后端和排障信号。
+- 视觉焦点：外部 HTTPS 请求从 `shop.example.com` 进入 ADDRESS，经 Controller 同步配置和 TLS Secret，命中 `/api` 规则后代理到 `cart-svc` Ready Pod。
+- 领域对象：Client、DNS/ADDRESS、LoadBalancer/NodePort、Ingress Controller、IngressClass、TLS Secret、Host、Path、pathType、defaultBackend、Service、EndpointSlice、Pod readiness、Events、reload。
+- 容器层级：公网入口承接外部连接；控制器监听 Kubernetes API 并生成代理配置；规则表做七层决策；Service 后端承接实际业务流量。
+- 连线方向：外部请求左到右；资源同步从 Controller 指向资源缓存；TLS 弧线回到 Controller；规则命中从 Controller 指向 Host/Path 表，再转向 Service 后端。
+- 状态表达：五步通过透明度、边框、箭头、规则行和诊断值显隐表达入口就绪、配置同步、TLS 终止、路由匹配和后端转发。
+- 颜色策略：品牌蓝表示公网入口和 DNS，橙色表示控制器同步与 reload，青色表示 TLS，绿色表示规则命中，红色表示 502/503 和后端健康风险。
+- 文字密度：画布保留 Host、Path、pathType、Service、ADDRESS、Events 和 Upstream；详细解释放在右侧任务、操作面板和底部步骤条。
+- 交互节奏：五步依次推进“暴露入口 -> 同步规则 -> 终止 TLS -> 匹配路由 -> 转发后端”。
+- 原创改造点：融合官方 Ingress 概念图、NGINX Controller 内部设计、ingress-nginx 同步模型和 AWS ALB 生产信号，做成通用七层入口排障模拟器。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/ingress/desktop.png`
+- 移动端：captured `.codex-artifacts/visualizations/ingress/mobile.png`
+- 截图结论：Chrome DevTools MCP 进入 Kubernetes `Ingress` 详情页和模拟器，推进到第 5 步“转发后端”；桌面主画布、右侧任务面板和底部五步进度清晰可读；移动端切换为纵向摘要，ADDRESS、Controller、TLS、Rule、Backend 和诊断信号完整。
+- 验收备注：桌面截图尺寸 2880 x 1882，移动端截图尺寸 1000 x 4728；`npm run build`、`npm run test:data` 和 `git diff --check` 均通过。
 
 ## Kubernetes Service Visualization
 
@@ -456,3 +518,24 @@
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Browser Note：Chrome DevTools MCP profile 锁定，in-app browser 返回不可用；本轮使用本地 Playwright 完成页面交互和截图验收。
 - Next Candidate：Kubernetes `Ingress`。
+
+### 2026-06-01 20:01 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 失败，原因是 `Could not resolve host: github.com`。
+- Action：本轮停在同步门禁，未进入找图、拆图、编码和验证环节。
+- Working Tree：开始时仓库保持上一轮提交状态，未发现需要接管的可视化现场。
+- Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后继续 Kubernetes `Ingress` 找图与设计。
+
+### 2026-06-01 21:30 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功。
+- Selected：Kubernetes `Ingress`，原因是七层入口、控制器同步、TLS、Host/Path 规则和 Service 后端共同构成清晰的生产排障路径。
+- Candidate Sources：普通搜索和浏览器视觉确认筛选约 14 个候选来源，保留 1 张主参考图和 5 个辅助参考来源。
+- Main Reference：Kubernetes Docs - Ingress，主图为 `https://kubernetes.io/docs/images/ingress.svg`。
+- Supporting References：Kubernetes Ingress Controllers、NGINX Ingress Controller design、Ingress-NGINX How it works、Amazon EKS ALB Ingress、AWS Load Balancer Controller Ingress specification。
+- Reference Breakdown：采用左到右入口流量路径，底部规则/资源缓存做七层决策面板，右侧 Service 后端和 502/503 诊断信号表达线上排查重点。
+- Implementation：新增 `kubernetes:ingress` 专用 `step-simulation` 构建器、Ingress SVG 舞台、移动端纵向摘要、响应式样式和 6 个 Kubernetes Ingress 来源。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/ingress/desktop.png` 与 `.codex-artifacts/visualizations/ingress/mobile.png`；桌面和移动端验收图均可读。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
+- Browser Note：Chrome DevTools MCP 完成页面搜索、详情页进入、五步交互和桌面/移动截图验收。
+- Next Candidate：Docker `镜像层` 或 MySQL `MVCC`。

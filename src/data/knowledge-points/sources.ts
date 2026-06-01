@@ -3009,6 +3009,14 @@ export const knowledgeSources = {
     title: "Kubernetes Docs: Service",
     url: "https://kubernetes.io/docs/concepts/services-networking/service/",
   },
+  "kubernetes-ingress": {
+    title: "Kubernetes Docs: Ingress",
+    url: "https://kubernetes.io/docs/concepts/services-networking/ingress/",
+  },
+  "kubernetes-ingress-controllers": {
+    title: "Kubernetes Docs: Ingress Controllers",
+    url: "https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/",
+  },
   "kubernetes-virtual-ips": {
     title: "Kubernetes Docs: Virtual IPs and Service Proxies",
     url: "https://kubernetes.io/docs/reference/networking/virtual-ips/",
@@ -3020,6 +3028,22 @@ export const knowledgeSources = {
   "tkng-clusterip": {
     title: "The Kubernetes Networking Guide: ClusterIP",
     url: "https://www.tkng.io/services/clusterip/",
+  },
+  "nginx-ingress-controller-design": {
+    title: "NGINX Docs: The design of NGINX Ingress Controller",
+    url: "https://docs.nginx.com/nginx-ingress-controller/overview/design/",
+  },
+  "ingress-nginx-how-it-works": {
+    title: "Ingress-NGINX Controller: How it works",
+    url: "https://kubernetes.github.io/ingress-nginx/how-it-works/",
+  },
+  "aws-eks-alb-ingress": {
+    title: "Amazon EKS: Route application and HTTP traffic with Application Load Balancers",
+    url: "https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html",
+  },
+  "aws-load-balancer-ingress-spec": {
+    title: "AWS Load Balancer Controller: Ingress specification",
+    url: "https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/ingress/spec/",
   },
   "kubernetes-dns": {
     title: "Kubernetes Docs: DNS for Services and Pods",
