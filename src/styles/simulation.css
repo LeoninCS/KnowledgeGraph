@@ -335,6 +335,44 @@
   overflow: visible;
 }
 
+.mvcc-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.mvcc-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .mvcc-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.mvcc-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.mvcc-mobile-map {
+  display: none;
+}
+
 .docker-layer-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -2514,6 +2552,278 @@
 }
 
 .docker-layer-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.mvcc-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 28%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.mvcc-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.mvcc-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.mvcc-timeline,
+.mvcc-clustered-record,
+.mvcc-version-panel,
+.mvcc-readview-panel,
+.mvcc-visibility-panel,
+.mvcc-purge-panel,
+.mvcc-record-to-version,
+.mvcc-undo-link,
+.mvcc-snapshot-path,
+.mvcc-visible-path,
+.mvcc-purge-path,
+.mvcc-timeline-event,
+.mvcc-record-row,
+.mvcc-version-node,
+.mvcc-readview-row,
+.mvcc-rule-row,
+.mvcc-signal {
+  opacity: 0.26;
+  transition: opacity 180ms ease;
+}
+
+.mvcc-timeline.active,
+.mvcc-clustered-record.active,
+.mvcc-version-panel,
+.mvcc-readview-panel.active,
+.mvcc-visibility-panel.active,
+.mvcc-purge-panel.active,
+.mvcc-record-to-version.active,
+.mvcc-undo-link.active,
+.mvcc-snapshot-path.active,
+.mvcc-visible-path.active,
+.mvcc-purge-path.active,
+.mvcc-timeline-event.active,
+.mvcc-record-row.active,
+.mvcc-version-node.active,
+.mvcc-readview-row.active,
+.mvcc-rule-row.active,
+.mvcc-signal.active {
+  opacity: 1;
+}
+
+.mvcc-timeline > rect,
+.mvcc-clustered-record > rect,
+.mvcc-version-panel > rect,
+.mvcc-readview-panel > rect,
+.mvcc-visibility-panel > rect,
+.mvcc-purge-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#mvcc-soft-shadow);
+}
+
+.mvcc-clustered-record.active > rect,
+.mvcc-version-node.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.mvcc-readview-panel.active > rect,
+.mvcc-timeline.active > rect {
+  fill: color-mix(in srgb, #f59e0b 7%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 32%, var(--border));
+}
+
+.mvcc-visibility-panel.active > rect,
+.mvcc-version-node.success.active rect {
+  fill: color-mix(in srgb, var(--success) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.mvcc-purge-panel.active > rect {
+  fill: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.mvcc-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.mvcc-panel-subtitle,
+.mvcc-timeline text,
+.mvcc-clustered-record text,
+.mvcc-version-node text,
+.mvcc-readview-panel text,
+.mvcc-visibility-panel text,
+.mvcc-purge-panel text,
+.mvcc-record-to-version text,
+.mvcc-snapshot-path text,
+.mvcc-visible-path text,
+.mvcc-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.mvcc-record-row rect,
+.mvcc-version-node rect,
+.mvcc-readview-row rect,
+.mvcc-rule-row rect,
+.mvcc-record-to-version rect,
+.mvcc-snapshot-path rect,
+.mvcc-visible-path rect,
+.mvcc-signal rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#mvcc-soft-shadow);
+}
+
+.mvcc-record-row.active rect,
+.mvcc-readview-row.brand.active rect,
+.mvcc-record-to-version.active rect,
+.mvcc-signal.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.mvcc-version-node.teal.active rect,
+.mvcc-readview-row.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.mvcc-readview-row.warning.active rect,
+.mvcc-rule-row.warning.active rect,
+.mvcc-snapshot-path.active rect {
+  fill: color-mix(in srgb, #f59e0b 11%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 40%, var(--border));
+}
+
+.mvcc-readview-row.danger.active rect,
+.mvcc-rule-row.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.mvcc-rule-row.success.active rect,
+.mvcc-visible-path.active rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.mvcc-timeline-axis {
+  stroke: color-mix(in srgb, var(--muted) 32%, transparent);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.mvcc-timeline-event circle {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 24%, var(--border));
+  stroke-width: 2;
+}
+
+.mvcc-timeline-event.success.active circle {
+  fill: color-mix(in srgb, var(--success) 18%, var(--surface));
+  stroke: var(--success);
+}
+
+.mvcc-timeline-event.warning.active circle {
+  fill: color-mix(in srgb, #f59e0b 18%, var(--surface));
+  stroke: #f59e0b;
+}
+
+.mvcc-timeline-event.teal.active circle {
+  fill: color-mix(in srgb, var(--tertiary) 18%, var(--surface));
+  stroke: var(--tertiary);
+}
+
+.mvcc-timeline-event.danger.active circle {
+  fill: color-mix(in srgb, var(--danger) 18%, var(--surface));
+  stroke: var(--danger);
+}
+
+.mvcc-timeline-event text {
+  text-anchor: middle;
+}
+
+.mvcc-version-id,
+.mvcc-record-row text:first-of-type,
+.mvcc-readview-row text:first-of-type,
+.mvcc-rule-row text:first-of-type,
+.mvcc-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.mvcc-record-row text:nth-of-type(2),
+.mvcc-readview-row text:nth-of-type(2),
+.mvcc-rule-row text:nth-of-type(3),
+.mvcc-signal text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.mvcc-version-node text:nth-of-type(4) {
+  fill: var(--text);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.mvcc-record-to-version path,
+.mvcc-undo-link path,
+.mvcc-snapshot-path path,
+.mvcc-visible-path path,
+.mvcc-purge-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.mvcc-record-to-version path {
+  stroke: var(--danger);
+}
+
+.mvcc-undo-link path {
+  stroke: var(--tertiary);
+}
+
+.mvcc-snapshot-path path {
+  stroke: #f59e0b;
+  stroke-dasharray: 9 7;
+}
+
+.mvcc-visible-path path {
+  stroke: var(--success);
+}
+
+.mvcc-purge-path path {
+  stroke: var(--danger);
+  stroke-dasharray: 8 7;
+}
+
+.mvcc-record-to-version text,
+.mvcc-snapshot-path text,
+.mvcc-visible-path text {
+  fill: var(--text);
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.mvcc-caption {
   right: 16px;
   bottom: 14px;
 }

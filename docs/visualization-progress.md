@@ -139,6 +139,7 @@
 | Service | `step-simulation` | completed | desktop/mobile captured | Kubernetes Service 数据面转发模拟器，覆盖 selector、EndpointSlice、ClusterIP/DNS、kube-proxy 规则和 Ready Pod |
 | Ingress | `step-simulation` | completed | desktop/mobile captured | Kubernetes Ingress 七层入口路由模拟器，覆盖公网入口、Ingress Controller、TLS Secret、host/path 规则和 Service 后端 |
 | 镜像层 | `storage-layout` | completed | desktop/mobile captured | Docker 镜像层结构模型，覆盖 Dockerfile 指令、Build Cache、只读层共享、overlay2 和可写层 |
+| MVCC | `state-model` | completed | desktop/mobile captured | MySQL MVCC 版本可见性状态模型，覆盖隐藏列、Undo 版本链、ReadView、可见性判断和长事务 Purge 风险 |
 
 ## Buffer Pool Visualization
 
@@ -203,7 +204,62 @@
 
 ## Next Candidate
 
-优先选择 MySQL `MVCC`，它具备版本链、ReadView、事务可见性和长事务排障价值，适合做状态模型。
+优先选择 MySQL `Redo Log`，它具备 mini-transaction、redo record、log buffer、write/fsync、checkpoint 和 crash recovery 价值，适合做步骤式恢复模拟。
+
+## MySQL MVCC Visualization
+
+### Online Image References
+
+- `source`：SoByte - MVCC in MySQL，https://www.sobyte.net/post/2022-04/mysql-mvcc/
+  - `image`：页面中的隐藏列、事务 ReadView 与 undo log 版本链示意图。
+  - `role`：main
+  - `qualityReason`：图中同时展示 DB_TRX_ID、DB_ROLL_PTR、ReadView 和旧版本链路，最适合转成 MVCC 可见性主构图。
+  - `takeaways`：主画布采用当前聚簇记录、Undo 版本链、ReadView 面板和可见性判断表四区结构。
+  - `originalChanges`：把静态版本链图改造成五步状态模型：写入当前版本、串起 Undo、创建 ReadView、沿链判断可见、观察长事务 Purge 影响。
+- `source`：MySQL 8.4 Reference Manual - InnoDB Multi-Versioning，https://dev.mysql.com/doc/refman/8.4/en/innodb-multi-versioning.html
+  - `image`：官方页面中的隐藏系统列、roll pointer 和 undo log 说明。
+  - `role`：supporting
+  - `qualityReason`：官方定义权威，明确 InnoDB 给行添加事务 ID 和 roll pointer，并用 undo log 重建旧版本。
+  - `takeaways`：聚簇记录面板保留 `DB_TRX_ID` 和 `DB_ROLL_PTR`，版本节点展示 `trx_id` 与行值。
+  - `originalChanges`：把官方文字定义转成可视化字段卡片和链路箭头，便于快速识别 MVCC 入口。
+- `source`：MySQL 8.4 Reference Manual - Consistent Nonlocking Reads，https://dev.mysql.com/doc/refman/8.4/en/innodb-consistent-read.html
+  - `image`：官方一致性非锁定读和 ReadView 语义说明。
+  - `role`：supporting
+  - `qualityReason`：官方解释快照读如何在事务隔离级别下读取一致快照，适合补足 ReadView 创建时机。
+  - `takeaways`：ReadView 面板展示 `creator_trx_id`、`m_ids`、`up_limit_id` 和 `low_limit_id`，并在步骤中区分可重复读和读已提交。
+  - `originalChanges`：把隔离级别差异压缩到右侧理解重点，主画布聚焦一次快照读的可见性路径。
+- `source`：JavaGuide - InnoDB 存储引擎对 MVCC 的实现，https://javaguide.cn/database/mysql/innodb-implementation-of-mvcc.html
+  - `image`：文章中的版本链、ReadView 字段与可见性规则图解。
+  - `role`：supporting
+  - `qualityReason`：中文资料对版本链字段和可见性判断规则拆解细，便于迁移到教学面板。
+  - `takeaways`：可见性判断表使用 `v20/v19 skipped, v12 visible` 的逐行判断表达。
+  - `originalChanges`：采用项目统一表格和状态高亮，减少长篇规则文字，保留工程排查信号。
+- `source`：小林 coding - 事务隔离级别是怎么实现的？https://xiaolincoding.com/mysql/transaction/mvcc.html
+  - `image`：页面中的 ReadView、事务 ID 和版本链图解。
+  - `role`：supporting
+  - `qualityReason`：中文图解传播度高，重点解释 ReadView 与隔离级别关系。
+  - `takeaways`：步骤节奏强调快照创建、版本比较、旧版本回退和长事务导致历史版本保留。
+  - `originalChanges`：加入 Purge 和 `history list length` 信号，把面试型图解扩展成线上排障模型。
+
+### Reference Breakdown
+
+- 主体布局：左上事务时间线，左下当前聚簇记录，中部 Undo 版本链，右上 ReadView 边界，右下可见性判断表，底部排障信号。
+- 视觉焦点：当前行版本 `v20` 通过 `DB_ROLL_PTR=undo#19` 指向 `v19`，再指向 `v12`；ReadView 让快照读跳过新版本并返回 `v12 amount=100`。
+- 领域对象：Transaction ID、DB_TRX_ID、DB_ROLL_PTR、Undo before image、版本链、ReadView、m_ids、up_limit_id、low_limit_id、consistent read、Purge、history list length。
+- 容器层级：聚簇记录保存当前版本和隐藏列；Undo 存储旧版本；ReadView 保存快照边界；Purge 根据活跃快照决定历史版本释放。
+- 连线方向：写入从时间线到聚簇记录；当前记录指向版本链；ReadView 从快照读创建；可见性判断从 ReadView 指向版本链；Purge 从旧版本链指向清理信号。
+- 状态表达：五步通过透明度、边框、箭头和规则表值显隐表达当前版本写入、Undo 链形成、ReadView 创建、可见版本命中和长事务滞留。
+- 颜色策略：红色表示当前新版本和长事务风险，青色表示 Undo 回溯，橙色表示 ReadView 快照边界，绿色表示可见版本命中，蓝色表示诊断信号。
+- 文字密度：画布保留字段名、事务 ID、版本号和判断结果；细节解释放在右侧任务、操作面板和底部步骤条。
+- 交互节奏：五步依次推进“写入当前版本 -> 串起 Undo 版本 -> 创建 ReadView -> 沿链判断可见 -> 观察长事务影响”。
+- 原创改造点：融合官方隐藏列/一致性读定义、SoByte 版本链图、JavaGuide 和小林 coding 可见性规则，做成面向快照读和长事务排障的状态模型。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/mvcc/desktop.png`
+- 移动端：captured `.codex-artifacts/visualizations/mvcc/mobile.png`
+- 截图结论：桌面本地渲染图包含事务时间线、聚簇记录、Undo 版本链、ReadView、可见性判断、Purge 和底部排障信号；移动端本地渲染图采用纵向流程摘要和信号卡片，文字可读且无明显溢出。
+- 验收备注：Chrome DevTools MCP profile 锁定，in-app browser 返回不可用，Playwright Chromium 和系统 Chrome/Edge 受 macOS Mach port 或平台权限限制；本轮使用构建产物、数据测试、静态渲染 PNG 和代码检查完成验收。
 
 ## Docker Image Layer Visualization
 
@@ -609,3 +665,17 @@
 - Screenshot Review：保存 `.codex-artifacts/visualizations/image-layer/desktop.png` 与 `.codex-artifacts/visualizations/image-layer/mobile.png`；截图为本地渲染验收图。
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Next Candidate：MySQL `MVCC`。
+
+### 2026-06-01 23:23 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 成功。
+- Selected：MySQL `MVCC`，原因是隐藏列、Undo 版本链、ReadView 可见性和长事务 Purge 风险形成清晰状态模型。
+- Candidate Sources：普通搜索筛选约 12 个候选来源，保留 SoByte MVCC 版本链图为主参考，MySQL 官方 Multi-Versioning、Consistent Nonlocking Reads、Undo Logs、JavaGuide 和小林 coding 为辅助来源。
+- Browser Note：Chrome DevTools MCP profile 锁定，in-app browser 返回不可用，Playwright Chromium 与系统 Chrome/Edge 受 macOS Mach port 或平台权限限制；本轮使用页面 URL、搜索结果、官方资料和本地渲染图完成参考确认与截图验收。
+- Main Reference：SoByte - MVCC in MySQL，主图为页面中的隐藏列、事务 ReadView 和 undo log 版本链图。
+- Supporting References：MySQL InnoDB Multi-Versioning、Consistent Nonlocking Reads、Undo Logs、JavaGuide InnoDB MVCC、小林 coding MVCC。
+- Reference Breakdown：采用左上事务时间线、左下聚簇记录、中部版本链、右上 ReadView、右下可见性判断和底部排障信号。
+- Implementation：新增 `mysql:mvcc` 专用 `state-model` 构建器、MVCC SVG 舞台、移动端纵向摘要、响应式样式和 MVCC 专用来源。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/mvcc/desktop.png` 与 `.codex-artifacts/visualizations/mvcc/mobile.png`；截图为本地渲染验收图。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
+- Next Candidate：MySQL `Redo Log`。

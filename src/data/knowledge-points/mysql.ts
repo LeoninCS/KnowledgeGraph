@@ -356,20 +356,42 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["repeatable-read", "gap-lock", "next-key-lock"],
   },
   "mvcc": {
+    sourceRefs: [
+      "mysql-innodb-multi-versioning",
+      "mysql-innodb-consistent-read",
+      "mysql-innodb-undo-logs",
+      "sobyte-mysql-mvcc",
+      "javaguide-mysql-mvcc",
+      "planetscale-database-transactions",
+      "xiaolincoding-mysql-mvcc",
+    ],
     prerequisites: ["isolation-level", "undo-log"],
     related: ["read-view", "repeatable-read"],
   },
   "read-view": {
+    sourceRefs: [
+      "mysql-innodb-consistent-read",
+      "mysql-innodb-multi-versioning",
+      "sobyte-mysql-mvcc",
+      "javaguide-mysql-mvcc",
+      "xiaolincoding-mysql-mvcc",
+    ],
     prerequisites: ["mvcc"],
-    related: ["read-committed"],
+    related: ["read-committed", "undo-log"],
   },
   "redo-log": {
     prerequisites: ["transaction"],
     related: ["two-phase-commit", "crash-recovery"],
   },
   "undo-log": {
+    sourceRefs: [
+      "mysql-innodb-undo-logs",
+      "mysql-innodb-multi-versioning",
+      "sobyte-mysql-mvcc",
+      "javaguide-mysql-mvcc",
+    ],
     prerequisites: ["transaction"],
-    related: ["mvcc", "crash-recovery"],
+    related: ["mvcc", "read-view", "crash-recovery"],
   },
   "binlog": {
     prerequisites: ["transaction"],

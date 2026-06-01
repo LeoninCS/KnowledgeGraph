@@ -187,6 +187,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:mvcc") {
+    return (
+      <MvccStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "redis:hash-slot") {
     return (
       <RedisHashSlotStage
@@ -1630,6 +1641,280 @@ function RedisHashSlotStage({
           </g>
         </svg>
         <div className="tcp-handshake-caption redis-hash-slot-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MvccStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const writeActive = completedSteps >= 1;
+  const undoActive = completedSteps >= 2;
+  const readViewActive = completedSteps >= 3;
+  const visibleActive = completedSteps >= 4;
+  const purgeActive = completedSteps >= 5;
+  const timelineEvents = [
+    { id: "T12", text: "T12 COMMIT", x: 122, active: true, tone: "success" },
+    { id: "T17", text: "T17 SELECT", x: 220, active: readViewActive, tone: "warning" },
+    { id: "T19", text: "T19 UPDATE", x: 318, active: undoActive, tone: "teal" },
+    { id: "T20", text: "T20 UPDATE", x: 416, active: writeActive, tone: "danger" },
+  ];
+  const versions = [
+    {
+      id: "v20",
+      x: 438,
+      y: 164,
+      trx: "trx_id=20",
+      ptr: "roll_ptr=undo#19",
+      value: "amount=140",
+      note: label("当前版本", "current"),
+      active: writeActive,
+      tone: "danger",
+    },
+    {
+      id: "v19",
+      x: 438,
+      y: 300,
+      trx: "trx_id=19",
+      ptr: "roll_ptr=undo#12",
+      value: "amount=120",
+      note: label("undo 旧版本", "undo version"),
+      active: undoActive,
+      tone: "teal",
+    },
+    {
+      id: "v12",
+      x: 438,
+      y: 436,
+      trx: "trx_id=12",
+      ptr: "roll_ptr=null",
+      value: "amount=100",
+      note: label("快照可见", "snapshot visible"),
+      active: visibleActive,
+      tone: "success",
+    },
+  ];
+  const readViewRows = [
+    { name: "creator_trx_id", value: "17", active: readViewActive, tone: "brand" },
+    { name: "m_ids", value: "[17]", active: readViewActive, tone: "warning" },
+    { name: "up_limit_id", value: "17", active: readViewActive, tone: "teal" },
+    { name: "low_limit_id", value: "18", active: readViewActive, tone: "danger" },
+  ];
+  const ruleRows = [
+    { version: "v20", rule: "20 >= low_limit_id", result: label("跳过", "skip"), active: visibleActive, tone: "danger" },
+    { version: "v19", rule: "19 >= low_limit_id", result: label("跳过", "skip"), active: visibleActive, tone: "warning" },
+    { version: "v12", rule: "12 < up_limit_id", result: label("可见", "visible"), active: visibleActive, tone: "success" },
+  ];
+  const signalRows = [
+    { name: "trx", value: purgeActive ? "T17 open 4m" : "T17 open", active: readViewActive },
+    { name: "undo", value: purgeActive ? "retained v19/v12" : "2 versions", active: undoActive },
+    { name: "history list", value: purgeActive ? "growing" : "stable", active: purgeActive },
+    { name: "purge", value: purgeActive ? "lag elevated" : "idle", active: purgeActive },
+  ];
+
+  return (
+    <div className="visual-stage mvcc-stage">
+      <div className="mvcc-card">
+        <svg
+          className="mvcc-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["mvcc-arrow-brand", "var(--brand)"],
+              ["mvcc-arrow-teal", "var(--tertiary)"],
+              ["mvcc-arrow-warning", "#f59e0b"],
+              ["mvcc-arrow-danger", "var(--danger)"],
+              ["mvcc-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="mvcc-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="mvcc-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="mvcc-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="mvcc-subtitle" x="560" y="100">
+            {label(
+              "clustered record -> DB_ROLL_PTR -> undo chain -> ReadView -> visible version",
+              "clustered record -> DB_ROLL_PTR -> undo chain -> ReadView -> visible version",
+            )}
+          </text>
+
+          <g className={`mvcc-timeline ${writeActive ? "active" : ""}`}>
+            <rect x="62" y="134" width="410" height="94" rx="24" />
+            <text className="mvcc-panel-title" x="90" y="170">{label("事务时间线", "Transaction timeline")}</text>
+            <line className="mvcc-timeline-axis" x1="100" y1="196" x2="434" y2="196" />
+            {timelineEvents.map((event) => (
+              <g key={event.id} className={`mvcc-timeline-event ${event.tone} ${event.active ? "active" : ""}`}>
+                <circle cx={event.x} cy="196" r="10" />
+                <text x={event.x} y="178">{event.id}</text>
+                <text x={event.x} y="218">{event.text}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`mvcc-clustered-record ${writeActive ? "active" : ""}`}>
+            <rect x="72" y="272" width="266" height="164" rx="24" />
+            <text className="mvcc-panel-title" x="100" y="310">{label("聚簇记录", "Clustered record")}</text>
+            <text className="mvcc-panel-subtitle" x="100" y="334">orders#42 current row</text>
+            {[
+              ["id", "42"],
+              ["amount", writeActive ? "140" : "100"],
+              ["DB_TRX_ID", writeActive ? "20" : "12"],
+              ["DB_ROLL_PTR", writeActive ? "undo#19" : "null"],
+            ].map(([name, value], index) => (
+              <g key={name} className={`mvcc-record-row ${writeActive || index < 2 ? "active" : ""}`}>
+                <rect x="100" y={354 + index * 26} width="198" height="20" rx="10" />
+                <text x="114" y={368 + index * 26}>{name}</text>
+                <text x="286" y={368 + index * 26}>{value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`mvcc-record-to-version ${writeActive ? "active" : ""}`}>
+            <path d="M 338 354 C 366 300, 386 236, 438 214" markerEnd="url(#mvcc-arrow-danger)" />
+            <rect x="338" y="252" width="130" height="32" rx="16" />
+            <text x="403" y="273">current</text>
+          </g>
+
+          <g className="mvcc-version-panel">
+            <rect x="386" y="128" width="276" height="404" rx="28" />
+            <text className="mvcc-panel-title" x="414" y="166">{label("版本链", "Version chain")}</text>
+            <text className="mvcc-panel-subtitle" x="414" y="188">DB_ROLL_PTR follows undo records</text>
+            {versions.map((version) => (
+              <g key={version.id} className={`mvcc-version-node ${version.tone} ${version.active ? "active" : ""}`}>
+                <rect x={version.x} y={version.y} width="172" height="82" rx="18" />
+                <text className="mvcc-version-id" x={version.x + 22} y={version.y + 24}>{version.id}</text>
+                <text x={version.x + 22} y={version.y + 44}>{version.trx}</text>
+                <text x={version.x + 22} y={version.y + 60}>{version.value}</text>
+                <text x={version.x + 156} y={version.y + 24}>{version.note}</text>
+              </g>
+            ))}
+            <g className={`mvcc-undo-link ${undoActive ? "active" : ""}`}>
+              <path d="M 524 246 C 524 264, 524 278, 524 300" markerEnd="url(#mvcc-arrow-teal)" />
+              <path d="M 524 382 C 524 400, 524 414, 524 436" markerEnd="url(#mvcc-arrow-teal)" />
+            </g>
+          </g>
+
+          <g className={`mvcc-readview-panel ${readViewActive ? "active" : ""}`}>
+            <rect x="704" y="126" width="330" height="218" rx="28" />
+            <text className="mvcc-panel-title" x="732" y="164">ReadView</text>
+            <text className="mvcc-panel-subtitle" x="732" y="186">
+              {label("快照边界在首次一致性读创建", "Snapshot bounds created at first consistent read")}
+            </text>
+            {readViewRows.map((row, index) => (
+              <g key={row.name} className={`mvcc-readview-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="732" y={210 + index * 30} width="250" height="22" rx="11" />
+                <text x="748" y={225 + index * 30}>{row.name}</text>
+                <text x="964" y={225 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`mvcc-snapshot-path ${readViewActive ? "active" : ""}`}>
+            <path d="M 220 228 C 384 104, 616 102, 732 208" markerEnd="url(#mvcc-arrow-warning)" />
+            <rect x="504" y="116" width="160" height="32" rx="16" />
+            <text x="584" y="137">snapshot read</text>
+          </g>
+
+          <g className={`mvcc-visibility-panel ${visibleActive ? "active" : ""}`}>
+            <rect x="704" y="374" width="330" height="158" rx="28" />
+            <text className="mvcc-panel-title" x="732" y="412">{label("可见性判断", "Visibility rules")}</text>
+            {ruleRows.map((row, index) => (
+              <g key={row.version} className={`mvcc-rule-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="732" y={432 + index * 30} width="250" height="22" rx="11" />
+                <text x="746" y={447 + index * 30}>{row.version}</text>
+                <text x="798" y={447 + index * 30}>{row.rule}</text>
+                <text x="968" y={447 + index * 30}>{row.result}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`mvcc-visible-path ${visibleActive ? "active" : ""}`}>
+            <path d="M 704 464 C 666 480, 638 486, 610 486" markerEnd="url(#mvcc-arrow-success)" />
+            <rect x="604" y="536" width="178" height="34" rx="17" />
+            <text x="693" y="558">{label("返回 v12: amount=100", "return v12: amount=100")}</text>
+          </g>
+
+          <g className={`mvcc-purge-panel ${purgeActive ? "active" : ""}`}>
+            <rect x="64" y="474" width="300" height="80" rx="24" />
+            <text className="mvcc-panel-title" x="92" y="510">Purge</text>
+            <text className="mvcc-panel-subtitle" x="92" y="534">
+              {label("长事务保留旧版本，history list 增长", "Long transaction retains old versions; history list grows")}
+            </text>
+          </g>
+
+          <g className={`mvcc-purge-path ${purgeActive ? "active" : ""}`}>
+            <path d="M 438 477 C 382 492, 374 512, 364 516" markerEnd="url(#mvcc-arrow-danger)" />
+          </g>
+
+          <g className="mvcc-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`mvcc-signal ${signal.active ? "active" : ""}`}>
+                <rect x={70 + index * 252} y="560" width="210" height="34" rx="16" />
+                <text x={90 + index * 252} y="574">{signal.name}</text>
+                <text x={260 + index * 252} y="586">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="mvcc-mobile-map">
+          <div className="mvcc-mobile-flow" aria-hidden="true">
+            {[
+              { name: "Clustered record", value: writeActive ? "DB_TRX_ID=20, DB_ROLL_PTR=undo#19" : "waiting", active: writeActive },
+              { name: "Undo chain", value: undoActive ? "v20 -> v19 -> v12" : "waiting", active: undoActive },
+              { name: "ReadView", value: readViewActive ? "creator=17, m_ids=[17], low_limit=18" : "waiting", active: readViewActive },
+              { name: "Visible version", value: visibleActive ? "v12 amount=100" : "waiting", active: visibleActive },
+              { name: "Purge", value: purgeActive ? "history list grows while T17 stays open" : "stable", active: purgeActive },
+            ].map((item) => (
+              <div key={item.name} className={`mvcc-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="mvcc-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`mvcc-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption mvcc-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

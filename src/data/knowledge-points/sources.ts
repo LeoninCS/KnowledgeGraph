@@ -3657,6 +3657,34 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: InnoDB Storage Engine",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-storage-engine.html",
   },
+  "mysql-innodb-multi-versioning": {
+    title: "MySQL Reference Manual: InnoDB Multi-Versioning",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-multi-versioning.html",
+  },
+  "mysql-innodb-consistent-read": {
+    title: "MySQL Reference Manual: Consistent Nonlocking Reads",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-consistent-read.html",
+  },
+  "mysql-innodb-undo-logs": {
+    title: "MySQL Reference Manual: Undo Logs",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-logs.html",
+  },
+  "sobyte-mysql-mvcc": {
+    title: "SoByte: MVCC in MySQL",
+    url: "https://www.sobyte.net/post/2022-04/mysql-mvcc/",
+  },
+  "javaguide-mysql-mvcc": {
+    title: "JavaGuide: InnoDB 存储引擎对 MVCC 的实现",
+    url: "https://javaguide.cn/database/mysql/innodb-implementation-of-mvcc.html",
+  },
+  "planetscale-database-transactions": {
+    title: "PlanetScale: Database Transactions",
+    url: "https://planetscale.com/blog/database-transactions",
+  },
+  "xiaolincoding-mysql-mvcc": {
+    title: "小林 coding: 事务隔离级别是怎么实现的？",
+    url: "https://xiaolincoding.com/mysql/transaction/mvcc.html",
+  },
   "postgresql-transactions": {
     title: "PostgreSQL Docs: Transactions",
     url: "https://www.postgresql.org/docs/current/tutorial-transactions.html",
