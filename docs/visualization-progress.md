@@ -1587,3 +1587,19 @@
 - Verification：新增测试先失败于 `visualPointIds.docker` 缺少 `port-mapping`，补实现后 `npm run test:data -- --grep "docker port mapping"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 10 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add port mapping visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Kubernetes `Pod 调度` 或 Docker `资源限制`。
+
+### 2026-06-03 01:21 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `c118450`，从干净跟踪状态继续，工作区已有 Scheduler 测试现场。
+- Selected：Kubernetes `Scheduler`，原因是 Pending Pod、Scheduling Queue/Profile、Filter/Score 插件、Binding Cycle 和 FailedScheduling 事件能形成高价值调度周期模拟。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；保留 Kubernetes Scheduling Framework 官方扩展点图为主参考，Kubernetes Scheduler、Assigning Pods to Nodes、Taints and Tolerations、Pod Priority and Preemption 为辅助参考。
+- Main Reference：Kubernetes Docs - Scheduling Framework，主图为 `https://kubernetes.io/images/docs/scheduling-framework-extensions.png`，HTTP HEAD 返回 `200 image/png`。
+- Supporting References：Kubernetes Scheduler、Assigning Pods to Nodes、Taints and Tolerations、Pod Priority and Preemption。
+- Reference Breakdown：采用左侧 Pending Pod，中部 Scheduling Queue 与 Framework extension points，下方 Filter plugins 和 Node snapshot，右侧 Score plugins 与 Binding Cycle，底部四个诊断信号；视觉焦点是 `activeQ -> profile -> Filter -> Score -> spec.nodeName=node-c`。
+- Implementation：新增 `kubernetes:scheduler` 专用 `step-simulation` 构建器、Scheduler SVG 舞台、移动端纵向摘要、响应式样式、Scheduler sourceRefs、数据测试，并把 Assigning Pods to Nodes 来源 URL 更新到当前官方路径。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/scheduler/desktop.svg`、`.codex-artifacts/visualizations/scheduler/mobile.svg` 与 `.codex-artifacts/visualizations/scheduler/desktop.html`；桌面 SVG 可识别 Pending Pod、Scheduling Queue、Framework extension points、Filter plugins、Node snapshot、Score plugins、Binding Cycle 和底部信号；移动端 SVG 展示五步流程和指标摘要。
+- Browser Note：Chrome DevTools MCP profile 被占用；Browser 插件返回 in-app browser 受限；本轮使用 Kubernetes 官方主图 URL、HTTP HEAD、项目数据测试、生产构建和真实 React `SimulationStage` 渲染的 SVG/HTML 完成验收。
+- Verification：`npm run test:data -- --grep "kubernetes scheduler"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 11 项；`git diff --check` 通过。
+- Commit/Push：功能提交 `0238376 feat: add scheduler visualization` 已推送到 `origin/main`；推送输出为 `c118450..0238376 main -> main`。Post-push `git ls-remote --heads origin main` 遇到 `Could not resolve host: github.com`，本地 `HEAD` 与 `origin/main` 均为 `0238376`。
+- Commit/Push Plan：本条 run log 作为独立 docs 提交推送。
+- Next Candidate：Docker `资源限制` 或 Kubernetes `污点与容忍`。
