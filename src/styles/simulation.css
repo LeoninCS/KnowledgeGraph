@@ -1049,6 +1049,293 @@
   display: none;
 }
 
+.docker-port-bg {
+  fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);
+}
+
+.docker-port-title {
+  fill: var(--text);
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.docker-port-subtitle {
+  fill: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.docker-port-client,
+.docker-port-host,
+.docker-port-rules,
+.docker-port-container,
+.docker-port-debug,
+.docker-port-publish-row,
+.docker-port-bind,
+.docker-port-rule-row,
+.docker-port-debug-row,
+.docker-port-signal,
+.docker-port-publish-path,
+.docker-port-entry-path,
+.docker-port-dnat-path,
+.docker-port-listen-path,
+.docker-port-debug-path {
+  opacity: 0.3;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.docker-port-client.active,
+.docker-port-host.active,
+.docker-port-rules.active,
+.docker-port-container.active,
+.docker-port-debug.active,
+.docker-port-publish-row.active,
+.docker-port-bind.active,
+.docker-port-rule-row.active,
+.docker-port-debug-row.active,
+.docker-port-signal.active,
+.docker-port-publish-path.active,
+.docker-port-entry-path.active,
+.docker-port-dnat-path.active,
+.docker-port-listen-path.active,
+.docker-port-debug-path.active {
+  opacity: 1;
+}
+
+.docker-port-client > rect,
+.docker-port-host > rect,
+.docker-port-rules > rect,
+.docker-port-container > rect,
+.docker-port-debug > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  stroke-width: 1.25;
+  filter: url(#docker-port-soft-shadow);
+}
+
+.docker-port-host.active > rect,
+.docker-port-publish-row.brand.active rect,
+.docker-port-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.docker-port-client.active > rect,
+.docker-port-bind.active rect,
+.docker-port-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 42%, var(--border));
+}
+
+.docker-port-rules.active > rect,
+.docker-port-rule-row.warning.active rect,
+.docker-port-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 50%, var(--border));
+}
+
+.docker-port-container.active > rect,
+.docker-port-rule-row.success.active rect,
+.docker-port-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 44%, var(--border));
+}
+
+.docker-port-rule-row.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.docker-port-publish-row rect,
+.docker-port-bind rect,
+.docker-port-rule-row rect,
+.docker-port-debug-row rect,
+.docker-port-signal rect,
+.docker-port-publish-path rect,
+.docker-port-entry-path rect,
+.docker-port-dnat-path rect,
+.docker-port-listen-path rect,
+.docker-port-debug-path rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 16%, var(--border));
+  filter: url(#docker-port-soft-shadow);
+}
+
+.docker-port-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.docker-port-panel-subtitle,
+.docker-port-client text,
+.docker-port-host text,
+.docker-port-rules text,
+.docker-port-container text,
+.docker-port-debug text,
+.docker-port-publish-path text,
+.docker-port-entry-path text,
+.docker-port-dnat-path text,
+.docker-port-listen-path text,
+.docker-port-debug-path text,
+.docker-port-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 820;
+}
+
+.docker-port-publish-row text,
+.docker-port-bind text,
+.docker-port-rule-row text,
+.docker-port-debug-row text,
+.docker-port-signal text,
+.docker-port-publish-path text,
+.docker-port-entry-path text,
+.docker-port-dnat-path text,
+.docker-port-listen-path text,
+.docker-port-debug-path text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.docker-port-client text,
+.docker-port-host text,
+.docker-port-rules text,
+.docker-port-container text,
+.docker-port-debug text {
+  text-anchor: start;
+}
+
+.docker-port-rule-row text:first-of-type,
+.docker-port-debug-row text:first-of-type,
+.docker-port-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.docker-port-rule-row text:last-of-type,
+.docker-port-debug-row text:last-of-type,
+.docker-port-signal text:last-of-type {
+  fill: var(--brand-strong);
+  font-size: 9.2px;
+  text-anchor: end;
+}
+
+.docker-port-publish-path path,
+.docker-port-entry-path path,
+.docker-port-dnat-path path,
+.docker-port-listen-path path,
+.docker-port-debug-path path {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+.docker-port-publish-path path {
+  stroke: var(--brand);
+}
+
+.docker-port-entry-path path {
+  stroke: var(--tertiary);
+}
+
+.docker-port-dnat-path path {
+  stroke: #f59e0b;
+}
+
+.docker-port-listen-path path {
+  stroke: var(--success);
+}
+
+.docker-port-debug-path path {
+  stroke: var(--danger);
+}
+
+.docker-port-mobile-flow,
+.docker-port-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.docker-port-mobile-hop,
+.docker-port-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--tertiary) 6%, var(--surface));
+  padding: 12px;
+}
+
+.docker-port-mobile-hop span,
+.docker-port-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.docker-port-mobile-hop strong,
+.docker-port-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.docker-port-mobile-hop.active,
+.docker-port-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+  background: color-mix(in srgb, var(--tertiary) 11%, var(--surface));
+}
+
+.docker-port-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.docker-port-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.docker-port-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 24%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .docker-port-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.docker-port-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.docker-port-mobile-map {
+  display: none;
+}
+
 .ip-routing-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;

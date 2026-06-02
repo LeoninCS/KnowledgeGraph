@@ -4289,6 +4289,14 @@ export const knowledgeSources = {
     title: "Docker Docs: Publishing and exposing ports",
     url: "https://docs.docker.com/get-started/docker-concepts/running-containers/publishing-ports/",
   },
+  "iximiuz-docker-port-publishing": {
+    title: "iximiuz: How To Publish Container Ports with Docker",
+    url: "https://iximiuz.com/en/posts/docker-publish-container-ports/",
+  },
+  "iximiuz-multiple-containers-same-port": {
+    title: "iximiuz: Multiple Containers On The Same Port With a Reverse Proxy",
+    url: "https://iximiuz.com/en/posts/multiple-containers-same-port-reverse-proxy/",
+  },
   "dockerlabs-bridge-network-architecture": {
     title: "DockerLabs: Docker Bridge Network Driver Architecture",
     url: "https://dockerlabs.collabnix.com/networking/concepts/05-bridge-networks.html",

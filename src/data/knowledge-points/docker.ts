@@ -1356,6 +1356,8 @@ export const dockerKnowledgePoints = [
       "docker-run-cli",
       "docker-port-publishing-docs",
       "docker-publishing-ports-guide",
+      "iximiuz-docker-port-publishing",
+      "iximiuz-multiple-containers-same-port",
       "docker-container-port-cli",
       "docker-container-ls-cli",
       "docker-inspect-cli",

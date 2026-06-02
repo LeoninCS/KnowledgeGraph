@@ -141,6 +141,7 @@
 | CrashLoopBackOff | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes CrashLoopBackOff 重启退避状态模型，覆盖 Pod 启动、进程退出、kubelet restartPolicy、BackOff 延迟、Events/logs 证据链和修复恢复 |
 | 镜像层 | `storage-layout` | completed | desktop/mobile captured | Docker 镜像层结构模型，覆盖 Dockerfile 指令、Build Cache、只读层共享、overlay2 和可写层 |
 | 桥接网络 | `step-simulation` | completed | desktop/mobile captured | Docker Bridge packet path 模拟器，覆盖 network namespace、veth pair、Linux bridge、内置 DNS、端口发布、DNAT 和 MASQUERADE |
+| 端口映射 | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Docker published port path 模拟器，覆盖 HostIp/HostPort、DNAT、DOCKER-USER、容器监听地址和 EXPOSE 排障 |
 | MVCC | `state-model` | completed | desktop/mobile captured | MySQL MVCC 版本可见性状态模型，覆盖隐藏列、Undo 版本链、ReadView、可见性判断和长事务 Purge 风险 |
 | Redo Log | `state-model` | completed | desktop/mobile captured | MySQL Redo Log WAL 与恢复状态模型，覆盖 redo record、log buffer、write/fsync、checkpoint 和 crash recovery |
 | Binlog | `step-simulation` | completed | desktop/mobile captured | MySQL Binlog 提交与复制通道模拟器，覆盖 GTID、Rows Event、Group Commit、Relay Log 和副本应用延迟 |
@@ -1511,3 +1512,22 @@
 - Verification：新增测试先失败于 `visualPointIds.docker` 缺少 `bridge-network`，补实现后 `npm run test:data -- --grep "docker bridge network"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 9 项；继续执行 `git diff --check`、rebase 和 push。
 - Commit/Push Plan：提交 `feat: add bridge network visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Kubernetes `Pod 调度` 或 Docker `端口映射`。
+
+### 2026-06-02 23:06 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `08fa06d`，从干净工作区继续。
+- Selected：Docker `端口映射`，原因是 HostIp/HostPort、宿主入口、Docker NAT/proxy、DNAT、DOCKER-USER、容器监听地址和 EXPOSE 元数据构成高频生产排障链路，能承接已完成的 Bridge Network 可视化。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；Chrome DevTools MCP profile 占用，Browser 插件不可用，本轮使用搜索结果、可访问页面、HTTP head 和图片 URL 确认 1 张主参考图与 4 个辅助来源。
+- Online Image References：
+  - source：iximiuz - How To Publish Container Ports with Docker，https://iximiuz.com/en/posts/docker-publish-container-ports/；image：`https://iximiuz.com/docker-publish-container-ports/docker-engine-port-publishing-2000-opt.png`；role：main；qualityReason：图中直接展示 client、Docker host、host port、container IP:port 与 Docker Engine published port path；takeaways：主构图采用左侧客户端、中部宿主入口/NAT、右侧容器监听端口；originalChanges：改成本项目的五步交互式 published port path，加入 DOCKER-USER、EXPOSE、`docker ps/port/inspect/ss` 排障表和移动端流程卡。
+  - source：Docker Docs - Port publishing and mapping，https://docs.docker.com/engine/network/port-publishing/；image：页面端口发布行为说明；role：supporting；qualityReason：官方定义 HostIp、HostPort、ContainerPort、协议、loopback bind 和 direct routing 语义；takeaways：步骤使用 `127.0.0.1:8080:80` 表达绑定地址和访问面；originalChanges：底部信号区突出 `host IP:port` 与公网暴露边界。
+  - source：Docker Docs - Publishing and exposing ports，https://docs.docker.com/get-started/docker-concepts/running-containers/publishing-ports/；image：getting started 端口发布教程截图与命令；role：supporting；qualityReason：官方入门教程清楚区分 publish 与 EXPOSE；takeaways：右侧排障表保留 `EXPOSE 80/tcp metadata`；originalChanges：将 EXPOSE 放入最终校验步骤，强调它是协作元数据。
+  - source：Docker Docs - Packet filtering and firewalls，https://docs.docker.com/engine/network/packet-filtering-firewalls/；image：Docker iptables/nftables、NAT、DOCKER-USER 说明；role：supporting；qualityReason：官方校准 published port 经过 NAT/filter 和 DOCKER-USER 策略；takeaways：中部规则面板展示 `DOCKER nat`、`DOCKER-USER`、`conntrack`；originalChanges：用可高亮规则行表达 DNAT 命中、策略通过和回包追踪。
+  - source：iximiuz - Multiple Containers On The Same Port With a Reverse Proxy，https://iximiuz.com/en/posts/multiple-containers-same-port-reverse-proxy/；image：`https://iximiuz.com/multiple-containers-same-port-reverse-proxy/multiple-containers-same-port-iptables-2000-opt.png`；role：supporting；qualityReason：图中把同端口多容器、iptables DNAT 和反向代理边界画清楚；takeaways：端口冲突与多服务入口应交给反向代理或不同宿主端口；originalChanges：在理解重点和排障信号中保留 host port 冲突与入口治理语义。
+- Reference Breakdown：主体布局为左侧 External client，中部 Docker Host 与 `127.0.0.1:8080/tcp` 绑定入口，右上 Docker NAT/proxy 规则面板，右下 `web container netns 172.18.0.2` 和 `nginx 0.0.0.0:80`，中下排障对照表，底部四个信号；视觉焦点是 `client -> host bind -> Docker NAT/proxy -> container IP:port -> app listener`；领域对象包括 HostIp、HostPort、ContainerPort、protocol、PREROUTING/OUTPUT、DOCKER nat、DOCKER-USER、conntrack、bridge/veth、container listener、EXPOSE metadata；连线方向按 publish config、client hit、DNAT rewrite、container listen、debug checklist 推进；颜色策略用蓝色表示发布配置，青色表示宿主入口，橙色表示 DNAT，绿色表示应用响应，红色表示最终核对；移动端使用五个流程卡和四个事实卡保留关键读数。
+- Implementation：新增 `docker:port-mapping` 专用 `step-simulation` 构建器、Port Mapping SVG 舞台、移动端纵向摘要、响应式样式、Iximiuz 来源、sourceRefs 和数据测试，并把 `port-mapping` 加入 Docker 可视化清单。
+- Screenshot Review：PNG 捕获受平台权限限制；保存本地 review 产物 `.codex-artifacts/visualizations/port-mapping/desktop.svg`、`.codex-artifacts/visualizations/port-mapping/desktop.html` 与 `.codex-artifacts/visualizations/port-mapping/mobile.html`；桌面 SVG 可识别 External client、Docker Host、NAT/proxy、DNAT、DOCKER-USER、web container netns、排障表和底部四个信号；移动 HTML 可读五步流程卡和四个事实卡。
+- Browser Note：本地预览 `http://127.0.0.1:4262/KnowledgeGraph/` 可访问；Chrome DevTools MCP profile 占用，Browser 插件返回 in-app browser 不可用；Playwright Chromium 受 macOS Mach port 权限限制，报 `bootstrap_check_in ... Permission denied`；本轮使用 Vite SSR 渲染真实 `SimulationStage` 产出审查文件。
+- Verification：新增测试先失败于 `visualPointIds.docker` 缺少 `port-mapping`，补实现后 `npm run test:data -- --grep "docker port mapping"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 10 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add port mapping visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Kubernetes `Pod 调度` 或 Docker `资源限制`。

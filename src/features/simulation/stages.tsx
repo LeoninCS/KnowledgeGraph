@@ -330,6 +330,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "docker:port-mapping") {
+    return (
+      <DockerPortMappingStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:service") {
     return (
       <KubernetesServiceStage
@@ -5710,6 +5721,205 @@ function DockerBridgeNetworkStage({
           </div>
         </div>
         <div className="tcp-handshake-caption docker-bridge-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DockerPortMappingStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const publishActive = completedSteps >= 1;
+  const entryActive = completedSteps >= 2;
+  const dnatActive = completedSteps >= 3;
+  const listenActive = completedSteps >= 4;
+  const debugActive = completedSteps >= 5;
+  const ruleRows = [
+    { name: "HostConfig.Ports", value: publishActive ? "127.0.0.1:8080" : "pending", active: publishActive, tone: "brand" },
+    { name: "DOCKER nat", value: dnatActive ? "DNAT web:80" : "waiting", active: dnatActive, tone: "warning" },
+    { name: "DOCKER-USER", value: dnatActive ? "policy pass" : "idle", active: dnatActive, tone: "danger" },
+    { name: "conntrack", value: listenActive ? "reply tracked" : "pending", active: listenActive, tone: "success" },
+  ];
+  const debugRows = [
+    { name: "docker ps", value: publishActive ? "127.0.0.1:8080->80/tcp" : "no publish", active: publishActive },
+    { name: "docker port", value: publishActive ? "80/tcp -> 127.0.0.1:8080" : "pending", active: publishActive },
+    { name: "inspect", value: dnatActive ? "HostPort=8080" : "Ports pending", active: dnatActive },
+    { name: "ss -lntp", value: listenActive ? "0.0.0.0:80" : "listener unknown", active: listenActive },
+  ];
+  const signalRows = [
+    { name: "host IP:port", value: entryActive ? "127.0.0.1:8080" : "--", active: entryActive, tone: "teal" },
+    { name: "EXPOSE", value: debugActive ? "80/tcp metadata" : "--", active: debugActive, tone: "brand" },
+    { name: "DNAT", value: dnatActive ? "172.18.0.2:80" : "--", active: dnatActive, tone: "warning" },
+    { name: "listen", value: listenActive ? "0.0.0.0:80" : "--", active: listenActive, tone: "success" },
+  ];
+  const mobileFlow = [
+    { name: "Publish", value: publishActive ? "-p 127.0.0.1:8080:80 recorded" : "pending", active: publishActive },
+    { name: "Host entry", value: entryActive ? "loopback client hits host port" : "waiting", active: entryActive },
+    { name: "DNAT", value: dnatActive ? "host:8080 -> 172.18.0.2:80" : "waiting", active: dnatActive },
+    { name: "Container listen", value: listenActive ? "nginx listens on 0.0.0.0:80" : "waiting", active: listenActive },
+    { name: "Debug check", value: debugActive ? "ps / port / inspect / ss aligned" : "waiting", active: debugActive },
+  ];
+
+  return (
+    <div className="visual-stage docker-port-stage">
+      <div className="docker-port-card">
+        <svg
+          className="docker-port-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["docker-port-arrow-brand", "var(--brand)"],
+              ["docker-port-arrow-teal", "var(--tertiary)"],
+              ["docker-port-arrow-success", "var(--success)"],
+              ["docker-port-arrow-warning", "#f59e0b"],
+              ["docker-port-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker key={id} id={id} viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="docker-port-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="docker-port-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="docker-port-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="docker-port-subtitle" x="560" y="100">
+            {label(
+              "client -> host bind -> Docker NAT/proxy -> container IP:port -> app listener",
+              "client -> host bind -> Docker NAT/proxy -> container IP:port -> app listener",
+            )}
+          </text>
+
+          <g className={`docker-port-client ${entryActive ? "active" : ""}`}>
+            <rect x="58" y="190" width="174" height="120" rx="24" />
+            <text className="docker-port-panel-title" x="86" y="228">{label("外部客户端", "External client")}</text>
+            <text x="86" y="254">curl 127.0.0.1:8080</text>
+            <text x="86" y="280">{entryActive ? "SYN -> host port" : "waiting"}</text>
+          </g>
+
+          <g className={`docker-port-host ${publishActive ? "active" : ""}`}>
+            <rect x="292" y="134" width="274" height="230" rx="28" />
+            <text className="docker-port-panel-title" x="324" y="174">Docker Host</text>
+            <text className="docker-port-panel-subtitle" x="324" y="198">{label("root network namespace", "root network namespace")}</text>
+            <g className={`docker-port-publish-row brand ${publishActive ? "active" : ""}`}>
+              <rect x="324" y="226" width="210" height="30" rx="15" />
+              <text x="342" y="246">-p 127.0.0.1:8080:80</text>
+            </g>
+            <g className={`docker-port-bind ${entryActive ? "active" : ""}`}>
+              <rect x="324" y="282" width="210" height="46" rx="16" />
+              <text x="342" y="302">host bind</text>
+              <text x="342" y="322">127.0.0.1:8080/tcp</text>
+            </g>
+          </g>
+
+          <g className={`docker-port-rules ${dnatActive ? "active" : ""}`}>
+            <rect x="626" y="134" width="286" height="230" rx="28" />
+            <text className="docker-port-panel-title" x="658" y="174">Docker NAT / proxy</text>
+            <text className="docker-port-panel-subtitle" x="658" y="198">iptables/nftables + conntrack</text>
+            {ruleRows.map((row, index) => (
+              <g key={row.name} className={`docker-port-rule-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="658" y={222 + index * 32} width="214" height="24" rx="12" />
+                <text x="674" y={238 + index * 32}>{row.name}</text>
+                <text x="860" y={238 + index * 32}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-port-container ${listenActive ? "active" : ""}`}>
+            <rect x="806" y="404" width="248" height="116" rx="26" />
+            <text className="docker-port-panel-title" x="836" y="442">web container netns</text>
+            <text x="836" y="468">eth0 172.18.0.2</text>
+            <text x="836" y="494">{listenActive ? "nginx listen 0.0.0.0:80" : "listener pending"}</text>
+          </g>
+
+          <g className={`docker-port-debug ${debugActive ? "active" : ""}`}>
+            <rect x="292" y="404" width="450" height="116" rx="26" />
+            <text className="docker-port-panel-title" x="324" y="442">{label("排障对照表", "Debug checklist")}</text>
+            {debugRows.map((row, index) => (
+              <g key={row.name} className={`docker-port-debug-row ${row.active ? "active" : ""}`}>
+                <rect x={324 + (index % 2) * 210} y={458 + Math.floor(index / 2) * 30} width="180" height="22" rx="11" />
+                <text x={338 + (index % 2) * 210} y={473 + Math.floor(index / 2) * 30}>{row.name}</text>
+                <text x={496 + (index % 2) * 210} y={473 + Math.floor(index / 2) * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-port-publish-path ${publishActive ? "active" : ""}`}>
+            <path d="M 430 364 C 498 392, 570 388, 674 364" markerEnd="url(#docker-port-arrow-brand)" />
+            <rect x="458" y="368" width="176" height="32" rx="16" />
+            <text x="546" y="389">publish config</text>
+          </g>
+          <g className={`docker-port-entry-path ${entryActive ? "active" : ""}`}>
+            <path d="M 232 250 C 254 244, 270 232, 292 226" markerEnd="url(#docker-port-arrow-teal)" />
+            <rect x="196" y="204" width="160" height="32" rx="16" />
+            <text x="276" y="225">host IP:port</text>
+          </g>
+          <g className={`docker-port-dnat-path ${dnatActive ? "active" : ""}`}>
+            <path d="M 566 256 C 596 252, 606 250, 626 250" markerEnd="url(#docker-port-arrow-warning)" />
+            <path d="M 790 364 C 830 380, 858 390, 894 404" markerEnd="url(#docker-port-arrow-warning)" />
+            <rect x="720" y="372" width="190" height="32" rx="16" />
+            <text x="815" y="393">DNAT 172.18.0.2:80</text>
+          </g>
+          <g className={`docker-port-listen-path ${listenActive ? "active" : ""}`}>
+            <path d="M 928 404 C 922 372, 902 360, 872 342" markerEnd="url(#docker-port-arrow-success)" />
+            <rect x="910" y="348" width="126" height="30" rx="15" />
+            <text x="973" y="368">app replies</text>
+          </g>
+          <g className={`docker-port-debug-path ${debugActive ? "active" : ""}`}>
+            <path d="M 812 520 C 680 576, 510 570, 416 520" markerEnd="url(#docker-port-arrow-danger)" />
+            <rect x="526" y="540" width="170" height="32" rx="16" />
+            <text x="611" y="561">verify all signals</text>
+          </g>
+
+          <g className="docker-port-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`docker-port-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={62 + index * 258} y="546" width="218" height="34" rx="16" />
+                <text x={84 + index * 258} y="560">{signal.name}</text>
+                <text x={262 + index * 258} y="572">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="docker-port-mobile-map">
+          <div className="docker-port-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`docker-port-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="docker-port-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`docker-port-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption docker-port-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

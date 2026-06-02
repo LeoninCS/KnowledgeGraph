@@ -372,6 +372,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
     "registry",
     "network",
     "bridge-network",
+    "port-mapping",
     "volume",
     "compose",
     "logs",

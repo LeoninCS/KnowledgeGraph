@@ -142,6 +142,23 @@ test("docker bridge network is backed by a dedicated visual simulation", async (
   );
 });
 
+test("docker port mapping is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("docker");
+  const portMapping = points.find((point) => point.id === "port-mapping");
+
+  expect(visualPointIds.docker).toContain("port-mapping");
+  expect(portMapping).toBeTruthy();
+
+  const simulation = buildVisualSimulation("docker", portMapping!);
+
+  expect(simulation.key).toBe("docker:port-mapping");
+  expect(simulation.pattern.en).toContain("published port path");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["host IP:port", "EXPOSE metadata", "DNAT rule", "container listen address"]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");
