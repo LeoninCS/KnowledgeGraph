@@ -394,6 +394,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
     "volume",
     "hpa",
     "logs",
+    "crashloopbackoff",
   ],
   agent: [
     "tool-calling",

@@ -266,7 +266,8 @@
   }
 
   .k8s-service-stage,
-  .k8s-ingress-stage {
+  .k8s-ingress-stage,
+  .k8s-crashloop-stage {
     overflow-x: auto;
     justify-content: start;
   }
@@ -750,22 +751,26 @@
   }
 
   .k8s-service-stage,
-  .k8s-ingress-stage {
+  .k8s-ingress-stage,
+  .k8s-crashloop-stage {
     padding-inline: 12px;
   }
 
   .k8s-service-card,
-  .k8s-ingress-card {
+  .k8s-ingress-card,
+  .k8s-crashloop-card {
     width: 100%;
   }
 
   .k8s-service-diagram,
-  .k8s-ingress-diagram {
+  .k8s-ingress-diagram,
+  .k8s-crashloop-diagram {
     display: none;
   }
 
   .k8s-service-mobile-map,
-  .k8s-ingress-mobile-map {
+  .k8s-ingress-mobile-map,
+  .k8s-crashloop-mobile-map {
     display: grid;
     gap: 16px;
     padding: 18px;
@@ -775,6 +780,8 @@
   .k8s-service-mobile-facts,
   .k8s-ingress-mobile-flow,
   .k8s-ingress-mobile-facts,
+  .k8s-crashloop-mobile-flow,
+  .k8s-crashloop-mobile-facts,
   .mvcc-mobile-flow,
   .mvcc-mobile-facts,
   .redo-log-mobile-flow,
@@ -805,6 +812,8 @@
   .k8s-service-mobile-fact,
   .k8s-ingress-mobile-hop,
   .k8s-ingress-mobile-fact,
+  .k8s-crashloop-mobile-hop,
+  .k8s-crashloop-mobile-fact,
   .mvcc-mobile-hop,
   .mvcc-mobile-fact,
   .redo-log-mobile-hop,
@@ -839,6 +848,8 @@
   .k8s-service-mobile-fact.active,
   .k8s-ingress-mobile-hop.active,
   .k8s-ingress-mobile-fact.active,
+  .k8s-crashloop-mobile-hop.active,
+  .k8s-crashloop-mobile-fact.active,
   .mvcc-mobile-hop.active,
   .mvcc-mobile-fact.active,
   .redo-log-mobile-hop.active,
@@ -869,6 +880,8 @@
   .k8s-service-mobile-fact span,
   .k8s-ingress-mobile-hop span,
   .k8s-ingress-mobile-fact span,
+  .k8s-crashloop-mobile-hop span,
+  .k8s-crashloop-mobile-fact span,
   .mvcc-mobile-hop span,
   .mvcc-mobile-fact span,
   .redo-log-mobile-hop span,
@@ -900,6 +913,8 @@
   .k8s-service-mobile-fact strong,
   .k8s-ingress-mobile-hop strong,
   .k8s-ingress-mobile-fact strong,
+  .k8s-crashloop-mobile-hop strong,
+  .k8s-crashloop-mobile-fact strong,
   .mvcc-mobile-hop strong,
   .mvcc-mobile-fact strong,
   .redo-log-mobile-hop strong,

@@ -74,6 +74,23 @@ test("mysql GTID is backed by a dedicated visual simulation", async () => {
   );
 });
 
+test("kubernetes CrashLoopBackOff is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("kubernetes");
+  const crashLoopBackOff = points.find((point) => point.id === "crashloopbackoff");
+
+  expect(visualPointIds.kubernetes).toContain("crashloopbackoff");
+  expect(crashLoopBackOff).toBeTruthy();
+
+  const simulation = buildVisualSimulation("kubernetes", crashLoopBackOff!);
+
+  expect(simulation.key).toBe("kubernetes:crashloopbackoff");
+  expect(simulation.pattern.en).toContain("CrashLoopBackOff");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["restartCount", "BackOff delay", "lastState.reason", "kubectl logs --previous"]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");

@@ -341,6 +341,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "kubernetes:crashloopbackoff") {
+    return (
+      <KubernetesCrashLoopBackOffStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "algorithm:array") {
     return (
       <ArrayIndexStage
@@ -4776,6 +4787,235 @@ function KubernetesIngressStage({
           </div>
         </div>
         <div className="tcp-handshake-caption k8s-ingress-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function KubernetesCrashLoopBackOffStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const startActive = completedSteps >= 1;
+  const exitActive = completedSteps >= 2;
+  const restartActive = completedSteps >= 3;
+  const backoffActive = completedSteps >= 4;
+  const fixActive = completedSteps >= 5;
+  const eventRows = [
+    { time: "10:02:11", reason: "Started", message: "Started container api", active: startActive, tone: "brand" },
+    { time: "10:02:17", reason: "Killing", message: exitActive ? "failed liveness probe" : "pending", active: exitActive, tone: "danger" },
+    { time: "10:02:20", reason: "Pulled", message: restartActive ? "Container image already present" : "pending", active: restartActive, tone: "warning" },
+    { time: "10:03:40", reason: "BackOff", message: backoffActive ? "Back-off restarting failed container" : "pending", active: backoffActive, tone: "warning" },
+  ];
+  const evidenceRows = [
+    { name: "kubectl logs --previous", value: fixActive ? "KeyError DB_URL" : exitActive ? "stack trace captured" : "waiting", active: exitActive, tone: "brand" },
+    { name: "kubectl describe pod", value: backoffActive ? "BackOff x12" : "waiting Events", active: backoffActive, tone: "warning" },
+    { name: "lastState.reason", value: exitActive ? "Error / exitCode=1" : "none", active: exitActive, tone: "danger" },
+    { name: "probe config", value: fixActive ? "startupProbe added" : backoffActive ? "liveness too early" : "waiting", active: backoffActive, tone: "success" },
+  ];
+  const signalRows = [
+    { name: "restartCount", value: fixActive ? "stable at 3" : restartActive ? "3" : "0", active: restartActive, tone: "brand" },
+    { name: "BackOff delay", value: fixActive ? "reset" : backoffActive ? "80s" : "0s", active: backoffActive, tone: "warning" },
+    { name: "lastState.reason", value: exitActive ? "Error" : "none", active: exitActive, tone: "danger" },
+    { name: "Ready", value: fixActive ? "True" : "False", active: fixActive, tone: "success" },
+  ];
+  const mobileFlow = [
+    { name: "Container", value: startActive ? "api starts, env mounted" : "waiting", active: startActive },
+    { name: "Exit", value: exitActive ? "exitCode=1, liveness failed" : "pending", active: exitActive },
+    { name: "Restart", value: restartActive ? "restartCount=3" : "pending", active: restartActive },
+    { name: "BackOff", value: backoffActive ? "delay=80s, event emitted" : "pending", active: backoffActive },
+    { name: "Fix gate", value: fixActive ? "DB_URL fixed, Ready=True" : "awaiting evidence", active: fixActive },
+  ];
+
+  return (
+    <div className="visual-stage k8s-crashloop-stage">
+      <div className="k8s-crashloop-card">
+        <svg
+          className="k8s-crashloop-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["k8s-crashloop-arrow-brand", "var(--brand)"],
+              ["k8s-crashloop-arrow-teal", "var(--tertiary)"],
+              ["k8s-crashloop-arrow-warning", "#f59e0b"],
+              ["k8s-crashloop-arrow-danger", "var(--danger)"],
+              ["k8s-crashloop-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="k8s-crashloop-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="k8s-crashloop-bg" x="24" y="24" width="1072" height="588" rx="28" />
+          <text className="k8s-crashloop-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="k8s-crashloop-subtitle" x="560" y="100">
+            {label(
+              "start -> crash / probe failure -> restartCount -> BackOff event -> evidence-driven fix",
+              "start -> crash / probe failure -> restartCount -> BackOff event -> evidence-driven fix",
+            )}
+          </text>
+
+          <g className={`k8s-crashloop-pod ${startActive ? "active" : ""}`}>
+            <rect x="72" y="142" width="258" height="196" rx="24" />
+            <text className="k8s-crashloop-panel-title" x="104" y="180">Pod checkout-api-6d8c</text>
+            <text className="k8s-crashloop-panel-subtitle" x="104" y="204">container: api · restartPolicy=Always</text>
+            <g className={`k8s-crashloop-container-chip brand ${startActive ? "active" : ""}`}>
+              <rect x="104" y="232" width="190" height="34" rx="17" />
+              <text x="199" y="254">{startActive ? "Running 6s" : "Waiting"}</text>
+            </g>
+            <g className={`k8s-crashloop-container-chip danger ${exitActive ? "active" : ""}`}>
+              <rect x="104" y="276" width="190" height="34" rx="17" />
+              <text x="199" y="298">{exitActive ? "Terminated: Error" : "lastState empty"}</text>
+            </g>
+          </g>
+
+          <g className={`k8s-crashloop-kubelet ${startActive ? "active" : ""}`}>
+            <rect x="412" y="136" width="236" height="204" rx="24" />
+            <text className="k8s-crashloop-panel-title" x="440" y="174">kubelet</text>
+            <text className="k8s-crashloop-panel-subtitle" x="440" y="198">node-a · container runtime</text>
+            <g className={`k8s-crashloop-state-row brand ${startActive ? "active" : ""}`}>
+              <rect x="440" y="222" width="176" height="28" rx="14" />
+              <text x="454" y="241">start container</text>
+            </g>
+            <g className={`k8s-crashloop-state-row danger ${exitActive ? "active" : ""}`}>
+              <rect x="440" y="258" width="176" height="28" rx="14" />
+              <text x="454" y="277">capture lastState</text>
+            </g>
+            <g className={`k8s-crashloop-state-row warning ${restartActive ? "active" : ""}`}>
+              <rect x="440" y="294" width="176" height="28" rx="14" />
+              <text x="454" y="313">restartCount=3</text>
+            </g>
+          </g>
+
+          <g className={`k8s-crashloop-backoff ${backoffActive ? "active" : ""}`}>
+            <rect x="730" y="142" width="264" height="196" rx="24" />
+            <text className="k8s-crashloop-panel-title" x="758" y="180">BackOff Timer</text>
+            <text className="k8s-crashloop-panel-subtitle" x="758" y="204">restart loop guard</text>
+            <line className="k8s-crashloop-delay-axis" x1="780" y1="258" x2="950" y2="258" />
+            {[10, 20, 40, 80].map((delay, index) => (
+              <g key={delay} className={`k8s-crashloop-delay-node ${completedSteps >= Math.min(index + 1, 4) ? "active" : ""}`}>
+                <circle cx={790 + index * 54} cy="258" r="16" />
+                <text x={790 + index * 54} y="264">{delay}</text>
+                <text x={790 + index * 54} y="294">s</text>
+              </g>
+            ))}
+            <g className={`k8s-crashloop-status-chip warning ${backoffActive ? "active" : ""}`}>
+              <rect x="758" y="306" width="204" height="30" rx="15" />
+              <text x="860" y="326">Waiting: CrashLoopBackOff</text>
+            </g>
+          </g>
+
+          <g className={`k8s-crashloop-start-path ${startActive ? "active" : ""}`}>
+            <path d="M 412 238 C 384 234, 360 234, 330 236" markerEnd="url(#k8s-crashloop-arrow-brand)" />
+            <rect x="316" y="112" width="176" height="34" rx="17" />
+            <text x="404" y="134">container start</text>
+          </g>
+          <g className={`k8s-crashloop-exit-path ${exitActive ? "active" : ""}`}>
+            <path d="M 330 288 C 358 306, 384 300, 412 278" markerEnd="url(#k8s-crashloop-arrow-danger)" />
+            <rect x="212" y="358" width="178" height="34" rx="17" />
+            <text x="301" y="380">exitCode=1</text>
+          </g>
+          <g className={`k8s-crashloop-restart-path ${restartActive ? "active" : ""}`}>
+            <path d="M 530 340 C 500 388, 222 388, 200 338" markerEnd="url(#k8s-crashloop-arrow-warning)" />
+            <rect x="430" y="358" width="174" height="34" rx="17" />
+            <text x="517" y="380">restart by policy</text>
+          </g>
+          <g className={`k8s-crashloop-backoff-path ${backoffActive ? "active" : ""}`}>
+            <path d="M 648 250 C 684 248, 700 248, 730 250" markerEnd="url(#k8s-crashloop-arrow-warning)" />
+            <rect x="642" y="112" width="168" height="34" rx="17" />
+            <text x="726" y="134">BackOff event</text>
+          </g>
+
+          <g className={`k8s-crashloop-events ${exitActive ? "active" : ""}`}>
+            <rect x="72" y="424" width="480" height="136" rx="24" />
+            <text className="k8s-crashloop-panel-title" x="104" y="458">Events Timeline</text>
+            {eventRows.map((event, index) => (
+              <g key={`${event.time}-${event.reason}`} className={`k8s-crashloop-event-row ${event.tone} ${event.active ? "active" : ""}`}>
+                <rect x="104" y={478 + index * 25} width="410" height="20" rx="10" />
+                <text x="118" y={492 + index * 25}>{event.time}</text>
+                <text x="202" y={492 + index * 25}>{event.reason}</text>
+                <text x="500" y={492 + index * 25}>{event.message}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-crashloop-evidence ${fixActive || backoffActive ? "active" : ""}`}>
+            <rect x="604" y="398" width="414" height="162" rx="24" />
+            <text className="k8s-crashloop-panel-title" x="632" y="434">{label("证据与修复门禁", "Evidence and fix gate")}</text>
+            {evidenceRows.map((row, index) => (
+              <g key={row.name} className={`k8s-crashloop-evidence-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="632" y={454 + index * 28} width="344" height="22" rx="11" />
+                <text x="646" y={469 + index * 28}>{row.name}</text>
+                <text x="960" y={469 + index * 28}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-crashloop-fix-path ${fixActive ? "active" : ""}`}>
+            <path d="M 818 398 C 820 356, 778 344, 676 322" markerEnd="url(#k8s-crashloop-arrow-success)" />
+            <rect x="804" y="358" width="176" height="34" rx="17" />
+            <text x="892" y="380">Ready=True</text>
+          </g>
+
+          <g className="k8s-crashloop-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`k8s-crashloop-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={70 + index * 256} y="584" width="218" height="32" rx="15" />
+                <text x={88 + index * 256} y="597">{signal.name}</text>
+                <text x={270 + index * 256} y="610">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="k8s-crashloop-mobile-map">
+          <div className="k8s-crashloop-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`k8s-crashloop-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="k8s-crashloop-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`k8s-crashloop-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption k8s-crashloop-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

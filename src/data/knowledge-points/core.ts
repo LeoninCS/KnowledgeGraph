@@ -408,6 +408,7 @@ export const coreKnowledgePointIdsByCategory: Record<CategoryId, string[]> = {
     "rollback",
     "monitoring",
     "troubleshooting",
+    "crashloopbackoff",
     "logs",
     "helm",
   ],

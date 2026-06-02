@@ -138,6 +138,7 @@
 | 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
 | Service | `step-simulation` | completed | desktop/mobile captured | Kubernetes Service 数据面转发模拟器，覆盖 selector、EndpointSlice、ClusterIP/DNS、kube-proxy 规则和 Ready Pod |
 | Ingress | `step-simulation` | completed | desktop/mobile captured | Kubernetes Ingress 七层入口路由模拟器，覆盖公网入口、Ingress Controller、TLS Secret、host/path 规则和 Service 后端 |
+| CrashLoopBackOff | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes CrashLoopBackOff 重启退避状态模型，覆盖 Pod 启动、进程退出、kubelet restartPolicy、BackOff 延迟、Events/logs 证据链和修复恢复 |
 | 镜像层 | `storage-layout` | completed | desktop/mobile captured | Docker 镜像层结构模型，覆盖 Dockerfile 指令、Build Cache、只读层共享、overlay2 和可写层 |
 | MVCC | `state-model` | completed | desktop/mobile captured | MySQL MVCC 版本可见性状态模型，覆盖隐藏列、Undo 版本链、ReadView、可见性判断和长事务 Purge 风险 |
 | Redo Log | `state-model` | completed | desktop/mobile captured | MySQL Redo Log WAL 与恢复状态模型，覆盖 redo record、log buffer、write/fsync、checkpoint 和 crash recovery |
@@ -258,15 +259,70 @@
 - 截图结论：桌面 SVG 可识别 Source、Binary Log、Replica GTID Sets、Candidate Comparison、Set Diff、Auto Positioning 和底部恢复信号；移动端摘要完整展示五步流程和四个事实卡片。
 - 验收备注：Chrome DevTools MCP profile 被占用，Browser 插件返回 in-app browser 不可用，Vite preview 端口监听失败，Playwright Chromium 受 macOS Mach port 权限限制，QuickLook PNG 转换被沙箱初始化拦截；本轮使用 `npm run build`、`npm run test:data -- --grep "mysql GTID"`、完整 `npm run test:data`、`git diff --check` 和本地 SVG 审查图完成验收。
 
+## Kubernetes CrashLoopBackOff Visualization
+
+### Online Image References
+
+- `source`：Komodor - How to Fix CrashLoopBackOff in Kubernetes?，https://komodor.com/learn/how-to-fix-crashloopbackoff-kubernetes-error/
+  - `image`：页面中的 CrashLoopBackOff cycle 图，展示 container fails、increasing backoff、restart running 的循环。
+  - `role`：main
+  - `qualityReason`：图直接呈现 CrashLoopBackOff 的循环本体，容器失败、等待退避、重启运行三个状态清晰，适合作为主构图。
+  - `takeaways`：主画布采用 Pod/Container、Process Exit、kubelet restart、BackOff Timer 和 Evidence Timeline 五区结构。
+  - `originalChanges`：改造成项目自己的重启退避状态模型，加入 restartCount、lastState.reason、Events、`kubectl logs --previous`、探针失败和 fix gate。
+- `source`：Google Cloud - Troubleshoot CrashLoopBackOff events，https://docs.cloud.google.com/kubernetes-engine/docs/troubleshooting/crashloopbackoff-events
+  - `image`：页面中的 GKE Interactive Playbook、日志和事件排查路径说明。
+  - `role`：supporting
+  - `qualityReason`：官方排障文档把 app error、OOMKilled、liveness probe、node disruption 和 previous logs 组织成证据链。
+  - `takeaways`：右侧理解重点保留 `kubectl describe pod`、Events、`kubectl logs --previous`、probe failure 和 resource limit。
+  - `originalChanges`：把排查清单转成画布右侧 Evidence Stack，并让证据随五步推进逐层点亮。
+- `source`：Kubernetes Documentation - Pod Lifecycle，https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
+  - `image`：Pod phase、container state、restart policy 和 backoff 行为说明。
+  - `role`：supporting
+  - `qualityReason`：官方定义 Pod 生命周期与容器状态，适合校准 Running、Terminated、Waiting、restartPolicy 和 BackOff 语义。
+  - `takeaways`：状态模型按 Start container、Process exits、Restart by policy、Enter backoff、Gather evidence and fix 推进。
+  - `originalChanges`：把生命周期文字映射成五个可高亮状态节点和底部事实卡片。
+- `source`：Kubernetes Documentation - Configure Liveness, Readiness and Startup Probes，https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  - `image`：liveness/readiness/startup probe 配置、失败行为和事件说明。
+  - `role`：supporting
+  - `qualityReason`：官方探针文档能解释误配 liveness probe 如何触发重启循环。
+  - `takeaways`：底部信号保留 `probe failure Events`，画布加入 liveness gate 和 Ready 条件。
+  - `originalChanges`：将探针失败作为 BackOff 证据之一，与应用退出码和 previous logs 并列呈现。
+- `source`：Sysdig - What is Kubernetes CrashLoopBackOff? And how to fix it，https://www.sysdig.com/blog/debug-kubernetes-crashloopbackoff
+  - `image`：页面中的 CrashLoopBackOff explanation diagram。
+  - `role`：supporting
+  - `qualityReason`：技术博客图解释重启循环与调试顺序，适合补充教学节奏和可视化表达。
+  - `takeaways`：采用先识别循环、再看状态、再读日志与事件、最后验证恢复的节奏。
+  - `originalChanges`：用本项目 SVG 舞台、蓝/橙/红/绿状态色、右侧任务面板和移动端摘要重绘。
+
+### Reference Breakdown
+
+- 主体布局：左侧 Pod Sandbox 与 Container Process，中部 kubelet Restart Controller 和 BackOff Timer，右侧 Evidence Stack 与 Fix Gate，底部四个运行信号。
+- 视觉焦点：容器从 `Running` 进入 `Terminated: Error`，kubelet 按 `restartPolicy=Always` 重启，连续失败后进入 `Waiting: CrashLoopBackOff`。
+- 领域对象：Pod、container process、exit code、kubelet、restartPolicy、restartCount、BackOff delay、Events timeline、previous logs、liveness probe、Ready condition、fix gate。
+- 容器层级：Pod 包含主容器和状态条件；kubelet 负责监听退出与执行重启；BackOff Timer 限制下一次启动；Evidence Stack 承载 describe/logs/probe/resource 证据。
+- 连线方向：Start container -> Process exits -> kubelet restart -> BackOff wait -> Evidence and fix；修复后从 fix gate 回到 Ready=True。
+- 状态表达：五步通过边框色、脉冲圆点、时间线标记、底部信号和修复门禁表达启动、退出、重启、退避、恢复。
+- 颜色策略：品牌蓝表示正常启动，红色表示进程退出和错误，橙色表示 BackOff 等待，青色表示证据收集，绿色表示修复后 Ready。
+- 文字密度：画布保留状态名、命令读数和短标签；长解释放在右侧面板和底部步骤条。
+- 交互节奏：启动容器 -> 进程退出 -> 按策略重启 -> 进入退避 -> 收集证据并修复。
+- 原创改造点：把循环参考图和官方排障文档融合为可探索状态模型，强调线上排障的证据顺序、BackOff 读数和恢复验收。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/crashloopbackoff/desktop.svg`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/crashloopbackoff/mobile.svg`。
+- 截图结论：桌面 SVG 可识别 Pod Sandbox、Container Process、kubelet Restart Controller、BackOff Timer、Events Timeline、Evidence Stack、Fix Gate 和底部信号；移动端摘要完整展示五步流程和四个事实卡片。
+- 验收备注：Vite preview 已在 `http://127.0.0.1:4234/KnowledgeGraph/` 启动；Chrome DevTools MCP profile 被占用，Browser 插件返回 in-app browser 不可用，Playwright Chromium 受 macOS Mach port 权限限制，QuickLook PNG 转换被沙箱初始化拦截；本轮使用 `npm run build`、`npm run test:data -- --grep "CrashLoopBackOff"`、完整 `npm run test:data`、`git diff --check` 和本地 SVG 审查图完成验收。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 MySQL `Failover` 或 Kubernetes `CrashLoopBackOff` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Kubernetes `Horizontal Pod Autoscaler` 或 Docker `容器网络` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 MySQL `Failover` 或 Kubernetes `CrashLoopBackOff`，它们都能围绕真实故障切换、状态判断、恢复动作和排障信号形成高价值交互模型。
+优先选择 Kubernetes `Horizontal Pod Autoscaler` 或 Docker `容器网络`。HPA 能围绕指标采集、期望副本计算、扩缩容节流和稳定窗口形成动态机制模拟；容器网络能围绕 namespace、veth、bridge、iptables/NAT 和端口映射形成分层结构模型。
 
 ## MySQL Replication Visualization
 
@@ -1272,3 +1328,18 @@
 - Verification：新增测试先失败于 `visualPointIds.mysql` 缺少 `gtid`，补实现后 `npm run test:data -- --grep "mysql GTID"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 5 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add gtid visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：MySQL `Failover` 或 Kubernetes `CrashLoopBackOff`。
+
+### 2026-06-02 17:16 CST
+
+- Branch/Pull：当前分支 `main`；`git fetch origin main` 与 `git pull --ff-only origin main` 成功，远端已同步到 `c760622`。
+- Selected：Kubernetes `CrashLoopBackOff`，原因是 Pod/container 启动、进程退出、kubelet restartPolicy、BackOff 延迟、Events/logs 证据链和修复恢复能形成高价值排障状态模型。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；保留 Komodor CrashLoopBackOff cycle 图为主参考，GKE CrashLoopBackOff 排障文档、Kubernetes Pod Lifecycle、Kubernetes probes 和 Sysdig CrashLoopBackOff explanation diagram 为辅助参考。
+- Main Reference：Komodor - How to Fix CrashLoopBackOff in Kubernetes? 页面中的 CrashLoopBackOff cycle 图。
+- Supporting References：Google Cloud GKE CrashLoopBackOff events、Kubernetes Pod Lifecycle、Kubernetes Liveness/Readiness/Startup Probes、Sysdig CrashLoopBackOff explanation diagram。
+- Reference Breakdown：采用左侧 Pod/Container，中部 kubelet Restart Controller 与 BackOff Timer，右侧 Evidence Stack 与 Fix Gate，底部 restartCount、BackOff delay、lastState.reason、Ready condition 四个信号；视觉焦点是 `Running -> Terminated: Error -> Waiting: CrashLoopBackOff -> Ready=True` 的状态迁移。
+- Implementation：新增 `kubernetes:crashloopbackoff` 专用 `state-model` 构建器、CrashLoopBackOff SVG 舞台、移动端纵向摘要、响应式样式、CrashLoopBackOff 专用来源和数据测试，并把 CrashLoopBackOff 加入 Kubernetes 核心/可视化清单。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/crashloopbackoff/desktop.svg` 与 `.codex-artifacts/visualizations/crashloopbackoff/mobile.svg`；PNG 捕获受平台权限限制；桌面 SVG 可识别 Pod、Container Process、kubelet、BackOff、Events、Evidence 和 Fix Gate，移动端五步流程与四个事实卡片可读。
+- Browser Note：Vite preview 已在 `http://127.0.0.1:4234/KnowledgeGraph/` 启动；Chrome DevTools MCP profile 被占用；Browser 插件返回 in-app browser 不可用；Playwright Chromium 受 macOS Mach port 权限限制；QuickLook PNG 转换被沙箱初始化拦截。
+- Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `crashloopbackoff`，补实现后 `npm run test:data -- --grep "CrashLoopBackOff"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 6 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add crashloopbackoff visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Kubernetes `Horizontal Pod Autoscaler` 或 Docker `容器网络`。

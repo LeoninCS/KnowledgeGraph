@@ -754,14 +754,16 @@
 }
 
 .k8s-service-stage,
-.k8s-ingress-stage {
+.k8s-ingress-stage,
+.k8s-crashloop-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
   padding: clamp(12px, 2.4vw, 28px);
 }
 
 .k8s-service-card,
-.k8s-ingress-card {
+.k8s-ingress-card,
+.k8s-crashloop-card {
   position: relative;
   justify-self: center;
   width: min(100%, 1120px);
@@ -776,14 +778,16 @@
 }
 
 :root[data-theme="dark"] .k8s-service-card,
-:root[data-theme="dark"] .k8s-ingress-card {
+:root[data-theme="dark"] .k8s-ingress-card,
+:root[data-theme="dark"] .k8s-crashloop-card {
   background:
     linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
     var(--surface);
 }
 
 .k8s-service-diagram,
-.k8s-ingress-diagram {
+.k8s-ingress-diagram,
+.k8s-crashloop-diagram {
   display: block;
   width: 100%;
   height: auto;
@@ -792,7 +796,8 @@
 }
 
 .k8s-service-mobile-map,
-.k8s-ingress-mobile-map {
+.k8s-ingress-mobile-map,
+.k8s-crashloop-mobile-map {
   display: none;
 }
 
@@ -5404,6 +5409,250 @@
 }
 
 .k8s-ingress-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.k8s-crashloop-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 48%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+}
+
+.k8s-crashloop-title {
+  fill: var(--text);
+  font-size: 24px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.k8s-crashloop-subtitle {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+  text-anchor: middle;
+}
+
+.k8s-crashloop-pod,
+.k8s-crashloop-kubelet,
+.k8s-crashloop-backoff,
+.k8s-crashloop-events,
+.k8s-crashloop-evidence,
+.k8s-crashloop-start-path,
+.k8s-crashloop-exit-path,
+.k8s-crashloop-restart-path,
+.k8s-crashloop-backoff-path,
+.k8s-crashloop-fix-path,
+.k8s-crashloop-container-chip,
+.k8s-crashloop-state-row,
+.k8s-crashloop-delay-node,
+.k8s-crashloop-status-chip,
+.k8s-crashloop-event-row,
+.k8s-crashloop-evidence-row,
+.k8s-crashloop-signal {
+  opacity: 0.34;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.k8s-crashloop-pod.active,
+.k8s-crashloop-kubelet.active,
+.k8s-crashloop-backoff.active,
+.k8s-crashloop-events.active,
+.k8s-crashloop-evidence.active,
+.k8s-crashloop-start-path.active,
+.k8s-crashloop-exit-path.active,
+.k8s-crashloop-restart-path.active,
+.k8s-crashloop-backoff-path.active,
+.k8s-crashloop-fix-path.active,
+.k8s-crashloop-container-chip.active,
+.k8s-crashloop-state-row.active,
+.k8s-crashloop-delay-node.active,
+.k8s-crashloop-status-chip.active,
+.k8s-crashloop-event-row.active,
+.k8s-crashloop-evidence-row.active,
+.k8s-crashloop-signal.active {
+  opacity: 1;
+}
+
+.k8s-crashloop-pod > rect,
+.k8s-crashloop-kubelet > rect,
+.k8s-crashloop-backoff > rect,
+.k8s-crashloop-events > rect,
+.k8s-crashloop-evidence > rect {
+  fill: color-mix(in srgb, var(--surface) 94%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 14%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#k8s-crashloop-soft-shadow);
+}
+
+.k8s-crashloop-pod.active > rect,
+.k8s-crashloop-kubelet.active > rect,
+.k8s-crashloop-container-chip.brand.active rect,
+.k8s-crashloop-state-row.brand.active rect,
+.k8s-crashloop-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 52%, var(--border));
+}
+
+.k8s-crashloop-container-chip.danger.active rect,
+.k8s-crashloop-state-row.danger.active rect,
+.k8s-crashloop-event-row.danger.active rect,
+.k8s-crashloop-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 54%, var(--border));
+}
+
+.k8s-crashloop-backoff.active > rect,
+.k8s-crashloop-state-row.warning.active rect,
+.k8s-crashloop-status-chip.warning.active rect,
+.k8s-crashloop-event-row.warning.active rect,
+.k8s-crashloop-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 13%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 58%, var(--border));
+}
+
+.k8s-crashloop-evidence.active > rect,
+.k8s-crashloop-evidence-row.success.active rect,
+.k8s-crashloop-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 52%, var(--border));
+}
+
+.k8s-crashloop-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.k8s-crashloop-panel-subtitle,
+.k8s-crashloop-pod text,
+.k8s-crashloop-kubelet text,
+.k8s-crashloop-backoff text,
+.k8s-crashloop-events text,
+.k8s-crashloop-evidence text,
+.k8s-crashloop-start-path text,
+.k8s-crashloop-exit-path text,
+.k8s-crashloop-restart-path text,
+.k8s-crashloop-backoff-path text,
+.k8s-crashloop-fix-path text,
+.k8s-crashloop-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.k8s-crashloop-container-chip rect,
+.k8s-crashloop-state-row rect,
+.k8s-crashloop-status-chip rect,
+.k8s-crashloop-event-row rect,
+.k8s-crashloop-evidence-row rect,
+.k8s-crashloop-start-path rect,
+.k8s-crashloop-exit-path rect,
+.k8s-crashloop-restart-path rect,
+.k8s-crashloop-backoff-path rect,
+.k8s-crashloop-fix-path rect,
+.k8s-crashloop-signal rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 12%, var(--border));
+  filter: url(#k8s-crashloop-soft-shadow);
+}
+
+.k8s-crashloop-panel-title,
+.k8s-crashloop-container-chip text,
+.k8s-crashloop-state-row text,
+.k8s-crashloop-status-chip text,
+.k8s-crashloop-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 900;
+}
+
+.k8s-crashloop-container-chip text,
+.k8s-crashloop-status-chip text,
+.k8s-crashloop-start-path text,
+.k8s-crashloop-exit-path text,
+.k8s-crashloop-restart-path text,
+.k8s-crashloop-backoff-path text,
+.k8s-crashloop-fix-path text,
+.k8s-crashloop-delay-node text {
+  text-anchor: middle;
+}
+
+.k8s-crashloop-event-row text:first-of-type,
+.k8s-crashloop-evidence-row text:first-of-type,
+.k8s-crashloop-signal text:first-of-type {
+  text-anchor: start;
+}
+
+.k8s-crashloop-event-row text:last-of-type,
+.k8s-crashloop-evidence-row text:last-of-type,
+.k8s-crashloop-signal text:last-of-type {
+  fill: var(--brand-strong);
+  font-weight: 900;
+  text-anchor: end;
+}
+
+.k8s-crashloop-start-path path,
+.k8s-crashloop-exit-path path,
+.k8s-crashloop-restart-path path,
+.k8s-crashloop-backoff-path path,
+.k8s-crashloop-fix-path path {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.k8s-crashloop-start-path path {
+  stroke: var(--brand);
+}
+
+.k8s-crashloop-exit-path path {
+  stroke: var(--danger);
+}
+
+.k8s-crashloop-restart-path path,
+.k8s-crashloop-backoff-path path {
+  stroke: #f59e0b;
+}
+
+.k8s-crashloop-fix-path path {
+  stroke: var(--success);
+}
+
+.k8s-crashloop-delay-axis {
+  stroke: color-mix(in srgb, var(--brand) 28%, var(--border));
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.k8s-crashloop-delay-node circle {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, #f59e0b 36%, var(--border));
+  stroke-width: 2;
+  filter: url(#k8s-crashloop-soft-shadow);
+}
+
+.k8s-crashloop-delay-node.active circle {
+  fill: color-mix(in srgb, #f59e0b 18%, var(--surface));
+  stroke: #f59e0b;
+}
+
+.k8s-crashloop-event-row.brand.active rect,
+.k8s-crashloop-evidence-row.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 48%, var(--border));
+}
+
+.k8s-crashloop-evidence-row.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 52%, var(--border));
+}
+
+.k8s-crashloop-evidence-row.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 52%, var(--border));
+}
+
+.k8s-crashloop-caption {
   right: 16px;
   bottom: 14px;
 }

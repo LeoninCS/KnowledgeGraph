@@ -2009,6 +2009,22 @@ export const knowledgeSources = {
     title: "Kubernetes Docs: Configure Liveness, Readiness and Startup Probes",
     url: "https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
   },
+  "kubernetes-pod-lifecycle": {
+    title: "Kubernetes Docs: Pod Lifecycle",
+    url: "https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/",
+  },
+  "gke-crashloopbackoff-playbook": {
+    title: "Google Kubernetes Engine: Troubleshoot CrashLoopBackOff events",
+    url: "https://docs.cloud.google.com/kubernetes-engine/docs/troubleshooting/crashloopbackoff-events",
+  },
+  "sysdig-crashloopbackoff": {
+    title: "Sysdig: Debugging Kubernetes CrashLoopBackOff",
+    url: "https://sysdig.com/blog/debug-kubernetes-crashloopbackoff/",
+  },
+  "komodor-kubernetes-errors": {
+    title: "Komodor: Troubleshooting Kubernetes Errors",
+    url: "https://komodor.com/learn/how-to-fix-crashloopbackoff-kubernetes-error/",
+  },
   "aws-elb-health-checks": {
     title: "AWS Elastic Load Balancing: Health checks for target groups",
     url: "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html",
