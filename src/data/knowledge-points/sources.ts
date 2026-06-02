@@ -3105,6 +3105,22 @@ export const knowledgeSources = {
     title: "Kubernetes Docs: Taints and Tolerations",
     url: "https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
   },
+  "kubex-taints-tolerations": {
+    title: "Kubex: Taints and Tolerations",
+    url: "https://kubex.ai/blog/kubernetes-taints/",
+  },
+  "aws-eks-hybrid-pod-failover": {
+    title: "Amazon EKS Best Practices: Hybrid nodes Kubernetes pod failover",
+    url: "https://docs.aws.amazon.com/eks/latest/best-practices/hybrid-nodes-kubernetes-pod-failover.html",
+  },
+  "komodor-taints-tolerations": {
+    title: "Komodor: Kubernetes Taints and Tolerations - A Practical Guide",
+    url: "https://komodor.com/learn/kubernetes-taints-and-tolerations-a-practical-guide/",
+  },
+  "kubecost-taints-tolerations": {
+    title: "Kubecost: Kubernetes Taints and Tolerations",
+    url: "https://www.kubecost.com/kubernetes-devops-tools/kubernetes-taints/",
+  },
   "kubernetes-priority-preemption": {
     title: "Kubernetes Docs: Pod Priority and Preemption",
     url: "https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/",

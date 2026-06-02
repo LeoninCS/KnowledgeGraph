@@ -1689,6 +1689,7 @@
 .k8s-ingress-stage,
 .k8s-hpa-stage,
 .k8s-scheduler-stage,
+.k8s-taint-stage,
 .k8s-crashloop-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -1699,6 +1700,7 @@
 .k8s-ingress-card,
 .k8s-hpa-card,
 .k8s-scheduler-card,
+.k8s-taint-card,
 .k8s-crashloop-card {
   position: relative;
   justify-self: center;
@@ -1717,6 +1719,7 @@
 :root[data-theme="dark"] .k8s-ingress-card,
 :root[data-theme="dark"] .k8s-hpa-card,
 :root[data-theme="dark"] .k8s-scheduler-card,
+:root[data-theme="dark"] .k8s-taint-card,
 :root[data-theme="dark"] .k8s-crashloop-card {
   background:
     linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
@@ -1727,6 +1730,7 @@
 .k8s-ingress-diagram,
 .k8s-hpa-diagram,
 .k8s-scheduler-diagram,
+.k8s-taint-diagram,
 .k8s-crashloop-diagram {
   display: block;
   width: 100%;
@@ -1739,6 +1743,7 @@
 .k8s-ingress-mobile-map,
 .k8s-hpa-mobile-map,
 .k8s-scheduler-mobile-map,
+.k8s-taint-mobile-map,
 .k8s-crashloop-mobile-map {
   display: none;
 }
@@ -7254,6 +7259,284 @@
 }
 
 .k8s-scheduler-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.k8s-taint-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 38%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+}
+
+.k8s-taint-title {
+  fill: var(--text);
+  font-size: 24px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.k8s-taint-subtitle {
+  fill: var(--muted);
+  font-size: 12.5px;
+  font-weight: 750;
+  text-anchor: middle;
+}
+
+.k8s-taint-nodes,
+.k8s-taint-pods,
+.k8s-taint-filter,
+.k8s-taint-yaml,
+.k8s-taint-eviction,
+.k8s-taint-events,
+.k8s-taint-node-row,
+.k8s-taint-pod-row,
+.k8s-taint-filter-row,
+.k8s-taint-eviction-row,
+.k8s-taint-event-row,
+.k8s-taint-signal,
+.k8s-taint-taint-path,
+.k8s-taint-toleration-path,
+.k8s-taint-filter-path,
+.k8s-taint-evict-path,
+.k8s-taint-validate-path {
+  opacity: 0.34;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.k8s-taint-nodes.active,
+.k8s-taint-pods.active,
+.k8s-taint-filter.active,
+.k8s-taint-yaml.active,
+.k8s-taint-eviction.active,
+.k8s-taint-events.active,
+.k8s-taint-node-row.active,
+.k8s-taint-pod-row.active,
+.k8s-taint-filter-row.active,
+.k8s-taint-eviction-row.active,
+.k8s-taint-event-row.active,
+.k8s-taint-signal.active,
+.k8s-taint-taint-path.active,
+.k8s-taint-toleration-path.active,
+.k8s-taint-filter-path.active,
+.k8s-taint-evict-path.active,
+.k8s-taint-validate-path.active {
+  opacity: 1;
+}
+
+.k8s-taint-nodes > rect,
+.k8s-taint-pods > rect,
+.k8s-taint-filter > rect,
+.k8s-taint-yaml > rect,
+.k8s-taint-eviction > rect,
+.k8s-taint-events > rect {
+  fill: color-mix(in srgb, var(--surface) 94%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 14%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#k8s-taint-soft-shadow);
+}
+
+.k8s-taint-nodes.active > rect,
+.k8s-taint-node-row.brand.active rect,
+.k8s-taint-filter-row.brand.active rect,
+.k8s-taint-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 52%, var(--border));
+}
+
+.k8s-taint-pods.active > rect,
+.k8s-taint-yaml.active > rect,
+.k8s-taint-node-row.teal.active rect,
+.k8s-taint-pod-row.teal.active rect,
+.k8s-taint-filter-row.teal.active rect,
+.k8s-taint-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+}
+
+.k8s-taint-filter.active > rect,
+.k8s-taint-node-row.warning.active rect,
+.k8s-taint-filter-row.warning.active rect,
+.k8s-taint-eviction-row.warning.active rect,
+.k8s-taint-event-row.warning.active rect,
+.k8s-taint-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 54%, var(--border));
+}
+
+.k8s-taint-pod-row.success.active rect,
+.k8s-taint-eviction-row.success.active rect,
+.k8s-taint-event-row.success.active rect,
+.k8s-taint-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 52%, var(--border));
+}
+
+.k8s-taint-eviction.active > rect,
+.k8s-taint-events.active > rect,
+.k8s-taint-pod-row.danger.active rect,
+.k8s-taint-filter-row.danger.active rect,
+.k8s-taint-eviction-row.danger.active rect,
+.k8s-taint-event-row.danger.active rect,
+.k8s-taint-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 44%, var(--border));
+}
+
+.k8s-taint-node-row rect,
+.k8s-taint-pod-row rect,
+.k8s-taint-filter-row rect,
+.k8s-taint-eviction-row rect,
+.k8s-taint-event-row rect,
+.k8s-taint-signal rect,
+.k8s-taint-taint-path rect,
+.k8s-taint-toleration-path rect,
+.k8s-taint-filter-path rect,
+.k8s-taint-evict-path rect,
+.k8s-taint-validate-path rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 12%, var(--border));
+  filter: url(#k8s-taint-soft-shadow);
+}
+
+.k8s-taint-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.k8s-taint-panel-subtitle,
+.k8s-taint-nodes text,
+.k8s-taint-pods text,
+.k8s-taint-filter text,
+.k8s-taint-yaml text,
+.k8s-taint-eviction text,
+.k8s-taint-events text,
+.k8s-taint-taint-path text,
+.k8s-taint-toleration-path text,
+.k8s-taint-filter-path text,
+.k8s-taint-evict-path text,
+.k8s-taint-validate-path text,
+.k8s-taint-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.k8s-taint-node-row text,
+.k8s-taint-pod-row text,
+.k8s-taint-filter-row text,
+.k8s-taint-eviction-row text,
+.k8s-taint-event-row text,
+.k8s-taint-signal text,
+.k8s-taint-yaml text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.k8s-taint-panel-title,
+.k8s-taint-node-row text:first-of-type,
+.k8s-taint-pod-row text:first-of-type,
+.k8s-taint-filter-row text:first-of-type,
+.k8s-taint-eviction-row text:first-of-type,
+.k8s-taint-event-row text:first-of-type,
+.k8s-taint-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 900;
+}
+
+.k8s-taint-node-row text:last-of-type,
+.k8s-taint-pod-row text:last-of-type,
+.k8s-taint-filter-row text:last-of-type,
+.k8s-taint-eviction-row text:last-of-type,
+.k8s-taint-event-row text:last-of-type,
+.k8s-taint-signal text:last-of-type {
+  fill: var(--brand-strong);
+  font-size: 9.2px;
+  text-anchor: end;
+}
+
+.k8s-taint-taint-path path,
+.k8s-taint-toleration-path path,
+.k8s-taint-filter-path path,
+.k8s-taint-evict-path path,
+.k8s-taint-validate-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.k8s-taint-taint-path path {
+  stroke: var(--brand);
+}
+
+.k8s-taint-toleration-path path {
+  stroke: var(--tertiary);
+}
+
+.k8s-taint-filter-path path {
+  stroke: #f59e0b;
+}
+
+.k8s-taint-evict-path path {
+  stroke: var(--danger);
+}
+
+.k8s-taint-validate-path path {
+  stroke: var(--success);
+}
+
+.k8s-taint-taint-path text,
+.k8s-taint-toleration-path text,
+.k8s-taint-filter-path text,
+.k8s-taint-evict-path text,
+.k8s-taint-validate-path text {
+  fill: var(--text);
+  text-anchor: middle;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.k8s-taint-mobile-flow,
+.k8s-taint-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.k8s-taint-mobile-hop,
+.k8s-taint-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+  padding: 12px;
+}
+
+.k8s-taint-mobile-hop span,
+.k8s-taint-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.k8s-taint-mobile-hop strong,
+.k8s-taint-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.k8s-taint-mobile-hop.active,
+.k8s-taint-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--brand) 42%, var(--border));
+  background: color-mix(in srgb, var(--brand) 10%, var(--surface));
+}
+
+.k8s-taint-caption {
   right: 16px;
   bottom: 14px;
 }

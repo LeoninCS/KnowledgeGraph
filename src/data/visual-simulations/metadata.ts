@@ -383,6 +383,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
   kubernetes: [
     "cluster",
     "scheduler",
+    "taint-toleration",
     "node",
     "pod",
     "container",

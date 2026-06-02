@@ -396,6 +396,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "kubernetes:taint-toleration") {
+    return (
+      <KubernetesTaintTolerationStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:crashloopbackoff") {
     return (
       <KubernetesCrashLoopBackOffStage
@@ -5554,6 +5565,250 @@ function KubernetesSchedulerStage({
           </div>
         </div>
         <div className="tcp-handshake-caption k8s-scheduler-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KubernetesTaintTolerationStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const taintActive = completedSteps >= 1;
+  const tolerationActive = completedSteps >= 2;
+  const filterActive = completedSteps >= 3;
+  const evictionActive = completedSteps >= 4;
+  const validateActive = completedSteps >= 5;
+  const nodeRows = [
+    { name: "node-gpu", value: taintActive ? "dedicated=gpu:NoSchedule" : "label accelerator=nvidia", active: taintActive, tone: "brand" },
+    { name: "node-spot", value: evictionActive ? "unreachable:NoExecute" : "spot=true:PreferNoSchedule", active: evictionActive || taintActive, tone: evictionActive ? "danger" : "warning" },
+    { name: "node-system", value: "control-plane taint", active: taintActive, tone: "teal" },
+  ];
+  const podRows = [
+    { name: "gpu-job", value: tolerationActive ? "Equal dedicated=gpu" : "tolerations: pending", active: tolerationActive, tone: "success" },
+    { name: "checkout", value: filterActive ? "missing dedicated toleration" : "ordinary workload", active: filterActive, tone: "danger" },
+    { name: "node-agent", value: tolerationActive ? "Exists NoSchedule" : "DaemonSet", active: tolerationActive, tone: "teal" },
+  ];
+  const filterRows = [
+    { name: "NoSchedule", value: filterActive ? "gpu pass / checkout fail" : "pending", active: filterActive, tone: "warning" },
+    { name: "PreferNoSchedule", value: filterActive ? "soft avoid spot" : "pending", active: filterActive, tone: "teal" },
+    { name: "NoExecute", value: evictionActive ? "running pod timed" : "pending", active: evictionActive, tone: "danger" },
+  ];
+  const evictionRows = [
+    { name: "unreachable taint", value: evictionActive ? "NoExecute" : "watching condition", active: evictionActive, tone: "danger" },
+    { name: "tolerationSeconds", value: evictionActive ? "300s" : "unset", active: evictionActive, tone: "warning" },
+    { name: "reschedule", value: validateActive ? "api -> node-b" : "pending", active: validateActive, tone: "success" },
+  ];
+  const eventRows = [
+    { time: "10:21:04", reason: "Tainted", message: taintActive ? "node-gpu tainted" : "waiting", active: taintActive, tone: "brand" },
+    { time: "10:21:18", reason: "FailedScheduling", message: filterActive ? "untolerated dedicated" : "waiting", active: filterActive, tone: "warning" },
+    { time: "10:23:02", reason: "NodeNotReady", message: evictionActive ? "unreachable NoExecute" : "waiting", active: evictionActive, tone: "danger" },
+    { time: "10:28:02", reason: "Scheduled", message: validateActive ? "gpu-job -> node-gpu" : "waiting", active: validateActive, tone: "success" },
+  ];
+  const signalRows = [
+    { name: "NoSchedule", value: filterActive ? "hard filter" : "idle", active: filterActive, tone: "warning" },
+    { name: "NoExecute", value: evictionActive ? "evict running pods" : "idle", active: evictionActive, tone: "danger" },
+    { name: "tolerationSeconds", value: evictionActive ? "300s grace" : "unset", active: evictionActive, tone: "teal" },
+    { name: "FailedScheduling", value: filterActive ? "untolerated taint" : "none", active: filterActive, tone: "brand" },
+  ];
+  const mobileFlow = [
+    { name: "Node taint", value: taintActive ? "dedicated=gpu:NoSchedule" : "waiting taint", active: taintActive },
+    { name: "Pod toleration", value: tolerationActive ? "gpu-job tolerates Equal" : "spec pending", active: tolerationActive },
+    { name: "Filter", value: filterActive ? "checkout rejected, gpu-job allowed" : "pending", active: filterActive },
+    { name: "NoExecute", value: evictionActive ? "unreachable grace 300s" : "watching node health", active: evictionActive },
+    { name: "Validate", value: validateActive ? "events explain placement" : "awaiting describe", active: validateActive },
+  ];
+
+  return (
+    <div className="visual-stage k8s-taint-stage">
+      <div className="k8s-taint-card">
+        <svg
+          className="k8s-taint-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["k8s-taint-arrow-brand", "var(--brand)"],
+              ["k8s-taint-arrow-teal", "var(--tertiary)"],
+              ["k8s-taint-arrow-warning", "#f59e0b"],
+              ["k8s-taint-arrow-success", "var(--success)"],
+              ["k8s-taint-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="k8s-taint-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="k8s-taint-bg" x="24" y="24" width="1072" height="588" rx="28" />
+          <text className="k8s-taint-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="k8s-taint-subtitle" x="560" y="100">
+            {label(
+              "node taint -> pod toleration -> TaintToleration Filter -> NoExecute eviction -> event validation",
+              "node taint -> pod toleration -> TaintToleration Filter -> NoExecute eviction -> event validation",
+            )}
+          </text>
+
+          <g className={`k8s-taint-nodes ${taintActive ? "active" : ""}`}>
+            <rect x="64" y="136" width="306" height="204" rx="24" />
+            <text className="k8s-taint-panel-title" x="92" y="174">Node taints</text>
+            <text className="k8s-taint-panel-subtitle" x="92" y="198">kubectl taint nodes node-gpu dedicated=gpu:NoSchedule</text>
+            {nodeRows.map((row, index) => (
+              <g key={row.name} className={`k8s-taint-node-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="92" y={222 + index * 38} width="232" height="30" rx="15" />
+                <text x="108" y={240 + index * 38}>{row.name}</text>
+                <text x="316" y={240 + index * 38}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-taint-pods ${tolerationActive ? "active" : ""}`}>
+            <rect x="64" y="382" width="306" height="156" rx="24" />
+            <text className="k8s-taint-panel-title" x="92" y="420">Pod tolerations</text>
+            {podRows.map((row, index) => (
+              <g key={row.name} className={`k8s-taint-pod-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="92" y={442 + index * 30} width="232" height="23" rx="12" />
+                <text x="106" y={458 + index * 30}>{row.name}</text>
+                <text x="316" y={458 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-taint-filter ${filterActive ? "active" : ""}`}>
+            <rect x="438" y="132" width="292" height="228" rx="24" />
+            <text className="k8s-taint-panel-title" x="466" y="170">TaintToleration Filter</text>
+            <text className="k8s-taint-panel-subtitle" x="466" y="194">Filter plugin · scheduler framework</text>
+            {filterRows.map((row, index) => (
+              <g key={row.name} className={`k8s-taint-filter-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="466" y={220 + index * 40} width="218" height="30" rx="15" />
+                <text x="482" y={238 + index * 40}>{row.name}</text>
+                <text x="674" y={238 + index * 40}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-taint-yaml ${tolerationActive ? "active" : ""}`}>
+            <rect x="438" y="404" width="292" height="130" rx="24" />
+            <text className="k8s-taint-panel-title" x="466" y="442">spec.tolerations</text>
+            <text x="466" y="470">key: dedicated</text>
+            <text x="466" y="492">operator: Equal</text>
+            <text x="466" y="514">effect: NoSchedule</text>
+            <text x="606" y="514">value: gpu</text>
+          </g>
+
+          <g className={`k8s-taint-eviction ${evictionActive ? "active" : ""}`}>
+            <rect x="792" y="132" width="264" height="182" rx="24" />
+            <text className="k8s-taint-panel-title" x="820" y="170">NoExecute eviction</text>
+            <text className="k8s-taint-panel-subtitle" x="820" y="194">node controller · taint manager</text>
+            {evictionRows.map((row, index) => (
+              <g key={row.name} className={`k8s-taint-eviction-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="820" y={220 + index * 30} width="194" height="23" rx="12" />
+                <text x="834" y={236 + index * 30}>{row.name}</text>
+                <text x="1002" y={236 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-taint-events ${filterActive || validateActive ? "active" : ""}`}>
+            <rect x="792" y="374" width="264" height="164" rx="24" />
+            <text className="k8s-taint-panel-title" x="820" y="412">Events evidence</text>
+            {eventRows.map((event, index) => (
+              <g key={`${event.time}-${event.reason}`} className={`k8s-taint-event-row ${event.tone} ${event.active ? "active" : ""}`}>
+                <rect x="820" y={432 + index * 25} width="202" height="20" rx="10" />
+                <text x="834" y={446 + index * 25}>{event.reason}</text>
+                <text x="1012" y={446 + index * 25}>{event.message}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-taint-taint-path ${taintActive ? "active" : ""}`}>
+            <path d="M 370 228 C 402 222, 418 218, 438 214" markerEnd="url(#k8s-taint-arrow-brand)" />
+            <rect x="338" y="112" width="186" height="32" rx="16" />
+            <text x="431" y="133">taint enters NodeInfo</text>
+          </g>
+
+          <g className={`k8s-taint-toleration-path ${tolerationActive ? "active" : ""}`}>
+            <path d="M 370 464 C 402 430, 418 410, 438 360" markerEnd="url(#k8s-taint-arrow-teal)" />
+            <rect x="360" y="556" width="166" height="32" rx="16" />
+            <text x="443" y="577">Pod spec match</text>
+          </g>
+
+          <g className={`k8s-taint-filter-path ${filterActive ? "active" : ""}`}>
+            <path d="M 730 242 C 758 238, 774 234, 792 230" markerEnd="url(#k8s-taint-arrow-warning)" />
+            <path d="M 730 304 C 756 358, 768 414, 792 448" markerEnd="url(#k8s-taint-arrow-warning)" />
+            <rect x="608" y="366" width="164" height="32" rx="16" />
+            <text x="690" y="387">FailedScheduling</text>
+          </g>
+
+          <g className={`k8s-taint-evict-path ${evictionActive ? "active" : ""}`}>
+            <path d="M 918 314 C 920 338, 922 350, 924 374" markerEnd="url(#k8s-taint-arrow-danger)" />
+            <rect x="842" y="328" width="176" height="32" rx="16" />
+            <text x="930" y="349">timer then evict</text>
+          </g>
+
+          <g className={`k8s-taint-validate-path ${validateActive ? "active" : ""}`}>
+            <path d="M 792 480 C 642 598, 226 594, 216 538" markerEnd="url(#k8s-taint-arrow-success)" />
+            <rect x="606" y="572" width="182" height="30" rx="15" />
+            <text x="697" y="592">Ready on right node</text>
+          </g>
+
+          <g className="k8s-taint-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`k8s-taint-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={64 + index * 258} y="578" width="218" height="34" rx="16" />
+                <text x={84 + index * 258} y="592">{signal.name}</text>
+                <text x={270 + index * 258} y="606">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="k8s-taint-mobile-map">
+          <div className="k8s-taint-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`k8s-taint-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="k8s-taint-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`k8s-taint-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption k8s-taint-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

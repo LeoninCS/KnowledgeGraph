@@ -153,6 +153,7 @@
 | GTID | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | MySQL GTID 集合对账状态模型，覆盖 server_uuid:sequence、gtid_executed、gtid_purged、Retrieved/Executed 集合、候选副本对账和自动定位恢复 |
 | HPA | `step-simulation` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes HPA 自动伸缩控制环模拟器，覆盖负载升高、Metrics API、desiredReplicas 公式、Scale 子资源和稳定窗口 |
 | Scheduler | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes Scheduler 调度周期模拟器，覆盖 Pending Pod、Scheduling Queue/Profile、Filter/Score 插件、Binding Cycle 和 FailedScheduling 事件 |
+| 污点与容忍 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes Taints and Tolerations 调度约束状态模型，覆盖 Node taint、Pod toleration、NoSchedule Filter、NoExecute 驱逐、tolerationSeconds 和 FailedScheduling 事件 |
 | epoll | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Linux epoll 事件通知状态模型，覆盖 epoll_create1、epoll_ctl、interest list、socket wait queue、ready list、epoll_wait 批量返回和 LT/ET drain |
 
 ## Buffer Pool Visualization
@@ -324,11 +325,11 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Docker `资源限制` 或 Kubernetes `污点与容忍` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Docker `CPU 限制` 或 Kubernetes `拓扑分布约束` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 Kubernetes `污点与容忍` 或 Docker `CPU 限制`。污点与容忍能围绕 Node taint、Pod toleration、NoSchedule/NoExecute 和驱逐信号形成调度约束模拟；CPU 限制可作为资源限制的细化拆分，围绕 CFS period/quota、throttled periods、cpu.shares 和延迟排障展开。
+优先选择 Docker `CPU 限制`，备选 Kubernetes `拓扑分布约束`。CPU 限制可承接 Docker 资源限制模型，围绕 CFS period/quota、throttled periods、cpu.shares、CPU set 和延迟排障展开；拓扑分布约束可承接 Scheduler 与污点容忍模型，围绕 `maxSkew`、拓扑域、`whenUnsatisfiable` 和多可用区副本均衡展开。
 
 ## Docker Resource Limit Visualization
 
@@ -494,6 +495,61 @@
 - 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/scheduler/mobile.svg`。
 - 截图结论：桌面 SVG 可识别 Pending Pod、Scheduling Queue、Framework extension points、Filter plugins、Node snapshot、Score plugins、Binding Cycle 和底部四个信号；移动端 SVG 展示五步流程和指标摘要。
 - 验收备注：Chrome DevTools MCP profile 被占用，Browser 插件返回 in-app browser 不可用，Playwright/Chromium 受平台权限限制；本轮使用官方页面视觉确认、`npm run build`、`npm run test:data -- --grep "kubernetes scheduler"`、完整 `npm run test:data`、`git diff --check` 和真实 React `SimulationStage` 渲染的 SVG/HTML 审查图完成验收。
+
+## Kubernetes Taints and Tolerations Visualization
+
+### Online Image References
+
+- `source`：Kubex - Taints and Tolerations，https://kubex.ai/blog/kubernetes-taints/
+  - `image`：`https://kubex.ai/wp-content/uploads/article-k8s-capacity-taint-tollerations.svg`
+  - `role`：main
+  - `qualityReason`：SVG 图直接表达 Node taint 与 Pod toleration 的匹配关系，适合作为主构图参考；HTTP HEAD 曾返回 `200 image/svg+xml`。
+  - `takeaways`：主画布采用 Node taints、Pod tolerations 和匹配判定三段结构。
+  - `originalChanges`：扩展为五步排障状态模型，加入 TaintToleration Filter、NoExecute eviction、Events evidence、底部信号和移动端流程卡。
+- `source`：Kubernetes Docs - Taints and Tolerations，https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  - `image`：页面中的 `kubectl taint`、effect、tolerations YAML、`tolerationSeconds` 和 NoExecute 行为示例。
+  - `role`：supporting
+  - `qualityReason`：官方定义 `NoSchedule`、`PreferNoSchedule`、`NoExecute`、Equal/Exists 和容忍秒数语义。
+  - `takeaways`：Filter 面板展示 NoSchedule 硬过滤，YAML 面板展示 `spec.tolerations`，驱逐面板展示 `tolerationSeconds=300`。
+  - `originalChanges`：将长文档规则压缩为节点行、Pod 行、Filter 行和底部四个诊断信号。
+- `source`：Amazon EKS Best Practices - Hybrid nodes Kubernetes pod failover，https://docs.aws.amazon.com/eks/latest/best-practices/hybrid-nodes-kubernetes-pod-failover.html
+  - `image`：页面中的故障转移、节点不可达和 Pod 重新调度语境。
+  - `role`：supporting
+  - `qualityReason`：生产故障转移文档能校准 NoExecute、节点不可达、容忍时间和重新调度观察点。
+  - `takeaways`：右侧 NoExecute eviction 面板使用 `unreachable:NoExecute` 和 reschedule 状态。
+  - `originalChanges`：把故障转移语境融合进同一画布，使专用节点隔离和节点故障驱逐共用一条排障链。
+- `source`：Komodor - Kubernetes Taints and Tolerations: A Practical Guide，https://komodor.com/learn/kubernetes-taints-and-tolerations-a-practical-guide/
+  - `image`：页面中的 taints/tolerations 操作示例、排障语境和常见 effect 说明。
+  - `role`：supporting
+  - `qualityReason`：实践指南适合补充 `kubectl describe pod`、FailedScheduling 和常见配置错误。
+  - `takeaways`：Events evidence 面板保留 `FailedScheduling`、`NodeNotReady`、`Scheduled` 的事件链。
+  - `originalChanges`：用项目自己的事件时间线替代表格输出，突出从事件回查节点 taint 和 Pod tolerations 的顺序。
+- `source`：Kubecost - Kubernetes Taints and Tolerations，https://www.kubecost.com/kubernetes-devops-tools/kubernetes-taints/
+  - `image`：页面中的专用节点、工作负载隔离和调度策略说明。
+  - `role`：supporting
+  - `qualityReason`：工程语境覆盖成本、专用节点和工作负载放置，适合补足使用场景。
+  - `takeaways`：Node taints 面板保留 `dedicated=gpu:NoSchedule`，Pod 面板保留普通 workload 与 gpu workload 对比。
+  - `originalChanges`：把场景说明转成 `gpu-job allowed / checkout rejected` 的可视化状态。
+
+### Reference Breakdown
+
+- 主体布局：左侧 Node taints 与 Pod tolerations，中部 TaintToleration Filter 与 `spec.tolerations` YAML，右侧 NoExecute eviction 与 Events evidence，底部四个诊断信号。
+- 视觉焦点：`dedicated=gpu:NoSchedule` 通过 Pod `Equal dedicated=gpu` 容忍进入候选节点；普通 `checkout` Pod 被 Filter 拦下并产生 `FailedScheduling`。
+- 领域对象：Node、taint key/value/effect、Pod tolerations、Equal/Exists、TaintToleration Filter、NoSchedule、PreferNoSchedule、NoExecute、tolerationSeconds、FailedScheduling Events、node controller、taint manager。
+- 容器层级：Node 保存排斥规则；Pod spec 声明可接受规则；Scheduler Filter 在调度周期做可行性判定；Node controller 在节点异常时加 NoExecute；Events 负责验收证据链。
+- 连线方向：Node taint 进入 NodeInfo，Pod toleration 进入 Filter，Filter 输出 allow/reject 与 FailedScheduling，NoExecute 进入驱逐计时，Events 回连到 Pod placement 验收。
+- 状态表达：五步分别高亮加污点、声明容忍、Filter 判定、NoExecute 驱逐、事件链验证；每步更新节点行、Pod 行、Filter 行、事件行和底部信号。
+- 颜色策略：品牌蓝表示 Node taint，青色表示 Pod toleration，橙色表示 Filter/FailedScheduling，红色表示 NoExecute/驱逐，绿色表示最终调度与恢复。
+- 文字密度：桌面 SVG 只保留对象名、短读数和关键 effect；规则解释放入右侧任务面板和底部步骤条。
+- 交互节奏：给节点加污点 -> 声明 Pod 容忍 -> Filter 判定调度 -> NoExecute 驱逐 -> 验证事件链。
+- 原创改造点：把单张 taint/toleration 匹配图、官方 effect 语义和生产 failover 语境融合为定制状态模型，强调 Pending 与节点故障两类排障路径。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/taint-toleration/desktop.svg` 与 `.codex-artifacts/visualizations/taint-toleration/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/taint-toleration/mobile.svg`。
+- 截图结论：桌面 SVG 可识别 Node taints、Pod tolerations、TaintToleration Filter、spec.tolerations、NoExecute eviction、Events evidence 和底部四个信号；移动端 SVG 展示五步流程和指标摘要。
+- 验收备注：本地预览端口监听受沙箱权限限制，`npx vite --host 127.0.0.1 --port 4276` 返回 `listen EPERM`；Chrome DevTools MCP profile 被占用，Browser 插件返回 in-app browser 不可用。本轮使用主参考图 URL/HTTP HEAD、`npm run test:data -- --grep "taints and tolerations"`、`npm run build`、完整 `npm run test:data`、`git diff --check` 和真实 React `SimulationStage` 渲染的 SVG/HTML 审查图完成验收。
 
 ## MySQL Replication Visualization
 
@@ -1674,3 +1730,18 @@
 - Verification：新增测试先失败于通用 Docker `Runtime attachment` 模型，补实现后 `npm run test:data -- --grep "docker resource limit"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 12 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add resource limit visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Kubernetes `污点与容忍` 或 Docker `CPU 限制`。
+
+### 2026-06-03 03:18 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，开始时本地 `HEAD` 与 `origin/main` 均为 `0002eee`。
+- Selected：Kubernetes `污点与容忍`，原因是 Node taint、Pod toleration、NoSchedule Filter、NoExecute 驱逐、`tolerationSeconds` 和 FailedScheduling 事件能形成清晰的调度约束与故障转移状态模型。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；保留 Kubex taint/toleration SVG 为主参考，Kubernetes 官方 Taints and Tolerations、Amazon EKS hybrid pod failover、Komodor practical guide、Kubecost guide 为辅助参考。
+- Main Reference：Kubex - Taints and Tolerations，主图为 `https://kubex.ai/wp-content/uploads/article-k8s-capacity-taint-tollerations.svg`，HTTP HEAD 曾返回 `200 image/svg+xml`；后续 DNS 间歇失败，保留已确认 URL 与页面来源。
+- Supporting References：Kubernetes Docs Taints and Tolerations、Amazon EKS Hybrid nodes Kubernetes pod failover、Komodor Kubernetes Taints and Tolerations、Kubecost Kubernetes Taints and Tolerations。
+- Reference Breakdown：采用左侧 Node taints/Pod tolerations，中部 TaintToleration Filter 与 YAML，右侧 NoExecute eviction 与 Events evidence，底部 NoSchedule、NoExecute、tolerationSeconds、FailedScheduling 四个信号；视觉焦点是 `dedicated=gpu:NoSchedule` 与 Pod `Equal dedicated=gpu` 匹配，以及普通 Pod 的 FailedScheduling 分支。
+- Implementation：新增 `kubernetes:taint-toleration` 专用 `state-model` 构建器、Taints and Tolerations SVG 舞台、移动端纵向摘要、响应式样式、来源引用和数据测试，并把 `taint-toleration` 加入 Kubernetes 可视化清单。
+- Browser Note：本地 Vite 监听受沙箱权限限制，`npx vite --host 127.0.0.1 --port 4276` 返回 `listen EPERM`；Chrome DevTools MCP profile 被占用；Browser 插件返回 in-app browser 不可用；本轮使用官方/参考页面 URL、HTTP HEAD、项目数据测试、生产构建和真实 React `SimulationStage` 渲染的 SVG/HTML 完成验收。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/taint-toleration/desktop.svg`、`.codex-artifacts/visualizations/taint-toleration/mobile.svg` 与 `.codex-artifacts/visualizations/taint-toleration/desktop.html`；桌面 SVG 可识别 Node taints、Pod tolerations、TaintToleration Filter、spec.tolerations、NoExecute eviction、Events evidence 和底部信号；移动端 SVG 展示五步流程和指标摘要。
+- Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `taint-toleration`，补实现后 `npm run test:data -- --grep "taints and tolerations"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 13 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add taint toleration visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Docker `CPU 限制` 或 Kubernetes `拓扑分布约束`。

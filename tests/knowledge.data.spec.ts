@@ -125,6 +125,23 @@ test("kubernetes scheduler is backed by a dedicated visual simulation", async ()
   );
 });
 
+test("kubernetes taints and tolerations is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("kubernetes");
+  const taintToleration = points.find((point) => point.id === "taint-toleration");
+
+  expect(visualPointIds.kubernetes).toContain("taint-toleration");
+  expect(taintToleration).toBeTruthy();
+
+  const simulation = buildVisualSimulation("kubernetes", taintToleration!);
+
+  expect(simulation.key).toBe("kubernetes:taint-toleration");
+  expect(simulation.pattern.en).toContain("taint and toleration");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["NoSchedule", "NoExecute", "tolerationSeconds", "FailedScheduling Events"]),
+  );
+});
+
 test("linux epoll is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("os");
   const epoll = points.find((point) => point.id === "epoll");
