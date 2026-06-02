@@ -1400,3 +1400,18 @@
 - Commit/Push：功能提交 `2026ab3 feat: add crashloopbackoff visualization` 已推送到 `origin/main`。
 - Cleanup Note：Vite preview 进程 `node` PID `98500` 仍监听 `tcp:4234`；`kill 98500` 受当前沙箱权限限制返回 `operation not permitted`。
 - Next Candidate：Kubernetes `Horizontal Pod Autoscaler` 或 Docker `容器网络`。
+
+### 2026-06-02 19:12 CST
+
+- Branch/Pull：当前分支 `main`；`git fetch origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `22d3df2` 后通过同步门禁。
+- Existing Work：工作区已有 Kubernetes `HPA` 可视化现场，本轮继续补齐来源、进度记录、验收和提交。
+- Selected：Kubernetes `Horizontal Pod Autoscaler`，原因是负载升高、Metrics API、desiredReplicas 公式、Scale 子资源和稳定窗口形成清晰的控制环模拟。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；保留 Kubernetes HPA 概念页为主参考，HPA walkthrough、Resource Metrics Pipeline、Scale API 和 GKE HPA 文档为辅助参考。
+- Reference Breakdown：采用左侧 Deployment 与 Pod CPU 行、中部 Metrics Server、右上 HPA Controller、中下 Scale 子资源、右下稳定窗口、底部四个排障信号；视觉焦点是 `CPU 120% / target 60% -> ceil(3*120/60)=6 -> replicas 3 -> 6`。
+- Implementation：新增 `kubernetes:hpa` 专用 `step-simulation` 构建器、HPA SVG 舞台、移动端纵向摘要、响应式样式、HPA 专用来源和数据测试，并给 HPA 知识点补充官方来源引用。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/hpa/desktop.svg` 与 `.codex-artifacts/visualizations/hpa/mobile.svg`；PNG 捕获受平台权限限制；桌面 SVG 可识别 Deployment、Pod CPU 行、Metrics Server、HPA Controller、Scale 子资源、稳定窗口和底部排障信号，移动端五步流程与四个事实卡片可读。
+- Browser Note：Chrome DevTools MCP profile 被占用；Browser 插件返回 in-app browser 不可用；本轮使用本地 SVG 审查图完成截图验收。
+- Verification：`npm run test:data -- --grep "kubernetes HPA"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 7 项；`git diff --check` 通过。
+- Commit/Push：功能提交 `90e46eb feat: add hpa visualization` 已推送到 `origin/main`；推送后本地 `HEAD` 与 `origin/main` 均为 `90e46eb`。
+- Post-push Check：`git ls-remote --heads origin main` 返回 `Could not resolve host: github.com`，但 `git push origin main` 已返回 `22d3df2..90e46eb main -> main`。
+- Next Candidate：Docker `容器网络` 或 Kubernetes `Pod 调度`。
