@@ -1753,3 +1753,22 @@
 - Working Tree：进入同步门禁时工作区干净；本条记录写入后仅 `docs/visualization-progress.md` 发生变化。
 - Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
 - Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后提交本条 docs-only 阻塞记录，再继续 Docker `CPU 限制` 或 Kubernetes `拓扑分布约束` 找图与设计。
+
+### 2026-06-03 05:16 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功；先提交并推送上一轮 DNS 阻塞记录 `1cb1e42 docs: record visualization sync blocker`，再从干净跟踪状态继续。
+- Selected：Kubernetes `拓扑分布约束`，原因是 `topologySpreadConstraints`、label selector、拓扑域计数、`maxSkew`、`whenUnsatisfiable`、`minDomains`、Filter/Score 插件和 FailedScheduling 事件能形成强调度排障模型，并能承接 Scheduler 与污点容忍可视化。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；保留 Kubernetes 官方 Pod Topology Spread Constraints 文档中的 zone/node/Pod Mermaid 示例图为主参考，Kubernetes PodTopologySpread 博客、AWS EKS 高可用 workload spread 指南、Kubernetes Scheduler/Assigning Pods to Nodes、CAST AI 拓扑分布文章为辅助参考；Chrome DevTools MCP profile 被占用，使用搜索结果、页面 URL、HTTP HEAD 成功记录和本地 HTML/SVG 审查替代浏览器视觉确认。
+- Online Image References：
+  - source：Kubernetes Docs - Pod Topology Spread Constraints，https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/；image：页面中 `graph BT` Mermaid 示例，展示 zone、node 与 Pod 的拓扑关系；role：main；qualityReason：官方图直接呈现拓扑域、节点和 Pod 分布，适合作为 `maxSkew` 与域计数的主构图；takeaways：采用三组 zone、每组 node、Pod 副本计数和新增 Pod 落点；originalChanges：改造成项目自己的五步交互式调度画布，加入 PreFilter 计数、DoNotSchedule Filter、ScheduleAnyway Score、底部信号和移动端摘要。
+  - source：Kubernetes Blog - Introducing PodTopologySpread，https://kubernetes.io/blog/2020/05/introducing-podtopologyspread/；image：博客中的 PodTopologySpread 示例图与 YAML 场景；role：supporting；qualityReason：解释该特性引入背景、区域分散和调度策略；takeaways：补充软硬约束、skew 和多域高可用表达；originalChanges：把博客场景落到 `checkout` Deployment 和 2/2/1 -> 2/2/2 的状态变化。
+  - source：AWS Prescriptive Guidance - Spread workloads across Availability Zones，https://docs.aws.amazon.com/prescriptive-guidance/latest/ha-resiliency-amazon-eks-apps/spread-workloads.html；image：跨 Availability Zone 高可用说明；role：supporting；qualityReason：补充生产中跨 AZ 均衡部署的业务目标；takeaways：强调 eligible domains、可用区故障面和副本均衡验收；originalChanges：把 AWS 场景转成 `zone-a/zone-b/zone-c` 的可读域计数。
+  - source：Kubernetes Docs - Kubernetes Scheduler 与 Assigning Pods to Nodes；image：调度器与节点分配官方说明；role：supporting；qualityReason：校准拓扑分布在调度周期中的 Filter/Score 位置；takeaways：把 PodTopologySpread 放入 PreFilter、Filter、Score、Bind 链路；originalChanges：复用本项目 Scheduler 风格，但画布聚焦 topology spread 插件。
+  - source：CAST AI - Kubernetes Topology Spread Constraints；image：文章中的拓扑分布与可用性解释；role：supporting；qualityReason：补充成本与可用性视角，帮助理解软约束与资源压力；takeaways：软约束适合容量紧张场景；originalChanges：用 `ScheduleAnyway` Score 体现软约束下仍可调度的工程语义。
+- Reference Breakdown：主体布局为左上 Deployment、新 Pod 与 selector，中上 `topologySpreadConstraints` YAML 字段，右上 PreFilter domain count，中部三组 zone 域计数，右侧 Filter 候选节点，底部 Score 插件、Events evidence 和四个信号；视觉焦点是 `zone-a=2 zone-b=2 zone-c=1` 经过 `maxSkew=1` 后把新 Pod 绑定到 `zone-c`，最终变成 `2/2/2`；交互节奏按读取约束、统计拓扑域、硬约束过滤、软约束打分、绑定验收推进。
+- Implementation：新增 `kubernetes:topology-spread` 专用 `state-model` 构建器、Topology Spread SVG 舞台、移动端纵向摘要、响应式样式、来源引用和数据测试，并把 `topology-spread` 加入 Kubernetes core 与可视化清单。
+- Browser Note：Chrome DevTools MCP profile 被占用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied`；本轮使用官方/参考页面 URL、HTTP HEAD 成功记录、项目数据测试、生产构建和真实 React `SimulationStage` SSR 渲染的 SVG/HTML 审查图完成验收。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/topology-spread/desktop.svg`、`.codex-artifacts/visualizations/topology-spread/mobile.svg` 与 `.codex-artifacts/visualizations/topology-spread/desktop.html`；桌面 SVG 可识别 Deployment checkout、topologySpreadConstraints、PreFilter domain count、zone-a/zone-b/zone-c、PodTopologySpread Score、Events 和底部四个信号，移动端 SVG 展示五步流程与关键指标摘要。
+- Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `topology-spread`，补 core/visual 清单与专用 builder 后 `npm run test:data -- --grep "topology spread"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 14 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add topology spread visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Kubernetes `PriorityClass/抢占` 或 Docker `CPU 限制`。

@@ -407,6 +407,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "kubernetes:topology-spread") {
+    return (
+      <KubernetesTopologySpreadStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:crashloopbackoff") {
     return (
       <KubernetesCrashLoopBackOffStage
@@ -5809,6 +5820,256 @@ function KubernetesTaintTolerationStage({
           </div>
         </div>
         <div className="tcp-handshake-caption k8s-taint-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KubernetesTopologySpreadStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const constraintActive = completedSteps >= 1;
+  const countActive = completedSteps >= 2;
+  const filterActive = completedSteps >= 3;
+  const scoreActive = completedSteps >= 4;
+  const bindActive = completedSteps >= 5;
+  const zones = [
+    { name: "zone-a", count: bindActive ? "2 Pods" : "2 Pods", x: 90, tone: filterActive ? "danger" : "brand", active: countActive || filterActive },
+    { name: "zone-b", count: bindActive ? "2 Pods" : "2 Pods", x: 370, tone: scoreActive ? "warning" : "brand", active: countActive || scoreActive },
+    { name: "zone-c", count: bindActive ? "2 Pods" : "1 Pod", x: 650, tone: bindActive ? "success" : "teal", active: countActive || scoreActive || bindActive },
+  ];
+  const constraintRows = [
+    { name: "topologyKey", value: constraintActive ? "topology.kubernetes.io/zone" : "pending", active: constraintActive, tone: "brand" },
+    { name: "maxSkew", value: constraintActive ? "1" : "pending", active: constraintActive, tone: "teal" },
+    { name: "whenUnsatisfiable", value: filterActive ? "DoNotSchedule" : scoreActive ? "ScheduleAnyway" : "pending", active: filterActive || scoreActive, tone: filterActive ? "warning" : "success" },
+    { name: "minDomains", value: countActive ? "3 eligible zones" : "pending", active: countActive, tone: "brand" },
+  ];
+  const filterRows = [
+    { name: "node-a1", value: filterActive ? "zone-a skew=2 blocked" : "pending", active: filterActive, tone: "danger" },
+    { name: "node-b1", value: filterActive ? "zone-b skew=2 blocked" : "pending", active: filterActive, tone: "warning" },
+    { name: "node-c2", value: filterActive ? "zone-c skew=1 feasible" : "pending", active: filterActive, tone: "success" },
+  ];
+  const scoreRows = [
+    { name: "PodTopologySpread", value: scoreActive ? "zone-c +96" : "waiting", active: scoreActive, tone: "success", width: 180 },
+    { name: "NodeResourcesFit", value: scoreActive ? "node-c2 +78" : "waiting", active: scoreActive, tone: "teal", width: 146 },
+    { name: "NodeAffinity", value: scoreActive ? "zone-b +62" : "waiting", active: scoreActive, tone: "warning", width: 116 },
+  ];
+  const signalRows = [
+    { name: "maxSkew", value: filterActive ? "hard limit 1" : "pending", active: filterActive, tone: "warning" },
+    { name: "topologyKey", value: constraintActive ? "zone label" : "pending", active: constraintActive, tone: "brand" },
+    { name: "eligible domains", value: countActive ? "3 zones" : "pending", active: countActive, tone: "teal" },
+    { name: "Events", value: bindActive ? "Scheduled node-c2" : filterActive ? "PodTopologySpread" : "none", active: filterActive || bindActive, tone: bindActive ? "success" : "danger" },
+  ];
+  const mobileFlow = [
+    { name: "Constraint", value: constraintActive ? "topologyKey=zone maxSkew=1" : "waiting YAML", active: constraintActive },
+    { name: "Counts", value: countActive ? "zone-a=2 zone-b=2 zone-c=1" : "waiting PreFilter", active: countActive },
+    { name: "Filter", value: filterActive ? "zone-a blocked, zone-c feasible" : "pending", active: filterActive },
+    { name: "Score", value: scoreActive ? "zone-c gets highest score" : "pending", active: scoreActive },
+    { name: "Bind", value: bindActive ? "replicas spread 2/2/2" : "unbound", active: bindActive },
+  ];
+
+  return (
+    <div className="visual-stage k8s-topology-stage">
+      <div className="k8s-topology-card">
+        <svg
+          className="k8s-topology-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["k8s-topology-arrow-brand", "var(--brand)"],
+              ["k8s-topology-arrow-teal", "var(--tertiary)"],
+              ["k8s-topology-arrow-warning", "#f59e0b"],
+              ["k8s-topology-arrow-success", "var(--success)"],
+              ["k8s-topology-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="k8s-topology-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="k8s-topology-bg" x="24" y="24" width="1072" height="588" rx="28" />
+          <text className="k8s-topology-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="k8s-topology-subtitle" x="560" y="100">
+            {label(
+              "selector -> topology domain counts -> maxSkew filter -> ScheduleAnyway score -> balanced bind",
+              "selector -> topology domain counts -> maxSkew filter -> ScheduleAnyway score -> balanced bind",
+            )}
+          </text>
+
+          <g className={`k8s-topology-workload ${constraintActive ? "active" : ""}`}>
+            <rect x="64" y="126" width="252" height="112" rx="24" />
+            <text className="k8s-topology-panel-title" x="92" y="164">Deployment checkout</text>
+            <text className="k8s-topology-panel-subtitle" x="92" y="188">replicas=6 · app=checkout</text>
+            <g className={`k8s-topology-chip brand ${constraintActive ? "active" : ""}`}>
+              <rect x="92" y="206" width="168" height="28" rx="14" />
+              <text x="176" y="225">new Pod: checkout-6</text>
+            </g>
+          </g>
+
+          <g className={`k8s-topology-constraint ${constraintActive ? "active" : ""}`}>
+            <rect x="360" y="126" width="318" height="154" rx="24" />
+            <text className="k8s-topology-panel-title" x="388" y="164">topologySpreadConstraints</text>
+            {constraintRows.map((row, index) => (
+              <g key={row.name} className={`k8s-topology-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="388" y={188 + index * 30} width="236" height="23" rx="12" />
+                <text x="402" y={204 + index * 30}>{row.name}</text>
+                <text x="616" y={204 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-topology-prefilter ${countActive ? "active" : ""}`}>
+            <rect x="728" y="126" width="328" height="154" rx="24" />
+            <text className="k8s-topology-panel-title" x="756" y="164">PreFilter domain count</text>
+            <text className="k8s-topology-panel-subtitle" x="756" y="188">selector app=checkout · eligible domains=3</text>
+            <g className={`k8s-topology-chip teal ${countActive ? "active" : ""}`}>
+              <rect x="756" y="208" width="236" height="28" rx="14" />
+              <text x="874" y="227">global minimum count = 1</text>
+            </g>
+            <g className={`k8s-topology-chip brand ${bindActive ? "active" : ""}`}>
+              <rect x="756" y="242" width="236" height="28" rx="14" />
+              <text x="874" y="261">final skew = 0 after bind</text>
+            </g>
+          </g>
+
+          <g className={`k8s-topology-zones ${countActive ? "active" : ""}`}>
+            <rect x="64" y="314" width="836" height="178" rx="26" />
+            <text className="k8s-topology-panel-title" x="92" y="350">Topology domains</text>
+            <text className="k8s-topology-panel-subtitle" x="92" y="372">topology.kubernetes.io/zone · existing matching Pods</text>
+            {zones.map((zone) => (
+              <g key={zone.name} className={`k8s-topology-zone ${zone.tone} ${zone.active ? "active" : ""}`}>
+                <rect x={zone.x} y="392" width="230" height="72" rx="22" />
+                <text x={zone.x + 24} y="418">{zone.name}</text>
+                <text x={zone.x + 24} y="442">{zone.count}</text>
+                <circle cx={zone.x + 164} cy="428" r="9" />
+                <circle cx={zone.x + 188} cy="428" r="9" />
+                {zone.name === "zone-c" ? (
+                  <circle className={bindActive ? "active" : ""} cx={zone.x + 212} cy="428" r="9" />
+                ) : null}
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-topology-filter ${filterActive ? "active" : ""}`}>
+            <rect x="932" y="314" width="124" height="178" rx="24" />
+            <text className="k8s-topology-panel-title" x="994" y="350">Filter</text>
+            {filterRows.map((row, index) => (
+              <g key={row.name} className={`k8s-topology-filter-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="948" y={374 + index * 35} width="84" height="26" rx="13" />
+                <text x="990" y={391 + index * 35}>{row.name}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-topology-score ${scoreActive ? "active" : ""}`}>
+            <rect x="64" y="518" width="440" height="70" rx="24" />
+            <text className="k8s-topology-panel-title" x="92" y="548">Score plugins</text>
+            {scoreRows.map((row, index) => (
+              <g key={row.name} className={`k8s-topology-score-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="214" y={526 + index * 19} width={row.width} height="15" rx="8" />
+                <text x="224" y={537 + index * 19}>{row.name}</text>
+                <text x="480" y={537 + index * 19}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-topology-events ${filterActive || bindActive ? "active" : ""}`}>
+            <rect x="548" y="518" width="508" height="70" rx="24" />
+            <text className="k8s-topology-panel-title" x="576" y="548">Events and validation</text>
+            <text className="k8s-topology-panel-subtitle" x="576" y="570">
+              {bindActive ? "Scheduled checkout-6 to node-c2; spread is 2/2/2" : filterActive ? "PodTopologySpread: node(s) did not satisfy max skew" : "waiting for scheduler events"}
+            </text>
+          </g>
+
+          <g className={`k8s-topology-constraint-path ${constraintActive ? "active" : ""}`}>
+            <path d="M 316 182 C 340 180, 348 180, 360 180" markerEnd="url(#k8s-topology-arrow-brand)" />
+            <rect x="274" y="250" width="150" height="30" rx="15" />
+            <text x="349" y="270">load constraint</text>
+          </g>
+
+          <g className={`k8s-topology-count-path ${countActive ? "active" : ""}`}>
+            <path d="M 678 204 C 704 204, 714 204, 728 204" markerEnd="url(#k8s-topology-arrow-teal)" />
+            <path d="M 892 280 C 830 310, 730 326, 520 362" markerEnd="url(#k8s-topology-arrow-teal)" />
+          </g>
+
+          <g className={`k8s-topology-filter-path ${filterActive ? "active" : ""}`}>
+            <path d="M 900 406 C 920 400, 926 394, 932 390" markerEnd="url(#k8s-topology-arrow-warning)" />
+            <rect x="796" y="294" width="154" height="30" rx="15" />
+            <text x="873" y="314">maxSkew check</text>
+          </g>
+
+          <g className={`k8s-topology-score-path ${scoreActive ? "active" : ""}`}>
+            <path d="M 960 492 C 830 536, 626 546, 504 550" markerEnd="url(#k8s-topology-arrow-success)" />
+            <rect x="674" y="492" width="162" height="30" rx="15" />
+            <text x="755" y="512">ScheduleAnyway</text>
+          </g>
+
+          <g className={`k8s-topology-bind-path ${bindActive ? "active" : ""}`}>
+            <path d="M 548 554 C 450 608, 744 608, 762 464" markerEnd="url(#k8s-topology-arrow-success)" />
+            <rect x="786" y="468" width="124" height="30" rx="15" />
+            <text x="848" y="488">bind node-c2</text>
+          </g>
+
+          <g className="k8s-topology-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`k8s-topology-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={64 + index * 258} y="592" width="218" height="34" rx="16" />
+                <text x={84 + index * 258} y="606">{signal.name}</text>
+                <text x={270 + index * 258} y="620">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="k8s-topology-mobile-map">
+          <div className="k8s-topology-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`k8s-topology-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="k8s-topology-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`k8s-topology-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption k8s-topology-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

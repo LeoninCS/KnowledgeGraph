@@ -3121,6 +3121,22 @@ export const knowledgeSources = {
     title: "Kubecost: Kubernetes Taints and Tolerations",
     url: "https://www.kubecost.com/kubernetes-devops-tools/kubernetes-taints/",
   },
+  "kubernetes-topology-spread": {
+    title: "Kubernetes Docs: Pod Topology Spread Constraints",
+    url: "https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/",
+  },
+  "kubernetes-pod-topology-spread-blog": {
+    title: "Kubernetes Blog: Introducing PodTopologySpread",
+    url: "https://kubernetes.io/blog/2020/05/introducing-podtopologyspread/",
+  },
+  "aws-eks-spread-workloads": {
+    title: "AWS Prescriptive Guidance: Spread workloads across Availability Zones",
+    url: "https://docs.aws.amazon.com/prescriptive-guidance/latest/ha-resiliency-amazon-eks-apps/spread-workloads.html",
+  },
+  "castai-topology-spread": {
+    title: "CAST AI: Kubernetes Topology Spread Constraints",
+    url: "https://cast.ai/blog/topology-spread-constraints-for-increased-cluster-availability-and-efficiency-and-a-much-better-cost/",
+  },
   "kubernetes-priority-preemption": {
     title: "Kubernetes Docs: Pod Priority and Preemption",
     url: "https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/",

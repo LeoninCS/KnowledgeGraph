@@ -142,6 +142,23 @@ test("kubernetes taints and tolerations is backed by a dedicated visual simulati
   );
 });
 
+test("kubernetes topology spread is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("kubernetes");
+  const topologySpread = points.find((point) => point.id === "topology-spread");
+
+  expect(visualPointIds.kubernetes).toContain("topology-spread");
+  expect(topologySpread).toBeTruthy();
+
+  const simulation = buildVisualSimulation("kubernetes", topologySpread!);
+
+  expect(simulation.key).toBe("kubernetes:topology-spread");
+  expect(simulation.pattern.en).toContain("topology spread scheduler model");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["maxSkew", "topologyKey", "eligible domains", "FailedScheduling Events"]),
+  );
+});
+
 test("linux epoll is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("os");
   const epoll = points.find((point) => point.id === "epoll");

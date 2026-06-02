@@ -1690,6 +1690,7 @@
 .k8s-hpa-stage,
 .k8s-scheduler-stage,
 .k8s-taint-stage,
+.k8s-topology-stage,
 .k8s-crashloop-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -1701,6 +1702,7 @@
 .k8s-hpa-card,
 .k8s-scheduler-card,
 .k8s-taint-card,
+.k8s-topology-card,
 .k8s-crashloop-card {
   position: relative;
   justify-self: center;
@@ -1720,6 +1722,7 @@
 :root[data-theme="dark"] .k8s-hpa-card,
 :root[data-theme="dark"] .k8s-scheduler-card,
 :root[data-theme="dark"] .k8s-taint-card,
+:root[data-theme="dark"] .k8s-topology-card,
 :root[data-theme="dark"] .k8s-crashloop-card {
   background:
     linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
@@ -1731,6 +1734,7 @@
 .k8s-hpa-diagram,
 .k8s-scheduler-diagram,
 .k8s-taint-diagram,
+.k8s-topology-diagram,
 .k8s-crashloop-diagram {
   display: block;
   width: 100%;
@@ -1744,6 +1748,7 @@
 .k8s-hpa-mobile-map,
 .k8s-scheduler-mobile-map,
 .k8s-taint-mobile-map,
+.k8s-topology-mobile-map,
 .k8s-crashloop-mobile-map {
   display: none;
 }
@@ -7537,6 +7542,292 @@
 }
 
 .k8s-taint-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.k8s-topology-bg {
+  fill: color-mix(in srgb, var(--tertiary) 20%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+}
+
+.k8s-topology-title {
+  fill: var(--text);
+  font-size: 24px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.k8s-topology-subtitle {
+  fill: var(--muted);
+  font-size: 12.5px;
+  font-weight: 750;
+  text-anchor: middle;
+}
+
+.k8s-topology-workload,
+.k8s-topology-constraint,
+.k8s-topology-prefilter,
+.k8s-topology-zones,
+.k8s-topology-filter,
+.k8s-topology-score,
+.k8s-topology-events,
+.k8s-topology-row,
+.k8s-topology-chip,
+.k8s-topology-zone,
+.k8s-topology-filter-row,
+.k8s-topology-score-row,
+.k8s-topology-signal,
+.k8s-topology-constraint-path,
+.k8s-topology-count-path,
+.k8s-topology-filter-path,
+.k8s-topology-score-path,
+.k8s-topology-bind-path {
+  opacity: 0.34;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.k8s-topology-workload.active,
+.k8s-topology-constraint.active,
+.k8s-topology-prefilter.active,
+.k8s-topology-zones.active,
+.k8s-topology-filter.active,
+.k8s-topology-score.active,
+.k8s-topology-events.active,
+.k8s-topology-row.active,
+.k8s-topology-chip.active,
+.k8s-topology-zone.active,
+.k8s-topology-filter-row.active,
+.k8s-topology-score-row.active,
+.k8s-topology-signal.active,
+.k8s-topology-constraint-path.active,
+.k8s-topology-count-path.active,
+.k8s-topology-filter-path.active,
+.k8s-topology-score-path.active,
+.k8s-topology-bind-path.active {
+  opacity: 1;
+}
+
+.k8s-topology-workload > rect,
+.k8s-topology-constraint > rect,
+.k8s-topology-prefilter > rect,
+.k8s-topology-zones > rect,
+.k8s-topology-filter > rect,
+.k8s-topology-score > rect,
+.k8s-topology-events > rect {
+  fill: color-mix(in srgb, var(--surface) 94%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 14%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#k8s-topology-soft-shadow);
+}
+
+.k8s-topology-workload.active > rect,
+.k8s-topology-constraint.active > rect,
+.k8s-topology-row.brand.active rect,
+.k8s-topology-chip.brand.active rect,
+.k8s-topology-zone.brand.active rect,
+.k8s-topology-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 52%, var(--border));
+}
+
+.k8s-topology-prefilter.active > rect,
+.k8s-topology-row.teal.active rect,
+.k8s-topology-chip.teal.active rect,
+.k8s-topology-zone.teal.active rect,
+.k8s-topology-score-row.teal.active rect,
+.k8s-topology-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+}
+
+.k8s-topology-filter.active > rect,
+.k8s-topology-row.warning.active rect,
+.k8s-topology-zone.warning.active rect,
+.k8s-topology-filter-row.warning.active rect,
+.k8s-topology-score-row.warning.active rect,
+.k8s-topology-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 54%, var(--border));
+}
+
+.k8s-topology-zone.success.active rect,
+.k8s-topology-filter-row.success.active rect,
+.k8s-topology-score-row.success.active rect,
+.k8s-topology-signal.success.active rect,
+.k8s-topology-events.active > rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 52%, var(--border));
+}
+
+.k8s-topology-zone.danger.active rect,
+.k8s-topology-filter-row.danger.active rect,
+.k8s-topology-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 46%, var(--border));
+}
+
+.k8s-topology-row rect,
+.k8s-topology-chip rect,
+.k8s-topology-zone rect,
+.k8s-topology-filter-row rect,
+.k8s-topology-score-row rect,
+.k8s-topology-signal rect,
+.k8s-topology-constraint-path rect,
+.k8s-topology-filter-path rect,
+.k8s-topology-score-path rect,
+.k8s-topology-bind-path rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 12%, var(--border));
+  filter: url(#k8s-topology-soft-shadow);
+}
+
+.k8s-topology-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.k8s-topology-panel-subtitle,
+.k8s-topology-workload text,
+.k8s-topology-constraint text,
+.k8s-topology-prefilter text,
+.k8s-topology-zones text,
+.k8s-topology-filter text,
+.k8s-topology-score text,
+.k8s-topology-events text,
+.k8s-topology-constraint-path text,
+.k8s-topology-filter-path text,
+.k8s-topology-score-path text,
+.k8s-topology-bind-path text,
+.k8s-topology-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.k8s-topology-row text,
+.k8s-topology-chip text,
+.k8s-topology-filter-row text,
+.k8s-topology-score-row text,
+.k8s-topology-signal text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 900;
+}
+
+.k8s-topology-panel-title,
+.k8s-topology-row text:first-of-type,
+.k8s-topology-chip text,
+.k8s-topology-zone text:first-of-type,
+.k8s-topology-filter-row text,
+.k8s-topology-score-row text:first-of-type,
+.k8s-topology-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 900;
+}
+
+.k8s-topology-row text:last-of-type,
+.k8s-topology-signal text:last-of-type,
+.k8s-topology-score-row text:last-of-type {
+  fill: var(--brand-strong);
+  text-anchor: end;
+}
+
+.k8s-topology-chip text,
+.k8s-topology-filter-row text,
+.k8s-topology-constraint-path text,
+.k8s-topology-filter-path text,
+.k8s-topology-score-path text,
+.k8s-topology-bind-path text {
+  text-anchor: middle;
+}
+
+.k8s-topology-zone text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.k8s-topology-zone circle {
+  fill: color-mix(in srgb, var(--brand) 38%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 52%, var(--border));
+  stroke-width: 1.2;
+}
+
+.k8s-topology-zone circle.active {
+  fill: var(--success);
+  stroke: color-mix(in srgb, var(--success) 74%, var(--border));
+}
+
+.k8s-topology-constraint-path path,
+.k8s-topology-count-path path,
+.k8s-topology-filter-path path,
+.k8s-topology-score-path path,
+.k8s-topology-bind-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.k8s-topology-constraint-path path {
+  stroke: var(--brand);
+}
+
+.k8s-topology-count-path path {
+  stroke: var(--tertiary);
+}
+
+.k8s-topology-filter-path path {
+  stroke: #f59e0b;
+}
+
+.k8s-topology-score-path path,
+.k8s-topology-bind-path path {
+  stroke: var(--success);
+}
+
+.k8s-topology-mobile-flow,
+.k8s-topology-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.k8s-topology-mobile-hop,
+.k8s-topology-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+  padding: 12px;
+}
+
+.k8s-topology-mobile-hop span,
+.k8s-topology-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.k8s-topology-mobile-hop strong,
+.k8s-topology-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.k8s-topology-mobile-hop.active,
+.k8s-topology-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--brand) 42%, var(--border));
+  background: color-mix(in srgb, var(--brand) 10%, var(--surface));
+}
+
+.k8s-topology-caption {
   right: 16px;
   bottom: 14px;
 }

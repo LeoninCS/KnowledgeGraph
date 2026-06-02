@@ -397,6 +397,7 @@ export const coreKnowledgePointIdsByCategory: Record<CategoryId, string[]> = {
     "kubelet",
     "scheduler",
     "taint-toleration",
+    "topology-spread",
     "probe",
     "readiness-probe",
     "persistent-volume",
