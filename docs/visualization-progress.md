@@ -1660,7 +1660,7 @@
 - Commit/Push Plan：本条 run log 作为独立 docs 提交推送。
 - Next Candidate：Docker `资源限制` 或 Kubernetes `污点与容忍`。
 
-### 2026-06-03 09:34 CST
+### 2026-06-03 02:17 CST
 
 - Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `23fc82c`，从干净工作区继续。
 - Selected：Docker `资源限制`，原因是 Docker run flags、HostConfig、cgroup v2 控制文件、CPU throttle、OOMKilled、`docker stats` 和运行中调参能形成直接可用的资源治理状态模型。
