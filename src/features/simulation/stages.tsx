@@ -418,6 +418,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "kubernetes:preemption") {
+    return (
+      <KubernetesPreemptionStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:crashloopbackoff") {
     return (
       <KubernetesCrashLoopBackOffStage
@@ -6070,6 +6081,252 @@ function KubernetesTopologySpreadStage({
           </div>
         </div>
         <div className="tcp-handshake-caption k8s-topology-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KubernetesPreemptionStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const priorityActive = completedSteps >= 1;
+  const filterActive = completedSteps >= 2;
+  const victimActive = completedSteps >= 3;
+  const nominateActive = completedSteps >= 4;
+  const bindActive = completedSteps >= 5;
+  const queueRows = [
+    { name: "api-critical", value: priorityActive ? "priority=1000000000" : "waiting", active: priorityActive, tone: "brand" },
+    { name: "checkout", value: filterActive ? "priority=1000" : "normal workload", active: filterActive, tone: "teal" },
+    { name: "batch-low", value: victimActive ? "priority=100" : "low priority", active: victimActive, tone: "danger" },
+  ];
+  const filterRows = [
+    { name: "NodeResourcesFit", value: filterActive ? "0/3 fit" : "pending", active: filterActive, tone: "warning" },
+    { name: "InterPodAffinity", value: filterActive ? "node-b allowed" : "pending", active: filterActive, tone: "teal" },
+    { name: "TaintToleration", value: filterActive ? "passed" : "pending", active: filterActive, tone: "brand" },
+  ];
+  const nodeRows = [
+    { name: "node-a", value: victimActive ? "3 victims / PDB hit" : "cpu 200m free", active: victimActive, tone: "warning" },
+    { name: "node-b", value: bindActive ? "api-critical running" : victimActive ? "2 victims feasible" : "cpu 100m free", active: victimActive || bindActive, tone: bindActive ? "success" : "danger" },
+    { name: "node-c", value: victimActive ? "affinity mismatch" : "taint dedicated", active: victimActive, tone: "teal" },
+  ];
+  const victimRows = [
+    { name: "batch-low", value: victimActive ? "evict 500m CPU" : "candidate", active: victimActive, tone: "danger" },
+    { name: "reports-low", value: victimActive ? "evict 400Mi" : "candidate", active: victimActive, tone: "warning" },
+    { name: "checkout", value: victimActive ? "protected by PDB" : "protected", active: victimActive, tone: "teal" },
+  ];
+  const nominationRows = [
+    { name: "nominatedNodeName", value: nominateActive ? "node-b" : "empty", active: nominateActive, tone: "brand" },
+    { name: "victims", value: nominateActive ? "terminating" : "waiting", active: nominateActive, tone: "danger" },
+    { name: "requeue", value: bindActive ? "bound" : nominateActive ? "after grace" : "pending", active: nominateActive || bindActive, tone: bindActive ? "success" : "teal" },
+  ];
+  const signalRows = [
+    { name: "PriorityClass", value: priorityActive ? "cluster-critical" : "pending", active: priorityActive, tone: "brand" },
+    { name: "victims", value: victimActive ? "2 low-priority Pods" : "none", active: victimActive, tone: "danger" },
+    { name: "nominatedNodeName", value: nominateActive ? "node-b" : "empty", active: nominateActive, tone: "teal" },
+    { name: "PDB budget", value: victimActive ? "1 disruption left" : "unchecked", active: victimActive, tone: "warning" },
+  ];
+  const mobileFlow = [
+    { name: "Priority", value: priorityActive ? "api-critical value=1000000000" : "waiting class", active: priorityActive },
+    { name: "Filter", value: filterActive ? "0/3 nodes fit, preemption starts" : "pending", active: filterActive },
+    { name: "Victims", value: victimActive ? "node-b works after 2 victims" : "pending", active: victimActive },
+    { name: "Nominate", value: nominateActive ? "nominatedNodeName=node-b" : "empty", active: nominateActive },
+    { name: "Bind", value: bindActive ? "Scheduled=True on node-b" : "awaiting grace", active: bindActive },
+  ];
+
+  return (
+    <div className="visual-stage k8s-preemption-stage">
+      <div className="k8s-preemption-card">
+        <svg
+          className="k8s-preemption-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["k8s-preemption-arrow-brand", "var(--brand)"],
+              ["k8s-preemption-arrow-teal", "var(--tertiary)"],
+              ["k8s-preemption-arrow-warning", "#f59e0b"],
+              ["k8s-preemption-arrow-success", "var(--success)"],
+              ["k8s-preemption-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="k8s-preemption-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="k8s-preemption-bg" x="24" y="24" width="1072" height="588" rx="28" />
+          <text className="k8s-preemption-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="k8s-preemption-subtitle" x="560" y="100">
+            {label(
+              "PriorityClass -> failed Filter -> preemption simulation -> victims/PDB -> nominatedNodeName -> bind",
+              "PriorityClass -> failed Filter -> preemption simulation -> victims/PDB -> nominatedNodeName -> bind",
+            )}
+          </text>
+
+          <g className={`k8s-preemption-priority ${priorityActive ? "active" : ""}`}>
+            <rect x="64" y="132" width="288" height="174" rx="24" />
+            <text className="k8s-preemption-panel-title" x="92" y="170">PriorityClass</text>
+            <text className="k8s-preemption-panel-subtitle" x="92" y="194">system-cluster-critical · preemptionPolicy=PreemptLowerPriority</text>
+            <g className={`k8s-preemption-chip brand ${priorityActive ? "active" : ""}`}>
+              <rect x="92" y="218" width="214" height="30" rx="15" />
+              <text x="199" y="238">value=1000000000</text>
+            </g>
+            <g className={`k8s-preemption-chip teal ${priorityActive ? "active" : ""}`}>
+              <rect x="92" y="256" width="214" height="30" rx="15" />
+              <text x="199" y="276">globalDefault=false</text>
+            </g>
+          </g>
+
+          <g className={`k8s-preemption-queue ${priorityActive ? "active" : ""}`}>
+            <rect x="64" y="340" width="288" height="162" rx="24" />
+            <text className="k8s-preemption-panel-title" x="92" y="378">Scheduling Queue</text>
+            {queueRows.map((row, index) => (
+              <g key={row.name} className={`k8s-preemption-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="92" y={400 + index * 34} width="216" height="25" rx="13" />
+                <text x="108" y={417 + index * 34}>{row.name}</text>
+                <text x="300" y={417 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-preemption-filter ${filterActive ? "active" : ""}`}>
+            <rect x="410" y="132" width="270" height="174" rx="24" />
+            <text className="k8s-preemption-panel-title" x="438" y="170">Normal Filter</text>
+            <text className="k8s-preemption-panel-subtitle" x="438" y="194">failed scheduling cycle</text>
+            {filterRows.map((row, index) => (
+              <g key={row.name} className={`k8s-preemption-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="438" y={218 + index * 34} width="190" height="25" rx="13" />
+                <text x="452" y={235 + index * 34}>{row.name}</text>
+                <text x="620" y={235 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-preemption-nodes ${victimActive ? "active" : ""}`}>
+            <rect x="410" y="340" width="270" height="162" rx="24" />
+            <text className="k8s-preemption-panel-title" x="438" y="378">Preemption candidates</text>
+            {nodeRows.map((row, index) => (
+              <g key={row.name} className={`k8s-preemption-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="438" y={400 + index * 34} width="190" height="25" rx="13" />
+                <text x="452" y={417 + index * 34}>{row.name}</text>
+                <text x="620" y={417 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-preemption-victims ${victimActive ? "active" : ""}`}>
+            <rect x="744" y="132" width="292" height="174" rx="24" />
+            <text className="k8s-preemption-panel-title" x="772" y="170">Victims and PDB</text>
+            <text className="k8s-preemption-panel-subtitle" x="772" y="194">lower-priority Pods · graceful termination</text>
+            {victimRows.map((row, index) => (
+              <g key={row.name} className={`k8s-preemption-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="772" y={218 + index * 34} width="214" height="25" rx="13" />
+                <text x="786" y={235 + index * 34}>{row.name}</text>
+                <text x="978" y={235 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-preemption-nomination ${nominateActive ? "active" : ""}`}>
+            <rect x="744" y="340" width="292" height="162" rx="24" />
+            <text className="k8s-preemption-panel-title" x="772" y="378">Nomination and bind</text>
+            {nominationRows.map((row, index) => (
+              <g key={row.name} className={`k8s-preemption-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="772" y={400 + index * 34} width="214" height="25" rx="13" />
+                <text x="786" y={417 + index * 34}>{row.name}</text>
+                <text x="978" y={417 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-preemption-priority-path ${priorityActive ? "active" : ""}`}>
+            <path d="M 352 220 C 382 220, 394 220, 410 220" markerEnd="url(#k8s-preemption-arrow-brand)" />
+            <path d="M 200 306 L 200 340" markerEnd="url(#k8s-preemption-arrow-brand)" />
+          </g>
+
+          <g className={`k8s-preemption-filter-path ${filterActive ? "active" : ""}`}>
+            <path d="M 352 422 C 382 370, 394 316, 430 286" markerEnd="url(#k8s-preemption-arrow-warning)" />
+            <rect x="320" y="314" width="156" height="30" rx="15" />
+            <text x="398" y="334">0/3 nodes fit</text>
+          </g>
+
+          <g className={`k8s-preemption-victim-path ${victimActive ? "active" : ""}`}>
+            <path d="M 680 226 C 710 226, 728 226, 744 226" markerEnd="url(#k8s-preemption-arrow-danger)" />
+            <path d="M 545 306 L 545 340" markerEnd="url(#k8s-preemption-arrow-danger)" />
+            <rect x="606" y="314" width="168" height="30" rx="15" />
+            <text x="690" y="334">simulate removal</text>
+          </g>
+
+          <g className={`k8s-preemption-nominate-path ${nominateActive ? "active" : ""}`}>
+            <path d="M 890 306 L 890 340" markerEnd="url(#k8s-preemption-arrow-teal)" />
+            <rect x="790" y="314" width="178" height="30" rx="15" />
+            <text x="879" y="334">write nomination</text>
+          </g>
+
+          <g className={`k8s-preemption-bind-path ${bindActive ? "active" : ""}`}>
+            <path d="M 744 450 C 636 570, 300 570, 200 502" markerEnd="url(#k8s-preemption-arrow-success)" />
+            <rect x="472" y="542" width="164" height="30" rx="15" />
+            <text x="554" y="562">resources released</text>
+          </g>
+
+          <g className="k8s-preemption-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`k8s-preemption-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={64 + index * 258} y="578" width="218" height="34" rx="16" />
+                <text x={84 + index * 258} y="592">{signal.name}</text>
+                <text x={270 + index * 258} y="606">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="k8s-preemption-mobile-map">
+          <div className="k8s-preemption-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`k8s-preemption-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="k8s-preemption-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`k8s-preemption-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption k8s-preemption-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

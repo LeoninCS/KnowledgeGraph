@@ -855,6 +855,7 @@
   .k8s-scheduler-stage,
   .k8s-taint-stage,
   .k8s-topology-stage,
+  .k8s-preemption-stage,
   .k8s-crashloop-stage {
     padding-inline: 12px;
   }
@@ -865,6 +866,7 @@
   .k8s-scheduler-card,
   .k8s-taint-card,
   .k8s-topology-card,
+  .k8s-preemption-card,
   .k8s-crashloop-card {
     width: 100%;
   }
@@ -875,6 +877,7 @@
   .k8s-scheduler-diagram,
   .k8s-taint-diagram,
   .k8s-topology-diagram,
+  .k8s-preemption-diagram,
   .k8s-crashloop-diagram {
     display: none;
   }
@@ -885,6 +888,7 @@
   .k8s-scheduler-mobile-map,
   .k8s-taint-mobile-map,
   .k8s-topology-mobile-map,
+  .k8s-preemption-mobile-map,
   .k8s-crashloop-mobile-map {
     display: grid;
     gap: 16px;
@@ -903,6 +907,8 @@
   .k8s-taint-mobile-facts,
   .k8s-topology-mobile-flow,
   .k8s-topology-mobile-facts,
+  .k8s-preemption-mobile-flow,
+  .k8s-preemption-mobile-facts,
   .k8s-crashloop-mobile-flow,
   .k8s-crashloop-mobile-facts,
   .mvcc-mobile-flow,
@@ -949,6 +955,8 @@
   .k8s-taint-mobile-fact,
   .k8s-topology-mobile-hop,
   .k8s-topology-mobile-fact,
+  .k8s-preemption-mobile-hop,
+  .k8s-preemption-mobile-fact,
   .k8s-crashloop-mobile-hop,
   .k8s-crashloop-mobile-fact,
   .mvcc-mobile-hop,
@@ -999,6 +1007,8 @@
   .k8s-taint-mobile-fact.active,
   .k8s-topology-mobile-hop.active,
   .k8s-topology-mobile-fact.active,
+  .k8s-preemption-mobile-hop.active,
+  .k8s-preemption-mobile-fact.active,
   .k8s-crashloop-mobile-hop.active,
   .k8s-crashloop-mobile-fact.active,
   .mvcc-mobile-hop.active,
@@ -1045,6 +1055,8 @@
   .k8s-taint-mobile-fact span,
   .k8s-topology-mobile-hop span,
   .k8s-topology-mobile-fact span,
+  .k8s-preemption-mobile-hop span,
+  .k8s-preemption-mobile-fact span,
   .k8s-crashloop-mobile-hop span,
   .k8s-crashloop-mobile-fact span,
   .mvcc-mobile-hop span,
@@ -1092,6 +1104,8 @@
   .k8s-taint-mobile-fact strong,
   .k8s-topology-mobile-hop strong,
   .k8s-topology-mobile-fact strong,
+  .k8s-preemption-mobile-hop strong,
+  .k8s-preemption-mobile-fact strong,
   .k8s-crashloop-mobile-hop strong,
   .k8s-crashloop-mobile-fact strong,
   .mvcc-mobile-hop strong,

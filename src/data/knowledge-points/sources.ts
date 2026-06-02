@@ -3141,6 +3141,18 @@ export const knowledgeSources = {
     title: "Kubernetes Docs: Pod Priority and Preemption",
     url: "https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/",
   },
+  "kubernetes-priorityclass-blog": {
+    title: "Kubernetes Blog: Protect mission-critical Pods with PriorityClass",
+    url: "https://kubernetes.io/blog/2023/01/12/protect-mission-critical-pods-priorityclass/",
+  },
+  "kubernetes-pdb": {
+    title: "Kubernetes Docs: Pod Disruption Budgets",
+    url: "https://kubernetes.io/docs/concepts/workloads/pods/disruptions/",
+  },
+  "devopscube-priorityclass": {
+    title: "DevOpsCube: Kubernetes Pod PriorityClass and Preemption",
+    url: "https://devopscube.com/pod-priorityclass-preemption/",
+  },
   "dair-prompt-guide": {
     title: "DAIR.AI Prompt Engineering Guide",
     url: "https://github.com/dair-ai/Prompt-Engineering-Guide",

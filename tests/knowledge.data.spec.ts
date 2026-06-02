@@ -159,6 +159,23 @@ test("kubernetes topology spread is backed by a dedicated visual simulation", as
   );
 });
 
+test("kubernetes preemption is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("kubernetes");
+  const preemption = points.find((point) => point.id === "preemption");
+
+  expect(visualPointIds.kubernetes).toContain("preemption");
+  expect(preemption).toBeTruthy();
+
+  const simulation = buildVisualSimulation("kubernetes", preemption!);
+
+  expect(simulation.key).toBe("kubernetes:preemption");
+  expect(simulation.pattern.en).toContain("priority preemption scheduler model");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["PriorityClass", "preemption victims", "nominatedNodeName", "PDB budget"]),
+  );
+});
+
 test("linux epoll is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("os");
   const epoll = points.find((point) => point.id === "epoll");

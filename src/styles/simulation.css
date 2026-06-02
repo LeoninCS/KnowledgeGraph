@@ -1691,6 +1691,7 @@
 .k8s-scheduler-stage,
 .k8s-taint-stage,
 .k8s-topology-stage,
+.k8s-preemption-stage,
 .k8s-crashloop-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -1703,6 +1704,7 @@
 .k8s-scheduler-card,
 .k8s-taint-card,
 .k8s-topology-card,
+.k8s-preemption-card,
 .k8s-crashloop-card {
   position: relative;
   justify-self: center;
@@ -1723,6 +1725,7 @@
 :root[data-theme="dark"] .k8s-scheduler-card,
 :root[data-theme="dark"] .k8s-taint-card,
 :root[data-theme="dark"] .k8s-topology-card,
+:root[data-theme="dark"] .k8s-preemption-card,
 :root[data-theme="dark"] .k8s-crashloop-card {
   background:
     linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
@@ -1735,6 +1738,7 @@
 .k8s-scheduler-diagram,
 .k8s-taint-diagram,
 .k8s-topology-diagram,
+.k8s-preemption-diagram,
 .k8s-crashloop-diagram {
   display: block;
   width: 100%;
@@ -1749,6 +1753,7 @@
 .k8s-scheduler-mobile-map,
 .k8s-taint-mobile-map,
 .k8s-topology-mobile-map,
+.k8s-preemption-mobile-map,
 .k8s-crashloop-mobile-map {
   display: none;
 }
@@ -7828,6 +7833,248 @@
 }
 
 .k8s-topology-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.k8s-preemption-bg {
+  fill: color-mix(in srgb, var(--brand) 16%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 20%, var(--border));
+}
+
+.k8s-preemption-title {
+  fill: var(--text);
+  font-size: 24px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.k8s-preemption-subtitle {
+  fill: var(--muted);
+  font-size: 12.5px;
+  font-weight: 750;
+  text-anchor: middle;
+}
+
+.k8s-preemption-priority,
+.k8s-preemption-queue,
+.k8s-preemption-filter,
+.k8s-preemption-nodes,
+.k8s-preemption-victims,
+.k8s-preemption-nomination,
+.k8s-preemption-row,
+.k8s-preemption-chip,
+.k8s-preemption-signal,
+.k8s-preemption-priority-path,
+.k8s-preemption-filter-path,
+.k8s-preemption-victim-path,
+.k8s-preemption-nominate-path,
+.k8s-preemption-bind-path {
+  opacity: 0.34;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.k8s-preemption-priority.active,
+.k8s-preemption-queue.active,
+.k8s-preemption-filter.active,
+.k8s-preemption-nodes.active,
+.k8s-preemption-victims.active,
+.k8s-preemption-nomination.active,
+.k8s-preemption-row.active,
+.k8s-preemption-chip.active,
+.k8s-preemption-signal.active,
+.k8s-preemption-priority-path.active,
+.k8s-preemption-filter-path.active,
+.k8s-preemption-victim-path.active,
+.k8s-preemption-nominate-path.active,
+.k8s-preemption-bind-path.active {
+  opacity: 1;
+}
+
+.k8s-preemption-priority > rect,
+.k8s-preemption-queue > rect,
+.k8s-preemption-filter > rect,
+.k8s-preemption-nodes > rect,
+.k8s-preemption-victims > rect,
+.k8s-preemption-nomination > rect {
+  fill: color-mix(in srgb, var(--surface) 94%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 14%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#k8s-preemption-soft-shadow);
+}
+
+.k8s-preemption-priority.active > rect,
+.k8s-preemption-row.brand.active rect,
+.k8s-preemption-chip.brand.active rect,
+.k8s-preemption-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 52%, var(--border));
+}
+
+.k8s-preemption-row.teal.active rect,
+.k8s-preemption-chip.teal.active rect,
+.k8s-preemption-signal.teal.active rect,
+.k8s-preemption-nomination.active > rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+}
+
+.k8s-preemption-filter.active > rect,
+.k8s-preemption-row.warning.active rect,
+.k8s-preemption-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 54%, var(--border));
+}
+
+.k8s-preemption-victims.active > rect,
+.k8s-preemption-nodes.active > rect,
+.k8s-preemption-row.danger.active rect,
+.k8s-preemption-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 46%, var(--border));
+}
+
+.k8s-preemption-row.success.active rect,
+.k8s-preemption-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 52%, var(--border));
+}
+
+.k8s-preemption-row rect,
+.k8s-preemption-chip rect,
+.k8s-preemption-signal rect,
+.k8s-preemption-filter-path rect,
+.k8s-preemption-victim-path rect,
+.k8s-preemption-nominate-path rect,
+.k8s-preemption-bind-path rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 12%, var(--border));
+  filter: url(#k8s-preemption-soft-shadow);
+}
+
+.k8s-preemption-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.k8s-preemption-panel-subtitle,
+.k8s-preemption-priority text,
+.k8s-preemption-queue text,
+.k8s-preemption-filter text,
+.k8s-preemption-nodes text,
+.k8s-preemption-victims text,
+.k8s-preemption-nomination text,
+.k8s-preemption-filter-path text,
+.k8s-preemption-victim-path text,
+.k8s-preemption-nominate-path text,
+.k8s-preemption-bind-path text,
+.k8s-preemption-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.k8s-preemption-row text,
+.k8s-preemption-chip text,
+.k8s-preemption-signal text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 900;
+}
+
+.k8s-preemption-panel-title,
+.k8s-preemption-row text:first-of-type,
+.k8s-preemption-chip text,
+.k8s-preemption-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 900;
+}
+
+.k8s-preemption-row text:last-of-type,
+.k8s-preemption-signal text:last-of-type {
+  fill: var(--brand-strong);
+  text-anchor: end;
+}
+
+.k8s-preemption-chip text,
+.k8s-preemption-filter-path text,
+.k8s-preemption-victim-path text,
+.k8s-preemption-nominate-path text,
+.k8s-preemption-bind-path text {
+  text-anchor: middle;
+}
+
+.k8s-preemption-priority-path path,
+.k8s-preemption-filter-path path,
+.k8s-preemption-victim-path path,
+.k8s-preemption-nominate-path path,
+.k8s-preemption-bind-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.k8s-preemption-priority-path path {
+  stroke: var(--brand);
+}
+
+.k8s-preemption-filter-path path {
+  stroke: #f59e0b;
+}
+
+.k8s-preemption-victim-path path {
+  stroke: var(--danger);
+}
+
+.k8s-preemption-nominate-path path {
+  stroke: var(--tertiary);
+}
+
+.k8s-preemption-bind-path path {
+  stroke: var(--success);
+}
+
+.k8s-preemption-mobile-flow,
+.k8s-preemption-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.k8s-preemption-mobile-hop,
+.k8s-preemption-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+  padding: 12px;
+}
+
+.k8s-preemption-mobile-hop span,
+.k8s-preemption-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.k8s-preemption-mobile-hop strong,
+.k8s-preemption-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.k8s-preemption-mobile-hop.active,
+.k8s-preemption-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--brand) 42%, var(--border));
+  background: color-mix(in srgb, var(--brand) 10%, var(--surface));
+}
+
+.k8s-preemption-caption {
   right: 16px;
   bottom: 14px;
 }

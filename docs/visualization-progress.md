@@ -155,6 +155,7 @@
 | Scheduler | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes Scheduler 调度周期模拟器，覆盖 Pending Pod、Scheduling Queue/Profile、Filter/Score 插件、Binding Cycle 和 FailedScheduling 事件 |
 | 污点与容忍 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes Taints and Tolerations 调度约束状态模型，覆盖 Node taint、Pod toleration、NoSchedule Filter、NoExecute 驱逐、tolerationSeconds 和 FailedScheduling 事件 |
 | epoll | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Linux epoll 事件通知状态模型，覆盖 epoll_create1、epoll_ctl、interest list、socket wait queue、ready list、epoll_wait 批量返回和 LT/ET drain |
+| 抢占 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes PriorityClass 抢占调度状态模型，覆盖 PriorityClass、普通 Filter 失败、victim/PDB、nominatedNodeName 和重新绑定验收 |
 
 ## Buffer Pool Visualization
 
@@ -325,11 +326,11 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Docker `CPU 限制` 或 Kubernetes `拓扑分布约束` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Docker `CPU 限制` 或 Kubernetes `Pod 亲和性` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 Docker `CPU 限制`，备选 Kubernetes `拓扑分布约束`。CPU 限制可承接 Docker 资源限制模型，围绕 CFS period/quota、throttled periods、cpu.shares、CPU set 和延迟排障展开；拓扑分布约束可承接 Scheduler 与污点容忍模型，围绕 `maxSkew`、拓扑域、`whenUnsatisfiable` 和多可用区副本均衡展开。
+优先选择 Docker `CPU 限制`，备选 Kubernetes `Pod 亲和性`。CPU 限制可承接 Docker 资源限制模型，围绕 CFS period/quota、throttled periods、cpu.shares、CPU set 和延迟排障展开；Pod 亲和性可承接 Scheduler、污点容忍、拓扑分布与抢占模型，围绕已有 Pod 分布、亲和/反亲和、拓扑域和调度事件展开。
 
 ## Docker Resource Limit Visualization
 
@@ -1772,3 +1773,30 @@
 - Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `topology-spread`，补 core/visual 清单与专用 builder 后 `npm run test:data -- --grep "topology spread"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 14 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add topology spread visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Kubernetes `PriorityClass/抢占` 或 Docker `CPU 限制`。
+
+### 2026-06-03 06:06 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `264c014`，从干净工作区继续。
+- Selected：Kubernetes `抢占`，原因是 PriorityClass、普通 Filter 失败、抢占模拟、victim/PDB 选择、`nominatedNodeName`、优雅终止和重新绑定能形成高价值调度排障状态模型，并承接 Scheduler、污点容忍与拓扑分布可视化。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；Chrome DevTools MCP profile 被占用，本轮使用 Kubernetes 官方博客图、官方文档、HTTP HEAD 成功记录和教程配图链接完成视觉确认。
+- Online Image References：
+  - source：Kubernetes Blog - Protect mission-critical Pods with PriorityClass，https://kubernetes.io/blog/2023/01/12/protect-mission-critical-pods-priorityclass/；image：`https://kubernetes.io/blog/2023/01/12/protect-mission-critical-pods-priorityclass/decision-tree.svg`；role：main；qualityReason：官方博客流程图直接呈现高优先级 Pod 在资源不足时的调度决策树，适合做抢占主流程；takeaways：采用读取 PriorityClass、普通调度失败、进入抢占分支、选择释放资源、等待重新调度的流程节奏；originalChanges：改造成项目自己的五步状态模型，加入 victim/PDB、`nominatedNodeName`、底部信号和移动端摘要。
+  - source：Kubernetes Blog - Protect mission-critical Pods with PriorityClass，https://kubernetes.io/blog/2023/01/12/protect-mission-critical-pods-priorityclass/；image：`https://kubernetes.io/blog/2023/01/12/protect-mission-critical-pods-priorityclass/kube-scheduler.svg`；role：supporting；qualityReason：官方调度器示意图能校准 kube-scheduler、Filter 和调度队列关系；takeaways：主画布中部保留 Normal Filter 与 preemption evaluation；originalChanges：把静态调度器图重绘为插件失败后的抢占模拟链路。
+  - source：Kubernetes Docs - Pod Priority and Preemption，https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/；image：官方文档中的 PriorityClass、preemptionPolicy、victim、PDB、`nominatedNodeName` 说明；role：supporting；qualityReason：官方定义抢占语义、非抢占策略、候选节点、牺牲者选择和限制边界；takeaways：步骤包含 `preemptionPolicy=PreemptLowerPriority`、victim 选择和 `nominatedNodeName=node-b`；originalChanges：把文档字段压缩成右侧信号和画布节点。
+  - source：Kubernetes Docs - Pod Disruption Budgets，https://kubernetes.io/docs/concepts/workloads/pods/disruptions/；image：PDB 与 voluntary disruption 说明；role：supporting；qualityReason：PDB 是 victim 选择的重要可用性约束，能补充抢占对服务预算的影响；takeaways：victim 面板保留 `PDB budget 1` 和 protected workload；originalChanges：用 PDB budget 信号表达可用性保护。
+  - source：DevOpsCube - Kubernetes Pod PriorityClass and Preemption，https://devopscube.com/pod-priorityclass-preemption/；image：页面 PriorityClass/Preemption 配图 `pod-priorityclass-1.png`；role：supporting；qualityReason：教程配图直观展示 PriorityClass 与 Pod 关联，适合补充对象形态；takeaways：左侧 PriorityClass 卡和调度队列保留 `api-critical`、`batch-low` 对比；originalChanges：采用本项目 Kubernetes SVG 样式、中文排障文案和移动端流程卡。
+- Reference Breakdown：主体布局为左上 PriorityClass、左下 Scheduling Queue，中上 Normal Filter，中下 Preemption candidates，右上 Victims and PDB，右下 Nomination and bind，底部四个信号；视觉焦点是高优先级 `api-critical` 在 `0/3 nodes fit` 后，通过 node-b 的两个低优先级 victim 释放资源，并写入 `nominatedNodeName=node-b`。
+- 领域对象：PriorityClass、priority value、preemptionPolicy、Pending Pod、Filter plugins、candidate node、low-priority victim、PDB budget、graceful termination、nominatedNodeName、FailedScheduling Events、Scheduled condition。
+- 容器层级：PriorityClass 提供优先级输入；Scheduling Queue 按 priority 排序；Filter 插件先执行常规约束；Preemption evaluation 模拟候选节点释放资源；Victims/PDB 面板控制可用性影响；Nomination/Bind 面板表达等待和最终绑定。
+- 连线方向：PriorityClass -> activeQ -> failed Filter -> preemption candidates -> victims/PDB -> nominatedNodeName -> reschedule/bind。
+- 状态表达：五步依次高亮 PriorityClass、Filter 失败、victim 选择、提名节点、重新绑定；底部信号展示 PriorityClass、victims、nominatedNodeName、PDB budget。
+- 颜色策略：品牌蓝表示优先级输入，橙色表示普通 Filter 失败，红色表示 victim 与抢占风险，青色表示提名等待，绿色表示最终绑定。
+- 文字密度：画布保留关键对象名、状态读数和短命令字段；长解释放在右侧任务面板和底部步骤条。
+- 交互节奏：读取 PriorityClass -> 普通调度失败 -> 选择牺牲 Pod -> 提名候选节点 -> 绑定并验收。
+- 原创改造点：把官方决策树和调度器图融合成生产排障模型，强调抢占事件链、PDB 影响、`nominatedNodeName` 暂存语义和业务 Ready 验收。
+- Implementation：新增 `kubernetes:preemption` 专用 `state-model` 构建器、Preemption SVG 舞台、移动端纵向摘要、响应式样式、来源引用和数据测试，并把 `preemption` 加入 Kubernetes core 与可视化清单。
+- Browser Note：Chrome DevTools MCP profile 被占用；本地预览 `http://127.0.0.1:4284/KnowledgeGraph/` 可访问；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied`；本轮使用官方/参考页面 URL、HTTP HEAD 成功记录、项目数据测试、生产构建和 React `SimulationStage` SSR 审查图完成验收。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/preemption/desktop.svg`、`.codex-artifacts/visualizations/preemption/mobile.svg`、`.codex-artifacts/visualizations/preemption/desktop.html` 与 `.codex-artifacts/visualizations/preemption/mobile.html`；桌面 SVG 可识别 PriorityClass、Scheduling Queue、Normal Filter、Preemption candidates、Victims/PDB、Nomination and bind、底部四个信号，移动 HTML 展示五步流程和指标摘要。
+- Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `preemption`，补 core/visual 清单与专用 builder 后 `npm run test:data -- --grep "kubernetes preemption"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 15 项；`git diff --check` 通过；继续执行 rebase 和 push。
+- Commit/Push Plan：提交 `feat: add preemption visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Docker `CPU 限制` 或 Kubernetes `Pod 亲和性`。
