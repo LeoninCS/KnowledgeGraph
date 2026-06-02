@@ -258,7 +258,7 @@
 - 桌面：captured `.codex-artifacts/visualizations/explain/desktop.png`
 - 移动端：captured `.codex-artifacts/visualizations/explain/mobile.png`
 - 截图结论：桌面画布可识别 Slow SQL、Visual Explain、Tabular EXPLAIN、索引改写、EXPLAIN ANALYZE、右侧任务面板和底部步骤进度；移动端纵向摘要完整展示五个阶段、四个核心读数、当前任务和步骤进度。
-- 验收备注：预览服务使用 `http://127.0.0.1:4210/KnowledgeGraph/`；in-app browser 返回不可用，Chrome DevTools MCP profile 被占用，Playwright Chromium 受 macOS Mach port 权限限制；本轮保存本地渲染验收图，桌面尺寸 2880x1882，移动端尺寸 1000x2720。
+- 验收备注：Chrome DevTools MCP 在 `http://127.0.0.1:4212/KnowledgeGraph/` 完成 Mysql 分类、搜索 `EXPLAIN`、详情页进入、模拟器进入和五步交互验收；最终状态显示 `range`、`io_clerk_date`、`rows=18`、`0.234s checked`。截图尺寸：桌面 2880x1882，移动端 1000x4696。
 - 验证结果：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 
 ## MySQL Deadlock Visualization
@@ -1092,15 +1092,15 @@
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Next Candidate：MySQL `Deadlock Log` 或 `SHOW ENGINE INNODB STATUS`。
 
-### 2026-06-02 13:12 CST
+### 2026-06-02 13:24 CST
 
 - Branch/Pull：当前分支 `main`；`git fetch origin main` 与 `git pull --ff-only origin main` 成功，远端已同步到 `e268109`。
 - Existing Work：工作区已有 MySQL `EXPLAIN` 可视化现场，本轮继续验收并提交。
 - Selected：MySQL `EXPLAIN`，原因是 Visual Explain、type/key/rows/Extra、谓词可索引性、复合索引和 `EXPLAIN ANALYZE` 能形成高价值慢 SQL 诊断状态模型。
 - Candidate Sources：普通搜索与官方页面确认保留 MySQL Workbench Visual Explain 教程为主参考，MySQL EXPLAIN Output Format 与 EXPLAIN Statement 为辅助参考。
-- Browser Note：预览服务启动在 `http://127.0.0.1:4210/KnowledgeGraph/`；in-app browser 返回不可用，Chrome DevTools MCP profile 被占用，Playwright Chromium 受 macOS Mach port 权限限制；本轮使用官方资料、实现结构和本地渲染图完成截图验收。
+- Browser Note：Chrome DevTools MCP 在 `http://127.0.0.1:4212/KnowledgeGraph/` 完成 Mysql 分类、搜索 `EXPLAIN`、详情页进入、模拟器进入、五步交互和桌面/移动端截图验收；验收中修正了 range 阶段 access type 指标。
 - Implementation：新增 `mysql:explain` 专用 `state-model` 构建器、EXPLAIN SVG 舞台、移动端纵向摘要、响应式样式和 EXPLAIN 专用来源。
-- Screenshot Review：保存 `.codex-artifacts/visualizations/explain/desktop.png`（2880x1882）与 `.codex-artifacts/visualizations/explain/mobile.png`（1000x2720）；桌面和移动端验收图均可读。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/explain/desktop.png`（2880x1882）与 `.codex-artifacts/visualizations/explain/mobile.png`（1000x4696）；桌面和移动端验收图均可读。
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
-- Commit/Push：功能提交 `37dc753 feat: add explain visualization` 已创建；`git pull --rebase origin main` 失败，原因是 `LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443`。当前本地 `main` 相对 `origin/main` ahead 1，另有本条 docs 阻塞记录待提交。
-- Resume Point：下一轮先执行 `git pull --rebase origin main`，成功后推送 `37dc753` 和本条 docs 记录；同步完成后继续 MySQL `Replication` 或 `Replication Lag` 找图与设计。
+- Commit/Push：功能提交 `37dc753 feat: add explain visualization` 与后续本地进度提交已存在；本轮补充 access type 指标修正与最新浏览器验收记录后继续执行 rebase 和 push。
+- Resume Point：同步完成后继续 MySQL `Replication` 或 `Replication Lag` 找图与设计。

@@ -3199,7 +3199,7 @@ function ExplainPlanStage({
     { name: compositeActive ? "Composite Range" : "Composite index", detail: compositeActive ? "io_clerk_date" : "candidate", x: 886, y: 190, active: compositeActive, tone: "success" },
   ];
   const signalRows = [
-    { name: "access type", value: compositeActive ? "range" : scanActive ? "ALL" : "pending", active: scanActive, tone: compositeActive ? "success" : "danger" },
+    { name: "access type", value: rangeActive ? "range" : scanActive ? "ALL" : "pending", active: scanActive, tone: rangeActive ? "success" : "danger" },
     { name: "chosen key", value: compositeActive ? "io_clerk_date" : rangeActive ? "i_o_orderdate" : scanActive ? "NULL" : "pending", active: scanActive, tone: rangeActive ? "teal" : "danger" },
     { name: "rows estimate", value: compositeActive ? "18" : rangeActive ? "32642" : scanActive ? "1.50M" : "pending", active: scanActive, tone: compositeActive ? "success" : "warning" },
     { name: "actual time", value: validateActive ? "0.234s checked" : "pending", active: validateActive, tone: "brand" },
