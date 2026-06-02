@@ -923,3 +923,46 @@
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Commit/Push：首版提交 `5af77bb feat: add two phase commit visualization` 已推送到 `origin/main`；随后把本轮 run log amend 到本地提交 `9c71695`。`git push --force-with-lease origin main` 失败，原因是 `Could not resolve host: github.com`；当前本地 `main` 相对 `origin/main` 显示 ahead 1 / behind 1。
 - Next Candidate：MySQL `Deadlock`。
+
+### 2026-06-02 06:02 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 中止，原因是本地 `main` 与 `origin/main` 已分叉。
+- Divergence：本地 `HEAD` 为 `28f4124 feat: add two phase commit visualization`；远端 `origin/main` 为 `5af77bb feat: add two phase commit visualization`。
+- Working Tree：进入同步门禁时工作区干净；本条记录写入后仅 `docs/visualization-progress.md` 发生变化。
+- Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
+- Resume Point：下一轮先处理 Two Phase Commit amend 分叉；可执行 `git push --force-with-lease origin main` 推送本地 run log 版本，成功后继续 MySQL `Deadlock` 找图与设计。
+
+### 2026-06-02 07:02 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 中止，原因是本地 `main` 与 `origin/main` 已分叉。
+- Divergence：本地 `HEAD` 为 `28f4124 feat: add two phase commit visualization`；远端 `origin/main` 为 `5af77bb feat: add two phase commit visualization`。
+- Recovery Attempt：执行 `git push --force-with-lease origin main`，失败原因是 `Could not resolve host: github.com`。
+- Working Tree：本轮仅追加同步门禁记录，当前 `docs/visualization-progress.md` 有本地修改。
+- Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
+- Resume Point：下一轮先重试 `git push --force-with-lease origin main`；推送成功后执行 `git pull --ff-only origin main`，再继续 MySQL `Deadlock` 找图与设计。
+
+### 2026-06-02 08:02 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 中止，原因是本地 `main` 与 `origin/main` 已分叉。
+- Divergence：本地 `HEAD` 为 `28f4124 feat: add two phase commit visualization`；远端 `origin/main` 为 `5af77bb feat: add two phase commit visualization`。
+- Working Tree：进入同步门禁前已有 `docs/visualization-progress.md` 本地修改，内容为前两轮同步阻塞记录；本轮继续追加当前阻塞记录。
+- Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
+- Resume Point：下一轮先重试 `git push --force-with-lease origin main` 推送本地 Two Phase Commit run log 版本；推送成功后执行 `git pull --ff-only origin main`，再继续 MySQL `Deadlock` 找图与设计。
+
+### 2026-06-02 09:02 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 中止，原因是本地 `main` 与 `origin/main` 已分叉。
+- Divergence：本地 `HEAD` 为 `28f4124 feat: add two phase commit visualization`；远端 `origin/main` 为 `5af77bb feat: add two phase commit visualization`。
+- Recovery Attempt：执行 `git push --force-with-lease origin main`，失败原因是 `Could not resolve host: github.com`。
+- Working Tree：进入同步门禁前已有 `docs/visualization-progress.md` 本地修改，内容为 06:02、07:02、08:02 同步阻塞记录；本轮继续追加当前阻塞记录。
+- Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
+- Resume Point：下一轮先重试 `git push --force-with-lease origin main` 推送本地 Two Phase Commit run log 版本；推送成功后执行 `git pull --ff-only origin main`，再继续 MySQL `Deadlock` 找图与设计。
+
+### 2026-06-02 10:03 CST
+
+- Branch/Pull：当前分支 `main`；`git pull --ff-only origin main` 中止，原因是本地 `main` 与 `origin/main` 已分叉。
+- Divergence：本地 `HEAD` 为 `28f4124 feat: add two phase commit visualization`；远端 `origin/main` 为 `5af77bb feat: add two phase commit visualization`。
+- Recovery Attempt：执行 `git push --force-with-lease origin main`，失败原因是 `Could not resolve host: github.com`。
+- Working Tree：进入同步门禁前已有 `docs/visualization-progress.md` 本地修改，内容为 06:02、07:02、08:02、09:02 同步阻塞记录；本轮继续追加当前阻塞记录。
+- Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
+- Resume Point：下一轮先重试 `git push --force-with-lease origin main` 推送本地 Two Phase Commit run log 版本；推送成功后执行 `git pull --ff-only origin main`，再继续 MySQL `Deadlock` 找图与设计。
