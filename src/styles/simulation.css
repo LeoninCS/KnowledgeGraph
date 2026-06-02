@@ -525,6 +525,44 @@
   display: none;
 }
 
+.deadlock-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.deadlock-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--danger) 22%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .deadlock-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.deadlock-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.deadlock-mobile-map {
+  display: none;
+}
+
 .docker-layer-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -3654,6 +3692,203 @@
 }
 
 .two-phase-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.deadlock-bg {
+  fill: color-mix(in srgb, var(--danger) 6%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 22%, var(--border));
+}
+
+.deadlock-title {
+  fill: var(--text);
+  font-size: 22px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.deadlock-subtitle {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.deadlock-tx-panel,
+.deadlock-lock-table,
+.deadlock-graph-panel,
+.deadlock-detector-panel,
+.deadlock-wait-edge,
+.deadlock-cycle-edge,
+.deadlock-cycle-badge,
+.deadlock-rollback-path,
+.deadlock-sql-chip,
+.deadlock-lock-row,
+.deadlock-detect-row,
+.deadlock-signal {
+  opacity: 0.24;
+  transition: opacity 180ms ease;
+}
+
+.deadlock-tx-panel.active,
+.deadlock-lock-table.active,
+.deadlock-graph-panel.active,
+.deadlock-detector-panel.active,
+.deadlock-wait-edge.active,
+.deadlock-cycle-edge.active,
+.deadlock-cycle-badge.active,
+.deadlock-rollback-path.active,
+.deadlock-sql-chip.active,
+.deadlock-lock-row.active,
+.deadlock-detect-row.active,
+.deadlock-signal.active {
+  opacity: 1;
+}
+
+.deadlock-tx-panel > rect,
+.deadlock-lock-table > rect,
+.deadlock-graph-panel > rect,
+.deadlock-detector-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--danger) 16%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#deadlock-soft-shadow);
+}
+
+.deadlock-tx1-panel.active > rect,
+.deadlock-sql-chip.brand.active rect,
+.deadlock-lock-row.brand.active rect,
+.deadlock-graph-node.brand.active {
+  fill: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.deadlock-tx2-panel.active > rect,
+.deadlock-sql-chip.warning.active rect,
+.deadlock-lock-row.warning.active rect,
+.deadlock-graph-node.warning.active {
+  fill: color-mix(in srgb, #f59e0b 9%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 40%, var(--border));
+}
+
+.deadlock-sql-chip.teal.active rect,
+.deadlock-lock-row.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 36%, var(--border));
+}
+
+.deadlock-sql-chip.danger.active rect,
+.deadlock-cycle-badge.active rect,
+.deadlock-detector-panel.active > rect {
+  fill: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 36%, var(--border));
+}
+
+.deadlock-lock-row.success.active rect,
+.deadlock-rollback-path.active rect,
+.deadlock-signal.active rect {
+  fill: color-mix(in srgb, var(--success) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.deadlock-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.deadlock-panel-subtitle,
+.deadlock-tx-panel text,
+.deadlock-lock-table text,
+.deadlock-graph-panel text,
+.deadlock-detector-panel text,
+.deadlock-wait-edge text,
+.deadlock-rollback-path text,
+.deadlock-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.deadlock-sql-chip rect,
+.deadlock-lock-row rect,
+.deadlock-detect-row rect,
+.deadlock-cycle-badge rect,
+.deadlock-rollback-path rect,
+.deadlock-wait-edge rect,
+.deadlock-signal rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#deadlock-soft-shadow);
+}
+
+.deadlock-panel-title,
+.deadlock-sql-chip text,
+.deadlock-lock-row text:first-of-type,
+.deadlock-detect-row text:first-of-type,
+.deadlock-cycle-badge text,
+.deadlock-rollback-path text,
+.deadlock-signal text:first-of-type,
+.deadlock-node-label {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.deadlock-sql-chip text,
+.deadlock-cycle-badge text,
+.deadlock-rollback-path text,
+.deadlock-wait-edge text,
+.deadlock-node-label {
+  text-anchor: middle;
+}
+
+.deadlock-lock-row text:nth-of-type(2),
+.deadlock-detect-row text:nth-of-type(2),
+.deadlock-signal text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.deadlock-graph-node {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 24%, var(--border));
+  stroke-width: 2.2;
+  filter: url(#deadlock-soft-shadow);
+}
+
+.deadlock-wait-edge path,
+.deadlock-cycle-edge path,
+.deadlock-rollback-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.deadlock-edge-t1 path,
+.deadlock-cycle-edge.teal path {
+  stroke: var(--tertiary);
+}
+
+.deadlock-edge-t2 path {
+  stroke: #f59e0b;
+}
+
+.deadlock-cycle-edge.danger path {
+  stroke: var(--danger);
+}
+
+.deadlock-rollback-path path {
+  stroke: var(--success);
+}
+
+.deadlock-caption {
   right: 16px;
   bottom: 14px;
 }

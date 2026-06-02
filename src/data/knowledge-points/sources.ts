@@ -3797,6 +3797,10 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Deadlocks in InnoDB",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-deadlocks.html",
   },
+  "mysql-innodb-deadlocks-handling": {
+    title: "MySQL Reference Manual: How to Minimize and Handle Deadlocks",
+    url: "https://dev.mysql.com/doc/mysql/en/innodb-deadlocks-handling.html",
+  },
   "mysql-innodb-deadlock-detection": {
     title: "MySQL Reference Manual: InnoDB Deadlock Detection",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-deadlock-detection.html",
@@ -3804,6 +3808,22 @@ export const knowledgeSources = {
   "microsoft-sql-deadlocks-guide": {
     title: "Microsoft Learn: SQL Server deadlocks guide",
     url: "https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-deadlocks-guide",
+  },
+  "azure-sql-analyze-prevent-deadlocks": {
+    title: "Microsoft Learn: Analyze and prevent deadlocks in Azure SQL Database",
+    url: "https://learn.microsoft.com/en-us/azure/azure-sql/database/analyze-prevent-deadlocks?tabs=ring-buffer&view=azuresql-db",
+  },
+  "wikipedia-wait-for-graph": {
+    title: "Wikipedia: Wait-for graph",
+    url: "https://en.wikipedia.org/wiki/Wait-for_graph",
+  },
+  "sobyte-mysql-innodb-deadlock": {
+    title: "SoByte: Deadlock detection implementation source code analysis in MySQL",
+    url: "https://www.sobyte.net/post/2022-08/mysql-innodb-deadlock/",
+  },
+  "oneuptime-mysql-locks": {
+    title: "OneUptime: MySQL Locks",
+    url: "https://oneuptime.com/blog/post/2025-08-20-mysql-locks/view",
   },
   "ibm-acid-properties": {
     title: "IBM Docs: ACID properties of transactions",

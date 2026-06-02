@@ -242,6 +242,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:deadlock") {
+    return (
+      <DeadlockStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "redis:hash-slot") {
     return (
       <RedisHashSlotStage
@@ -2904,6 +2915,217 @@ function TwoPhaseCommitStage({
           </div>
         </div>
         <div className="tcp-handshake-caption two-phase-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeadlockStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const crossActive = completedSteps >= 1;
+  const t1WaitActive = completedSteps >= 2;
+  const t2WaitActive = completedSteps >= 3;
+  const detectActive = completedSteps >= 4;
+  const rollbackActive = completedSteps >= 5;
+  const lockRows = [
+    { resource: "orders#42", holder: "T1", waiter: rollbackActive ? "-" : t2WaitActive ? "T2" : "-", active: crossActive, tone: "brand" },
+    { resource: "stock#7", holder: rollbackActive ? "T1" : "T2", waiter: rollbackActive ? "-" : t1WaitActive ? "T1" : "-", active: crossActive, tone: rollbackActive ? "success" : "warning" },
+    { resource: "idx_customer=18", holder: "-", waiter: "-", active: detectActive, tone: "muted" },
+  ];
+  const graphEdges = [
+    { name: "T1 -> T2", value: t1WaitActive ? "waits stock#7" : "pending", active: t1WaitActive },
+    { name: "T2 -> T1", value: t2WaitActive ? "waits orders#42" : "pending", active: t2WaitActive },
+    { name: "cycle", value: detectActive ? "closed" : "open", active: detectActive },
+  ];
+  const signalRows = [
+    { name: "LATEST DEADLOCK", value: detectActive ? "T1 <-> T2" : "empty", active: detectActive },
+    { name: "victim", value: rollbackActive ? "T2 rollback" : detectActive ? "choose T2" : "pending", active: detectActive },
+    { name: "lock wait", value: t2WaitActive ? "42 ms" : t1WaitActive ? "18 ms" : "0 ms", active: t1WaitActive },
+    { name: "retry branch", value: rollbackActive ? "idempotent retry" : "not yet", active: rollbackActive },
+  ];
+  const mobileFlow = [
+    { name: "T1", value: t1WaitActive ? "holds orders, waits stock" : "holds orders#42", active: crossActive },
+    { name: "T2", value: t2WaitActive ? "holds stock, waits orders" : "holds stock#7", active: crossActive },
+    { name: "wait graph", value: detectActive ? "cycle closed" : t1WaitActive ? "edge building" : "open", active: t1WaitActive },
+    { name: "detector", value: rollbackActive ? "rollback T2" : detectActive ? "victim=T2" : "idle", active: detectActive },
+  ];
+
+  return (
+    <div className="visual-stage deadlock-stage">
+      <div className="deadlock-card">
+        <svg
+          className="deadlock-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["deadlock-arrow-brand", "var(--brand)"],
+              ["deadlock-arrow-teal", "var(--tertiary)"],
+              ["deadlock-arrow-warning", "#f59e0b"],
+              ["deadlock-arrow-danger", "var(--danger)"],
+              ["deadlock-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="deadlock-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="deadlock-bg" x="24" y="24" width="1072" height="588" rx="28" />
+          <text className="deadlock-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="deadlock-subtitle" x="560" y="100">
+            {label("opposite lock order -> wait edges -> cycle -> victim rollback", "opposite lock order -> wait edges -> cycle -> victim rollback")}
+          </text>
+
+          <g className={`deadlock-tx-panel deadlock-tx1-panel ${crossActive ? "active" : ""}`}>
+            <rect x="78" y="142" width="256" height="180" rx="24" />
+            <text className="deadlock-panel-title" x="104" y="180">T1</text>
+            <text className="deadlock-panel-subtitle" x="104" y="204">UPDATE orders WHERE id=42</text>
+            <g className={`deadlock-sql-chip brand ${crossActive ? "active" : ""}`}>
+              <rect x="104" y="224" width="198" height="34" rx="17" />
+              <text x="203" y="246">{label("持有 orders#42", "holds orders#42")}</text>
+            </g>
+            <g className={`deadlock-sql-chip teal ${t1WaitActive ? "active" : ""}`}>
+              <rect x="104" y="270" width="198" height="34" rx="17" />
+              <text x="203" y="292">{label("等待 stock#7", "waits stock#7")}</text>
+            </g>
+          </g>
+
+          <g className={`deadlock-tx-panel deadlock-tx2-panel ${crossActive ? "active" : ""}`}>
+            <rect x="746" y="142" width="256" height="180" rx="24" />
+            <text className="deadlock-panel-title" x="772" y="180">T2</text>
+            <text className="deadlock-panel-subtitle" x="772" y="204">UPDATE stock WHERE sku=7</text>
+            <g className={`deadlock-sql-chip warning ${crossActive && !rollbackActive ? "active" : ""}`}>
+              <rect x="772" y="224" width="198" height="34" rx="17" />
+              <text x="871" y="246">{label("持有 stock#7", "holds stock#7")}</text>
+            </g>
+            <g className={`deadlock-sql-chip danger ${t2WaitActive ? "active" : ""}`}>
+              <rect x="772" y="270" width="198" height="34" rx="17" />
+              <text x="871" y="292">{label("等待 orders#42", "waits orders#42")}</text>
+            </g>
+          </g>
+
+          <g className={`deadlock-lock-table ${crossActive ? "active" : ""}`}>
+            <rect x="382" y="134" width="332" height="196" rx="24" />
+            <text className="deadlock-panel-title" x="410" y="174">InnoDB Lock Table</text>
+            <text className="deadlock-panel-subtitle" x="410" y="198">record X locks + wait queue</text>
+            {lockRows.map((row, index) => (
+              <g key={row.resource} className={`deadlock-lock-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="410" y={218 + index * 42} width="276" height="32" rx="16" />
+                <text x="428" y={239 + index * 42}>{row.resource}</text>
+                <text x="594" y={239 + index * 42}>{`H:${row.holder} W:${row.waiter}`}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`deadlock-wait-edge deadlock-edge-t1 ${t1WaitActive ? "active" : ""}`}>
+            <path d="M 266 306 C 314 376, 416 394, 500 396" markerEnd="url(#deadlock-arrow-teal)" />
+            <rect x="328" y="354" width="128" height="30" rx="15" />
+            <text x="392" y="374">{"T1 -> T2"}</text>
+          </g>
+          <g className={`deadlock-wait-edge deadlock-edge-t2 ${t2WaitActive ? "active" : ""}`}>
+            <path d="M 834 306 C 794 376, 690 402, 596 396" markerEnd="url(#deadlock-arrow-warning)" />
+            <rect x="674" y="354" width="128" height="30" rx="15" />
+            <text x="738" y="374">{"T2 -> T1"}</text>
+          </g>
+
+          <g className={`deadlock-graph-panel ${t1WaitActive ? "active" : ""}`}>
+            <rect x="358" y="354" width="406" height="148" rx="26" />
+            <text className="deadlock-panel-title" x="390" y="392">{label("等待图", "Wait-for graph")}</text>
+            <circle className={`deadlock-graph-node brand ${t1WaitActive ? "active" : ""}`} cx="478" cy="438" r="38" />
+            <text className="deadlock-node-label" x="478" y="444">T1</text>
+            <circle className={`deadlock-graph-node warning ${t2WaitActive ? "active" : ""}`} cx="644" cy="438" r="38" />
+            <text className="deadlock-node-label" x="644" y="444">T2</text>
+            <g className={`deadlock-cycle-edge teal ${t1WaitActive ? "active" : ""}`}>
+              <path d="M 514 426 C 548 402, 594 402, 628 426" markerEnd="url(#deadlock-arrow-teal)" />
+            </g>
+            <g className={`deadlock-cycle-edge danger ${t2WaitActive ? "active" : ""}`}>
+              <path d="M 628 456 C 594 482, 548 482, 514 456" markerEnd="url(#deadlock-arrow-danger)" />
+            </g>
+            <g className={`deadlock-cycle-badge ${detectActive ? "active" : ""}`}>
+              <rect x="518" y="392" width="128" height="30" rx="15" />
+              <text x="582" y="412">{label("环已闭合", "cycle closed")}</text>
+            </g>
+          </g>
+
+          <g className={`deadlock-detector-panel ${detectActive ? "active" : ""}`}>
+            <rect x="796" y="368" width="254" height="150" rx="24" />
+            <text className="deadlock-panel-title" x="824" y="408">Detector</text>
+            <text className="deadlock-panel-subtitle" x="824" y="432">{label("遍历等待边并选择 victim", "walk wait edges and choose victim")}</text>
+            {graphEdges.map((row, index) => (
+              <g key={row.name} className={`deadlock-detect-row ${row.active ? "active" : ""}`}>
+                <rect x="824" y={452 + index * 34} width="190" height="26" rx="13" />
+                <text x="838" y={470 + index * 34}>{row.name}</text>
+                <text x="1000" y={470 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`deadlock-rollback-path ${rollbackActive ? "active" : ""}`}>
+            <path d="M 884 368 C 918 324, 916 298, 904 270" markerEnd="url(#deadlock-arrow-success)" />
+            <rect x="838" y="320" width="154" height="30" rx="15" />
+            <text x="915" y="340">{label("回滚 T2", "rollback T2")}</text>
+          </g>
+
+          <g className="deadlock-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`deadlock-signal ${signal.active ? "active" : ""}`}>
+                <rect x={66 + index * 258} y="550" width="218" height="34" rx="16" />
+                <text x={86 + index * 258} y="564">{signal.name}</text>
+                <text x={264 + index * 258} y="576">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="deadlock-mobile-map">
+          <div className="deadlock-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`deadlock-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="deadlock-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`deadlock-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption deadlock-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

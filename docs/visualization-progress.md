@@ -143,6 +143,7 @@
 | Redo Log | `state-model` | completed | desktop/mobile captured | MySQL Redo Log WAL 与恢复状态模型，覆盖 redo record、log buffer、write/fsync、checkpoint 和 crash recovery |
 | Binlog | `step-simulation` | completed | desktop/mobile captured | MySQL Binlog 提交与复制通道模拟器，覆盖 GTID、Rows Event、Group Commit、Relay Log 和副本应用延迟 |
 | 两阶段提交 | `state-model` | completed | desktop/mobile captured | MySQL Two Phase Commit 提交一致性状态模型，覆盖 redo prepare、Binlog Xid、redo commit 和崩溃恢复判定 |
+| 死锁 | `state-model` | completed | desktop/mobile captured | MySQL Deadlock 锁等待状态模型，覆盖交叉持锁、wait-for graph 闭环、检测器、victim rollback 和重试分支 |
 
 ## Buffer Pool Visualization
 
@@ -203,11 +204,66 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 MySQL `Deadlock` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 MySQL `Deadlock Log` 或 `SHOW ENGINE INNODB STATUS` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 MySQL `Deadlock`，它能展示事务持锁、等待边、检测环、回滚牺牲者和线上排障信号，适合做锁等待状态模型。
+优先选择 MySQL `Deadlock Log` 或 `SHOW ENGINE INNODB STATUS`，它们能把本轮 Deadlock 模拟器延伸到线上排障视角，展示最新死锁段、事务信息、锁对象、SQL 文本和索引诊断。
+
+## MySQL Deadlock Visualization
+
+### Online Image References
+
+- `source`：Microsoft Learn - Analyze and prevent deadlocks in Azure SQL Database，https://learn.microsoft.com/en-us/azure/azure-sql/database/analyze-prevent-deadlocks?tabs=ring-buffer&view=azuresql-db
+  - `image`：页面中的 deadlock graph / process-resource-victim 可视化。
+  - `role`：main
+  - `qualityReason`：图形表达清楚，展示 process oval、resource rectangle、victim 标记、owner/waiter 边和死锁环，适合提炼为主构图。
+  - `takeaways`：采用事务节点、资源节点、等待边、victim 选择和诊断信号的四区结构。
+  - `originalChanges`：改写为 MySQL InnoDB 行锁语义，主画布使用 T1/T2、orders#42、stock#7、InnoDB Lock Table、Wait-for Graph、Detector 和 retry branch。
+- `source`：MySQL 8.4 Reference Manual - Deadlock Detection，https://dev.mysql.com/doc/refman/8.4/en/innodb-deadlock-detection.html
+  - `image`：页面中的 deadlock detector、wait-for graph、victim rollback 和 `innodb_deadlock_detect` 说明。
+  - `role`：supporting
+  - `qualityReason`：官方定义 InnoDB 自动检测死锁、选择回滚事务和 waits-for graph 搜索边界。
+  - `takeaways`：加入 Detector 面板、`cycle detected` 状态和 `victim=T2` 信号。
+  - `originalChanges`：把官方检测语义转成五步可交互状态模型，突出等待边闭环和回滚分支。
+- `source`：MySQL 8.4 Reference Manual - How to Minimize and Handle Deadlocks，https://dev.mysql.com/doc/mysql/en/innodb-deadlocks-handling.html
+  - `image`：页面中的死锁处理建议、`SHOW ENGINE INNODB STATUS` 和事务重试语义。
+  - `role`：supporting
+  - `qualityReason`：官方工程建议说明应用应准备重试、缩短事务、统一访问顺序、使用合适索引。
+  - `takeaways`：底部信号保留 `LATEST DEADLOCK`、`retry branch`、lock wait 和索引诊断入口。
+  - `originalChanges`：把文字建议压缩成底部观测信号和右侧理解重点。
+- `source`：MySQL 8.4 Reference Manual - Locks Set by Different SQL Statements in InnoDB，https://dev.mysql.com/doc/refman/8.4/en/innodb-locks-set.html
+  - `image`：页面中的 SQL 加锁范围、record/gap/next-key lock 语义说明。
+  - `role`：supporting
+  - `qualityReason`：官方解释 UPDATE、索引命中和行锁范围，是锁对象标注的权威依据。
+  - `takeaways`：Lock Table 行展示 record X lock、holder/waiter 和索引相关资源。
+  - `originalChanges`：主画布保留简化锁表，把详细 SQL 加锁差异放到理解重点与下一候选 Deadlock Log。
+- `source`：Wait-for graph，https://en.wikipedia.org/wiki/Wait-for_graph
+  - `image`：页面中的 wait-for graph 概念图与有向边解释。
+  - `role`：supporting
+  - `qualityReason`：经典图论表达清楚，能补足事务依赖边和环检测的抽象层。
+  - `takeaways`：下方 Wait-for Graph 使用 `T1 -> T2`、`T2 -> T1` 两条弧线表达闭环。
+  - `originalChanges`：采用项目统一色彩、InnoDB 锁表上下文和中文排障文案，聚焦 MySQL 事务行锁死锁。
+
+### Reference Breakdown
+
+- 主体布局：左侧 T1、右侧 T2、中部 InnoDB Lock Table、下方 Wait-for Graph、右下 Detector、底部 LATEST DEADLOCK / victim / lock wait / retry branch 信号。
+- 视觉焦点：T1 持有 `orders#42` 等待 `stock#7`，T2 持有 `stock#7` 等待 `orders#42`，两条等待边闭合成 `T1 <-> T2`。
+- 领域对象：transaction、record X lock、holder/waiter、lock wait、wait-for edge、cycle、deadlock detector、victim、rollback、idempotent retry。
+- 容器层级：事务面板展示业务 SQL；Lock Table 汇总持锁和等待队列；Wait-for Graph 抽象依赖环；Detector 执行检测和 victim 选择；底部信号连接线上排障。
+- 连线方向：事务请求进入锁表；锁等待转成 wait-for edge；闭环进入 Detector；Detector 触发 rollback 并释放锁。
+- 状态表达：五步通过透明度、边框色、箭头、cycle badge、victim 状态和底部信号显隐表达交叉持锁、T1 等待、T2 等待、检测等待环和回滚牺牲者。
+- 颜色策略：品牌蓝表示 T1，橙色表示 T2，青色表示第一条等待边，红色表示闭环和检测，绿色表示回滚释放与可重试分支。
+- 文字密度：画布保留 SQL 摘要、资源名、holder/waiter 和关键状态；解释放在右侧任务、操作面板和底部步骤条。
+- 交互节奏：五步依次推进“交叉持锁 -> T1 等待库存行 -> T2 等待订单行 -> 检测等待环 -> 回滚牺牲者”。
+- 原创改造点：借鉴 deadlock graph 的 process/resource/victim 结构，改造成 MySQL InnoDB 锁等待状态模型，加入 `SHOW ENGINE INNODB STATUS`、lock wait、victim rollback 和 retry branch。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/deadlock/desktop.png`
+- 移动端：captured `.codex-artifacts/visualizations/deadlock/mobile.png`
+- 截图结论：桌面画布可识别 T1/T2、InnoDB Lock Table、Wait-for Graph、Detector、rollback path 和底部诊断信号；移动端纵向摘要完整展示四个核心状态和四个排障指标。
+- 验收备注：in-app browser 返回不可用；使用本地 Playwright 在 `http://127.0.0.1:4207/KnowledgeGraph/` 完成首页、分类、详情页、模拟器五步交互和桌面/移动端截图验收。
 
 ## MySQL Binlog Visualization
 
@@ -966,3 +1022,21 @@
 - Working Tree：进入同步门禁前已有 `docs/visualization-progress.md` 本地修改，内容为 06:02、07:02、08:02、09:02 同步阻塞记录；本轮继续追加当前阻塞记录。
 - Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
 - Resume Point：下一轮先重试 `git push --force-with-lease origin main` 推送本地 Two Phase Commit run log 版本；推送成功后执行 `git pull --ff-only origin main`，再继续 MySQL `Deadlock` 找图与设计。
+
+### 2026-06-02 11:04 CST
+
+- Branch/Pull：当前分支 `main`；`git fetch origin main` 与 `git pull --ff-only origin main` 成功，远端已同步。
+- Selected：MySQL `Deadlock`，原因是事务持锁、交叉等待、wait-for graph 闭环、InnoDB detector、victim rollback 和幂等重试能形成强机制状态模型。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；主参考图采用 Microsoft SQL Server deadlock graph 的 process/resource/victim 构图；辅助参考采用 MySQL 官方 Deadlock Detection、Deadlock Handling、Locks Set by SQL Statements 和 Wait-for graph 概念图。
+- Online Image References：
+  - source：Microsoft Learn - Analyze and prevent deadlocks in Azure SQL Database；image：页面 deadlock graph / process-resource-victim 可视化；role：main；qualityReason：清楚展示进程节点、资源节点、等待边、victim 标记和等待环；takeaways：采用事务节点、资源/锁表节点、wait-for graph 和 victim detector 的四区结构；originalChanges：改写为 MySQL InnoDB 行锁语义，加入 `SHOW ENGINE INNODB STATUS` 与应用重试信号。
+  - source：MySQL Reference Manual - Deadlocks in InnoDB；image：官方死锁定义与最小化建议；role：supporting；qualityReason：权威说明死锁会发生、事务需重试、应用应按常规处理；takeaways：右侧面板强调 deadlock 是可预期并发分支；originalChanges：把文字建议落成底部 retry branch 和 lock order 信号。
+  - source：MySQL Reference Manual - InnoDB Deadlock Detection；image：官方 deadlock detector 说明；role：supporting；qualityReason：校准检测器遍历等待关系、选择 victim、禁用检测时依赖超时的边界；takeaways：加入 Detector 面板和 victim=T2 状态；originalChanges：把检测逻辑转成可逐步高亮的等待图。
+  - source：MySQL Reference Manual - Locks Set by Different SQL Statements in InnoDB；image：锁类型与 SQL 加锁范围说明；role：supporting；qualityReason：解释 record/gap/next-key lock 与索引命中对锁范围的影响；takeaways：锁表行使用 record X lock 和索引信号；originalChanges：底部保留 lock wait 和 indexed predicate 诊断口径。
+  - source：Wait-for graph；image：页面 wait-for graph 概念图与有向边解释；role：supporting；qualityReason：补充事务依赖边和环检测的抽象层；takeaways：中部图使用 `T1 -> T2`、`T2 -> T1` 闭环；originalChanges：用项目自己的颜色、InnoDB 锁表上下文和中文排障文案表达。
+- Reference Breakdown：主体布局为左侧 T1、右侧 T2、中部 InnoDB Lock Table、下方 Wait-for Graph、右下 Detector、底部 LATEST DEADLOCK / victim / lock wait / retry branch 信号；视觉焦点是 `T1 -> T2 -> T1` 闭环；交互节奏按交叉持锁、T1 等待、T2 等待、检测等待环、回滚牺牲者推进。
+- Implementation：新增 `mysql:deadlock` 专用 `state-model` 构建器、Deadlock SVG 舞台、移动端纵向摘要、响应式样式，并给 MySQL 死锁知识点补充官方与图形来源引用。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/deadlock/desktop.png`（2880x1882）与 `.codex-artifacts/visualizations/deadlock/mobile.png`（1000x4544）；桌面画布可识别 T1/T2、InnoDB Lock Table、wait-for graph、Detector 和底部排障信号，移动端切换为 4 个流程卡片与 4 个事实卡片。
+- Browser Note：in-app browser 返回不可用；本轮使用本地 Playwright 在 `http://127.0.0.1:4207/KnowledgeGraph/` 从首页进入 Mysql 分类、打开 MySQL 死锁详情、进入模拟器、推进 5 步，并完成桌面/移动端截图验收。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
+- Next Candidate：MySQL `Deadlock Log` 或 `SHOW ENGINE INNODB STATUS`。
