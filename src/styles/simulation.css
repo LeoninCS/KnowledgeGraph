@@ -1336,6 +1336,317 @@
   display: none;
 }
 
+.docker-resource-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.docker-resource-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 24%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .docker-resource-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.docker-resource-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.docker-resource-mobile-map {
+  display: none;
+}
+
+.docker-resource-bg {
+  fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);
+}
+
+.docker-resource-title {
+  fill: var(--text);
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.docker-resource-subtitle {
+  fill: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.docker-resource-cli,
+.docker-resource-daemon,
+.docker-resource-cgroup,
+.docker-resource-container,
+.docker-resource-kernel,
+.docker-resource-stats,
+.docker-resource-flag-row,
+.docker-resource-control-row,
+.docker-resource-workload-row,
+.docker-resource-kernel-chip,
+.docker-resource-signal,
+.docker-resource-flags-path,
+.docker-resource-cgroup-path,
+.docker-resource-cpu-path,
+.docker-resource-memory-path,
+.docker-resource-stats-path {
+  opacity: 0.3;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.docker-resource-cli.active,
+.docker-resource-daemon.active,
+.docker-resource-cgroup.active,
+.docker-resource-container.active,
+.docker-resource-kernel.active,
+.docker-resource-stats.active,
+.docker-resource-flag-row.active,
+.docker-resource-control-row.active,
+.docker-resource-workload-row.active,
+.docker-resource-kernel-chip.active,
+.docker-resource-signal.active,
+.docker-resource-flags-path.active,
+.docker-resource-cgroup-path.active,
+.docker-resource-cpu-path.active,
+.docker-resource-memory-path.active,
+.docker-resource-stats-path.active {
+  opacity: 1;
+}
+
+.docker-resource-cli > rect,
+.docker-resource-daemon > rect,
+.docker-resource-cgroup > rect,
+.docker-resource-container > rect,
+.docker-resource-kernel > rect,
+.docker-resource-stats > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  stroke-width: 1.25;
+  filter: url(#docker-resource-soft-shadow);
+}
+
+.docker-resource-cli.active > rect,
+.docker-resource-flag-row.active rect,
+.docker-resource-control-row.brand.active rect,
+.docker-resource-workload-row.brand.active rect,
+.docker-resource-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.docker-resource-daemon.active > rect,
+.docker-resource-cgroup.active > rect,
+.docker-resource-workload-row.teal.active rect,
+.docker-resource-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 42%, var(--border));
+}
+
+.docker-resource-control-row.warning.active rect,
+.docker-resource-workload-row.warning.active rect,
+.docker-resource-kernel-chip.warning.active rect,
+.docker-resource-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 50%, var(--border));
+}
+
+.docker-resource-control-row.success.active rect,
+.docker-resource-workload-row.success.active rect,
+.docker-resource-stats.active > rect,
+.docker-resource-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 44%, var(--border));
+}
+
+.docker-resource-control-row.danger.active rect,
+.docker-resource-workload-row.danger.active rect,
+.docker-resource-kernel.active > rect,
+.docker-resource-kernel-chip.danger.active rect,
+.docker-resource-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 40%, var(--border));
+}
+
+.docker-resource-flag-row rect,
+.docker-resource-control-row rect,
+.docker-resource-workload-row rect,
+.docker-resource-kernel-chip rect,
+.docker-resource-signal rect,
+.docker-resource-flags-path rect,
+.docker-resource-cgroup-path rect,
+.docker-resource-cpu-path rect,
+.docker-resource-memory-path rect,
+.docker-resource-stats-path rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 16%, var(--border));
+  filter: url(#docker-resource-soft-shadow);
+}
+
+.docker-resource-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.docker-resource-panel-subtitle,
+.docker-resource-cli text,
+.docker-resource-daemon text,
+.docker-resource-cgroup text,
+.docker-resource-container text,
+.docker-resource-kernel text,
+.docker-resource-stats text,
+.docker-resource-flags-path text,
+.docker-resource-cgroup-path text,
+.docker-resource-cpu-path text,
+.docker-resource-memory-path text,
+.docker-resource-stats-path text,
+.docker-resource-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 820;
+}
+
+.docker-resource-flag-row text,
+.docker-resource-control-row text,
+.docker-resource-workload-row text,
+.docker-resource-kernel-chip text,
+.docker-resource-signal text,
+.docker-resource-flags-path text,
+.docker-resource-cgroup-path text,
+.docker-resource-cpu-path text,
+.docker-resource-memory-path text,
+.docker-resource-stats-path text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.docker-resource-cli text,
+.docker-resource-daemon text,
+.docker-resource-cgroup text,
+.docker-resource-container text,
+.docker-resource-kernel text,
+.docker-resource-stats text {
+  text-anchor: start;
+}
+
+.docker-resource-control-row text:first-of-type,
+.docker-resource-workload-row text:first-of-type,
+.docker-resource-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.docker-resource-control-row text:last-of-type,
+.docker-resource-workload-row text:last-of-type,
+.docker-resource-signal text:last-of-type {
+  fill: var(--brand-strong);
+  font-size: 9.3px;
+  text-anchor: end;
+}
+
+.docker-resource-kernel-chip text,
+.docker-resource-flags-path text,
+.docker-resource-cgroup-path text,
+.docker-resource-cpu-path text,
+.docker-resource-memory-path text,
+.docker-resource-stats-path text {
+  fill: var(--text);
+  text-anchor: middle;
+}
+
+.docker-resource-flags-path path,
+.docker-resource-cgroup-path path,
+.docker-resource-cpu-path path,
+.docker-resource-memory-path path,
+.docker-resource-stats-path path {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+.docker-resource-flags-path path {
+  stroke: var(--brand);
+}
+
+.docker-resource-cgroup-path path {
+  stroke: var(--tertiary);
+}
+
+.docker-resource-cpu-path path {
+  stroke: #f59e0b;
+}
+
+.docker-resource-memory-path path {
+  stroke: var(--danger);
+}
+
+.docker-resource-stats-path path {
+  stroke: var(--success);
+}
+
+.docker-resource-mobile-flow,
+.docker-resource-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.docker-resource-mobile-hop,
+.docker-resource-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--tertiary) 6%, var(--surface));
+  padding: 12px;
+}
+
+.docker-resource-mobile-hop span,
+.docker-resource-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.docker-resource-mobile-hop strong,
+.docker-resource-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.docker-resource-mobile-hop.active,
+.docker-resource-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+  background: color-mix(in srgb, var(--tertiary) 11%, var(--surface));
+}
+
+.docker-resource-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .ip-routing-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;

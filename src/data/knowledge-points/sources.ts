@@ -4757,6 +4757,14 @@ export const knowledgeSources = {
     title: "Docker Docs: Resource constraints",
     url: "https://docs.docker.com/engine/containers/resource_constraints/",
   },
+  "enccs-containers-cgroups": {
+    title: "ENCCS: Namespaces and cgroups",
+    url: "https://enccs.github.io/containers/namespc-cgroup/",
+  },
+  "nginx-namespaces-cgroups": {
+    title: "NGINX Blog: What Are Namespaces and cgroups, and How Do They Work?",
+    url: "https://www.nginx.com/blog/what-are-namespaces-cgroups-how-do-they-work/",
+  },
   "docker-runtime-metrics": {
     title: "Docker Docs: Runtime metrics",
     url: "https://docs.docker.com/engine/containers/runmetrics/",

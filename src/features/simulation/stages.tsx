@@ -341,6 +341,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "docker:resource-limit") {
+    return (
+      <DockerResourceLimitStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:service") {
     return (
       <KubernetesServiceStage
@@ -6187,6 +6198,222 @@ function DockerPortMappingStage({
           </div>
         </div>
         <div className="tcp-handshake-caption docker-port-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DockerResourceLimitStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const flagsActive = completedSteps >= 1;
+  const cgroupActive = completedSteps >= 2;
+  const cpuActive = completedSteps >= 3;
+  const memoryActive = completedSteps >= 4;
+  const statsActive = completedSteps >= 5;
+  const controlRows = [
+    { name: "memory.max", value: statsActive ? "805306368" : cgroupActive ? "536870912" : "max", active: cgroupActive, tone: memoryActive ? "danger" : "brand" },
+    { name: "cpu.max", value: cgroupActive ? "150000 100000" : "max 100000", active: cgroupActive, tone: cpuActive ? "warning" : "teal" },
+    { name: "pids.max", value: cgroupActive ? "100" : "max", active: cgroupActive, tone: "success" },
+    { name: "memory.events", value: memoryActive ? "oom_kill 1" : "oom_kill 0", active: memoryActive, tone: "danger" },
+  ];
+  const workloadRows = [
+    { name: "worker threads", value: cpuActive ? "CPU demand 220%" : "idle", active: cpuActive, tone: "warning" },
+    { name: "rss + cache", value: memoryActive ? "531MiB / 512MiB" : "128MiB / 512MiB", active: flagsActive, tone: memoryActive ? "danger" : "brand" },
+    { name: "process count", value: cgroupActive ? "42 / 100" : "pending", active: cgroupActive, tone: "success" },
+  ];
+  const signalRows = [
+    { name: "memory.max", value: statsActive ? "768MiB" : cgroupActive ? "512MiB" : "--", active: cgroupActive, tone: memoryActive ? "danger" : "brand" },
+    { name: "cpu.max", value: cpuActive ? "1.5 CPU" : cgroupActive ? "quota set" : "--", active: cgroupActive, tone: "warning" },
+    { name: "oom_kill", value: memoryActive ? "1 event" : "0", active: memoryActive, tone: "danger" },
+    { name: "docker stats", value: statsActive ? "CPU 142% MEM 69%" : cpuActive ? "CPU 150% MEM 99%" : "--", active: cpuActive || statsActive, tone: statsActive ? "success" : "teal" },
+  ];
+  const mobileFlow = [
+    { name: "HostConfig", value: flagsActive ? "--memory 512m / --cpus 1.5 / --pids-limit 100" : "pending flags", active: flagsActive },
+    { name: "cgroup v2", value: cgroupActive ? "memory.max, cpu.max, pids.max written" : "waiting runtime", active: cgroupActive },
+    { name: "CPU quota", value: cpuActive ? "CFS period exhausted, throttled periods rise" : "waiting workload", active: cpuActive },
+    { name: "Memory limit", value: memoryActive ? "oom_kill=1, container exits 137" : "headroom available", active: memoryActive },
+    { name: "Observe/update", value: statsActive ? "stats + events + inspect, update to 768MiB" : "pending review", active: statsActive },
+  ];
+
+  return (
+    <div className="visual-stage docker-resource-stage">
+      <div className="docker-resource-card">
+        <svg
+          className="docker-resource-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["docker-resource-arrow-brand", "var(--brand)"],
+              ["docker-resource-arrow-teal", "var(--tertiary)"],
+              ["docker-resource-arrow-success", "var(--success)"],
+              ["docker-resource-arrow-warning", "#f59e0b"],
+              ["docker-resource-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker key={id} id={id} viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="docker-resource-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="docker-resource-bg" x="24" y="24" width="1072" height="584" rx="28" />
+          <text className="docker-resource-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="docker-resource-subtitle" x="560" y="100">
+            {label(
+              "docker flags -> HostConfig -> cgroup files -> scheduler / OOM -> stats / update",
+              "docker flags -> HostConfig -> cgroup files -> scheduler / OOM -> stats / update",
+            )}
+          </text>
+
+          <g className={`docker-resource-cli ${flagsActive ? "active" : ""}`}>
+            <rect x="58" y="142" width="238" height="194" rx="24" />
+            <text className="docker-resource-panel-title" x="88" y="180">docker run</text>
+            <text className="docker-resource-panel-subtitle" x="88" y="204">HostConfig</text>
+            {[
+              "--memory 512m",
+              "--cpus 1.5",
+              "--pids-limit 100",
+            ].map((flag, index) => (
+              <g key={flag} className={`docker-resource-flag-row ${flagsActive ? "active" : ""}`}>
+                <rect x="88" y={228 + index * 34} width="174" height="24" rx="12" />
+                <text x="104" y={244 + index * 34}>{flag}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-resource-daemon ${flagsActive ? "active" : ""}`}>
+            <rect x="356" y="142" width="210" height="134" rx="24" />
+            <text className="docker-resource-panel-title" x="386" y="180">Docker daemon</text>
+            <text x="386" y="214">{flagsActive ? "create container" : "idle"}</text>
+            <text x="386" y="244">{cgroupActive ? "runtime writes files" : "await limits"}</text>
+          </g>
+
+          <g className={`docker-resource-cgroup ${cgroupActive ? "active" : ""}`}>
+            <rect x="632" y="126" width="332" height="254" rx="28" />
+            <text className="docker-resource-panel-title" x="662" y="164">cgroup v2</text>
+            <text className="docker-resource-panel-subtitle" x="662" y="188">/sys/fs/cgroup/docker/&lt;id&gt;</text>
+            {controlRows.map((row, index) => (
+              <g key={row.name} className={`docker-resource-control-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="662" y={216 + index * 38} width="266" height="28" rx="14" />
+                <text x="680" y={235 + index * 38}>{row.name}</text>
+                <text x="910" y={235 + index * 38}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-resource-container ${flagsActive ? "active" : ""}`}>
+            <rect x="76" y="396" width="310" height="152" rx="26" />
+            <text className="docker-resource-panel-title" x="106" y="434">{label("应用容器", "App container")}</text>
+            <text className="docker-resource-panel-subtitle" x="106" y="458">PID 1 + workers</text>
+            {workloadRows.map((row, index) => (
+              <g key={row.name} className={`docker-resource-workload-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="106" y={478 + index * 30} width="236" height="22" rx="11" />
+                <text x="122" y={493 + index * 30}>{row.name}</text>
+                <text x="330" y={493 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-resource-kernel ${cpuActive || memoryActive ? "active" : ""}`}>
+            <rect x="454" y="412" width="252" height="136" rx="26" />
+            <text className="docker-resource-panel-title" x="484" y="450">{label("内核调度 / OOM", "Kernel scheduling / OOM")}</text>
+            <g className={`docker-resource-kernel-chip warning ${cpuActive ? "active" : ""}`}>
+              <rect x="486" y="474" width="174" height="26" rx="13" />
+              <text x="573" y="492">{cpuActive ? "CFS throttled" : "quota waiting"}</text>
+            </g>
+            <g className={`docker-resource-kernel-chip danger ${memoryActive ? "active" : ""}`}>
+              <rect x="486" y="510" width="174" height="26" rx="13" />
+              <text x="573" y="528">{memoryActive ? "OOMKilled exit 137" : "reclaim ready"}</text>
+            </g>
+          </g>
+
+          <g className={`docker-resource-stats ${statsActive || cpuActive || memoryActive ? "active" : ""}`}>
+            <rect x="766" y="424" width="282" height="124" rx="26" />
+            <text className="docker-resource-panel-title" x="796" y="462">docker stats</text>
+            <text x="796" y="492">{statsActive ? "CPU 142%   MEM 530MiB / 768MiB" : cpuActive ? "CPU 150%   MEM 508MiB / 512MiB" : "metrics pending"}</text>
+            <text x="796" y="520">{memoryActive ? "events: oom_kill=1, die exitCode=137" : statsActive ? "inspect HostConfig aligned" : "events pending"}</text>
+          </g>
+
+          <g className={`docker-resource-flags-path ${flagsActive ? "active" : ""}`}>
+            <path d="M 296 220 C 322 214, 334 206, 356 204" markerEnd="url(#docker-resource-arrow-brand)" />
+            <rect x="278" y="172" width="136" height="30" rx="15" />
+            <text x="346" y="192">HostConfig</text>
+          </g>
+          <g className={`docker-resource-cgroup-path ${cgroupActive ? "active" : ""}`}>
+            <path d="M 566 210 C 600 204, 610 202, 632 202" markerEnd="url(#docker-resource-arrow-teal)" />
+            <rect x="540" y="166" width="144" height="30" rx="15" />
+            <text x="612" y="186">write files</text>
+          </g>
+          <g className={`docker-resource-cpu-path ${cpuActive ? "active" : ""}`}>
+            <path d="M 386 478 C 430 464, 438 458, 454 456" markerEnd="url(#docker-resource-arrow-warning)" />
+            <path d="M 632 286 C 566 324, 548 380, 568 412" markerEnd="url(#docker-resource-arrow-warning)" />
+            <rect x="430" y="330" width="158" height="30" rx="15" />
+            <text x="509" y="350">quota throttle</text>
+          </g>
+          <g className={`docker-resource-memory-path ${memoryActive ? "active" : ""}`}>
+            <path d="M 386 520 C 432 530, 438 528, 454 522" markerEnd="url(#docker-resource-arrow-danger)" />
+            <path d="M 786 380 C 752 420, 720 456, 706 494" markerEnd="url(#docker-resource-arrow-danger)" />
+            <rect x="608" y="386" width="154" height="30" rx="15" />
+            <text x="685" y="406">memory.max</text>
+          </g>
+          <g className={`docker-resource-stats-path ${statsActive ? "active" : ""}`}>
+            <path d="M 706 490 C 736 486, 746 484, 766 484" markerEnd="url(#docker-resource-arrow-success)" />
+            <path d="M 836 424 C 790 394, 834 372, 878 380" markerEnd="url(#docker-resource-arrow-success)" />
+            <path d="M 766 512 C 590 606, 210 608, 162 548" markerEnd="url(#docker-resource-arrow-success)" />
+            <rect x="538" y="568" width="178" height="30" rx="15" />
+            <text x="627" y="588">docker update</text>
+          </g>
+
+          <g className="docker-resource-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`docker-resource-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={62 + index * 264} y="566" width="224" height="34" rx="16" />
+                <text x={82 + index * 264} y="580">{signal.name}</text>
+                <text x={264 + index * 264} y="594">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="docker-resource-mobile-map">
+          <div className="docker-resource-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`docker-resource-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="docker-resource-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`docker-resource-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption docker-resource-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

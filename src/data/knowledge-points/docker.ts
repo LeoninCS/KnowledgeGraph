@@ -4694,6 +4694,8 @@ export const dockerKnowledgePoints = [
       "docker-runtime-metrics",
       "docker-container-stats",
       "linux-cgroup-v2",
+      "enccs-containers-cgroups",
+      "nginx-namespaces-cgroups",
       "javaguide",
     ],
     id: "resource-limit",

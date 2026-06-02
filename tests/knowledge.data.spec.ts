@@ -176,6 +176,23 @@ test("docker port mapping is backed by a dedicated visual simulation", async () 
   );
 });
 
+test("docker resource limit is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("docker");
+  const resourceLimit = points.find((point) => point.id === "resource-limit");
+
+  expect(visualPointIds.docker).toContain("resource-limit");
+  expect(resourceLimit).toBeTruthy();
+
+  const simulation = buildVisualSimulation("docker", resourceLimit!);
+
+  expect(simulation.key).toBe("docker:resource-limit");
+  expect(simulation.pattern.en).toContain("cgroup resource governor");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["memory.max", "cpu.max", "oom_kill", "docker stats"]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");

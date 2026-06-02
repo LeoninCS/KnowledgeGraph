@@ -831,6 +831,24 @@
     padding: 18px;
   }
 
+  .docker-resource-stage {
+    padding-inline: 12px;
+  }
+
+  .docker-resource-card {
+    width: 100%;
+  }
+
+  .docker-resource-diagram {
+    display: none;
+  }
+
+  .docker-resource-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
   .k8s-service-stage,
   .k8s-ingress-stage,
   .k8s-hpa-stage,
@@ -900,7 +918,9 @@
   .docker-bridge-mobile-flow,
   .docker-bridge-mobile-facts,
   .docker-port-mobile-flow,
-  .docker-port-mobile-facts {
+  .docker-port-mobile-facts,
+  .docker-resource-mobile-flow,
+  .docker-resource-mobile-facts {
     display: grid;
     gap: 10px;
   }
@@ -940,7 +960,9 @@
   .docker-bridge-mobile-hop,
   .docker-bridge-mobile-fact,
   .docker-port-mobile-hop,
-  .docker-port-mobile-fact {
+  .docker-port-mobile-fact,
+  .docker-resource-mobile-hop,
+  .docker-resource-mobile-fact {
     display: grid;
     gap: 4px;
     padding: 12px;
@@ -984,7 +1006,9 @@
   .docker-bridge-mobile-hop.active,
   .docker-bridge-mobile-fact.active,
   .docker-port-mobile-hop.active,
-  .docker-port-mobile-fact.active {
+  .docker-port-mobile-fact.active,
+  .docker-resource-mobile-hop.active,
+  .docker-resource-mobile-fact.active {
     border-color: color-mix(in srgb, var(--brand) 36%, var(--border));
     background: color-mix(in srgb, var(--brand) 8%, var(--surface));
   }
@@ -1024,7 +1048,9 @@
   .docker-bridge-mobile-hop span,
   .docker-bridge-mobile-fact span,
   .docker-port-mobile-hop span,
-  .docker-port-mobile-fact span {
+  .docker-port-mobile-fact span,
+  .docker-resource-mobile-hop span,
+  .docker-resource-mobile-fact span {
     color: var(--muted);
     font-size: 0.76rem;
     font-weight: 800;
@@ -1065,7 +1091,9 @@
   .docker-bridge-mobile-hop strong,
   .docker-bridge-mobile-fact strong,
   .docker-port-mobile-hop strong,
-  .docker-port-mobile-fact strong {
+  .docker-port-mobile-fact strong,
+  .docker-resource-mobile-hop strong,
+  .docker-resource-mobile-fact strong {
     color: var(--text);
     font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.82rem;

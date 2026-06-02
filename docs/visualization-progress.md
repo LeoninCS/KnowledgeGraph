@@ -142,6 +142,7 @@
 | 镜像层 | `storage-layout` | completed | desktop/mobile captured | Docker 镜像层结构模型，覆盖 Dockerfile 指令、Build Cache、只读层共享、overlay2 和可写层 |
 | 桥接网络 | `step-simulation` | completed | desktop/mobile captured | Docker Bridge packet path 模拟器，覆盖 network namespace、veth pair、Linux bridge、内置 DNS、端口发布、DNAT 和 MASQUERADE |
 | 端口映射 | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Docker published port path 模拟器，覆盖 HostIp/HostPort、DNAT、DOCKER-USER、容器监听地址和 EXPOSE 排障 |
+| 资源限制 | `state-model` | completed | desktop/mobile captured | Docker cgroup 资源治理状态模型，覆盖 HostConfig、cgroup v2 控制文件、CPU throttle、OOMKilled、docker stats 和运行中调整 |
 | MVCC | `state-model` | completed | desktop/mobile captured | MySQL MVCC 版本可见性状态模型，覆盖隐藏列、Undo 版本链、ReadView、可见性判断和长事务 Purge 风险 |
 | Redo Log | `state-model` | completed | desktop/mobile captured | MySQL Redo Log WAL 与恢复状态模型，覆盖 redo record、log buffer、write/fsync、checkpoint 和 crash recovery |
 | Binlog | `step-simulation` | completed | desktop/mobile captured | MySQL Binlog 提交与复制通道模拟器，覆盖 GTID、Rows Event、Group Commit、Relay Log 和副本应用延迟 |
@@ -327,7 +328,62 @@
 
 ## Next Candidate
 
-优先选择 Docker `资源限制` 或 Kubernetes `污点与容忍`。资源限制能围绕 cgroups、requests/limits、CPU throttle、OOMKilled 和 QoS 形成状态模型；污点与容忍能围绕 Node taint、Pod toleration、NoSchedule/NoExecute 和驱逐信号形成调度约束模拟。
+优先选择 Kubernetes `污点与容忍` 或 Docker `CPU 限制`。污点与容忍能围绕 Node taint、Pod toleration、NoSchedule/NoExecute 和驱逐信号形成调度约束模拟；CPU 限制可作为资源限制的细化拆分，围绕 CFS period/quota、throttled periods、cpu.shares 和延迟排障展开。
+
+## Docker Resource Limit Visualization
+
+### Online Image References
+
+- `source`：ENCCS - Namespaces and cgroups，https://enccs.github.io/containers/namespc-cgroup/
+  - `image`：页面 `What Are cgroups?` 小节中的 `Namespaces-cgroups_resource-limits.svg` 资源分配图。
+  - `role`：main
+  - `qualityReason`：图形直观表达 cgroup 把宿主资源按比例划出边界，是资源限制主题最清晰的主构图。
+  - `takeaways`：主画布采用宿主资源、cgroup 边界、容器进程、观测指标的分区结构。
+  - `originalChanges`：改造成 Docker 语义的五步状态模型，加入 HostConfig、cgroup v2 控制文件、CPU throttle、OOMKilled 和 `docker update` 闭环。
+- `source`：NGINX Blog - What Are Namespaces and cgroups, and How Do They Work?，https://www.nginx.com/blog/what-are-namespaces-cgroups-how-do-they-work/
+  - `image`：`Namespaces-cgroups_resource-limits.svg` 原图。
+  - `role`：supporting
+  - `qualityReason`：原图来源清楚，cgroup 与资源份额关系表达稳定。
+  - `takeaways`：容器资源边界应作为内核控制面对象呈现。
+  - `originalChanges`：把静态比例图扩展为可交互的运行时限制、压力、事件和调参流程。
+- `source`：Docker Docs - Resource constraints，https://docs.docker.com/engine/containers/resource_constraints/
+  - `image`：页面中的 Memory、CPU、CFS scheduler、`--memory`、`--cpus`、`--cpu-quota` 说明和表格。
+  - `role`：supporting
+  - `qualityReason`：官方定义 Docker CLI 参数如何影响容器可用 CPU、内存和 OOM 行为。
+  - `takeaways`：步骤从 `docker run --memory 512m --cpus 1.5 --pids-limit 100` 开始，并展示 CPU quota 与内存硬上限。
+  - `originalChanges`：把长表格压缩为 HostConfig 参数卡和底部四个信号卡。
+- `source`：Docker Docs - Runtime metrics，https://docs.docker.com/engine/containers/runmetrics/
+  - `image`：页面 `docker stats` 输出、Control groups、cgroup v1/v2 路径与 metrics pseudo-file 说明。
+  - `role`：supporting
+  - `qualityReason`：官方说明 `docker stats`、`/sys/fs/cgroup` 和容器指标文件之间的关系。
+  - `takeaways`：右下角保留 `docker stats` 与 `events/inspect` 合并观察。
+  - `originalChanges`：把 metrics 输出转成随步骤变化的 CPU%、MEM%、OOM 和 HostConfig 校验读数。
+- `source`：Linux Kernel Docs - Control Group v2，https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html
+  - `image`：cgroup v2 controller 文件与 memory/cpu/pids 控制语义说明。
+  - `role`：supporting
+  - `qualityReason`：权威定义 `memory.max`、`memory.events`、`cpu.max` 等内核控制文件。
+  - `takeaways`：中部 cgroup 面板直接展示 `memory.max`、`cpu.max`、`pids.max`、`memory.events`。
+  - `originalChanges`：用 Docker 容器路径 `/sys/fs/cgroup/docker/<id>` 连接 daemon 写入和内核执行。
+
+### Reference Breakdown
+
+- 主体布局：左侧 `docker run` 参数与 HostConfig，中上 Docker daemon，中部 cgroup v2 控制文件，左下应用容器，中下内核调度/OOM，右下 `docker stats` 与事件观测，底部四个信号。
+- 视觉焦点：`--memory 512m --cpus 1.5` 写入 `memory.max=536870912` 与 `cpu.max=150000 100000`，随后触发 CFS throttle 和 `oom_kill=1`。
+- 领域对象：HostConfig、Docker daemon、container cgroup、`memory.max`、`cpu.max`、`pids.max`、`memory.events`、PID 1、worker threads、CFS scheduler、OOM killer、docker stats、docker events、docker inspect。
+- 容器层级：CLI 声明边界；daemon/runtime 创建 cgroup；cgroup 控制文件成为内核执行边界；容器负载触发 CPU/内存事件；stats/events/inspect 反馈给调参。
+- 连线方向：参数声明 -> daemon 接收 -> cgroup 文件写入 -> 容器压力 -> 内核 throttle/OOM -> 指标观测 -> `docker update` 调整上限。
+- 状态表达：五步分别高亮 HostConfig、cgroup 文件、CPU throttle、内存 OOM、stats/update；危险状态使用红色 OOM 路径，恢复状态使用绿色 update 路径。
+- 颜色策略：蓝色表示声明配置，青色表示 cgroup 控制面，橙色表示 CPU 节流，红色表示 OOM，绿色表示观测后调参。
+- 文字密度：桌面 SVG 只保留参数、文件名、关键数值和状态短语；解释集中在右侧任务面板和底部步骤条。
+- 交互节奏：声明资源边界 -> 写入 cgroup 控制文件 -> CPU 超配额节流 -> 内存触顶与 OOM -> 观测并调整。
+- 原创改造点：将通用 cgroup 资源份额图、Docker 参数文档和 Linux cgroup v2 文件语义融合为可交互 Docker 资源治理状态模型。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/resource-limit/desktop.png`。
+- 移动端：captured `.codex-artifacts/visualizations/resource-limit/mobile.png`。
+- 截图结论：桌面可识别 `docker run` 参数、Docker daemon、cgroup v2 控制文件、应用容器、内核调度/OOM、`docker stats` 和底部四个信号；右侧任务/操作/理解重点完整；移动端使用流程卡与事实卡展示 `memory.max=768MiB`、`cpu.max=1.5 CPU`、`oom_kill=1 event`、`docker stats=CPU 142% MEM 69%`，文字可读。
+- 验收备注：Chrome DevTools 在 `http://127.0.0.1:4268/KnowledgeGraph/` 完成 Docker 分类、搜索 `资源限制`、详情页进入、模拟器进入、五步交互到 `观测并调整`，并捕获桌面/移动端截图。
 
 ## Kubernetes HPA Visualization
 
@@ -1603,3 +1659,18 @@
 - Commit/Push：功能提交 `0238376 feat: add scheduler visualization` 已推送到 `origin/main`；推送输出为 `c118450..0238376 main -> main`。Post-push `git ls-remote --heads origin main` 遇到 `Could not resolve host: github.com`，本地 `HEAD` 与 `origin/main` 均为 `0238376`。
 - Commit/Push Plan：本条 run log 作为独立 docs 提交推送。
 - Next Candidate：Docker `资源限制` 或 Kubernetes `污点与容忍`。
+
+### 2026-06-03 09:34 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `23fc82c`，从干净工作区继续。
+- Selected：Docker `资源限制`，原因是 Docker run flags、HostConfig、cgroup v2 控制文件、CPU throttle、OOMKilled、`docker stats` 和运行中调参能形成直接可用的资源治理状态模型。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；Chrome DevTools 视觉确认 ENCCS 页面中的 cgroup resource limit SVG，Docker Resource constraints、Runtime metrics 和 Linux cgroup v2 文档作为辅助来源。
+- Main Reference：ENCCS - Namespaces and cgroups，主图为 `https://www.nginx.com/wp-content/uploads/2021/07/Namespaces-cgroups_resource-limits.svg`，本地参考截图保存到 `.codex-artifacts/reference-checks/resource-limit-enccs.png`。
+- Supporting References：NGINX Namespaces/cgroups 原图来源、Docker Resource constraints、Docker Runtime metrics、Linux Kernel cgroup v2。
+- Reference Breakdown：采用左侧 HostConfig 参数、中上 Docker daemon、中部 cgroup v2 控制文件、左下应用容器、中下内核调度/OOM、右下 stats/events/inspect，底部 `memory.max`、`cpu.max`、`oom_kill`、`docker stats` 四个信号；视觉焦点是 `--memory 512m --cpus 1.5` 写入 `memory.max` / `cpu.max` 后触发 CPU throttle 和 OOMKilled。
+- Implementation：新增 `docker:resource-limit` 专用 `state-model` 构建器、Resource Limit SVG 舞台、移动端纵向摘要、响应式样式、ENCCS/NGINX 来源、Docker sourceRefs 和数据测试。
+- Browser Note：Chrome DevTools 在 `http://127.0.0.1:4268/KnowledgeGraph/` 完成 Docker 分类、搜索 `资源限制`、详情页进入、模拟器进入、五步交互到 `观测并调整`，最终指标为 `memory.max=768MiB`、`cpu.max=1.5 CPU`、`oom_kill=1 event`、`docker stats=CPU 142% MEM 69%`。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/resource-limit/desktop.png` 与 `.codex-artifacts/visualizations/resource-limit/mobile.png`；桌面可识别 HostConfig、daemon、cgroup v2、容器负载、kernel OOM/stats 路径和底部信号，移动端流程卡与事实卡可读。
+- Verification：新增测试先失败于通用 Docker `Runtime attachment` 模型，补实现后 `npm run test:data -- --grep "docker resource limit"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 12 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add resource limit visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Kubernetes `污点与容忍` 或 Docker `CPU 限制`。
