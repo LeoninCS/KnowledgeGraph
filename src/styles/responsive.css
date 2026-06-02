@@ -240,6 +240,11 @@
     justify-content: start;
   }
 
+  .explain-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .deadlock-stage {
     overflow-x: auto;
     justify-content: start;
@@ -394,6 +399,16 @@
   }
 
   .two-phase-diagram {
+    height: 548px;
+  }
+
+  .explain-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .explain-diagram {
     height: 548px;
   }
 
@@ -654,6 +669,20 @@
     padding: 18px;
   }
 
+  .explain-card {
+    width: 100%;
+  }
+
+  .explain-diagram {
+    display: none;
+  }
+
+  .explain-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
   .deadlock-card {
     width: 100%;
   }
@@ -704,6 +733,8 @@
   .binlog-mobile-facts,
   .two-phase-mobile-flow,
   .two-phase-mobile-facts,
+  .explain-mobile-flow,
+  .explain-mobile-facts,
   .deadlock-mobile-flow,
   .deadlock-mobile-facts,
   .docker-layer-mobile-flow,
@@ -726,6 +757,8 @@
   .binlog-mobile-fact,
   .two-phase-mobile-hop,
   .two-phase-mobile-fact,
+  .explain-mobile-hop,
+  .explain-mobile-fact,
   .deadlock-mobile-hop,
   .deadlock-mobile-fact,
   .docker-layer-mobile-hop,
@@ -752,6 +785,8 @@
   .binlog-mobile-fact.active,
   .two-phase-mobile-hop.active,
   .two-phase-mobile-fact.active,
+  .explain-mobile-hop.active,
+  .explain-mobile-fact.active,
   .deadlock-mobile-hop.active,
   .deadlock-mobile-fact.active,
   .docker-layer-mobile-hop.active,
@@ -774,6 +809,8 @@
   .binlog-mobile-fact span,
   .two-phase-mobile-hop span,
   .two-phase-mobile-fact span,
+  .explain-mobile-hop span,
+  .explain-mobile-fact span,
   .deadlock-mobile-hop span,
   .deadlock-mobile-fact span,
   .docker-layer-mobile-hop span,
@@ -797,6 +834,8 @@
   .binlog-mobile-fact strong,
   .two-phase-mobile-hop strong,
   .two-phase-mobile-fact strong,
+  .explain-mobile-hop strong,
+  .explain-mobile-fact strong,
   .deadlock-mobile-hop strong,
   .deadlock-mobile-fact strong,
   .docker-layer-mobile-hop strong,

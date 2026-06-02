@@ -531,6 +531,44 @@
   padding: clamp(12px, 2.4vw, 28px);
 }
 
+.explain-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.explain-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 24%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .explain-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.explain-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.explain-mobile-map {
+  display: none;
+}
+
 .deadlock-card {
   position: relative;
   justify-self: center;
@@ -3699,6 +3737,204 @@
 .deadlock-bg {
   fill: color-mix(in srgb, var(--danger) 6%, var(--surface));
   stroke: color-mix(in srgb, var(--danger) 22%, var(--border));
+}
+
+.explain-bg {
+  fill: color-mix(in srgb, var(--tertiary) 6%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, var(--border));
+}
+
+.explain-title {
+  fill: var(--text);
+  font-size: 22px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.explain-subtitle {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.explain-query-panel,
+.explain-visual-panel,
+.explain-tabular-panel,
+.explain-index-panel,
+.explain-validate-panel,
+.explain-optimizer-path,
+.explain-range-path,
+.explain-composite-path,
+.explain-sql-chip,
+.explain-plan-node,
+.explain-row,
+.explain-index-chip,
+.explain-signal {
+  opacity: 0.24;
+  transition: opacity 180ms ease;
+}
+
+.explain-query-panel.active,
+.explain-visual-panel.active,
+.explain-tabular-panel.active,
+.explain-index-panel.active,
+.explain-validate-panel.active,
+.explain-optimizer-path.active,
+.explain-range-path.active,
+.explain-composite-path.active,
+.explain-sql-chip.active,
+.explain-plan-node.active,
+.explain-row.active,
+.explain-index-chip.active,
+.explain-signal.active {
+  opacity: 1;
+}
+
+.explain-query-panel > rect,
+.explain-visual-panel > rect,
+.explain-tabular-panel > rect,
+.explain-index-panel > rect,
+.explain-validate-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 16%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#explain-soft-shadow);
+}
+
+.explain-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.explain-panel-subtitle,
+.explain-query-panel text,
+.explain-visual-panel text,
+.explain-tabular-panel text,
+.explain-index-panel text,
+.explain-validate-panel text,
+.explain-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.explain-sql-chip rect,
+.explain-plan-node rect,
+.explain-row rect,
+.explain-index-chip rect,
+.explain-signal rect,
+.explain-optimizer-path rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#explain-soft-shadow);
+}
+
+.explain-sql-chip.brand.active rect,
+.explain-plan-node.brand.active rect,
+.explain-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.explain-sql-chip.warning.active rect,
+.explain-index-chip.warning.active rect,
+.explain-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 9%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 40%, var(--border));
+}
+
+.explain-plan-node.danger.active rect,
+.explain-row.danger.active rect,
+.explain-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 36%, var(--border));
+}
+
+.explain-plan-node.teal.active rect,
+.explain-row.teal.active rect,
+.explain-index-chip.teal.active rect,
+.explain-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 36%, var(--border));
+}
+
+.explain-plan-node.success.active rect,
+.explain-row.success.active rect,
+.explain-index-chip.success.active rect,
+.explain-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.explain-panel-title,
+.explain-sql-chip text,
+.explain-plan-node text:first-of-type,
+.explain-row text:first-of-type,
+.explain-index-chip text,
+.explain-signal text:first-of-type,
+.explain-head {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.explain-sql-chip text,
+.explain-plan-node text,
+.explain-index-chip text {
+  text-anchor: middle;
+}
+
+.explain-plan-node text:nth-of-type(2),
+.explain-row text,
+.explain-signal text:nth-of-type(2),
+.explain-validate-panel text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+}
+
+.explain-row text:nth-of-type(5) {
+  font-size: 9px;
+}
+
+.explain-signal text:nth-of-type(2) {
+  text-anchor: end;
+}
+
+.explain-node-link,
+.explain-optimizer-path path,
+.explain-range-path path,
+.explain-composite-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.explain-node-link {
+  stroke: color-mix(in srgb, var(--muted) 34%, transparent);
+}
+
+.explain-node-link.active,
+.explain-optimizer-path path {
+  stroke: var(--brand);
+}
+
+.explain-range-path path {
+  stroke: var(--tertiary);
+}
+
+.explain-composite-path path {
+  stroke: var(--success);
+}
+
+.explain-caption {
+  right: 16px;
+  bottom: 14px;
 }
 
 .deadlock-title {

@@ -3721,6 +3721,18 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Binary Log Transaction Dependency Tracking",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html#sysvar_binlog_transaction_dependency_tracking",
   },
+  "mysql-workbench-visual-explain": {
+    title: "MySQL Workbench Manual: Tutorial: Using Explain to Improve Query Performance",
+    url: "https://dev.mysql.com/doc/workbench/en/wb-tutorial-visual-explain-dbt3.html",
+  },
+  "mysql-explain-output": {
+    title: "MySQL Reference Manual: EXPLAIN Output Format",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/explain-output.html",
+  },
+  "mysql-explain-statement": {
+    title: "MySQL Reference Manual: EXPLAIN Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/explain.html",
+  },
   "sobyte-mysql-mvcc": {
     title: "SoByte: MVCC in MySQL",
     url: "https://www.sobyte.net/post/2022-04/mysql-mvcc/",

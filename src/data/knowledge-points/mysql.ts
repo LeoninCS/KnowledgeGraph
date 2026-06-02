@@ -468,6 +468,13 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["explain", "slow-query-log"],
   },
   "explain": {
+    sourceRefs: [
+      "mysql-workbench-visual-explain",
+      "mysql-explain-output",
+      "mysql-explain-statement",
+      "mysql-reference",
+      "xiaolincoding-mysql-log",
+    ],
     prerequisites: ["sql-optimization"],
     related: ["access-type", "extra"],
   },

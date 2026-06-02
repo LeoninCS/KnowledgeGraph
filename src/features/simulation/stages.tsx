@@ -242,6 +242,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:explain") {
+    return (
+      <ExplainPlanStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "mysql:deadlock") {
     return (
       <DeadlockStage
@@ -3126,6 +3137,242 @@ function DeadlockStage({
           </div>
         </div>
         <div className="tcp-handshake-caption deadlock-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ExplainPlanStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const planActive = completedSteps >= 1;
+  const scanActive = completedSteps >= 2;
+  const rangeActive = completedSteps >= 3;
+  const compositeActive = completedSteps >= 4;
+  const validateActive = completedSteps >= 5;
+  const explainRows = [
+    {
+      stage: "before",
+      type: "ALL",
+      key: "NULL",
+      rows: "1.50M",
+      extra: "Using where",
+      active: scanActive,
+      tone: "danger",
+    },
+    {
+      stage: "range",
+      type: "range",
+      key: "i_o_orderdate",
+      rows: "32642",
+      extra: "Using ICP; where",
+      active: rangeActive,
+      tone: "teal",
+    },
+    {
+      stage: "best",
+      type: "range",
+      key: "io_clerk_date",
+      rows: "18",
+      extra: "Using index condition",
+      active: compositeActive,
+      tone: "success",
+    },
+  ];
+  const planNodes = [
+    { name: "SELECT", detail: "orders query", x: 174, y: 190, active: planActive, tone: "brand" },
+    { name: scanActive ? "Full Table Scan" : "Plan node", detail: scanActive ? "ALL / 1.50M rows" : "pending", x: 394, y: 190, active: scanActive, tone: "danger" },
+    { name: rangeActive ? "Index Range Scan" : "Index candidate", detail: rangeActive ? "i_o_orderdate" : "possible key", x: 644, y: 190, active: rangeActive, tone: "teal" },
+    { name: compositeActive ? "Composite Range" : "Composite index", detail: compositeActive ? "io_clerk_date" : "candidate", x: 886, y: 190, active: compositeActive, tone: "success" },
+  ];
+  const signalRows = [
+    { name: "access type", value: compositeActive ? "range" : scanActive ? "ALL" : "pending", active: scanActive, tone: compositeActive ? "success" : "danger" },
+    { name: "chosen key", value: compositeActive ? "io_clerk_date" : rangeActive ? "i_o_orderdate" : scanActive ? "NULL" : "pending", active: scanActive, tone: rangeActive ? "teal" : "danger" },
+    { name: "rows estimate", value: compositeActive ? "18" : rangeActive ? "32642" : scanActive ? "1.50M" : "pending", active: scanActive, tone: compositeActive ? "success" : "warning" },
+    { name: "actual time", value: validateActive ? "0.234s checked" : "pending", active: validateActive, tone: "brand" },
+  ];
+  const mobileFlow = [
+    { name: "slow SQL", value: planActive ? "EXPLAIN SELECT orders" : "pending", active: planActive },
+    { name: "bad plan", value: scanActive ? "ALL / key NULL / rows 1.50M" : "pending", active: scanActive },
+    { name: "range plan", value: rangeActive ? "BETWEEN uses i_o_orderdate" : "pending", active: rangeActive },
+    { name: "best plan", value: compositeActive ? "io_clerk_date rows=18" : "pending", active: compositeActive },
+    { name: "verify", value: validateActive ? "EXPLAIN ANALYZE + slow log" : "pending", active: validateActive },
+  ];
+
+  return (
+    <div className="visual-stage explain-stage">
+      <div className="explain-card">
+        <svg
+          className="explain-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["explain-arrow-brand", "var(--brand)"],
+              ["explain-arrow-teal", "var(--tertiary)"],
+              ["explain-arrow-warning", "#f59e0b"],
+              ["explain-arrow-danger", "var(--danger)"],
+              ["explain-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="explain-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="explain-bg" x="24" y="24" width="1072" height="588" rx="28" />
+          <text className="explain-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="explain-subtitle" x="560" y="100">
+            {label("slow SQL -> Visual Explain -> tabular columns -> index rewrite -> actual validation", "slow SQL -> Visual Explain -> tabular columns -> index rewrite -> actual validation")}
+          </text>
+
+          <g className={`explain-query-panel ${planActive ? "active" : ""}`}>
+            <rect x="70" y="130" width="250" height="170" rx="24" />
+            <text className="explain-panel-title" x="96" y="166">Slow SQL</text>
+            <text className="explain-panel-subtitle" x="96" y="190">SELECT * FROM orders</text>
+            <g className={`explain-sql-chip brand ${planActive ? "active" : ""}`}>
+              <rect x="96" y="212" width="196" height="34" rx="17" />
+              <text x="194" y="234">YEAR(o_orderdate)=1992</text>
+            </g>
+            <g className={`explain-sql-chip warning ${planActive ? "active" : ""}`}>
+              <rect x="96" y="258" width="196" height="34" rx="17" />
+              <text x="194" y="280">o_clerk LIKE '%0223'</text>
+            </g>
+          </g>
+
+          <g className={`explain-visual-panel ${scanActive ? "active" : ""}`}>
+            <rect x="366" y="130" width="668" height="170" rx="24" />
+            <text className="explain-panel-title" x="394" y="166">Visual Explain</text>
+            <text className="explain-panel-subtitle" x="394" y="190">{label("从左到右观察计划节点和访问路径变化", "Read plan nodes and access path changes from left to right")}</text>
+            {planNodes.map((node, index) => (
+              <g key={node.name} className={`explain-plan-node ${node.tone} ${node.active ? "active" : ""}`}>
+                <rect x={node.x - 82} y={node.y + 26} width="164" height="62" rx="18" />
+                <text x={node.x} y={node.y + 52}>{node.name}</text>
+                <text x={node.x} y={node.y + 74}>{node.detail}</text>
+                {index < planNodes.length - 1 && (
+                  <path
+                    className={`explain-node-link ${node.active ? "active" : ""}`}
+                    d={`M ${node.x + 82} ${node.y + 57} C ${node.x + 108} ${node.y + 57}, ${planNodes[index + 1].x - 108} ${node.y + 57}, ${planNodes[index + 1].x - 84} ${node.y + 57}`}
+                    markerEnd={index === 1 ? "url(#explain-arrow-teal)" : index === 2 ? "url(#explain-arrow-success)" : "url(#explain-arrow-brand)"}
+                  />
+                )}
+              </g>
+            ))}
+          </g>
+
+          <g className={`explain-tabular-panel ${scanActive ? "active" : ""}`}>
+            <rect x="70" y="336" width="618" height="164" rx="24" />
+            <text className="explain-panel-title" x="98" y="372">Tabular EXPLAIN</text>
+            <text className="explain-head" x="108" y="404">stage</text>
+            <text className="explain-head" x="216" y="404">type</text>
+            <text className="explain-head" x="318" y="404">key</text>
+            <text className="explain-head" x="462" y="404">rows</text>
+            <text className="explain-head" x="554" y="404">Extra</text>
+            {explainRows.map((row, index) => (
+              <g key={row.stage} className={`explain-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="96" y={420 + index * 40} width="560" height="30" rx="15" />
+                <text x="112" y={440 + index * 40}>{row.stage}</text>
+                <text x="216" y={440 + index * 40}>{row.type}</text>
+                <text x="318" y={440 + index * 40}>{row.key}</text>
+                <text x="462" y={440 + index * 40}>{row.rows}</text>
+                <text x="554" y={440 + index * 40}>{row.extra}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`explain-index-panel ${rangeActive ? "active" : ""}`}>
+            <rect x="724" y="336" width="312" height="164" rx="24" />
+            <text className="explain-panel-title" x="752" y="372">{label("改写与索引", "Rewrite and index")}</text>
+            <g className={`explain-index-chip teal ${rangeActive ? "active" : ""}`}>
+              <rect x="752" y="394" width="236" height="32" rx="16" />
+              <text x="870" y="415">BETWEEN date range</text>
+            </g>
+            <g className={`explain-index-chip warning ${rangeActive ? "active" : ""}`}>
+              <rect x="752" y="436" width="236" height="32" rx="16" />
+              <text x="870" y="457">LIKE full clerk id</text>
+            </g>
+            <g className={`explain-index-chip success ${compositeActive ? "active" : ""}`}>
+              <rect x="752" y="478" width="236" height="32" rx="16" />
+              <text x="870" y="499">INDEX(clerk, orderdate)</text>
+            </g>
+          </g>
+
+          <g className={`explain-optimizer-path ${planActive ? "active" : ""}`}>
+            <path d="M 320 214 C 344 214, 350 214, 366 214" markerEnd="url(#explain-arrow-brand)" />
+            <rect x="292" y="304" width="168" height="32" rx="16" />
+            <text x="376" y="324">optimizer trace</text>
+          </g>
+          <g className={`explain-range-path ${rangeActive ? "active" : ""}`}>
+            <path d="M 754 334 C 704 310, 652 290, 644 278" markerEnd="url(#explain-arrow-teal)" />
+          </g>
+          <g className={`explain-composite-path ${compositeActive ? "active" : ""}`}>
+            <path d="M 900 334 C 914 310, 910 290, 886 278" markerEnd="url(#explain-arrow-success)" />
+          </g>
+
+          <g className={`explain-validate-panel ${validateActive ? "active" : ""}`}>
+            <rect x="700" y="524" width="338" height="54" rx="22" />
+            <text className="explain-panel-title" x="726" y="546">EXPLAIN ANALYZE</text>
+            <text x="726" y="568">{label("估算 rows=18 与实际 rows=18 对齐，慢日志耗时回落", "estimated rows=18 matches actual rows=18; slow-log time drops")}</text>
+          </g>
+
+          <g className="explain-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`explain-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={70 + index * 168} y="524" width="146" height="54" rx="18" />
+                <text x={88 + index * 168} y="546">{signal.name}</text>
+                <text x={196 + index * 168} y="568">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="explain-mobile-map">
+          <div className="explain-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`explain-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="explain-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`explain-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption explain-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

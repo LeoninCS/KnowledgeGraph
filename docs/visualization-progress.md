@@ -144,6 +144,7 @@
 | Binlog | `step-simulation` | completed | desktop/mobile captured | MySQL Binlog 提交与复制通道模拟器，覆盖 GTID、Rows Event、Group Commit、Relay Log 和副本应用延迟 |
 | 两阶段提交 | `state-model` | completed | desktop/mobile captured | MySQL Two Phase Commit 提交一致性状态模型，覆盖 redo prepare、Binlog Xid、redo commit 和崩溃恢复判定 |
 | 死锁 | `state-model` | completed | desktop/mobile captured | MySQL Deadlock 锁等待状态模型，覆盖交叉持锁、wait-for graph 闭环、检测器、victim rollback 和重试分支 |
+| EXPLAIN | `state-model` | completed | desktop/mobile captured | MySQL EXPLAIN 执行计划诊断台，覆盖 Visual Explain、type/key/rows/Extra、谓词改写、复合索引和实测校验 |
 
 ## Buffer Pool Visualization
 
@@ -204,11 +205,61 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 MySQL `Deadlock Log` 或 `SHOW ENGINE INNODB STATUS` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 MySQL `Replication` 或 `Replication Lag` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 MySQL `Deadlock Log` 或 `SHOW ENGINE INNODB STATUS`，它们能把本轮 Deadlock 模拟器延伸到线上排障视角，展示最新死锁段、事务信息、锁对象、SQL 文本和索引诊断。
+优先选择 MySQL `Replication` 或 `Replication Lag`，它们能承接已完成的 Binlog 模拟器，展示 source、replica、relay log、I/O thread、SQL applier、GTID 集合和延迟观测。
+
+## MySQL EXPLAIN Visualization
+
+### Online Image References
+
+- `source`：MySQL Workbench Manual - Tutorial: Using Explain to Improve Query Performance，https://dev.mysql.com/doc/workbench/en/wb-tutorial-visual-explain-dbt3.html
+  - `image`：页面中的 `DBT-3 Explain Tutorial: Visual Explain with Full Table Scan`、`Visual Explain with Index Range Scan`、`Visual Explain with Multiple-Column Index Range Scan`，图片 URL 分别为 `https://dev.mysql.com/doc/workbench/en/images/wb-visual-explain-dbt3-full-table-scan.png`、`https://dev.mysql.com/doc/workbench/en/images/wb-visual-explain-dbt3-index-range-scan.png`、`https://dev.mysql.com/doc/workbench/en/images/wb-visual-explain-dbt3-index-range-scan-best.png`。
+  - `role`：main
+  - `qualityReason`：官方 Workbench 教程图，连续展示 Visual Explain 从 Full Table Scan 到 Index Range Scan、再到复合索引优化的视觉节点变化和扫描行数变化。
+  - `takeaways`：主画布采用上方 Visual Explain 节点链路，下方 Tabular EXPLAIN 对比表，右侧索引改写与验证信号。
+  - `originalChanges`：把 Workbench 静态截图改造成五步交互诊断台，使用项目自己的 SVG 卡片、状态高亮、中文排障文案和移动端摘要。
+- `source`：MySQL Workbench Manual - Tutorial: Using Explain to Improve Query Performance，https://dev.mysql.com/doc/workbench/en/wb-tutorial-visual-explain-dbt3.html
+  - `image`：页面中的 Tabular Explain 对比图与 Query Comparison 表，覆盖 `ALL`、`range`、`possible_keys`、`key`、`Rows Scanned` 和 `Extra info`。
+  - `role`：supporting
+  - `qualityReason`：同一官方案例给出完整数值变化，能把视觉节点和表格字段对应起来。
+  - `takeaways`：表格区保留 `type`、`key`、`rows`、`Extra` 四个核心读数，行数从 `1.50M` 收敛到 `18`。
+  - `originalChanges`：将多张表格截图压缩为三行计划快照，突出排障判断顺序。
+- `source`：MySQL 8.4 Reference Manual - EXPLAIN Output Format，https://dev.mysql.com/doc/refman/8.4/en/explain-output.html
+  - `image`：页面中的 EXPLAIN Output Columns、Join Types、Extra Information 和 Output Interpretation 说明。
+  - `role`：supporting
+  - `qualityReason`：官方定义 EXPLAIN 输出列语义，明确 `type`、`possible_keys`、`key`、`rows`、`filtered`、`Extra` 的解读依据。
+  - `takeaways`：右侧理解重点和底部指标采用官方列名，避免把计划诊断简化成单一索引命中判断。
+  - `originalChanges`：将长文档语义拆成可交互读数卡，让用户按访问类型、候选索引、扫描行数和额外操作读计划。
+- `source`：MySQL 8.4 Reference Manual - EXPLAIN Statement，https://dev.mysql.com/doc/refman/8.4/en/explain.html
+  - `image`：页面中的 `EXPLAIN ANALYZE`、FORMAT 选项和可解释语句说明。
+  - `role`：supporting
+  - `qualityReason`：官方说明 EXPLAIN 语句能力边界和实测验证入口，适合补足估算与实际耗时对照。
+  - `takeaways`：最后一步加入 `EXPLAIN ANALYZE`、慢查询日志和返回行数校验。
+  - `originalChanges`：把验证阶段作为闭环步骤，连接计划估算、统计信息和线上延迟证据。
+
+### Reference Breakdown
+
+- 主体布局：左侧慢 SQL 与函数谓词，中上 Visual Explain 节点链，中下 Tabular EXPLAIN 三行对比，右侧谓词改写与复合索引，底部 access type、chosen key、rows estimate、actual time 信号。
+- 视觉焦点：`orders` 查询从 `type=ALL / key=NULL / rows=1.50M`，推进到 `range / i_o_orderdate / rows=32642`，最终收敛到 `range / io_clerk_date / rows=18`。
+- 领域对象：slow SQL、optimizer、Visual Explain node、Tabular EXPLAIN row、access type、possible key、chosen key、rows estimate、Extra、SARGable predicate、composite index、EXPLAIN ANALYZE。
+- 容器层级：慢 SQL 面板展示问题输入；Visual Explain 面板展示访问路径；表格面板展示计划字段；索引面板展示改写动作；底部信号连接线上验证。
+- 连线方向：慢 SQL 进入 optimizer；optimizer 输出视觉计划；改写谓词回到索引候选；复合索引影响计划行；最终进入 `EXPLAIN ANALYZE` 校验。
+- 状态表达：五步通过透明度、边框色、箭头、表格行和底部信号显隐表达生成计划、识别全表扫描、改写范围谓词、压缩扫描行数和校验估算。
+- 颜色策略：品牌蓝表示 EXPLAIN 入口，红色表示全表扫描风险，青色表示 range scan 改进，绿色表示复合索引收敛，橙色表示仍需观察的谓词或估算。
+- 文字密度：画布保留 SQL 摘要、列名、索引名和关键数值；详细解释放在右侧任务、操作面板和底部步骤条。
+- 交互节奏：五步依次推进“生成执行计划 -> 识别全表扫描 -> 改写范围谓词 -> 压缩扫描行数 -> 校验估算”。
+- 原创改造点：借鉴官方 Workbench Visual Explain 的节点变化和表格字段，把静态优化教程改造成面向慢 SQL 排障的执行计划诊断台。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/explain/desktop.png`
+- 移动端：captured `.codex-artifacts/visualizations/explain/mobile.png`
+- 截图结论：桌面画布可识别 Slow SQL、Visual Explain、Tabular EXPLAIN、索引改写、EXPLAIN ANALYZE、右侧任务面板和底部步骤进度；移动端纵向摘要完整展示五个阶段、四个核心读数、当前任务和步骤进度。
+- 验收备注：预览服务使用 `http://127.0.0.1:4210/KnowledgeGraph/`；in-app browser 返回不可用，Chrome DevTools MCP profile 被占用，Playwright Chromium 受 macOS Mach port 权限限制；本轮保存本地渲染验收图，桌面尺寸 2880x1882，移动端尺寸 1000x2720。
+- 验证结果：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 
 ## MySQL Deadlock Visualization
 
