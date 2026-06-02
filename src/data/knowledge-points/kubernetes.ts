@@ -566,6 +566,20 @@ const kubernetesKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePo
     related: ["node", "pending-pod"],
   },
   hpa: {
+    sourceRefs: [
+      "kubernetes-hpa",
+      "kubernetes-hpa-walkthrough",
+      "kubernetes-resource-metrics-pipeline",
+      "kubernetes-api-scale",
+      "gke-hpa",
+      "learnk8s-autoscaling",
+    ],
+    internalTags: [
+      "ai-visualized:2026-06-02",
+      "visual-source:kubernetes-hpa",
+      "visual-source:kubernetes-resource-metrics-pipeline",
+      "visual-source:gke-hpa",
+    ],
     prerequisites: ["deployment", "metrics-server"],
     related: ["custom-metrics", "vpa", "cluster-autoscaler"],
   },

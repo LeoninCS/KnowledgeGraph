@@ -91,6 +91,23 @@ test("kubernetes CrashLoopBackOff is backed by a dedicated visual simulation", a
   );
 });
 
+test("kubernetes HPA is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("kubernetes");
+  const hpa = points.find((point) => point.id === "hpa");
+
+  expect(visualPointIds.kubernetes).toContain("hpa");
+  expect(hpa).toBeTruthy();
+
+  const simulation = buildVisualSimulation("kubernetes", hpa!);
+
+  expect(simulation.key).toBe("kubernetes:hpa");
+  expect(simulation.pattern.en).toContain("autoscaling control loop");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["current / target CPU", "desiredReplicas", "Scale subresource", "stabilization window"]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");

@@ -148,6 +148,7 @@
 | EXPLAIN | `state-model` | completed | desktop/mobile captured | MySQL EXPLAIN 执行计划诊断台，覆盖 Visual Explain、type/key/rows/Extra、谓词改写、复合索引和实测校验 |
 | 主从复制 | `step-simulation` | completed | SVG review captured; PNG blocked by platform permissions | MySQL Replication 链路模拟器，覆盖 Source commit、Binlog Dump Thread、I/O Receiver、Relay Log、SQL Applier、GTID 差距和复制延迟 |
 | GTID | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | MySQL GTID 集合对账状态模型，覆盖 server_uuid:sequence、gtid_executed、gtid_purged、Retrieved/Executed 集合、候选副本对账和自动定位恢复 |
+| HPA | `step-simulation` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes HPA 自动伸缩控制环模拟器，覆盖负载升高、Metrics API、desiredReplicas 公式、Scale 子资源和稳定窗口 |
 
 ## Buffer Pool Visualization
 
@@ -318,11 +319,66 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Kubernetes `Horizontal Pod Autoscaler` 或 Docker `容器网络` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Docker `容器网络` 或 Kubernetes `Pod 调度` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 Kubernetes `Horizontal Pod Autoscaler` 或 Docker `容器网络`。HPA 能围绕指标采集、期望副本计算、扩缩容节流和稳定窗口形成动态机制模拟；容器网络能围绕 namespace、veth、bridge、iptables/NAT 和端口映射形成分层结构模型。
+优先选择 Docker `容器网络` 或 Kubernetes `Pod 调度`。容器网络能围绕 namespace、veth、bridge、iptables/NAT 和端口映射形成分层结构模型；Pod 调度能围绕 Scheduler 队列、过滤、打分、绑定和 Pending 原因形成动态机制模拟。
+
+## Kubernetes HPA Visualization
+
+### Online Image References
+
+- `source`：Kubernetes Docs - Horizontal Pod Autoscaling，https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/
+  - `image`：页面中的 HorizontalPodAutoscaler 控制循环、metrics API 与 `desiredReplicas = ceil[currentReplicas * ( currentMetricValue / desiredMetricValue )]` 公式说明。
+  - `role`：main
+  - `qualityReason`：官方概念页直接定义 HPA 控制循环、指标来源、公式、容忍区间和稳定窗口，是本轮机制建模的权威主参考。
+  - `takeaways`：主画布采用 Deployment workload -> Metrics Server / Metrics API -> HPA Controller -> Scale subresource -> Stabilization window 的闭环结构。
+  - `originalChanges`：把官方文字流程改造成五步交互模拟，加入 Pod CPU 行、公式计算卡片、Scale 写入路径和底部排障信号。
+- `source`：Kubernetes Docs - Horizontal Pod Autoscaling Walkthrough，https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+  - `image`：页面中的 PHP Apache HPA 示例、负载生成、`kubectl get hpa` 输出和副本数变化。
+  - `role`：supporting
+  - `qualityReason`：官方实践样例能校准负载升高、CPU 指标升高、HPA 状态变化和 Deployment 扩容的教学节奏。
+  - `takeaways`：步骤按流量升高、指标汇总、公式计算、写入副本数、观察稳定回落推进。
+  - `originalChanges`：把命令输出转换为画布中的 `current / target CPU`、`desiredReplicas`、`Scale subresource` 和稳定窗口读数。
+- `source`：Kubernetes Docs - Resource Metrics Pipeline，https://kubernetes.io/docs/tasks/debug/debug-cluster/resource-metrics-pipeline/
+  - `image`：页面中的 Metrics Server、kubelet、Metrics API 聚合链路说明。
+  - `role`：supporting
+  - `qualityReason`：官方说明资源指标如何从 kubelet 进入 `metrics.k8s.io`，适合支撑指标采集面板和排障文案。
+  - `takeaways`：Metrics Server 面板显示 kubelet summary API 与 `metrics.k8s.io`，并把样本缺失作为 HPA Unknown 的排查线索。
+  - `originalChanges`：用单独的指标采集路径和右侧任务文案强调 requests、样本时间戳和 Conditions。
+- `source`：Kubernetes API Reference - Scale，https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/scale-v1/
+  - `image`：Scale 子资源结构说明，包含 spec.replicas、status.replicas 和 selector。
+  - `role`：supporting
+  - `qualityReason`：官方 API 结构能校准 HPA 最终写入的对象边界，避免把 HPA 与 Deployment 控制器职责混在一起。
+  - `takeaways`：画布保留 Scale subresource 卡片和 `Deployment.scale.spec.replicas` 标签。
+  - `originalChanges`：将 API 字段抽象为 `replicas 3 -> 6` 的写入动作和 Deployment ready 状态反馈。
+- `source`：Google Kubernetes Engine - Horizontal Pod autoscaling，https://cloud.google.com/kubernetes-engine/docs/concepts/horizontalpodautoscaler
+  - `image`：GKE 文档中的 HPA 工作流与指标来源说明。
+  - `role`：supporting
+  - `qualityReason`：云厂商文档补充生产环境中的 CPU、内存、自定义指标和行为限制口径。
+  - `takeaways`：稳定窗口、min/max、scale behavior 与告警阈值放入最后一步理解重点。
+  - `originalChanges`：把生产配置建议转为底部 stabilization window 信号和右侧排障重点。
+
+### Reference Breakdown
+
+- 主体布局：左侧 Deployment checkout 与 Pod CPU 行，中部 Metrics Server，右上 HPA Controller，中央下方 Scale 子资源，右下稳定窗口，底部四个排障信号。
+- 视觉焦点：`CPU 120% / target 60%` 进入公式 `ceil(3*120/60)=6`，再写入 `Deployment.scale.spec.replicas`。
+- 领域对象：Deployment、Pod、CPU request、Metrics Server、`metrics.k8s.io`、HPA Controller、desiredReplicas、Scale subresource、ReplicaSet readiness、stabilization window、HPA Conditions。
+- 容器层级：Workload 产生 Pod 资源指标；Metrics Server 暴露 Metrics API；HPA Controller 执行同步循环；Scale 子资源写入副本数；稳定窗口限制缩容抖动。
+- 连线方向：业务流量进入 Deployment；Pod 样本进入 Metrics Server；指标送入 HPA；公式结果写入 Scale；Scale 反馈到 Deployment；稳定窗口回看缩容建议。
+- 状态表达：五步通过透明度、边框色、箭头和底部信号展示负载升高、指标可用、公式计算、扩容生效和缩容稳定。
+- 颜色策略：品牌蓝表示 Workload 与 Scale API，青色表示 Metrics API，橙色表示高负载和公式计算，绿色表示扩容生效，稳定窗口沿用品牌蓝回路。
+- 文字密度：桌面 SVG 保留对象名、关键公式和读数；长解释放在右侧任务面板、操作面板和底部步骤条。
+- 交互节奏：负载升高 -> 汇总指标 -> 计算期望副本 -> 写入 Scale 子资源 -> 稳定缩容。
+- 原创改造点：把官方 HPA 概念和命令输出融合成可交互控制环，强调线上排查的 requests、Metrics API、公式代入、Ready 状态和 scale behavior。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/hpa/desktop.svg`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/hpa/mobile.svg`。
+- 截图结论：桌面 SVG 可识别 Deployment、Pod CPU 行、Metrics Server、HPA Controller、Scale 子资源、稳定窗口和底部排障信号；移动端摘要完整展示五步流程和四个事实卡片。
+- 验收备注：Chrome DevTools MCP profile 被占用，Browser 插件返回 in-app browser 不可用；本轮使用 `npm run build`、`npm run test:data -- --grep "kubernetes HPA"`、完整 `npm run test:data`、`git diff --check` 和本地 SVG 审查图完成验收。
 
 ## MySQL Replication Visualization
 

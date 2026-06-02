@@ -341,6 +341,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "kubernetes:hpa") {
+    return (
+      <KubernetesHpaStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:crashloopbackoff") {
     return (
       <KubernetesCrashLoopBackOffStage
@@ -5016,6 +5027,222 @@ export function KubernetesCrashLoopBackOffStage({
           </div>
         </div>
         <div className="tcp-handshake-caption k8s-crashloop-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function KubernetesHpaStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const loadActive = completedSteps >= 1;
+  const metricsActive = completedSteps >= 2;
+  const calcActive = completedSteps >= 3;
+  const scaleActive = completedSteps >= 4;
+  const stabilizeActive = completedSteps >= 5;
+  const podRows = [
+    { name: "checkout-7b9a", cpu: loadActive ? "118%" : "58%", ready: true, active: loadActive, tone: loadActive ? "warning" : "brand" },
+    { name: "checkout-82cf", cpu: loadActive ? "124%" : "61%", ready: true, active: loadActive, tone: loadActive ? "warning" : "brand" },
+    { name: "checkout-91de", cpu: loadActive ? "119%" : "59%", ready: true, active: loadActive, tone: loadActive ? "warning" : "brand" },
+    { name: "checkout-new4", cpu: scaleActive ? "44%" : "pending", ready: scaleActive, active: scaleActive, tone: "success" },
+    { name: "checkout-new5", cpu: scaleActive ? "47%" : "pending", ready: scaleActive, active: scaleActive, tone: "success" },
+    { name: "checkout-new6", cpu: scaleActive ? "52%" : "pending", ready: stabilizeActive, active: scaleActive, tone: stabilizeActive ? "success" : "teal" },
+  ];
+  const formulaRows = [
+    { name: "currentReplicas", value: "3", active: calcActive, tone: "brand" },
+    { name: "currentMetric", value: metricsActive ? "120%" : "pending", active: metricsActive, tone: "warning" },
+    { name: "desiredMetric", value: "60%", active: calcActive, tone: "teal" },
+    { name: "desiredReplicas", value: calcActive ? "ceil(3*120/60)=6" : "pending", active: calcActive, tone: "success" },
+  ];
+  const signalRows = [
+    { name: "current / target CPU", value: stabilizeActive ? "58% / 60%" : metricsActive ? "120% / 60%" : "waiting", active: metricsActive, tone: stabilizeActive ? "success" : "warning" },
+    { name: "desiredReplicas", value: stabilizeActive ? "4" : calcActive ? "6" : "3", active: calcActive, tone: calcActive ? "success" : "brand" },
+    { name: "Scale subresource", value: scaleActive ? "replicas=6" : "replicas=3", active: scaleActive, tone: "brand" },
+    { name: "stabilization window", value: stabilizeActive ? "scaleDown hold" : "idle", active: stabilizeActive, tone: "teal" },
+  ];
+  const mobileFlow = [
+    { name: "Deployment", value: loadActive ? "3 Pods CPU 120%" : "3 Pods CPU 60%", active: loadActive },
+    { name: "Metrics API", value: metricsActive ? "metrics.k8s.io fresh" : "waiting samples", active: metricsActive },
+    { name: "HPA formula", value: calcActive ? "desiredReplicas=6" : "target 60%", active: calcActive },
+    { name: "Scale", value: scaleActive ? "Deployment replicas 3 -> 6" : "pending scale", active: scaleActive },
+    { name: "Stabilize", value: stabilizeActive ? "scaleDown window keeps 4" : "awaiting cooldown", active: stabilizeActive },
+  ];
+
+  return (
+    <div className="visual-stage k8s-hpa-stage">
+      <div className="k8s-hpa-card">
+        <svg
+          className="k8s-hpa-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["k8s-hpa-arrow-brand", "var(--brand)"],
+              ["k8s-hpa-arrow-teal", "var(--tertiary)"],
+              ["k8s-hpa-arrow-warning", "#f59e0b"],
+              ["k8s-hpa-arrow-success", "var(--success)"],
+              ["k8s-hpa-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="k8s-hpa-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="k8s-hpa-bg" x="24" y="24" width="1072" height="588" rx="28" />
+          <text className="k8s-hpa-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="k8s-hpa-subtitle" x="560" y="100">
+            {label(
+              "traffic spike -> metrics.k8s.io -> desiredReplicas formula -> Scale subresource -> stabilization window",
+              "traffic spike -> metrics.k8s.io -> desiredReplicas formula -> Scale subresource -> stabilization window",
+            )}
+          </text>
+
+          <g className={`k8s-hpa-workload ${loadActive ? "active" : ""}`}>
+            <rect x="70" y="136" width="318" height="250" rx="24" />
+            <text className="k8s-hpa-panel-title" x="98" y="174">Deployment checkout</text>
+            <text className="k8s-hpa-panel-subtitle" x="98" y="198">{label("requests.cpu=250m · target averageUtilization=60%", "requests.cpu=250m · target averageUtilization=60%")}</text>
+            {podRows.map((pod, index) => (
+              <g key={pod.name} className={`k8s-hpa-pod-row ${pod.tone} ${pod.active ? "active" : ""}`}>
+                <rect x="98" y={220 + index * 25} width="250" height="20" rx="10" />
+                <text x="112" y={234 + index * 25}>{pod.name}</text>
+                <text x="336" y={234 + index * 25}>{pod.ready ? pod.cpu : pod.cpu}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-hpa-traffic ${loadActive ? "active" : ""}`}>
+            <path d="M 70 262 C 42 262, 42 188, 90 188" markerEnd="url(#k8s-hpa-arrow-warning)" />
+            <rect x="62" y="98" width="204" height="34" rx="17" />
+            <text x="164" y="120">{loadActive ? "checkout QPS x3" : "steady traffic"}</text>
+          </g>
+
+          <g className={`k8s-hpa-metrics ${metricsActive ? "active" : ""}`}>
+            <rect x="448" y="132" width="248" height="174" rx="24" />
+            <text className="k8s-hpa-panel-title" x="476" y="170">Metrics Server</text>
+            <text className="k8s-hpa-panel-subtitle" x="476" y="194">kubelet summary API</text>
+            <g className={`k8s-hpa-metric-chip brand ${metricsActive ? "active" : ""}`}>
+              <rect x="476" y="220" width="184" height="30" rx="15" />
+              <text x="568" y="240">metrics.k8s.io</text>
+            </g>
+            <g className={`k8s-hpa-metric-chip warning ${metricsActive ? "active" : ""}`}>
+              <rect x="476" y="262" width="184" height="30" rx="15" />
+              <text x="568" y="282">avg CPU 120%</text>
+            </g>
+          </g>
+
+          <g className={`k8s-hpa-controller ${calcActive ? "active" : ""}`}>
+            <rect x="760" y="116" width="292" height="222" rx="24" />
+            <text className="k8s-hpa-panel-title" x="788" y="154">HPA Controller</text>
+            <text className="k8s-hpa-panel-subtitle" x="788" y="178">sync loop · tolerance · min/max</text>
+            {formulaRows.map((row, index) => (
+              <g key={row.name} className={`k8s-hpa-formula-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="788" y={202 + index * 34} width="224" height="26" rx="13" />
+                <text x="802" y={220 + index * 34}>{row.name}</text>
+                <text x="996" y={220 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-hpa-sample-path ${metricsActive ? "active" : ""}`}>
+            <path d="M 388 238 C 420 220, 424 212, 448 214" markerEnd="url(#k8s-hpa-arrow-teal)" />
+            <rect x="378" y="400" width="200" height="34" rx="17" />
+            <text x="478" y="422">Pod metrics samples</text>
+          </g>
+
+          <g className={`k8s-hpa-calc-path ${calcActive ? "active" : ""}`}>
+            <path d="M 696 216 C 720 212, 734 212, 760 214" markerEnd="url(#k8s-hpa-arrow-warning)" />
+            <rect x="626" y="344" width="252" height="34" rx="17" />
+            <text x="752" y="366">ceil(3 * 120 / 60) = 6</text>
+          </g>
+
+          <g className={`k8s-hpa-scale ${scaleActive ? "active" : ""}`}>
+            <rect x="480" y="430" width="276" height="104" rx="24" />
+            <text className="k8s-hpa-panel-title" x="508" y="466">Scale subresource</text>
+            <text className="k8s-hpa-panel-subtitle" x="508" y="490">Deployment.scale.spec.replicas</text>
+            <g className={`k8s-hpa-scale-chip success ${scaleActive ? "active" : ""}`}>
+              <rect x="508" y="506" width="208" height="30" rx="15" />
+              <text x="612" y="526">{stabilizeActive ? "replicas=4 stabilized" : "replicas 3 -> 6"}</text>
+            </g>
+          </g>
+
+          <g className={`k8s-hpa-scale-path ${scaleActive ? "active" : ""}`}>
+            <path d="M 846 338 C 802 412, 766 460, 756 482" markerEnd="url(#k8s-hpa-arrow-success)" />
+            <path d="M 480 482 C 420 468, 380 404, 332 386" markerEnd="url(#k8s-hpa-arrow-success)" />
+          </g>
+
+          <g className={`k8s-hpa-guard ${stabilizeActive ? "active" : ""}`}>
+            <rect x="812" y="422" width="246" height="118" rx="24" />
+            <text className="k8s-hpa-panel-title" x="840" y="458">{label("稳定窗口", "Stabilization window")}</text>
+            <text className="k8s-hpa-panel-subtitle" x="840" y="482">scaleDown policies</text>
+            <g className={`k8s-hpa-guard-chip teal ${stabilizeActive ? "active" : ""}`}>
+              <rect x="840" y="502" width="172" height="30" rx="15" />
+              <text x="926" y="522">{"hold 6 -> 4"}</text>
+            </g>
+          </g>
+
+          <g className={`k8s-hpa-guard-path ${stabilizeActive ? "active" : ""}`}>
+            <path d="M 880 422 C 844 388, 818 370, 778 338" markerEnd="url(#k8s-hpa-arrow-brand)" />
+          </g>
+
+          <g className="k8s-hpa-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`k8s-hpa-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={70 + index * 256} y="578" width="218" height="34" rx="16" />
+                <text x={88 + index * 256} y="592">{signal.name}</text>
+                <text x={270 + index * 256} y="606">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="k8s-hpa-mobile-map">
+          <div className="k8s-hpa-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`k8s-hpa-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="k8s-hpa-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`k8s-hpa-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption k8s-hpa-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

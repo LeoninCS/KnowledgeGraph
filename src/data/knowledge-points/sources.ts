@@ -2025,6 +2025,30 @@ export const knowledgeSources = {
     title: "Komodor: Troubleshooting Kubernetes Errors",
     url: "https://komodor.com/learn/how-to-fix-crashloopbackoff-kubernetes-error/",
   },
+  "kubernetes-hpa": {
+    title: "Kubernetes Docs: Horizontal Pod Autoscaling",
+    url: "https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/",
+  },
+  "kubernetes-hpa-walkthrough": {
+    title: "Kubernetes Docs: Horizontal Pod Autoscaling Walkthrough",
+    url: "https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/",
+  },
+  "kubernetes-resource-metrics-pipeline": {
+    title: "Kubernetes Docs: Resource Metrics Pipeline",
+    url: "https://kubernetes.io/docs/tasks/debug/debug-cluster/resource-metrics-pipeline/",
+  },
+  "kubernetes-api-scale": {
+    title: "Kubernetes API Reference: Scale",
+    url: "https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/scale-v1/",
+  },
+  "gke-hpa": {
+    title: "Google Kubernetes Engine: Horizontal Pod autoscaling",
+    url: "https://cloud.google.com/kubernetes-engine/docs/concepts/horizontalpodautoscaler",
+  },
+  "learnk8s-autoscaling": {
+    title: "Learnk8s: Kubernetes Autoscaling",
+    url: "https://learnk8s.io/kubernetes-autoscaling-strategies",
+  },
   "aws-elb-health-checks": {
     title: "AWS Elastic Load Balancing: Health checks for target groups",
     url: "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html",

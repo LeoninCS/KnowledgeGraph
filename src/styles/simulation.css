@@ -755,6 +755,7 @@
 
 .k8s-service-stage,
 .k8s-ingress-stage,
+.k8s-hpa-stage,
 .k8s-crashloop-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -763,6 +764,7 @@
 
 .k8s-service-card,
 .k8s-ingress-card,
+.k8s-hpa-card,
 .k8s-crashloop-card {
   position: relative;
   justify-self: center;
@@ -779,6 +781,7 @@
 
 :root[data-theme="dark"] .k8s-service-card,
 :root[data-theme="dark"] .k8s-ingress-card,
+:root[data-theme="dark"] .k8s-hpa-card,
 :root[data-theme="dark"] .k8s-crashloop-card {
   background:
     linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
@@ -787,6 +790,7 @@
 
 .k8s-service-diagram,
 .k8s-ingress-diagram,
+.k8s-hpa-diagram,
 .k8s-crashloop-diagram {
   display: block;
   width: 100%;
@@ -797,6 +801,7 @@
 
 .k8s-service-mobile-map,
 .k8s-ingress-mobile-map,
+.k8s-hpa-mobile-map,
 .k8s-crashloop-mobile-map {
   display: none;
 }
@@ -5653,6 +5658,210 @@
 }
 
 .k8s-crashloop-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.k8s-hpa-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 46%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+}
+
+.k8s-hpa-title {
+  fill: var(--text);
+  font-size: 24px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.k8s-hpa-subtitle {
+  fill: var(--muted);
+  font-size: 12.5px;
+  font-weight: 750;
+  text-anchor: middle;
+}
+
+.k8s-hpa-workload,
+.k8s-hpa-traffic,
+.k8s-hpa-metrics,
+.k8s-hpa-controller,
+.k8s-hpa-scale,
+.k8s-hpa-guard,
+.k8s-hpa-sample-path,
+.k8s-hpa-calc-path,
+.k8s-hpa-scale-path,
+.k8s-hpa-guard-path,
+.k8s-hpa-pod-row,
+.k8s-hpa-metric-chip,
+.k8s-hpa-formula-row,
+.k8s-hpa-scale-chip,
+.k8s-hpa-guard-chip,
+.k8s-hpa-signal {
+  opacity: 0.34;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.k8s-hpa-workload.active,
+.k8s-hpa-traffic.active,
+.k8s-hpa-metrics.active,
+.k8s-hpa-controller.active,
+.k8s-hpa-scale.active,
+.k8s-hpa-guard.active,
+.k8s-hpa-sample-path.active,
+.k8s-hpa-calc-path.active,
+.k8s-hpa-scale-path.active,
+.k8s-hpa-guard-path.active,
+.k8s-hpa-pod-row.active,
+.k8s-hpa-metric-chip.active,
+.k8s-hpa-formula-row.active,
+.k8s-hpa-scale-chip.active,
+.k8s-hpa-guard-chip.active,
+.k8s-hpa-signal.active {
+  opacity: 1;
+}
+
+.k8s-hpa-workload > rect,
+.k8s-hpa-metrics > rect,
+.k8s-hpa-controller > rect,
+.k8s-hpa-scale > rect,
+.k8s-hpa-guard > rect {
+  fill: color-mix(in srgb, var(--surface) 94%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 14%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#k8s-hpa-soft-shadow);
+}
+
+.k8s-hpa-workload.active > rect,
+.k8s-hpa-metric-chip.brand.active rect,
+.k8s-hpa-formula-row.brand.active rect,
+.k8s-hpa-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 52%, var(--border));
+}
+
+.k8s-hpa-metrics.active > rect,
+.k8s-hpa-pod-row.teal.active rect,
+.k8s-hpa-guard-chip.teal.active rect,
+.k8s-hpa-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+}
+
+.k8s-hpa-controller.active > rect,
+.k8s-hpa-pod-row.warning.active rect,
+.k8s-hpa-metric-chip.warning.active rect,
+.k8s-hpa-formula-row.warning.active rect,
+.k8s-hpa-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 54%, var(--border));
+}
+
+.k8s-hpa-scale.active > rect,
+.k8s-hpa-pod-row.success.active rect,
+.k8s-hpa-formula-row.success.active rect,
+.k8s-hpa-scale-chip.success.active rect,
+.k8s-hpa-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 52%, var(--border));
+}
+
+.k8s-hpa-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.k8s-hpa-panel-subtitle,
+.k8s-hpa-workload text,
+.k8s-hpa-traffic text,
+.k8s-hpa-metrics text,
+.k8s-hpa-controller text,
+.k8s-hpa-scale text,
+.k8s-hpa-guard text,
+.k8s-hpa-sample-path text,
+.k8s-hpa-calc-path text,
+.k8s-hpa-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.k8s-hpa-pod-row rect,
+.k8s-hpa-traffic rect,
+.k8s-hpa-metric-chip rect,
+.k8s-hpa-formula-row rect,
+.k8s-hpa-sample-path rect,
+.k8s-hpa-calc-path rect,
+.k8s-hpa-scale-chip rect,
+.k8s-hpa-guard-chip rect,
+.k8s-hpa-signal rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 12%, var(--border));
+  filter: url(#k8s-hpa-soft-shadow);
+}
+
+.k8s-hpa-panel-title,
+.k8s-hpa-pod-row text:first-of-type,
+.k8s-hpa-metric-chip text,
+.k8s-hpa-formula-row text:first-of-type,
+.k8s-hpa-scale-chip text,
+.k8s-hpa-guard-chip text,
+.k8s-hpa-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 900;
+}
+
+.k8s-hpa-pod-row text:last-of-type,
+.k8s-hpa-formula-row text:last-of-type,
+.k8s-hpa-signal text:last-of-type {
+  fill: var(--brand-strong);
+  font-weight: 900;
+  text-anchor: end;
+}
+
+.k8s-hpa-traffic text,
+.k8s-hpa-metric-chip text,
+.k8s-hpa-sample-path text,
+.k8s-hpa-calc-path text,
+.k8s-hpa-scale-chip text,
+.k8s-hpa-guard-chip text {
+  text-anchor: middle;
+}
+
+.k8s-hpa-sample-path path,
+.k8s-hpa-calc-path path,
+.k8s-hpa-scale-path path,
+.k8s-hpa-guard-path path,
+.k8s-hpa-traffic path {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.k8s-hpa-traffic path,
+.k8s-hpa-calc-path path {
+  stroke: #f59e0b;
+}
+
+.k8s-hpa-sample-path path {
+  stroke: var(--tertiary);
+}
+
+.k8s-hpa-scale-path path {
+  stroke: var(--success);
+}
+
+.k8s-hpa-guard-path path {
+  stroke: var(--brand);
+}
+
+.k8s-hpa-formula-row.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+}
+
+.k8s-hpa-caption {
   right: 16px;
   bottom: 14px;
 }
