@@ -3741,6 +3741,14 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: SHOW REPLICA STATUS Statement",
     url: "https://dev.mysql.com/doc/refman/8.4/en/show-replica-status.html",
   },
+  "mysql-replication-delayed": {
+    title: "MySQL Reference Manual: Delayed Replication",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-delayed.html",
+  },
+  "mysql-replication-gtid-lifecycle": {
+    title: "MySQL Reference Manual: The GTID Life Cycle",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-gtids-lifecycle.html",
+  },
   "mysql-workbench-visual-explain": {
     title: "MySQL Workbench Manual: Tutorial: Using Explain to Improve Query Performance",
     url: "https://dev.mysql.com/doc/workbench/en/wb-tutorial-visual-explain-dbt3.html",

@@ -1183,3 +1183,21 @@
 - Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/replication/desktop.svg` 与 `.codex-artifacts/visualizations/replication/mobile.svg`；桌面 SVG 可识别 Source、Binary Log Stream、Dump Thread、Receiver、Relay Log、SQL Applier 和底部复制指标，移动端摘要完整展示五步和四个延迟读数。
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Next Candidate：MySQL `Replication Lag` 或 `GTID`。
+
+### 2026-06-02 15:52 CST
+
+- Branch/Pull：当前分支 `main`；`git fetch origin main` 与 `git pull --ff-only origin main` 成功，远端已同步到 `5cf0cce`。
+- Selected：MySQL `Replication Lag`，原因是 Source commit rate、I/O receiver、Relay backlog、SQL applier、GTID gap、`Seconds_Behind_Source` 和读副本旧读风险能承接已完成的 Replication 可视化，形成直接可用的线上排障模型。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；Chrome MCP 视觉确认 Percona 复制架构图，保留 1 张主参考图和 4 个辅助参考来源。
+- Online Image References：
+  - source：Percona - MySQL with Diagrams Part One: Replication Architecture；image：页面首图 `https://www.percona.com/wp-content/uploads/2026/03/mysqlreplication-diagram-1-scaled.png`；role：main；qualityReason：图中清楚呈现 source、binary log、replication receiver、relay log、SQL applier 和 metadata repositories；takeaways：主构图采用 source -> receiver -> relay log -> applier 的横向管线，并把延迟观测放到底部；originalChanges：改造成延迟排障状态模型，突出 Retrieved/Executed GTID 差距、relay backlog、worker wait 和 stale read guard。
+  - source：MySQL Reference Manual - SHOW REPLICA STATUS Statement；image：状态字段说明；role：supporting；qualityReason：官方定义 `Seconds_Behind_Source`、`Retrieved_Gtid_Set`、`Executed_Gtid_Set` 等排障字段；takeaways：底部信号区使用 GTID gap、relay backlog、Seconds behind 和 read route；originalChanges：把命令字段转成四个随步骤变化的仪表读数。
+  - source：MySQL Reference Manual - Replica Logs and Status；image：relay log 与状态说明；role：supporting；qualityReason：校准 relay log、connection metadata、applier metadata 的角色；takeaways：中部 Relay Backlog 面板使用队列柱表达积压；originalChanges：用队列高度替代表格文字，强调应用瓶颈。
+  - source：MySQL Reference Manual - Replication Threads；image：线程职责说明；role：supporting；qualityReason：官方区分 receiver thread、applier coordinator 和 worker；takeaways：下方 SQL Applier 面板展示 coordinator、worker#1、worker#2；originalChanges：把线程状态转成 active worker、lock wait 和 dependency wait。
+  - source：MySQL Reference Manual - The GTID Life Cycle；image：GTID 生命周期文字说明；role：supporting；qualityReason：解释 GTID 生成、传播、retrieved、executed 的顺序；takeaways：左上和中上面板保留 Source/Retrieved/Executed GTID 三行；originalChanges：用 GTID 缺口驱动 stale read 风险和追赶收敛。
+- Reference Breakdown：主体布局为上排 Source MySQL、I/O Receiver、Relay Backlog，下排 SQL Applier、读副本风险、Lag Gauge，底部展示 GTID gap、Relay backlog、Seconds behind、Read route；视觉焦点是 `Retrieved uuid:1-560` 与 `Executed uuid:1-521` 的差距；交互节奏按写入突增、I/O 追上、Applier 积压、读到旧数据、追赶收敛推进。
+- Implementation：新增 `mysql:replication-lag` 专用 `state-model` 构建器、Replication Lag SVG 舞台、移动端纵向摘要、响应式样式，并给 MySQL 复制延迟知识点补充官方复制状态、延迟和 GTID 来源引用。
+- Screenshot Review：Chrome DevTools MCP 在 `http://127.0.0.1:4222/KnowledgeGraph/` 完成 Mysql 分类、搜索 `复制延迟`、详情页进入、模拟器进入、五步交互和桌面/移动端截图验收；保存 `.codex-artifacts/visualizations/replication-lag/desktop.png`（2880x1882）与 `.codex-artifacts/visualizations/replication-lag/mobile.png`（1000x4692），桌面可识别 GTID gap、Relay Backlog、SQL Applier、Lag Gauge 和 stale read guard，移动端五步流程和四个事实卡片可读。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add replication lag visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：MySQL `GTID` 或 `Failover`。

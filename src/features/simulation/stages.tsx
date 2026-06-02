@@ -242,6 +242,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:replication-lag") {
+    return (
+      <ReplicationLagStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "mysql:two-phase-commit") {
     return (
       <TwoPhaseCommitStage
@@ -2924,6 +2935,234 @@ function ReplicationStage({
           </div>
         </div>
         <div className="tcp-handshake-caption replication-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReplicationLagStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const sourceActive = completedSteps >= 1;
+  const receiverActive = completedSteps >= 2;
+  const backlogActive = completedSteps >= 3;
+  const staleActive = completedSteps >= 4;
+  const caughtUpActive = completedSteps >= 5;
+  const queueFill = caughtUpActive ? 0 : backlogActive ? 7 : receiverActive ? 5 : sourceActive ? 2 : 0;
+  const lagSeconds = caughtUpActive ? 0 : staleActive ? 18 : backlogActive ? 14 : receiverActive ? 6 : 0;
+  const gtidRows = [
+    { name: "Source GTID", value: sourceActive ? "uuid:1-560" : "uuid:1-510", active: sourceActive },
+    { name: "Retrieved", value: receiverActive ? "uuid:1-560" : "uuid:1-510", active: receiverActive },
+    { name: "Executed", value: caughtUpActive ? "uuid:1-560" : backlogActive ? "uuid:1-521" : "uuid:1-510", active: backlogActive },
+  ];
+  const workerRows = [
+    { name: "Coordinator", value: backlogActive ? "dispatch queue" : "idle", active: backlogActive },
+    { name: "worker#1", value: staleActive ? "lock wait 12s" : backlogActive ? "large trx" : "idle", active: backlogActive },
+    { name: "worker#2", value: caughtUpActive ? "commit ok" : backlogActive ? "dependency wait" : "idle", active: backlogActive },
+  ];
+  const signalRows = [
+    { name: "GTID gap", value: caughtUpActive ? "0" : backlogActive ? "39 trx" : "pending", active: backlogActive },
+    { name: "Relay backlog", value: caughtUpActive ? "0 trx" : receiverActive ? `${queueFill * 7} trx` : "0 trx", active: receiverActive },
+    { name: "Seconds behind", value: `${lagSeconds}s`, active: staleActive || caughtUpActive },
+    { name: "Read route", value: staleActive && !caughtUpActive ? "pin source" : caughtUpActive ? "replica ok" : "watch", active: staleActive || caughtUpActive },
+  ];
+  const mobileFlow = [
+    { name: "Source burst", value: sourceActive ? "uuid:510-560" : "steady", active: sourceActive },
+    { name: "I/O receiver", value: receiverActive ? "retrieved latest" : "waiting", active: receiverActive },
+    { name: "Relay backlog", value: caughtUpActive ? "drained" : backlogActive ? "queue rising" : "empty", active: backlogActive || caughtUpActive },
+    { name: "SQL applier", value: caughtUpActive ? "caught up" : staleActive ? "lock wait" : backlogActive ? "slow apply" : "idle", active: backlogActive || caughtUpActive },
+    { name: "Replica read", value: caughtUpActive ? "fresh" : staleActive ? "stale risk" : "safe", active: staleActive || caughtUpActive },
+  ];
+
+  return (
+    <div className="visual-stage replication-lag-stage">
+      <div className="replication-lag-card">
+        <svg
+          className="replication-lag-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["replication-lag-arrow-brand", "var(--brand)"],
+              ["replication-lag-arrow-teal", "var(--tertiary)"],
+              ["replication-lag-arrow-warning", "#f59e0b"],
+              ["replication-lag-arrow-danger", "var(--danger)"],
+              ["replication-lag-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="replication-lag-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="replication-lag-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="replication-lag-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="replication-lag-subtitle" x="560" y="100">
+            {label(
+              "commit burst -> retrieved GTID -> relay backlog -> executed GTID -> stale read guard",
+              "commit burst -> retrieved GTID -> relay backlog -> executed GTID -> stale read guard",
+            )}
+          </text>
+
+          <g className={`replication-lag-source-panel ${sourceActive ? "active" : ""}`}>
+            <rect x="64" y="134" width="248" height="158" rx="26" />
+            <text className="replication-lag-panel-title" x="92" y="174">Source MySQL</text>
+            <text className="replication-lag-panel-subtitle" x="92" y="198">{label("提交速率突然升高", "Commit rate spikes")}</text>
+            {[0, 1, 2, 3, 4].map((index) => (
+              <g key={index} className={`replication-lag-gtid-chip ${sourceActive ? "active" : ""}`}>
+                <rect x={92 + index * 40} y="224" width="32" height="34" rx="12" />
+                <text x={108 + index * 40} y="247">T{556 + index}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`replication-lag-receiver-panel ${receiverActive ? "active" : ""}`}>
+            <rect x="380" y="126" width="284" height="166" rx="26" />
+            <text className="replication-lag-panel-title" x="408" y="166">I/O Receiver</text>
+            <text className="replication-lag-panel-subtitle" x="408" y="190">{label("网络侧已追上 source", "Retrieval side catches up")}</text>
+            {gtidRows.map((row, index) => (
+              <g key={row.name} className={`replication-lag-gtid-row ${row.active ? "active" : ""}`}>
+                <rect x="408" y={214 + index * 34} width="208" height="25" rx="12.5" />
+                <text x="422" y={231 + index * 34}>{row.name}</text>
+                <text x="602" y={231 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`replication-lag-relay-panel ${receiverActive ? "active" : ""}`}>
+            <rect x="736" y="126" width="320" height="184" rx="28" />
+            <text className="replication-lag-panel-title" x="764" y="166">Relay Backlog</text>
+            <text className="replication-lag-panel-subtitle" x="764" y="190">{label("等待 SQL applier 重放", "Waiting for SQL applier")}</text>
+            {[0, 1, 2, 3, 4, 5, 6, 7].map((index) => (
+              <g key={index} className={`replication-lag-queue-block ${index < queueFill ? "active" : ""}`}>
+                <rect x={766 + index * 32} y="222" width="22" height={58 + index * 4} rx="8" />
+              </g>
+            ))}
+            <text className="replication-lag-queue-label" x="900" y="292">
+              {caughtUpActive ? "0 trx" : receiverActive ? `${queueFill * 7} trx queued` : "idle"}
+            </text>
+          </g>
+
+          <g className={`replication-lag-source-path ${sourceActive ? "active" : ""}`}>
+            <path d="M 312 212 C 338 212, 352 210, 380 210" markerEnd="url(#replication-lag-arrow-brand)" />
+            <rect x="282" y="320" width="150" height="32" rx="16" />
+            <text x="357" y="341">{label("写入突增", "write burst")}</text>
+          </g>
+
+          <g className={`replication-lag-receiver-path ${receiverActive ? "active" : ""}`}>
+            <path d="M 664 214 C 696 214, 710 214, 736 214" markerEnd="url(#replication-lag-arrow-teal)" />
+            <rect x="626" y="330" width="160" height="32" rx="16" />
+            <text x="706" y="351">{label("拉取已完成", "retrieval caught up")}</text>
+          </g>
+
+          <g className={`replication-lag-applier-panel ${backlogActive ? "active" : ""}`}>
+            <rect x="92" y="390" width="342" height="152" rx="28" />
+            <text className="replication-lag-panel-title" x="120" y="428">SQL Applier</text>
+            <text className="replication-lag-panel-subtitle" x="120" y="452">{label("worker 队列与依赖等待", "Worker queue and dependency waits")}</text>
+            {workerRows.map((row, index) => (
+              <g key={row.name} className={`replication-lag-worker-row ${row.active ? "active" : ""}`}>
+                <rect x="120" y={474 + index * 32} width="250" height="24" rx="12" />
+                <text x="136" y={491 + index * 32}>{row.name}</text>
+                <text x="354" y={491 + index * 32}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`replication-lag-stale-panel ${staleActive ? "active" : ""}`}>
+            <rect x="508" y="386" width="264" height="158" rx="28" />
+            <text className="replication-lag-panel-title" x="536" y="426">{label("读副本风险", "Replica read risk")}</text>
+            <text className="replication-lag-panel-subtitle" x="536" y="450">{label("可见版本停在 Executed GTID", "Visible version stops at Executed GTID")}</text>
+            <g className={`replication-lag-read-chip ${staleActive && !caughtUpActive ? "active danger" : caughtUpActive ? "active success" : ""}`}>
+              <rect x="536" y="478" width="174" height="34" rx="17" />
+              <text x="623" y="500">{caughtUpActive ? "fresh read" : staleActive ? "stale read" : "watch route"}</text>
+            </g>
+          </g>
+
+          <g className={`replication-lag-gauge-panel ${backlogActive ? "active" : ""}`}>
+            <rect x="838" y="390" width="210" height="154" rx="28" />
+            <text className="replication-lag-panel-title" x="866" y="428">Lag Gauge</text>
+            <circle className={`replication-lag-gauge-ring ${caughtUpActive ? "success" : staleActive ? "danger" : "warning"}`} cx="942" cy="486" r="42" />
+            <path
+              className={`replication-lag-gauge-needle ${caughtUpActive ? "success" : staleActive ? "danger" : "warning"}`}
+              d={caughtUpActive ? "M 942 486 L 918 510" : staleActive ? "M 942 486 L 976 468" : "M 942 486 L 950 446"}
+            />
+            <text className="replication-lag-gauge-value" x="942" y="492">{lagSeconds}s</text>
+          </g>
+
+          <g className={`replication-lag-apply-path ${backlogActive ? "active" : ""}`}>
+            <path d="M 810 306 C 674 388, 538 452, 434 470" markerEnd="url(#replication-lag-arrow-warning)" />
+            <rect x="448" y="330" width="170" height="32" rx="16" />
+            <text x="533" y="351">{label("应用成为瓶颈", "apply is bottleneck")}</text>
+          </g>
+
+          <g className={`replication-lag-stale-path ${staleActive ? "active" : ""}`}>
+            <path d="M 434 470 C 468 466, 486 466, 508 468" markerEnd="url(#replication-lag-arrow-danger)" />
+            <rect x="484" y="560" width="150" height="32" rx="16" />
+            <text x="559" y="581">{label("旧读保护", "stale-read guard")}</text>
+          </g>
+
+          <g className={`replication-lag-catchup-path ${caughtUpActive ? "active" : ""}`}>
+            <path d="M 838 496 C 740 584, 526 584, 328 528" markerEnd="url(#replication-lag-arrow-success)" />
+          </g>
+
+          <g className="replication-lag-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`replication-lag-signal ${signal.active ? "active" : ""}`}>
+                <rect x={66 + index * 252} y="588" width="210" height="34" rx="16" />
+                <text x={86 + index * 252} y="602">{signal.name}</text>
+                <text x={256 + index * 252} y="614">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="replication-lag-mobile-map">
+          <div className="replication-lag-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`replication-lag-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="replication-lag-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`replication-lag-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption replication-lag-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>
