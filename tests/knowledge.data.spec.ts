@@ -125,6 +125,23 @@ test("linux epoll is backed by a dedicated visual simulation", async () => {
   );
 });
 
+test("docker bridge network is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("docker");
+  const bridgeNetwork = points.find((point) => point.id === "bridge-network");
+
+  expect(visualPointIds.docker).toContain("bridge-network");
+  expect(bridgeNetwork).toBeTruthy();
+
+  const simulation = buildVisualSimulation("docker", bridgeNetwork!);
+
+  expect(simulation.key).toBe("docker:bridge-network");
+  expect(simulation.pattern.en).toContain("bridge packet path");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["network namespace", "veth pair", "embedded DNS", "DNAT / MASQUERADE"]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");

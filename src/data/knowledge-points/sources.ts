@@ -4281,9 +4281,21 @@ export const knowledgeSources = {
     title: "Docker Docs: Port publishing and mapping",
     url: "https://docs.docker.com/engine/network/port-publishing/",
   },
+  "docker-packet-filtering-firewalls": {
+    title: "Docker Docs: Packet filtering and firewalls",
+    url: "https://docs.docker.com/engine/network/packet-filtering-firewalls/",
+  },
   "docker-publishing-ports-guide": {
     title: "Docker Docs: Publishing and exposing ports",
     url: "https://docs.docker.com/get-started/docker-concepts/running-containers/publishing-ports/",
+  },
+  "dockerlabs-bridge-network-architecture": {
+    title: "DockerLabs: Docker Bridge Network Driver Architecture",
+    url: "https://dockerlabs.collabnix.com/networking/concepts/05-bridge-networks.html",
+  },
+  "iximiuz-container-networking": {
+    title: "iximiuz Labs: Container Networking From Scratch",
+    url: "https://labs.iximiuz.com/tutorials/container-networking-from-scratch",
   },
   "docker-cli-docs": {
     title: "Docker Docs: Use the Docker command line",

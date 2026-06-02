@@ -140,6 +140,7 @@
 | Ingress | `step-simulation` | completed | desktop/mobile captured | Kubernetes Ingress 七层入口路由模拟器，覆盖公网入口、Ingress Controller、TLS Secret、host/path 规则和 Service 后端 |
 | CrashLoopBackOff | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes CrashLoopBackOff 重启退避状态模型，覆盖 Pod 启动、进程退出、kubelet restartPolicy、BackOff 延迟、Events/logs 证据链和修复恢复 |
 | 镜像层 | `storage-layout` | completed | desktop/mobile captured | Docker 镜像层结构模型，覆盖 Dockerfile 指令、Build Cache、只读层共享、overlay2 和可写层 |
+| 桥接网络 | `step-simulation` | completed | desktop/mobile captured | Docker Bridge packet path 模拟器，覆盖 network namespace、veth pair、Linux bridge、内置 DNS、端口发布、DNAT 和 MASQUERADE |
 | MVCC | `state-model` | completed | desktop/mobile captured | MySQL MVCC 版本可见性状态模型，覆盖隐藏列、Undo 版本链、ReadView、可见性判断和长事务 Purge 风险 |
 | Redo Log | `state-model` | completed | desktop/mobile captured | MySQL Redo Log WAL 与恢复状态模型，覆盖 redo record、log buffer、write/fsync、checkpoint 和 crash recovery |
 | Binlog | `step-simulation` | completed | desktop/mobile captured | MySQL Binlog 提交与复制通道模拟器，覆盖 GTID、Rows Event、Group Commit、Relay Log 和副本应用延迟 |
@@ -1491,3 +1492,22 @@
 - Working Tree：进入同步门禁时工作区干净；本条记录写入后仅 `docs/visualization-progress.md` 发生变化。
 - Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
 - Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后继续 Docker `容器网络` 或 Kubernetes `Pod 调度` 找图与设计。
+
+### 2026-06-02 21:37 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `19443ee`；`git pull --ff-only origin main` 成功。上一轮 docs-only DNS 阻塞记录已提交并推送为 `952eb02 docs: record visualization sync blocker`，随后从干净工作区继续。
+- Selected：Docker `桥接网络`，原因是 network namespace、veth pair、Linux bridge、内置 DNS、DNAT、MASQUERADE 和防火墙链形成清晰的单机容器网络包路径，能承接已完成的 Docker 镜像层可视化。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；Chrome DevTools 视觉确认 DockerLabs bridge/NAT 三张图、Docker 官方 bridge 与 packet filtering 页面、iximiuz container networking 教程中的 namespace/veth/NAT/port publishing 图。
+- Online Image References：
+  - source：DockerLabs - Docker Bridge Network Driver Architecture，https://dockerlabs.collabnix.com/networking/concepts/05-bridge-networks.html；image：`bridge1.png`、`bridge2.png`、`nat.png`；role：main；qualityReason：三张图清楚展示 default bridge、user-defined bridge、容器 veth、host eth0、端口映射和 masquerading；takeaways：主构图采用左侧外部客户端、中部 Docker Host / bridge / NAT、右侧容器 netns 的横向包路径；originalChanges：改成本项目的五步交互式 packet path，加入右侧任务面板、底部信号和移动端流程卡。
+  - source：Docker Docs - Bridge network driver，https://docs.docker.com/engine/network/drivers/bridge/；image：页面行为说明和 usage examples；role：supporting；qualityReason：官方定义用户自定义 bridge、同网络互通、内置 DNS、网络隔离和 published ports；takeaways：步骤覆盖 create network、connect containers、service-name DNS 和同网络访问；originalChanges：把文档字段转为 `br-app 172.18.0.1`、`web/api netns` 和 `api -> 172.18.0.3` 状态。
+  - source：Docker Docs - Packet filtering and firewalls，https://docs.docker.com/engine/network/packet-filtering-firewalls/；image：Docker NAT/filter/firewall chain 说明；role：supporting；qualityReason：官方校准 Docker 管理 iptables/nftables、DNAT、FORWARD、DOCKER-USER 与 gateway mode 语义；takeaways：右下规则面板展示 PREROUTING、DOCKER-USER、POSTROUTING；originalChanges：用可高亮规则行展示 published port 与出站 SNAT 两条路径。
+  - source：Docker Docs - Port publishing and mapping，https://docs.docker.com/engine/network/port-publishing/；image：端口发布行为说明；role：supporting；qualityReason：官方说明 host IP:port 如何映射到容器端口；takeaways：端口发布步骤使用 `-p 8080:80` 与 `host:8080 -> web:80`；originalChanges：把发布端口和监听地址排障提示放入右侧理解重点。
+  - source：iximiuz Labs - Container Networking From Scratch，https://labs.iximiuz.com/tutorials/container-networking-from-scratch；image：`linux-network-environment.png`、`network-namespace.png`、veth、bridge、NAT、port publishing 相关图；role：supporting；qualityReason：高质量交互教程从 Linux 原语解释 Docker-like bridge 网络；takeaways：容器网络由 netns、veth、bridge、routing、iptables 和 NAT 组合而成；originalChanges：用 Docker 语义重命名对象，保留底层原语作为画布对象和指标。
+- Reference Breakdown：主体布局为左侧 External client，中部 Docker Host 容器，Host 内含 `br-app/docker0`、`eth0`、Docker NAT/filter，右侧 `web netns` 与 `api netns`；视觉焦点是 `netns -> veth pair -> Linux bridge -> DNS / DNAT / MASQUERADE`；领域对象包括 container network namespace、eth0、veth peer、Linux bridge、embedded DNS、PREROUTING、DOCKER-USER、POSTROUTING、DNAT、MASQUERADE、host eth0；连线方向按 create bridge、attach veth、web->api、external->host:8080、web->Internet 推进；颜色策略用青色表示 veth/bridge，绿色表示 DNS 与同网络访问，橙色表示 DNAT，红色虚线表示 MASQUERADE；移动端使用五个流程卡和四个信号卡保留关键读数。
+- Implementation：新增 `docker:bridge-network` 专用 `step-simulation` 构建器、Bridge Network SVG 舞台、移动端纵向摘要、响应式样式、sourceRefs 和数据测试，并把 `bridge-network` 加入 Docker 可视化清单。
+- Browser Note：Browser 插件 in-app browser 返回不可用；Chrome DevTools 在 `http://127.0.0.1:4251/KnowledgeGraph/` 完成 Docker 分类、搜索 `桥接网络`、详情页进入、模拟器进入、五步交互到 `出站 MASQUERADE`，最终指标为 `netns=web/api isolated`、`bridge=br-app 172.18.0.1`、`DNS=api -> 172.18.0.3`、`NAT=SNAT host eth0`。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/bridge-network/desktop.png`（2880x1882）与 `.codex-artifacts/visualizations/bridge-network/mobile.png`（1000x4696）；桌面可识别 External client、Docker Host、br-app/docker0、NAT/filter、web/api netns、veth、DNAT 和 MASQUERADE，右侧任务/操作/理解重点完整；移动端五步流程、信号卡、右侧面板和底部进度可读。
+- Verification：新增测试先失败于 `visualPointIds.docker` 缺少 `bridge-network`，补实现后 `npm run test:data -- --grep "docker bridge network"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 9 项；继续执行 `git diff --check`、rebase 和 push。
+- Commit/Push Plan：提交 `feat: add bridge network visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Kubernetes `Pod 调度` 或 Docker `端口映射`。

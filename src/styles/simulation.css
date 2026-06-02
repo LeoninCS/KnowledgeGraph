@@ -1011,6 +1011,44 @@
   display: none;
 }
 
+.docker-bridge-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.docker-bridge-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 24%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .docker-bridge-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.docker-bridge-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.docker-bridge-mobile-map {
+  display: none;
+}
+
 .ip-routing-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -5437,6 +5475,209 @@
 }
 
 .undo-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.docker-bridge-bg {
+  fill: color-mix(in srgb, var(--tertiary-soft) 28%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 18%, transparent);
+}
+
+.docker-bridge-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.docker-bridge-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.docker-bridge-client,
+.docker-bridge-host,
+.docker-bridge-bridge,
+.docker-bridge-firewall,
+.docker-bridge-host-iface,
+.docker-bridge-containers,
+.docker-bridge-container,
+.docker-bridge-veth-path,
+.docker-bridge-dns-path,
+.docker-bridge-publish-path,
+.docker-bridge-egress-path,
+.docker-bridge-rule-row,
+.docker-bridge-signal {
+  opacity: 0.26;
+  transition: opacity 180ms ease;
+}
+
+.docker-bridge-client.active,
+.docker-bridge-host.active,
+.docker-bridge-bridge.active,
+.docker-bridge-firewall.active,
+.docker-bridge-host-iface.active,
+.docker-bridge-containers.active,
+.docker-bridge-container.active,
+.docker-bridge-veth-path.active,
+.docker-bridge-dns-path.active,
+.docker-bridge-publish-path.active,
+.docker-bridge-egress-path.active,
+.docker-bridge-rule-row.active,
+.docker-bridge-signal.active {
+  opacity: 1;
+}
+
+.docker-bridge-client rect,
+.docker-bridge-host > rect,
+.docker-bridge-bridge > rect,
+.docker-bridge-firewall > rect,
+.docker-bridge-host-iface > rect,
+.docker-bridge-container rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#docker-bridge-soft-shadow);
+}
+
+.docker-bridge-host.active > rect,
+.docker-bridge-bridge.active > rect {
+  fill: color-mix(in srgb, var(--tertiary) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.docker-bridge-client.active rect,
+.docker-bridge-container.brand.active rect,
+.docker-bridge-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.docker-bridge-container.teal.active rect,
+.docker-bridge-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.docker-bridge-firewall.active > rect,
+.docker-bridge-rule-row.warning.active rect,
+.docker-bridge-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 9%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 40%, var(--border));
+}
+
+.docker-bridge-rule-row.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 36%, var(--border));
+}
+
+.docker-bridge-host-iface.active > rect,
+.docker-bridge-rule-row.success.active rect,
+.docker-bridge-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.docker-bridge-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.docker-bridge-panel-subtitle,
+.docker-bridge-client text,
+.docker-bridge-host text,
+.docker-bridge-bridge text,
+.docker-bridge-firewall text,
+.docker-bridge-host-iface text,
+.docker-bridge-container text,
+.docker-bridge-veth-path text,
+.docker-bridge-dns-path text,
+.docker-bridge-publish-path text,
+.docker-bridge-egress-path text,
+.docker-bridge-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.docker-bridge-panel-title,
+.docker-bridge-client text:first-of-type,
+.docker-bridge-host-iface text:first-of-type,
+.docker-bridge-container text:first-of-type,
+.docker-bridge-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.docker-bridge-client text:nth-of-type(2),
+.docker-bridge-container text:nth-of-type(2),
+.docker-bridge-host-iface text:nth-of-type(2),
+.docker-bridge-bridge text:nth-of-type(2),
+.docker-bridge-signal text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+}
+
+.docker-bridge-rule-row rect,
+.docker-bridge-signal rect,
+.docker-bridge-veth-path rect,
+.docker-bridge-dns-path rect,
+.docker-bridge-publish-path rect,
+.docker-bridge-egress-path rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#docker-bridge-soft-shadow);
+}
+
+.docker-bridge-rule-row text:nth-of-type(2),
+.docker-bridge-signal text:nth-of-type(2) {
+  text-anchor: end;
+}
+
+.docker-bridge-veth-path path,
+.docker-bridge-dns-path path,
+.docker-bridge-publish-path path,
+.docker-bridge-egress-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.docker-bridge-veth-path path {
+  stroke: var(--tertiary);
+}
+
+.docker-bridge-dns-path path {
+  stroke: var(--success);
+}
+
+.docker-bridge-publish-path path {
+  stroke: #f59e0b;
+}
+
+.docker-bridge-egress-path path {
+  stroke: var(--danger);
+  stroke-dasharray: 8 7;
+}
+
+.docker-bridge-veth-path text,
+.docker-bridge-dns-path text,
+.docker-bridge-publish-path text,
+.docker-bridge-egress-path text {
+  fill: var(--text);
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.docker-bridge-caption {
   right: 16px;
   bottom: 14px;
 }

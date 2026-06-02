@@ -319,6 +319,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "docker:bridge-network") {
+    return (
+      <DockerBridgeNetworkStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:service") {
     return (
       <KubernetesServiceStage
@@ -5492,6 +5503,213 @@ function DockerImageLayerStage({
           </div>
         </div>
         <div className="tcp-handshake-caption docker-layer-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DockerBridgeNetworkStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const networkActive = completedSteps >= 1;
+  const vethActive = completedSteps >= 2;
+  const dnsActive = completedSteps >= 3;
+  const publishActive = completedSteps >= 4;
+  const natActive = completedSteps >= 5;
+  const containerRows = [
+    { name: "web", ip: "172.18.0.2", port: ":80", active: vethActive || publishActive, tone: "brand" },
+    { name: "api", ip: "172.18.0.3", port: ":8080", active: vethActive || dnsActive, tone: "teal" },
+  ];
+  const ruleRows = [
+    { name: "PREROUTING", value: publishActive ? "8080 -> web:80" : "pending", active: publishActive, tone: "warning" },
+    { name: "DOCKER-USER", value: publishActive ? "policy checked" : "idle", active: publishActive, tone: "danger" },
+    { name: "POSTROUTING", value: natActive ? "MASQUERADE" : "pending", active: natActive, tone: "success" },
+  ];
+  const signalRows = [
+    { name: "netns", value: vethActive ? "web/api isolated" : "--", active: vethActive, tone: "brand" },
+    { name: "bridge", value: networkActive ? "br-app 172.18.0.1" : "--", active: networkActive, tone: "teal" },
+    { name: "DNS", value: dnsActive ? "api -> 172.18.0.3" : "--", active: dnsActive, tone: "success" },
+    { name: "NAT", value: natActive ? "SNAT host eth0" : publishActive ? "DNAT web:80" : "--", active: publishActive || natActive, tone: "warning" },
+  ];
+  const mobileFlow = [
+    { name: "Bridge", value: networkActive ? "app-net / br-app / gateway 172.18.0.1" : "pending", active: networkActive },
+    { name: "veth pair", value: vethActive ? "web eth0 <-> vethweb, api eth0 <-> vethapi" : "waiting", active: vethActive },
+    { name: "Embedded DNS", value: dnsActive ? "web resolves api to 172.18.0.3" : "waiting", active: dnsActive },
+    { name: "Published port", value: publishActive ? "203.0.113.10:8080 -> web:80" : "waiting", active: publishActive },
+    { name: "MASQUERADE", value: natActive ? "container egress uses host eth0" : "waiting", active: natActive },
+  ];
+
+  return (
+    <div className="visual-stage docker-bridge-stage">
+      <div className="docker-bridge-card">
+        <svg
+          className="docker-bridge-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["docker-bridge-arrow-brand", "var(--brand)"],
+              ["docker-bridge-arrow-teal", "var(--tertiary)"],
+              ["docker-bridge-arrow-success", "var(--success)"],
+              ["docker-bridge-arrow-warning", "#f59e0b"],
+              ["docker-bridge-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="docker-bridge-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="docker-bridge-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="docker-bridge-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="docker-bridge-subtitle" x="560" y="100">
+            {label(
+              "netns -> veth pair -> Linux bridge -> DNS / DNAT / MASQUERADE",
+              "netns -> veth pair -> Linux bridge -> DNS / DNAT / MASQUERADE",
+            )}
+          </text>
+
+          <g className={`docker-bridge-client ${publishActive ? "active" : ""}`}>
+            <rect x="62" y="188" width="168" height="106" rx="24" />
+            <text className="docker-bridge-panel-title" x="88" y="224">{label("外部客户端", "External client")}</text>
+            <text x="88" y="250">203.0.113.44</text>
+            <text x="88" y="274">GET host:8080</text>
+          </g>
+
+          <g className={`docker-bridge-host ${networkActive ? "active" : ""}`}>
+            <rect x="292" y="126" width="540" height="412" rx="30" />
+            <text className="docker-bridge-panel-title" x="322" y="164">Docker Host</text>
+            <text className="docker-bridge-panel-subtitle" x="322" y="188">{label("root network namespace", "root network namespace")}</text>
+
+            <g className={`docker-bridge-bridge ${networkActive ? "active" : ""}`}>
+              <rect x="350" y="252" width="424" height="92" rx="24" />
+              <text className="docker-bridge-panel-title" x="380" y="288">br-app / docker0</text>
+              <text x="380" y="316">gateway 172.18.0.1/16</text>
+              <text x="620" y="316">{label("二层转发", "L2 switching")}</text>
+            </g>
+
+            <g className={`docker-bridge-firewall ${publishActive || natActive ? "active" : ""}`}>
+              <rect x="556" y="374" width="232" height="132" rx="24" />
+              <text className="docker-bridge-panel-title" x="584" y="410">Docker NAT / filter</text>
+              {ruleRows.map((row, index) => (
+                <g key={row.name} className={`docker-bridge-rule-row ${row.tone} ${row.active ? "active" : ""}`}>
+                  <rect x="584" y={428 + index * 26} width="176" height="20" rx="10" />
+                  <text x="598" y={442 + index * 26}>{row.name}</text>
+                  <text x="752" y={442 + index * 26}>{row.value}</text>
+                </g>
+              ))}
+            </g>
+
+            <g className={`docker-bridge-host-iface ${natActive ? "active" : ""}`}>
+              <rect x="334" y="394" width="166" height="78" rx="22" />
+              <text className="docker-bridge-panel-title" x="360" y="428">eth0</text>
+              <text x="360" y="454">203.0.113.10</text>
+            </g>
+          </g>
+
+          <g className={`docker-bridge-containers ${vethActive ? "active" : ""}`}>
+            {containerRows.map((container, index) => {
+              const x = 860;
+              const y = 166 + index * 178;
+              return (
+                <g key={container.name} className={`docker-bridge-container ${container.tone} ${container.active ? "active" : ""}`}>
+                  <rect x={x} y={y} width="196" height="132" rx="28" />
+                  <text className="docker-bridge-panel-title" x={x + 28} y={y + 38}>{container.name} netns</text>
+                  <text x={x + 28} y={y + 66}>eth0 {container.ip}</text>
+                  <text x={x + 28} y={y + 92}>listen 0.0.0.0{container.port}</text>
+                  <text x={x + 28} y={y + 116}>{index === 0 ? "vethweb@if12" : "vethapi@if14"}</text>
+                </g>
+              );
+            })}
+          </g>
+
+          <g className={`docker-bridge-veth-path ${vethActive ? "active" : ""}`}>
+            <path d="M 774 286 C 812 238, 824 226, 860 226" markerEnd="url(#docker-bridge-arrow-teal)" />
+            <path d="M 774 318 C 812 392, 824 404, 860 404" markerEnd="url(#docker-bridge-arrow-teal)" />
+            <rect x="748" y="224" width="126" height="28" rx="14" />
+            <text x="811" y="243">veth pair</text>
+          </g>
+
+          <g className={`docker-bridge-dns-path ${dnsActive ? "active" : ""}`}>
+            <path d="M 958 298 C 930 326, 924 344, 958 344" markerEnd="url(#docker-bridge-arrow-success)" />
+            <rect x="880" y="306" width="170" height="30" rx="15" />
+            <text x="965" y="326">{"api -> 172.18.0.3"}</text>
+          </g>
+
+          <g className={`docker-bridge-publish-path ${publishActive ? "active" : ""}`}>
+            <path d="M 230 238 C 262 234, 272 218, 292 210" markerEnd="url(#docker-bridge-arrow-warning)" />
+            <path d="M 556 430 C 522 374, 706 342, 860 226" markerEnd="url(#docker-bridge-arrow-warning)" />
+            <rect x="220" y="180" width="176" height="32" rx="16" />
+            <text x="308" y="201">DNAT host:8080</text>
+          </g>
+
+          <g className={`docker-bridge-egress-path ${natActive ? "active" : ""}`}>
+            <path d="M 860 242 C 782 214, 722 218, 676 252" markerEnd="url(#docker-bridge-arrow-danger)" />
+            <path d="M 556 444 C 526 450, 506 446, 500 434" markerEnd="url(#docker-bridge-arrow-danger)" />
+            <path d="M 334 432 C 286 430, 250 398, 214 354" markerEnd="url(#docker-bridge-arrow-danger)" />
+            <rect x="296" y="340" width="182" height="32" rx="16" />
+            <text x="387" y="361">MASQUERADE</text>
+          </g>
+
+          <g className="docker-bridge-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`docker-bridge-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={64 + index * 258} y="546" width="218" height="34" rx="16" />
+                <text x={84 + index * 258} y="560">{signal.name}</text>
+                <text x={262 + index * 258} y="572">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+
+        <div className="docker-bridge-mobile-map">
+          <div className="docker-bridge-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`docker-bridge-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="docker-bridge-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`docker-bridge-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption docker-bridge-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

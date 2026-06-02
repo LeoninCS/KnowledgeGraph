@@ -260,6 +260,11 @@
     justify-content: start;
   }
 
+  .docker-bridge-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .epoll-stage {
     overflow-x: auto;
     justify-content: start;
@@ -438,6 +443,16 @@
     height: 548px;
   }
 
+  .docker-bridge-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .docker-bridge-diagram {
+    height: 548px;
+  }
+
   .epoll-card {
     width: 960px;
     max-width: none;
@@ -577,6 +592,10 @@
     padding-inline: 12px;
   }
 
+  .docker-bridge-stage {
+    padding-inline: 12px;
+  }
+
   .switch-stage {
     padding-inline: 12px;
   }
@@ -620,6 +639,20 @@
   }
 
   .docker-layer-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
+  .docker-bridge-card {
+    width: 100%;
+  }
+
+  .docker-bridge-diagram {
+    display: none;
+  }
+
+  .docker-bridge-mobile-map {
     display: grid;
     gap: 16px;
     padding: 18px;
@@ -824,7 +857,9 @@
   .deadlock-mobile-flow,
   .deadlock-mobile-facts,
   .docker-layer-mobile-flow,
-  .docker-layer-mobile-facts {
+  .docker-layer-mobile-facts,
+  .docker-bridge-mobile-flow,
+  .docker-bridge-mobile-facts {
     display: grid;
     gap: 10px;
   }
@@ -858,7 +893,9 @@
   .deadlock-mobile-hop,
   .deadlock-mobile-fact,
   .docker-layer-mobile-hop,
-  .docker-layer-mobile-fact {
+  .docker-layer-mobile-fact,
+  .docker-bridge-mobile-hop,
+  .docker-bridge-mobile-fact {
     display: grid;
     gap: 4px;
     padding: 12px;
@@ -896,7 +933,9 @@
   .deadlock-mobile-hop.active,
   .deadlock-mobile-fact.active,
   .docker-layer-mobile-hop.active,
-  .docker-layer-mobile-fact.active {
+  .docker-layer-mobile-fact.active,
+  .docker-bridge-mobile-hop.active,
+  .docker-bridge-mobile-fact.active {
     border-color: color-mix(in srgb, var(--brand) 36%, var(--border));
     background: color-mix(in srgb, var(--brand) 8%, var(--surface));
   }
@@ -930,7 +969,9 @@
   .deadlock-mobile-hop span,
   .deadlock-mobile-fact span,
   .docker-layer-mobile-hop span,
-  .docker-layer-mobile-fact span {
+  .docker-layer-mobile-fact span,
+  .docker-bridge-mobile-hop span,
+  .docker-bridge-mobile-fact span {
     color: var(--muted);
     font-size: 0.76rem;
     font-weight: 800;
@@ -965,7 +1006,9 @@
   .deadlock-mobile-hop strong,
   .deadlock-mobile-fact strong,
   .docker-layer-mobile-hop strong,
-  .docker-layer-mobile-fact strong {
+  .docker-layer-mobile-fact strong,
+  .docker-bridge-mobile-hop strong,
+  .docker-bridge-mobile-fact strong {
     color: var(--text);
     font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.82rem;

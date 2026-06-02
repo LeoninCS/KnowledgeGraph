@@ -3053,7 +3053,7 @@ export const dockerKnowledgePoints = [
     related: ["bridge-network", "port-mapping", "dns", "host-network", "custom-network"],
     order: 50,
   },
-  /* <!-- KG_REVIEWED: 桥接网络 | 2026-06-01 | source_count=8 --> */
+  /* <!-- KG_REVIEWED: 桥接网络 | 2026-06-01 | source_count=11 --> */
   /* <!-- KG_EXPLAINED: 桥接网络 | 2026-05-23 | source_count=4 --> */
   {
     sourceRefs: [
@@ -3065,6 +3065,9 @@ export const dockerKnowledgePoints = [
       "docker-network-connect-cli",
       "docker-network-disconnect-cli",
       "docker-port-publishing-docs",
+      "docker-packet-filtering-firewalls",
+      "dockerlabs-bridge-network-architecture",
+      "iximiuz-container-networking",
     ],
     id: "bridge-network",
     zh: "桥接网络",
