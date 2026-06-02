@@ -244,6 +244,23 @@ test("docker resource limit is backed by a dedicated visual simulation", async (
   );
 });
 
+test("docker cpu limit is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("docker");
+  const cpuLimit = points.find((point) => point.id === "cpu-limit");
+
+  expect(visualPointIds.docker).toContain("cpu-limit");
+  expect(cpuLimit).toBeTruthy();
+
+  const simulation = buildVisualSimulation("docker", cpuLimit!);
+
+  expect(simulation.key).toBe("docker:cpu-limit");
+  expect(simulation.pattern.en).toContain("CFS CPU bandwidth model");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["cpu.max", "CFS period/quota", "cpu.shares", "throttled_usec"]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");

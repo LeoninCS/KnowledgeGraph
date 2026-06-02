@@ -377,6 +377,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
     "compose",
     "logs",
     "resource-limit",
+    "cpu-limit",
     "deployment-practice",
     "rolling-update",
   ],

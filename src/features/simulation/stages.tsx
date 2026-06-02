@@ -352,6 +352,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "docker:cpu-limit") {
+    return (
+      <DockerCpuLimitStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:service") {
     return (
       <KubernetesServiceStage
@@ -7187,6 +7198,250 @@ function DockerResourceLimitStage({
           </div>
         </div>
         <div className="tcp-handshake-caption docker-resource-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DockerCpuLimitStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const flagsActive = completedSteps >= 1;
+  const cgroupActive = completedSteps >= 2;
+  const throttleActive = completedSteps >= 3;
+  const sharesActive = completedSteps >= 4;
+  const tuneActive = completedSteps >= 5;
+  const flagRows = [
+    "--cpus 1.5",
+    "--cpu-quota 150000",
+    "--cpu-period 100000",
+    "--cpu-shares 512",
+    "--cpuset-cpus 0-1",
+  ];
+  const controlRows = [
+    { name: "cpu.max", value: tuneActive ? "200000 100000" : cgroupActive ? "150000 100000" : "max 100000", active: cgroupActive, tone: "brand" },
+    { name: "cpu.weight", value: sharesActive ? "50" : cgroupActive ? "50" : "100", active: cgroupActive, tone: sharesActive ? "danger" : "teal" },
+    { name: "cpuset.cpus", value: cgroupActive ? "0-1" : "all", active: cgroupActive, tone: "success" },
+    { name: "cpu.stat", value: tuneActive ? "throttled_usec 420000" : throttleActive ? "nr_throttled 7" : "0", active: throttleActive || tuneActive, tone: "warning" },
+  ];
+  const timeSlices = [
+    { name: "0-40ms", value: "run", width: 116, active: cgroupActive, tone: "brand" },
+    { name: "40-75ms", value: "quota burn", width: 128, active: throttleActive, tone: "warning" },
+    { name: "75-100ms", value: "throttle", width: 98, active: throttleActive, tone: "danger" },
+    { name: "next period", value: tuneActive ? "refill 200ms" : "refill", width: 132, active: tuneActive || throttleActive, tone: "success" },
+  ];
+  const workerRows = [
+    { name: "api worker #1", value: throttleActive ? "runnable" : "idle", active: throttleActive, tone: "brand" },
+    { name: "api worker #2", value: throttleActive ? "runnable" : "idle", active: throttleActive, tone: "teal" },
+    { name: "api worker #3", value: throttleActive ? "waiting quota" : "idle", active: throttleActive, tone: "warning" },
+    { name: "batch worker", value: sharesActive ? "weight 512" : "idle", active: sharesActive, tone: "danger" },
+  ];
+  const schedulerRows = [
+    { name: "runqueue", value: throttleActive ? "4 runnable" : "empty", active: throttleActive, tone: "warning" },
+    { name: "throttled list", value: throttleActive ? "api cgroup" : "empty", active: throttleActive, tone: "danger" },
+    { name: "shares split", value: sharesActive ? "web:batch ~= 2:1" : "pending", active: sharesActive, tone: "brand" },
+    { name: "period refill", value: tuneActive ? "2 CPU budget" : "1.5 CPU budget", active: tuneActive || cgroupActive, tone: "success" },
+  ];
+  const signalRows = [
+    { name: "cpu.max", value: tuneActive ? "2.0 CPU" : cgroupActive ? "1.5 CPU" : "--", active: cgroupActive, tone: "brand" },
+    { name: "CFS period/quota", value: cgroupActive ? "100ms / 150ms" : "--", active: cgroupActive, tone: "teal" },
+    { name: "cpu.shares", value: sharesActive ? "512 vs 1024" : "--", active: sharesActive, tone: "danger" },
+    { name: "throttled_usec", value: tuneActive ? "420ms" : throttleActive ? "rising" : "--", active: throttleActive || tuneActive, tone: tuneActive ? "success" : "warning" },
+  ];
+  const mobileFlow = [
+    { name: "Docker flags", value: flagsActive ? "--cpus 1.5, shares 512, cpuset 0-1" : "pending", active: flagsActive },
+    { name: "cgroup CPU", value: cgroupActive ? "cpu.max=150000 100000" : "waiting runtime", active: cgroupActive },
+    { name: "CFS period", value: throttleActive ? "quota exhausted inside 100ms" : "waiting load", active: throttleActive },
+    { name: "Shares", value: sharesActive ? "relative weight under contention" : "waiting contention", active: sharesActive },
+    { name: "Tune", value: tuneActive ? "cpu.stat + latency -> --cpus 2.0" : "awaiting metrics", active: tuneActive },
+  ];
+
+  return (
+    <div className="visual-stage docker-cpu-stage">
+      <div className="docker-cpu-card">
+        <svg
+          className="docker-cpu-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["docker-cpu-arrow-brand", "var(--brand)"],
+              ["docker-cpu-arrow-teal", "var(--tertiary)"],
+              ["docker-cpu-arrow-success", "var(--success)"],
+              ["docker-cpu-arrow-warning", "#f59e0b"],
+              ["docker-cpu-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker key={id} id={id} viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="docker-cpu-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="docker-cpu-bg" x="24" y="24" width="1072" height="584" rx="28" />
+          <text className="docker-cpu-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="docker-cpu-subtitle" x="560" y="100">
+            {label(
+              "Docker CPU flags -> cgroup cpu controller -> CFS period/quota -> throttling -> stats driven tuning",
+              "Docker CPU flags -> cgroup CPU controller -> CFS period/quota -> throttling -> stats-driven tuning",
+            )}
+          </text>
+
+          <g className={`docker-cpu-flags ${flagsActive ? "active" : ""}`}>
+            <rect x="58" y="136" width="244" height="224" rx="24" />
+            <text className="docker-cpu-panel-title" x="88" y="174">docker run</text>
+            <text className="docker-cpu-panel-subtitle" x="88" y="198">HostConfig CPU fields</text>
+            {flagRows.map((flag, index) => (
+              <g key={flag} className={`docker-cpu-flag-row ${flagsActive ? "active" : ""}`}>
+                <rect x="88" y={220 + index * 30} width="178" height="22" rx="11" />
+                <text x="104" y={235 + index * 30}>{flag}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-cpu-cgroup ${cgroupActive ? "active" : ""}`}>
+            <rect x="358" y="128" width="286" height="232" rx="26" />
+            <text className="docker-cpu-panel-title" x="388" y="166">cgroup CPU controller</text>
+            <text className="docker-cpu-panel-subtitle" x="388" y="190">/sys/fs/cgroup/docker/&lt;id&gt;</text>
+            {controlRows.map((row, index) => (
+              <g key={row.name} className={`docker-cpu-control-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="388" y={216 + index * 34} width="218" height="25" rx="13" />
+                <text x="404" y={233 + index * 34}>{row.name}</text>
+                <text x="592" y={233 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-cpu-timeline ${cgroupActive ? "active" : ""}`}>
+            <rect x="694" y="128" width="354" height="232" rx="26" />
+            <text className="docker-cpu-panel-title" x="724" y="166">CFS bandwidth period</text>
+            <text className="docker-cpu-panel-subtitle" x="724" y="190">period=100ms · quota=150ms CPU time</text>
+            <line className="docker-cpu-axis" x1="730" y1="248" x2="1010" y2="248" />
+            {timeSlices.map((slice, index) => (
+              <g key={slice.name} className={`docker-cpu-time-slice ${slice.tone} ${slice.active ? "active" : ""}`}>
+                <rect x={730 + index * 68} y="218" width={slice.width} height="42" rx="16" />
+                <text x={730 + index * 68 + slice.width / 2} y="238">{slice.name}</text>
+                <text x={730 + index * 68 + slice.width / 2} y="254">{slice.value}</text>
+              </g>
+            ))}
+            <g className={`docker-cpu-throttle-badge danger ${throttleActive ? "active" : ""}`}>
+              <rect x="766" y="288" width="220" height="32" rx="16" />
+              <text x="876" y="309">{throttleActive ? "cgroup throttled until refill" : "budget available"}</text>
+            </g>
+          </g>
+
+          <g className={`docker-cpu-workers ${throttleActive ? "active" : ""}`}>
+            <rect x="74" y="406" width="278" height="142" rx="24" />
+            <text className="docker-cpu-panel-title" x="104" y="444">{label("容器工作线程", "Container workers")}</text>
+            {workerRows.map((row, index) => (
+              <g key={row.name} className={`docker-cpu-worker-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="104" y={466 + index * 24} width="208" height="19" rx="10" />
+                <text x="118" y={479 + index * 24}>{row.name}</text>
+                <text x="300" y={479 + index * 24}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-cpu-scheduler ${throttleActive || sharesActive ? "active" : ""}`}>
+            <rect x="414" y="396" width="292" height="154" rx="24" />
+            <text className="docker-cpu-panel-title" x="444" y="434">Linux CFS scheduler</text>
+            {schedulerRows.map((row, index) => (
+              <g key={row.name} className={`docker-cpu-scheduler-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="444" y={456 + index * 28} width="220" height="21" rx="11" />
+                <text x="458" y={470 + index * 28}>{row.name}</text>
+                <text x="650" y={470 + index * 28}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-cpu-observe ${tuneActive || throttleActive ? "active" : ""}`}>
+            <rect x="764" y="402" width="284" height="148" rx="24" />
+            <text className="docker-cpu-panel-title" x="794" y="440">{label("观测与调参", "Observe and tune")}</text>
+            <text x="794" y="470">{throttleActive ? "docker stats CPU 148%" : "metrics pending"}</text>
+            <text x="794" y="498">{tuneActive ? "cpu.stat throttled_usec=420ms" : throttleActive ? "nr_throttled rising" : "cpu.stat waiting"}</text>
+            <g className={`docker-cpu-update-chip success ${tuneActive ? "active" : ""}`}>
+              <rect x="794" y="516" width="206" height="28" rx="14" />
+              <text x="897" y="535">docker update --cpus 2.0</text>
+            </g>
+          </g>
+
+          <g className={`docker-cpu-flags-path ${flagsActive ? "active" : ""}`}>
+            <path d="M 302 238 C 328 232, 340 228, 358 226" markerEnd="url(#docker-cpu-arrow-brand)" />
+            <rect x="284" y="184" width="132" height="30" rx="15" />
+            <text x="350" y="204">HostConfig</text>
+          </g>
+          <g className={`docker-cpu-cgroup-path ${cgroupActive ? "active" : ""}`}>
+            <path d="M 644 236 C 668 228, 680 224, 694 222" markerEnd="url(#docker-cpu-arrow-teal)" />
+            <rect x="616" y="184" width="144" height="30" rx="15" />
+            <text x="688" y="204">write cpu.max</text>
+          </g>
+          <g className={`docker-cpu-throttle-path ${throttleActive ? "active" : ""}`}>
+            <path d="M 352 478 C 386 468, 396 462, 414 458" markerEnd="url(#docker-cpu-arrow-warning)" />
+            <path d="M 824 360 C 762 384, 700 408, 652 456" markerEnd="url(#docker-cpu-arrow-warning)" />
+            <rect x="514" y="364" width="158" height="30" rx="15" />
+            <text x="593" y="384">quota exhausted</text>
+          </g>
+          <g className={`docker-cpu-shares-path ${sharesActive ? "active" : ""}`}>
+            <path d="M 560 550 C 512 600, 250 602, 210 548" markerEnd="url(#docker-cpu-arrow-danger)" />
+            <rect x="232" y="574" width="168" height="30" rx="15" />
+            <text x="316" y="594">shares under load</text>
+          </g>
+          <g className={`docker-cpu-observe-path ${tuneActive ? "active" : ""}`}>
+            <path d="M 706 486 C 734 480, 748 478, 764 476" markerEnd="url(#docker-cpu-arrow-success)" />
+            <path d="M 848 402 C 808 370, 848 348, 924 360" markerEnd="url(#docker-cpu-arrow-success)" />
+            <path d="M 794 550 C 638 610, 212 606, 168 548" markerEnd="url(#docker-cpu-arrow-success)" />
+            <rect x="556" y="574" width="172" height="30" rx="15" />
+            <text x="642" y="594">tune budget</text>
+          </g>
+
+          <g className="docker-cpu-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`docker-cpu-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={62 + index * 264} y="566" width="224" height="34" rx="16" />
+                <text x={82 + index * 264} y="580">{signal.name}</text>
+                <text x={264 + index * 264} y="594">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="docker-cpu-mobile-map">
+          <div className="docker-cpu-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`docker-cpu-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="docker-cpu-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`docker-cpu-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption docker-cpu-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

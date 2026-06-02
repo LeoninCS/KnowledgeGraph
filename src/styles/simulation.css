@@ -1647,6 +1647,344 @@
   bottom: 14px;
 }
 
+.docker-cpu-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.docker-cpu-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .docker-cpu-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.docker-cpu-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.docker-cpu-mobile-map {
+  display: none;
+}
+
+.docker-cpu-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 24%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.docker-cpu-title {
+  fill: var(--text);
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.docker-cpu-subtitle {
+  fill: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.docker-cpu-flags,
+.docker-cpu-cgroup,
+.docker-cpu-timeline,
+.docker-cpu-workers,
+.docker-cpu-scheduler,
+.docker-cpu-observe,
+.docker-cpu-flag-row,
+.docker-cpu-control-row,
+.docker-cpu-time-slice,
+.docker-cpu-throttle-badge,
+.docker-cpu-worker-row,
+.docker-cpu-scheduler-row,
+.docker-cpu-update-chip,
+.docker-cpu-signal,
+.docker-cpu-flags-path,
+.docker-cpu-cgroup-path,
+.docker-cpu-throttle-path,
+.docker-cpu-shares-path,
+.docker-cpu-observe-path {
+  opacity: 0.3;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.docker-cpu-flags.active,
+.docker-cpu-cgroup.active,
+.docker-cpu-timeline.active,
+.docker-cpu-workers.active,
+.docker-cpu-scheduler.active,
+.docker-cpu-observe.active,
+.docker-cpu-flag-row.active,
+.docker-cpu-control-row.active,
+.docker-cpu-time-slice.active,
+.docker-cpu-throttle-badge.active,
+.docker-cpu-worker-row.active,
+.docker-cpu-scheduler-row.active,
+.docker-cpu-update-chip.active,
+.docker-cpu-signal.active,
+.docker-cpu-flags-path.active,
+.docker-cpu-cgroup-path.active,
+.docker-cpu-throttle-path.active,
+.docker-cpu-shares-path.active,
+.docker-cpu-observe-path.active {
+  opacity: 1;
+}
+
+.docker-cpu-flags > rect,
+.docker-cpu-cgroup > rect,
+.docker-cpu-timeline > rect,
+.docker-cpu-workers > rect,
+.docker-cpu-scheduler > rect,
+.docker-cpu-observe > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.25;
+  filter: url(#docker-cpu-soft-shadow);
+}
+
+.docker-cpu-flags.active > rect,
+.docker-cpu-flag-row.active rect,
+.docker-cpu-control-row.brand.active rect,
+.docker-cpu-worker-row.brand.active rect,
+.docker-cpu-scheduler-row.brand.active rect,
+.docker-cpu-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.docker-cpu-cgroup.active > rect,
+.docker-cpu-control-row.teal.active rect,
+.docker-cpu-worker-row.teal.active rect,
+.docker-cpu-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 42%, var(--border));
+}
+
+.docker-cpu-timeline.active > rect,
+.docker-cpu-control-row.warning.active rect,
+.docker-cpu-time-slice.warning.active rect,
+.docker-cpu-worker-row.warning.active rect,
+.docker-cpu-scheduler-row.warning.active rect,
+.docker-cpu-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 50%, var(--border));
+}
+
+.docker-cpu-control-row.danger.active rect,
+.docker-cpu-time-slice.danger.active rect,
+.docker-cpu-throttle-badge.danger.active rect,
+.docker-cpu-worker-row.danger.active rect,
+.docker-cpu-scheduler-row.danger.active rect,
+.docker-cpu-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 42%, var(--border));
+}
+
+.docker-cpu-control-row.success.active rect,
+.docker-cpu-time-slice.success.active rect,
+.docker-cpu-update-chip.success.active rect,
+.docker-cpu-scheduler-row.success.active rect,
+.docker-cpu-observe.active > rect,
+.docker-cpu-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 44%, var(--border));
+}
+
+.docker-cpu-flag-row rect,
+.docker-cpu-control-row rect,
+.docker-cpu-time-slice rect,
+.docker-cpu-throttle-badge rect,
+.docker-cpu-worker-row rect,
+.docker-cpu-scheduler-row rect,
+.docker-cpu-update-chip rect,
+.docker-cpu-signal rect,
+.docker-cpu-flags-path rect,
+.docker-cpu-cgroup-path rect,
+.docker-cpu-throttle-path rect,
+.docker-cpu-shares-path rect,
+.docker-cpu-observe-path rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 16%, var(--border));
+  filter: url(#docker-cpu-soft-shadow);
+}
+
+.docker-cpu-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.docker-cpu-panel-subtitle,
+.docker-cpu-flags text,
+.docker-cpu-cgroup text,
+.docker-cpu-timeline text,
+.docker-cpu-workers text,
+.docker-cpu-scheduler text,
+.docker-cpu-observe text,
+.docker-cpu-flags-path text,
+.docker-cpu-cgroup-path text,
+.docker-cpu-throttle-path text,
+.docker-cpu-shares-path text,
+.docker-cpu-observe-path text,
+.docker-cpu-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 820;
+}
+
+.docker-cpu-flag-row text,
+.docker-cpu-control-row text,
+.docker-cpu-time-slice text,
+.docker-cpu-throttle-badge text,
+.docker-cpu-worker-row text,
+.docker-cpu-scheduler-row text,
+.docker-cpu-update-chip text,
+.docker-cpu-signal text,
+.docker-cpu-flags-path text,
+.docker-cpu-cgroup-path text,
+.docker-cpu-throttle-path text,
+.docker-cpu-shares-path text,
+.docker-cpu-observe-path text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.7px;
+  font-weight: 900;
+}
+
+.docker-cpu-flags text,
+.docker-cpu-cgroup text,
+.docker-cpu-workers text,
+.docker-cpu-scheduler text,
+.docker-cpu-observe text {
+  text-anchor: start;
+}
+
+.docker-cpu-time-slice text,
+.docker-cpu-throttle-badge text,
+.docker-cpu-update-chip text,
+.docker-cpu-flags-path text,
+.docker-cpu-cgroup-path text,
+.docker-cpu-throttle-path text,
+.docker-cpu-shares-path text,
+.docker-cpu-observe-path text {
+  fill: var(--text);
+  text-anchor: middle;
+}
+
+.docker-cpu-control-row text:first-of-type,
+.docker-cpu-worker-row text:first-of-type,
+.docker-cpu-scheduler-row text:first-of-type,
+.docker-cpu-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.docker-cpu-control-row text:last-of-type,
+.docker-cpu-worker-row text:last-of-type,
+.docker-cpu-scheduler-row text:last-of-type,
+.docker-cpu-signal text:last-of-type {
+  fill: var(--brand-strong);
+  font-size: 9px;
+  text-anchor: end;
+}
+
+.docker-cpu-axis {
+  stroke: color-mix(in srgb, var(--muted) 38%, transparent);
+  stroke-linecap: round;
+  stroke-width: 2.4;
+}
+
+.docker-cpu-flags-path path,
+.docker-cpu-cgroup-path path,
+.docker-cpu-throttle-path path,
+.docker-cpu-shares-path path,
+.docker-cpu-observe-path path {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+.docker-cpu-flags-path path {
+  stroke: var(--brand);
+}
+
+.docker-cpu-cgroup-path path {
+  stroke: var(--tertiary);
+}
+
+.docker-cpu-throttle-path path {
+  stroke: #f59e0b;
+}
+
+.docker-cpu-shares-path path {
+  stroke: var(--danger);
+}
+
+.docker-cpu-observe-path path {
+  stroke: var(--success);
+}
+
+.docker-cpu-mobile-flow,
+.docker-cpu-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.docker-cpu-mobile-hop,
+.docker-cpu-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--brand) 20%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+  padding: 12px;
+}
+
+.docker-cpu-mobile-hop span,
+.docker-cpu-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.docker-cpu-mobile-hop strong,
+.docker-cpu-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.docker-cpu-mobile-hop.active,
+.docker-cpu-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--brand) 48%, var(--border));
+  background: color-mix(in srgb, var(--brand) 10%, var(--surface));
+}
+
+.docker-cpu-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .ip-routing-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;

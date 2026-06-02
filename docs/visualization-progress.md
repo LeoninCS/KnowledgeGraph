@@ -1800,3 +1800,30 @@
 - Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `preemption`，补 core/visual 清单与专用 builder 后 `npm run test:data -- --grep "kubernetes preemption"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 15 项；`git diff --check` 通过；继续执行 rebase 和 push。
 - Commit/Push Plan：提交 `feat: add preemption visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Docker `CPU 限制` 或 Kubernetes `Pod 亲和性`。
+
+### 2026-06-03 07:24 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `3e5f8e3`，从干净工作区继续。
+- Selected：Docker `CPU 限制`，原因是 `--cpus`、CFS period/quota、`cpu.max`、CPU throttling、shares 竞争、cpuset 绑定、`cpu.stat` 和 P99 延迟形成清晰的 CPU 治理状态模型，并承接已完成的 Docker `资源限制` 总览。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；Chrome DevTools MCP profile 被占用，本轮使用 HTTP HEAD、可访问页面、图片 URL 和本地 React SVG/HTML 审查完成视觉确认。
+- Online Image References：
+  - source：Christopher Batey - CPU Quota for Docker and Kubernetes，https://batey.info/cgroup-cpu-quota-for-docker.html；image：页面 `stop-watch.jpg` 时间预算配图，HTTP HEAD 返回 `200 image/jpeg`；role：main；qualityReason：用秒表表达 quota/period 的时间预算，适合改造成 100ms period 内运行、quota burn、throttle、refill 的主时间线；takeaways：主画布采用 CFS bandwidth period 作为视觉焦点；originalChanges：改写为 Docker CPU 参数到 cgroup v2 `cpu.max`、worker demand、throttled queue 和调参闭环。
+  - source：Linux Kernel Docs - CFS Bandwidth Control，https://www.kernel.org/doc/html/latest/scheduler/sched-bwc.html；image：官方 CFS bandwidth 语义说明；role：supporting；qualityReason：权威校准 period、quota、throttled group、runtime refill 和统计字段；takeaways：步骤中保留 `cpu.max=150000 100000` 与 `nr_throttled`；originalChanges：把内核语义压缩成可交互时间窗与底部信号。
+  - source：Docker Docs - Resource constraints，https://docs.docker.com/engine/containers/resource_constraints/；image：CPU 配额、shares、cpuset 参数说明；role：supporting；qualityReason：官方定义 `--cpus`、`--cpu-quota`、`--cpu-period`、`--cpu-shares`、`--cpuset-cpus`；takeaways：左侧参数区按 Docker CLI 真实字段组织；originalChanges：将命令参数映射到 HostConfig 与 cgroup 文件。
+  - source：Docker Docs - Runtime metrics 与 docker container stats；image：运行指标说明；role：supporting；qualityReason：校准 `docker stats` CPU 百分比、多核超过 100% 和 cgroup 指标读取路径；takeaways：右侧观测区使用 `docker stats CPU 148%`、`cpu.stat throttled_usec`；originalChanges：把指标与 P99 延迟放到同一调参链路。
+  - source：Kubeblog CPU throttling image，https://kubeblog.com/wp-content/uploads/2023/10/running-throttled.png；image：`running-throttled.png`，HTTP HEAD 返回 `200 image/png`；role：supporting；qualityReason：图片直观表达运行态到 throttled 态的切换；takeaways：补充 throttle badge 和 next period refill 的状态表达；originalChanges：仅吸收状态节奏，画布全部按本项目 Docker 视觉系统重绘。
+- Reference Breakdown：主体布局为左侧 Docker CPU flags，中上 cgroup CPU controller，右上 CFS bandwidth period 时间窗，左下容器 worker，中下 Linux CFS scheduler，右下 observe/tune，底部 `cpu.max`、`CFS period/quota`、`cpu.shares`、`throttled_usec` 四个信号；视觉焦点是 `period=100ms quota=150ms` 在负载 320% 时进入 throttle，并在下一 period refill 后恢复。
+- 领域对象：Docker HostConfig、`cpu.max`、`cpu.weight`、`cpuset.cpus`、CFS period/quota、worker threads、runqueue、throttled list、shares split、`docker stats`、`cpu.stat`、P99 latency。
+- 容器层级：CLI 参数进入 HostConfig；runtime 写 cgroup CPU 控制文件；CFS 按 period/quota 给 cgroup 分配运行预算；worker 需求超过预算后进入 throttled list；观测面把 stats、cpu.stat 和延迟曲线反馈回调参。
+- 连线方向：docker flags -> cgroup CPU controller -> CFS period timeline -> workers/scheduler -> observation signals -> docker update。
+- 状态表达：五步依次高亮声明 CPU 上限、写入控制文件、quota 用尽节流、shares 竞争分配、观测并调参；底部信号随步骤更新。
+- 颜色策略：品牌蓝表示 Docker 参数与硬上限，青色表示 cgroup 写入，橙色表示 quota burn 与节流，红色表示 shares 竞争压力，绿色表示调参收敛。
+- 文字密度：桌面 SVG 保留字段名、短数值和路径标签；移动端切换为 5 张流程卡与 4 张事实卡。
+- 交互节奏：声明参数 -> 写入 `cpu.max` -> 负载打满并 throttled -> shares 在竞争中生效 -> 用 `cpu.stat` 与延迟指标调参。
+- 原创改造点：把秒表参考图、CFS 官方语义和 Docker 参数表融合为可排障状态模型，突出 CPU 硬上限、相对权重、核心绑定和应用延迟的联动。
+- Implementation：新增 `docker:cpu-limit` 专用 `state-model` 构建器、CPU Limit SVG 舞台、移动端纵向摘要、响应式样式、CFS/Batey/Kubeblog 来源引用和数据测试，并把 `cpu-limit` 加入 Docker core 与可视化清单。
+- Browser Note：Chrome DevTools MCP profile 被占用；Vite SSR loader 触发 HMR WebSocket `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` SSR 渲染完成；本轮使用 HTTP HEAD、项目数据测试、生产构建和 SSR 审查图完成验收。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/cpu-limit/desktop.svg`、`.codex-artifacts/visualizations/cpu-limit/desktop.html`、`.codex-artifacts/visualizations/cpu-limit/mobile.html` 与 `.codex-artifacts/visualizations/cpu-limit/mobile.html.fragment`；桌面 SVG 可识别 Docker flags、cgroup CPU controller、CFS period、workers、scheduler、observe/tune 和底部四个信号，移动端流程卡与事实卡可读。
+- Verification：新增测试先失败于 `visualPointIds.docker` 缺少 `cpu-limit`，补 core/visual 清单与专用 builder 后 `npm run test:data -- --grep "docker cpu limit"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 16 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add cpu limit visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Kubernetes `Pod 亲和性` 或 Docker `PIDs 限制`。

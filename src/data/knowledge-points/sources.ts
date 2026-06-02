@@ -4817,6 +4817,18 @@ export const knowledgeSources = {
     title: "Docker Docs: docker container stats",
     url: "https://docs.docker.com/reference/cli/docker/container/stats/",
   },
+  "linux-cfs-bandwidth": {
+    title: "Linux Kernel Docs: CFS Bandwidth Control",
+    url: "https://www.kernel.org/doc/html/latest/scheduler/sched-bwc.html",
+  },
+  "batey-cgroup-cpu-quota": {
+    title: "Christopher Batey: CPU Quota for Docker and Kubernetes",
+    url: "https://batey.info/cgroup-cpu-quota-for-docker.html",
+  },
+  "kubeblog-cpu-throttling-image": {
+    title: "Kubeblog: CPU limits and throttling diagram",
+    url: "https://kubeblog.com/wp-content/uploads/2023/10/running-throttled.png",
+  },
   "linux-cgroup-v2": {
     title: "Linux Kernel Docs: Control Group v2",
     url: "https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html",

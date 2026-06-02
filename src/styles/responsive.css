@@ -831,19 +831,23 @@
     padding: 18px;
   }
 
-  .docker-resource-stage {
+  .docker-resource-stage,
+  .docker-cpu-stage {
     padding-inline: 12px;
   }
 
-  .docker-resource-card {
+  .docker-resource-card,
+  .docker-cpu-card {
     width: 100%;
   }
 
-  .docker-resource-diagram {
+  .docker-resource-diagram,
+  .docker-cpu-diagram {
     display: none;
   }
 
-  .docker-resource-mobile-map {
+  .docker-resource-mobile-map,
+  .docker-cpu-mobile-map {
     display: grid;
     gap: 16px;
     padding: 18px;
