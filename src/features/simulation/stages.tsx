@@ -363,6 +363,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "os:epoll") {
+    return (
+      <EpollStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "algorithm:array") {
     return (
       <ArrayIndexStage
@@ -5481,6 +5492,219 @@ function DockerImageLayerStage({
           </div>
         </div>
         <div className="tcp-handshake-caption docker-layer-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EpollStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const createActive = completedSteps >= 1;
+  const registerActive = completedSteps >= 2;
+  const callbackActive = completedSteps >= 3;
+  const waitActive = completedSteps >= 4;
+  const drainActive = completedSteps >= 5;
+  const interestRows = [
+    { fd: "fd12", mask: "EPOLLIN", active: registerActive, tone: "brand" },
+    { fd: "fd18", mask: "EPOLLIN | EPOLLET", active: registerActive, tone: callbackActive ? "warning" : "teal" },
+    { fd: "fd31", mask: "EPOLLOUT", active: registerActive, tone: "success" },
+  ];
+  const socketRows = [
+    { name: "socket fd12", value: registerActive ? "callback armed" : "pending", active: registerActive, tone: "brand" },
+    { name: "socket fd18", value: callbackActive ? "readable" : "callback armed", active: registerActive, tone: callbackActive ? "warning" : "teal" },
+    { name: "socket fd31", value: callbackActive ? "writable" : "callback armed", active: registerActive, tone: "success" },
+  ];
+  const readyRows = [
+    { name: "fd18", active: callbackActive, tone: "warning" },
+    { name: "fd31", active: callbackActive, tone: "success" },
+    { name: "fd12", active: waitActive, tone: "brand" },
+  ];
+  const signalRows = [
+    { name: "interest list", value: registerActive ? "3 watched fd" : "empty", active: registerActive },
+    { name: "ready list", value: callbackActive ? "2 ready events" : "empty", active: callbackActive },
+    { name: "epoll_wait batch", value: waitActive ? "events[0..2]" : "blocked", active: waitActive },
+    { name: "LT / ET mode", value: drainActive ? "ET drained" : "EPOLLET armed", active: drainActive },
+  ];
+  const mobileFlow = [
+    { name: "epoll_create1", value: createActive ? "epfd=7 / eventpoll object" : "pending", active: createActive },
+    { name: "epoll_ctl", value: registerActive ? "fd12 fd18 fd31 registered" : "waiting fd mask", active: registerActive },
+    { name: "callback", value: callbackActive ? "socket wait queue -> ready list" : "waiting I/O", active: callbackActive },
+    { name: "epoll_wait", value: waitActive ? "events batch copied to user space" : "blocked", active: waitActive },
+    { name: "drain/rearm", value: drainActive ? "read until EAGAIN, then wait" : "pending handler", active: drainActive },
+  ];
+
+  return (
+    <div className="visual-stage epoll-stage">
+      <div className="epoll-card">
+        <svg
+          className="epoll-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["epoll-arrow-brand", "var(--brand)"],
+              ["epoll-arrow-teal", "var(--tertiary)"],
+              ["epoll-arrow-success", "var(--success)"],
+              ["epoll-arrow-warning", "#f59e0b"],
+              ["epoll-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker key={id} id={id} viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="epoll-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="epoll-bg" x="24" y="24" width="1072" height="584" rx="28" />
+          <text className="epoll-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="epoll-subtitle" x="560" y="100">
+            {label(
+              "epfd -> interest list -> socket wait queues -> ready list -> epoll_wait -> handler",
+              "epfd -> interest list -> socket wait queues -> ready list -> epoll_wait -> handler",
+            )}
+          </text>
+
+          <g className={`epoll-app ${createActive ? "active" : ""}`}>
+            <rect x="58" y="142" width="236" height="230" rx="24" />
+            <text className="epoll-panel-title" x="86" y="180">{label("事件循环线程", "Event loop thread")}</text>
+            <text className="epoll-panel-subtitle" x="86" y="204">nonblocking sockets</text>
+            {[
+              { text: "epoll_create1()", active: createActive },
+              { text: "epoll_ctl(ADD)", active: registerActive },
+              { text: "epoll_wait(events)", active: waitActive },
+            ].map((row, index) => (
+              <g key={row.text} className={`epoll-code-row ${row.active ? "active" : ""}`}>
+                <rect x="86" y={230 + index * 42} width="174" height="30" rx="14" />
+                <text x="102" y={250 + index * 42}>{row.text}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`epoll-instance ${createActive ? "active" : ""}`}>
+            <rect x="356" y="132" width="346" height="304" rx="28" />
+            <text className="epoll-panel-title" x="386" y="170">eventpoll epfd=7</text>
+            <text className="epoll-panel-subtitle" x="386" y="194">{label("内核持久化关注集合和就绪集合", "Kernel-persistent watched and ready sets")}</text>
+            <g className={`epoll-interest ${registerActive ? "active" : ""}`}>
+              <rect x="386" y="222" width="286" height="116" rx="20" />
+              <text className="epoll-section-title" x="410" y="248">Interest List</text>
+              {interestRows.map((row, index) => (
+                <g key={row.fd} className={`epoll-interest-row ${row.tone} ${row.active ? "active" : ""}`}>
+                  <rect x="410" y={266 + index * 26} width="226" height="20" rx="10" />
+                  <text x="424" y={280 + index * 26}>{row.fd}</text>
+                  <text x="622" y={280 + index * 26}>{row.mask}</text>
+                </g>
+              ))}
+            </g>
+            <g className={`epoll-ready ${callbackActive ? "active" : ""}`}>
+              <rect x="386" y="354" width="286" height="72" rx="20" />
+              <text className="epoll-section-title" x="410" y="380">Ready List</text>
+              {readyRows.map((row, index) => (
+                <g key={row.name} className={`epoll-ready-chip ${row.tone} ${row.active ? "active" : ""}`}>
+                  <rect x={410 + index * 86} y="394" width="72" height="22" rx="11" />
+                  <text x={446 + index * 86} y="409">{row.name}</text>
+                </g>
+              ))}
+            </g>
+          </g>
+
+          <g className={`epoll-waitqueues ${registerActive ? "active" : ""}`}>
+            <rect x="782" y="142" width="292" height="196" rx="24" />
+            <text className="epoll-panel-title" x="812" y="180">Socket wait queues</text>
+            <text className="epoll-panel-subtitle" x="812" y="204">{label("I/O readiness callback path", "I/O readiness callback path")}</text>
+            {socketRows.map((row, index) => (
+              <g key={row.name} className={`epoll-socket-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="812" y={228 + index * 36} width="220" height="26" rx="13" />
+                <text x="828" y={246 + index * 36}>{row.name}</text>
+                <text x="1018" y={246 + index * 36}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`epoll-dispatch ${drainActive ? "active" : ""}`}>
+            <rect x="782" y="404" width="292" height="112" rx="24" />
+            <text className="epoll-panel-title" x="812" y="442">{label("业务处理", "Worker dispatch")}</text>
+            <text className="epoll-panel-subtitle" x="812" y="466">{"read(fd18) -> EAGAIN -> rearm"}</text>
+            <g className={`epoll-dispatch-chip danger ${drainActive ? "active" : ""}`}>
+              <rect x="812" y="482" width="220" height="28" rx="14" />
+              <text x="922" y="501">{drainActive ? "drain + fairness guard" : "handler pending"}</text>
+            </g>
+          </g>
+
+          <g className={`epoll-create-path ${createActive ? "active" : ""}`}>
+            <path d="M 294 250 C 326 238, 332 228, 356 218" markerEnd="url(#epoll-arrow-brand)" />
+            <rect x="252" y="188" width="154" height="32" rx="16" />
+            <text x="329" y="209">epfd=7</text>
+          </g>
+          <g className={`epoll-register-path ${registerActive ? "active" : ""}`}>
+            <path d="M 702 264 C 738 254, 752 240, 782 238" markerEnd="url(#epoll-arrow-teal)" />
+            <rect x="670" y="218" width="170" height="32" rx="16" />
+            <text x="755" y="239">attach callback</text>
+          </g>
+          <g className={`epoll-ready-path ${callbackActive ? "active" : ""}`}>
+            <path d="M 888 338 C 872 394, 760 420, 672 404" markerEnd="url(#epoll-arrow-warning)" />
+            <rect x="724" y="374" width="168" height="32" rx="16" />
+            <text x="808" y="395">fd ready</text>
+          </g>
+          <g className={`epoll-wait-path ${waitActive ? "active" : ""}`}>
+            <path d="M 410 426 C 316 476, 214 430, 202 372" markerEnd="url(#epoll-arrow-success)" />
+            <rect x="240" y="444" width="184" height="32" rx="16" />
+            <text x="332" y="465">events[0..2]</text>
+          </g>
+          <g className={`epoll-drain-path ${drainActive ? "active" : ""}`}>
+            <path d="M 294 318 C 470 540, 650 500, 782 474" markerEnd="url(#epoll-arrow-danger)" />
+            <rect x="526" y="514" width="172" height="32" rx="16" />
+            <text x="612" y="535">read until EAGAIN</text>
+          </g>
+
+          <g className="epoll-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`epoll-signal ${signal.active ? "active" : ""}`}>
+                <rect x={62 + index * 264} y="558" width="224" height="34" rx="16" />
+                <text x={82 + index * 264} y="572">{signal.name}</text>
+                <text x={264 + index * 264} y="586">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="epoll-mobile-map">
+          <div className="epoll-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`epoll-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="epoll-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`epoll-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption epoll-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

@@ -149,6 +149,7 @@
 | 主从复制 | `step-simulation` | completed | SVG review captured; PNG blocked by platform permissions | MySQL Replication 链路模拟器，覆盖 Source commit、Binlog Dump Thread、I/O Receiver、Relay Log、SQL Applier、GTID 差距和复制延迟 |
 | GTID | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | MySQL GTID 集合对账状态模型，覆盖 server_uuid:sequence、gtid_executed、gtid_purged、Retrieved/Executed 集合、候选副本对账和自动定位恢复 |
 | HPA | `step-simulation` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes HPA 自动伸缩控制环模拟器，覆盖负载升高、Metrics API、desiredReplicas 公式、Scale 子资源和稳定窗口 |
+| epoll | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Linux epoll 事件通知状态模型，覆盖 epoll_create1、epoll_ctl、interest list、socket wait queue、ready list、epoll_wait 批量返回和 LT/ET drain |
 
 ## Buffer Pool Visualization
 
@@ -1047,6 +1048,61 @@
 - 截图结论：Chrome DevTools MCP 已恢复；从搜索进入 `哈希槽` 详情页，再进入模拟器并推进到第 5 步“刷新 MOVED”；桌面截图包含主画布、右侧当前任务/操作面板/理解重点和底部五步进度；移动端截图可读，核心画布和面板纵向排列完整。
 - 代码验收：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。前端预览可访问 `http://127.0.0.1:4174/KnowledgeGraph/`。
 
+## Linux epoll Visualization
+
+### Online Image References
+
+- `source`：Linux man-pages: epoll(7)，https://man7.org/linux/man-pages/man7/epoll.7.html
+  - `image`：官方手册中的 epoll 实例由 interest list 和 ready list 组成的结构说明。
+  - `role`：main
+  - `qualityReason`：权威定义 epoll instance、interest list、ready list、LT/ET 与 epoll_wait 语义，是本轮结构建模的主依据。
+  - `takeaways`：主画布采用 epoll 实例为中心，把 Interest List 和 Ready List 放在同一个内核对象内。
+  - `originalChanges`：加入 socket wait queues、callback path、events[] 批量返回和业务 drain/rearm，把文字结构扩展为五步状态模型。
+- `source`：Linux man-pages: epoll_ctl(2)，https://man7.org/linux/man-pages/man2/epoll_ctl.2.html
+  - `image`：页面中的 `epoll_ctl()` op、fd、events 参数说明。
+  - `role`：supporting
+  - `qualityReason`：官方校准 fd 注册、事件掩码、EPOLLIN/EPOLLOUT/EPOLLET/EPOLLONESHOT 等标志。
+  - `takeaways`：Interest List 行展示 fd、事件 mask 和业务 data。
+  - `originalChanges`：把参数表转成 `fd12/fd18/fd31` 三行可高亮注册清单。
+- `source`：man7.org Training - epoll API，https://man7.org/training/download/epoll_API.pdf
+  - `image`：培训材料中的 epoll API、interest list、ready list、epoll_wait 工作流图。
+  - `role`：supporting
+  - `qualityReason`：图形化表达清晰，适合验证本项目的布局方向和教学节奏。
+  - `takeaways`：左侧应用线程、中心 epoll 实例、右侧 I/O readiness 的方向关系。
+  - `originalChanges`：采用项目统一 SVG 舞台，保留方向关系，改造为可交互步骤和底部信号卡片。
+- `source`：Arthur Chiao - IO Multiplexing and epoll，https://arthurchiao.art/blog/io-multiplexing-epoll-zh/
+  - `image`：文章中的 I/O 多路复用、select/poll/epoll 对比和事件通知结构图。
+  - `role`：supporting
+  - `qualityReason`：中文深度资料，能补足 callback、就绪队列和实现层视角。
+  - `takeaways`：事件到达后由内核通知就绪，应用再批量处理。
+  - `originalChanges`：用 socket wait queues 与 ready list 的弯曲箭头表达回调入队。
+- `source`：小林 coding - 高性能网络模式，https://xiaolincoding.com/os/8_network_system/selete_poll_epoll.html
+  - `image`：页面中的 select/poll/epoll 差异、红黑树与就绪队列图解。
+  - `role`：supporting
+  - `qualityReason`：高质量中文图解，能帮助学习者理解 epoll 相对轮询扫描的收益。
+  - `takeaways`：注册集合持久化、就绪集合单独返回、ET 模式需要 drain 到 EAGAIN。
+  - `originalChanges`：把红黑树/链表实现细节抽象为 Interest List / Ready List，并用 LT/ET 信号卡呈现排障重点。
+
+### Reference Breakdown
+
+- 主体布局：左侧事件循环线程，中部 eventpoll 实例，实例内分 Interest List 和 Ready List，右侧 Socket wait queues 与 Worker dispatch，底部四个观测信号。
+- 视觉焦点：`epfd=7`、`fd18 EPOLLIN | EPOLLET`、`fd18 -> ready list`、`events[0..2]`、`read until EAGAIN` 依次高亮。
+- 领域对象：epoll fd、eventpoll、interest list、ready list、socket wait queue、callback、events 数组、LT/ET、EAGAIN、rearm。
+- 容器层级：应用线程持有 epfd；内核 eventpoll 管理关注集合与就绪集合；socket wait queue 负责 I/O 就绪回调；业务 handler 消费事件。
+- 连线方向：应用创建 epfd -> 注册 fd 到 Interest List -> socket ready callback 推入 Ready List -> epoll_wait 返回 events[] -> handler drain/rearm。
+- 状态表达：每一步通过透明度、边框色、箭头和底部信号值显隐表达当前阶段。
+- 颜色策略：品牌蓝表示创建 epfd，青色表示注册关注集合，橙色表示 I/O ready，绿色表示批量返回，红色表示 ET drain 与公平性风险。
+- 文字密度：画布保留 fd、mask、callback、events、EAGAIN 等关键短语；解释放在右侧面板和步骤条。
+- 交互节奏：创建实例 -> 注册 fd -> 就绪回调 -> epoll_wait 批量取出 -> LT/ET drain 与 rearm。
+- 原创改造点：把官方两列表述、培训图和中文实现图解融合为事件通知状态模型，强调高并发服务中“持久注册 + 就绪批量返回 + drain 语义”的工程收益。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/epoll/desktop.svg`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/epoll/mobile.svg`。
+- 截图结论：桌面 SVG 可识别事件循环线程、eventpoll epfd、Interest List、Ready List、Socket wait queues、Worker dispatch 和底部四个信号；移动端 SVG 展示五步流程卡片。
+- 验收备注：新增数据测试先失败于通用 OS 模型，补齐 dedicated builder 后通过；Browser 插件不可用，Playwright Chromium 受 macOS Mach port 权限限制，`sips` 无法从 SVG 提取 PNG；本轮使用本地 SVG 审查图完成截图验收。
+
 ## Run Log
 
 ### 2026-06-01 14:28 CST
@@ -1414,4 +1470,17 @@
 - Verification：`npm run test:data -- --grep "kubernetes HPA"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 7 项；`git diff --check` 通过。
 - Commit/Push：功能提交 `90e46eb feat: add hpa visualization` 已推送到 `origin/main`；推送后本地 `HEAD` 与 `origin/main` 均为 `90e46eb`。
 - Post-push Check：`git ls-remote --heads origin main` 返回 `Could not resolve host: github.com`，但 `git push origin main` 已返回 `22d3df2..90e46eb main -> main`。
+- Next Candidate：Docker `容器网络` 或 Kubernetes `Pod 调度`。
+
+### 2026-06-02 20:18 CST
+
+- Branch/Pull：当前分支 `main`；`git fetch origin main` 与 `git pull --ff-only origin main` 成功，开始时本地 `HEAD` 与 `origin/main` 均为 `381b8e0`。
+- Selected：Linux `epoll`，原因是 epoll instance、interest list、ready list、socket wait queue callback、`epoll_wait` 批量返回和 LT/ET drain 能形成高价值高并发 I/O 状态模型。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；保留 Linux man-pages epoll(7) 为主参考，epoll_ctl(2)、man7 epoll API 培训材料、Arthur Chiao I/O multiplexing、和小林 coding 高性能网络模式为辅助参考。
+- Browser Note：Chrome DevTools MCP profile 被占用；Browser 插件返回 in-app browser 不可用；Vite preview 可访问 `http://127.0.0.1:4243/KnowledgeGraph/`；Playwright Chromium 受 macOS Mach port 权限限制；`sips` 无法把 SVG 转成 PNG。
+- Reference Breakdown：采用左侧事件循环线程、中部 eventpoll epfd 与 Interest/Ready 双列表、右侧 Socket wait queues 与 Worker dispatch、底部四个信号；视觉焦点是 `fd18 EPOLLIN | EPOLLET -> ready list -> events[0..2] -> read until EAGAIN`。
+- Implementation：新增 `os:epoll` 专用 `state-model` 构建器、Epoll SVG 舞台、移动端纵向摘要、响应式样式、epoll 专用来源和数据测试，并给 epoll 知识点补充官方与图解来源引用。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/epoll/desktop.svg` 与 `.codex-artifacts/visualizations/epoll/mobile.svg`；PNG 捕获受平台权限限制；桌面 SVG 可识别事件循环、eventpoll、Interest List、Ready List、Socket wait queues、Worker dispatch 和底部信号，移动端五步流程卡片可读。
+- Verification：新增测试先失败于通用 OS 模型，补实现后 `npm run test:data -- --grep "linux epoll"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 8 项；继续执行 `git diff --check`、rebase 和 push。
+- Commit/Push Plan：提交 `feat: add epoll visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Docker `容器网络` 或 Kubernetes `Pod 调度`。

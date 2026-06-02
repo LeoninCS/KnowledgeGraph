@@ -260,6 +260,11 @@
     justify-content: start;
   }
 
+  .epoll-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .ip-routing-stage {
     overflow-x: auto;
     justify-content: start;
@@ -430,6 +435,16 @@
   }
 
   .docker-layer-diagram {
+    height: 548px;
+  }
+
+  .epoll-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .epoll-diagram {
     height: 548px;
   }
 

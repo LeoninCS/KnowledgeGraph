@@ -3137,6 +3137,26 @@ export const knowledgeSources = {
     title: "The Linux Kernel documentation",
     url: "https://docs.kernel.org/",
   },
+  "linux-man-pages-epoll": {
+    title: "Linux man-pages: epoll(7)",
+    url: "https://man7.org/linux/man-pages/man7/epoll.7.html",
+  },
+  "linux-man-pages-epoll-ctl": {
+    title: "Linux man-pages: epoll_ctl(2)",
+    url: "https://man7.org/linux/man-pages/man2/epoll_ctl.2.html",
+  },
+  "man7-training-epoll": {
+    title: "man7.org Training: epoll API",
+    url: "https://man7.org/training/download/epoll_API.pdf",
+  },
+  "arthurchiao-io-multiplexing": {
+    title: "Arthur Chiao: IO Multiplexing and epoll",
+    url: "https://arthurchiao.art/blog/io-multiplexing-epoll-zh/",
+  },
+  "xiaolincoding-socket-c10k": {
+    title: "小林 coding：高性能网络模式",
+    url: "https://xiaolincoding.com/os/8_network_system/selete_poll_epoll.html",
+  },
   "gnu-bash-manual": {
     title: "GNU Bash Reference Manual",
     url: "https://www.gnu.org/software/bash/manual/bash.html",

@@ -108,6 +108,23 @@ test("kubernetes HPA is backed by a dedicated visual simulation", async () => {
   );
 });
 
+test("linux epoll is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("os");
+  const epoll = points.find((point) => point.id === "epoll");
+
+  expect(visualPointIds.os).toContain("epoll");
+  expect(epoll).toBeTruthy();
+
+  const simulation = buildVisualSimulation("os", epoll!);
+
+  expect(simulation.key).toBe("os:epoll");
+  expect(simulation.pattern.en).toContain("event notification");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["interest list", "ready list", "epoll_wait batch", "LT / ET mode"]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");

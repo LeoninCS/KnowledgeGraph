@@ -715,6 +715,302 @@
   display: none;
 }
 
+.epoll-bg {
+  fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);
+}
+
+.epoll-title {
+  fill: var(--text);
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.epoll-subtitle {
+  fill: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.epoll-app,
+.epoll-instance,
+.epoll-interest,
+.epoll-ready,
+.epoll-waitqueues,
+.epoll-dispatch,
+.epoll-create-path,
+.epoll-register-path,
+.epoll-ready-path,
+.epoll-wait-path,
+.epoll-drain-path,
+.epoll-code-row,
+.epoll-interest-row,
+.epoll-ready-chip,
+.epoll-socket-row,
+.epoll-dispatch-chip,
+.epoll-signal {
+  opacity: 0.3;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.epoll-app.active,
+.epoll-instance.active,
+.epoll-interest.active,
+.epoll-ready.active,
+.epoll-waitqueues.active,
+.epoll-dispatch.active,
+.epoll-create-path.active,
+.epoll-register-path.active,
+.epoll-ready-path.active,
+.epoll-wait-path.active,
+.epoll-drain-path.active,
+.epoll-code-row.active,
+.epoll-interest-row.active,
+.epoll-ready-chip.active,
+.epoll-socket-row.active,
+.epoll-dispatch-chip.active,
+.epoll-signal.active {
+  opacity: 1;
+}
+
+.epoll-app > rect,
+.epoll-instance > rect,
+.epoll-waitqueues > rect,
+.epoll-dispatch > rect,
+.epoll-interest > rect,
+.epoll-ready > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  stroke-width: 1.25;
+  filter: url(#epoll-soft-shadow);
+}
+
+.epoll-app.active > rect,
+.epoll-code-row.active rect,
+.epoll-interest-row.brand.active rect,
+.epoll-ready-chip.brand.active rect,
+.epoll-socket-row.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.epoll-instance.active > rect,
+.epoll-interest.active > rect,
+.epoll-waitqueues.active > rect,
+.epoll-interest-row.teal.active rect,
+.epoll-socket-row.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 42%, var(--border));
+}
+
+.epoll-ready.active > rect,
+.epoll-interest-row.warning.active rect,
+.epoll-ready-chip.warning.active rect,
+.epoll-socket-row.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 54%, var(--border));
+}
+
+.epoll-interest-row.success.active rect,
+.epoll-ready-chip.success.active rect,
+.epoll-socket-row.success.active rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 46%, var(--border));
+}
+
+.epoll-dispatch.active > rect,
+.epoll-dispatch-chip.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.epoll-code-row rect,
+.epoll-interest-row rect,
+.epoll-ready-chip rect,
+.epoll-socket-row rect,
+.epoll-dispatch-chip rect,
+.epoll-signal rect,
+.epoll-create-path rect,
+.epoll-register-path rect,
+.epoll-ready-path rect,
+.epoll-wait-path rect,
+.epoll-drain-path rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 16%, var(--border));
+  filter: url(#epoll-soft-shadow);
+}
+
+.epoll-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.epoll-section-title {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.epoll-panel-subtitle,
+.epoll-code-row text,
+.epoll-interest-row text,
+.epoll-ready-chip text,
+.epoll-socket-row text,
+.epoll-dispatch-chip text,
+.epoll-create-path text,
+.epoll-register-path text,
+.epoll-ready-path text,
+.epoll-wait-path text,
+.epoll-drain-path text,
+.epoll-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 820;
+}
+
+.epoll-code-row text,
+.epoll-ready-chip text,
+.epoll-dispatch-chip text,
+.epoll-create-path text,
+.epoll-register-path text,
+.epoll-ready-path text,
+.epoll-wait-path text,
+.epoll-drain-path text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 900;
+}
+
+.epoll-interest-row text:first-of-type,
+.epoll-socket-row text:first-of-type,
+.epoll-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.epoll-interest-row text:last-of-type,
+.epoll-socket-row text:last-of-type,
+.epoll-signal text:last-of-type {
+  fill: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  text-anchor: end;
+}
+
+.epoll-create-path path,
+.epoll-register-path path,
+.epoll-ready-path path,
+.epoll-wait-path path,
+.epoll-drain-path path {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+.epoll-create-path path {
+  stroke: var(--brand);
+}
+
+.epoll-register-path path {
+  stroke: var(--tertiary);
+}
+
+.epoll-ready-path path {
+  stroke: #f59e0b;
+}
+
+.epoll-wait-path path {
+  stroke: var(--success);
+}
+
+.epoll-drain-path path {
+  stroke: var(--danger);
+}
+
+.epoll-mobile-flow,
+.epoll-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.epoll-mobile-hop,
+.epoll-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--tertiary) 6%, var(--surface));
+  padding: 12px;
+}
+
+.epoll-mobile-hop span,
+.epoll-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.epoll-mobile-hop strong,
+.epoll-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.epoll-mobile-hop.active,
+.epoll-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+  background: color-mix(in srgb, var(--tertiary) 11%, var(--surface));
+}
+
+.epoll-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.epoll-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.epoll-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 24%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .epoll-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.epoll-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.epoll-mobile-map {
+  display: none;
+}
+
 .ip-routing-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;

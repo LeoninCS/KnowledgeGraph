@@ -328,6 +328,13 @@ const operatingSystemKnowledgePointOverrides: Record<string, Partial<GraphKnowle
     related: ["epoll"],
   },
   "epoll": {
+    sourceRefs: [
+      "linux-man-pages-epoll",
+      "linux-man-pages-epoll-ctl",
+      "man7-training-epoll",
+      "arthurchiao-io-multiplexing",
+      "xiaolincoding-socket-c10k",
+    ],
     order: 31,
     prerequisites: ["io-multiplexing"],
     related: ["socket"],
