@@ -374,6 +374,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "kubernetes:scheduler") {
+    return (
+      <KubernetesSchedulerStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:crashloopbackoff") {
     return (
       <KubernetesCrashLoopBackOffStage
@@ -5276,6 +5287,262 @@ export function KubernetesHpaStage({
           </div>
         </div>
         <div className="tcp-handshake-caption k8s-hpa-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KubernetesSchedulerStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const queueActive = completedSteps >= 1;
+  const profileActive = completedSteps >= 2;
+  const filterActive = completedSteps >= 3;
+  const scoreActive = completedSteps >= 4;
+  const bindActive = completedSteps >= 5;
+  const nodes = [
+    { name: "node-a", zone: "zone-a", cpu: "4.1 / 8 CPU", status: filterActive ? "feasible" : "candidate", score: scoreActive ? "76" : "--", tone: "brand", active: filterActive },
+    { name: "node-b", zone: "zone-b", cpu: "7.8 / 8 CPU", status: filterActive ? "Insufficient cpu" : "candidate", score: "--", tone: "danger", active: filterActive },
+    { name: "node-c", zone: "zone-c", cpu: "3.2 / 8 CPU", status: bindActive ? "Bound" : filterActive ? "feasible" : "candidate", score: scoreActive ? "92" : "--", tone: "success", active: filterActive || bindActive },
+  ];
+  const pluginRows = [
+    { name: "NodeResourcesFit", value: filterActive ? "2/3 pass" : "pending", active: filterActive, tone: "warning" },
+    { name: "NodeAffinity", value: filterActive ? "zone in a,c" : "pending", active: filterActive, tone: "brand" },
+    { name: "TaintToleration", value: filterActive ? "gpu:NoSchedule fail" : "pending", active: filterActive, tone: "danger" },
+    { name: "PodTopologySpread", value: scoreActive ? "spread +18" : "pending", active: scoreActive, tone: "teal" },
+  ];
+  const scoreRows = [
+    { name: "node-c", value: "92", width: 152, active: scoreActive, tone: "success" },
+    { name: "node-a", value: "76", width: 126, active: scoreActive, tone: "brand" },
+    { name: "node-b", value: "filtered", width: 60, active: filterActive, tone: "danger" },
+  ];
+  const bindingRows = [
+    { name: "Assume", value: scoreActive ? "cache node-c" : "waiting", active: scoreActive, tone: "brand" },
+    { name: "Reserve / Permit", value: bindActive ? "approved" : "waiting", active: bindActive, tone: "teal" },
+    { name: "Bind", value: bindActive ? "spec.nodeName=node-c" : "waiting", active: bindActive, tone: "success" },
+  ];
+  const signalRows = [
+    { name: "PodSchedulingContext", value: queueActive ? "requests=500m/512Mi" : "waiting", active: queueActive, tone: "brand" },
+    { name: "Filter plugins", value: filterActive ? "2 feasible / 1 rejected" : "pending", active: filterActive, tone: "warning" },
+    { name: "Score plugins", value: scoreActive ? "node-c=92" : "pending", active: scoreActive, tone: "success" },
+    { name: "Binding cycle", value: bindActive ? "Scheduled=True" : "unbound", active: bindActive, tone: "teal" },
+  ];
+  const extensionPoints = [
+    { name: "QueueSort", x: 674, active: queueActive, tone: "brand" },
+    { name: "PreFilter", x: 730, active: profileActive, tone: "teal" },
+    { name: "Filter", x: 786, active: filterActive, tone: "warning" },
+    { name: "Score", x: 842, active: scoreActive, tone: "success" },
+    { name: "Reserve", x: 898, active: bindActive, tone: "brand" },
+    { name: "Permit", x: 954, active: bindActive, tone: "teal" },
+    { name: "Bind", x: 1010, active: bindActive, tone: "success" },
+  ];
+  const mobileFlow = [
+    { name: "Pending Pod", value: queueActive ? "checkout-7f9c enters activeQ" : "awaiting watch", active: queueActive },
+    { name: "Profile", value: profileActive ? "default-scheduler plugins loaded" : "waiting profile", active: profileActive },
+    { name: "Filter", value: filterActive ? "node-a,node-c pass" : "pending feasible nodes", active: filterActive },
+    { name: "Score", value: scoreActive ? "node-c wins with score 92" : "pending normalized scores", active: scoreActive },
+    { name: "Bind", value: bindActive ? "spec.nodeName=node-c" : "unbound", active: bindActive },
+  ];
+
+  return (
+    <div className="visual-stage k8s-scheduler-stage">
+      <div className="k8s-scheduler-card">
+        <svg
+          className="k8s-scheduler-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["k8s-scheduler-arrow-brand", "var(--brand)"],
+              ["k8s-scheduler-arrow-teal", "var(--tertiary)"],
+              ["k8s-scheduler-arrow-warning", "#f59e0b"],
+              ["k8s-scheduler-arrow-success", "var(--success)"],
+              ["k8s-scheduler-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="k8s-scheduler-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="k8s-scheduler-bg" x="24" y="24" width="1072" height="588" rx="28" />
+          <text className="k8s-scheduler-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="k8s-scheduler-subtitle" x="560" y="100">
+            {label(
+              "Pending Pod -> Scheduling Queue -> Filter -> Score -> Binding Cycle -> kubelet",
+              "Pending Pod -> Scheduling Queue -> Filter -> Score -> Binding Cycle -> kubelet",
+            )}
+          </text>
+
+          <g className={`k8s-scheduler-pod ${queueActive ? "active" : ""}`}>
+            <rect x="64" y="136" width="190" height="144" rx="24" />
+            <text className="k8s-scheduler-panel-title" x="92" y="174">Pod checkout-7f9c</text>
+            <text className="k8s-scheduler-panel-subtitle" x="92" y="198">spec.nodeName: empty</text>
+            <text x="92" y="228">requests.cpu=500m</text>
+            <text x="92" y="252">schedulerName=default</text>
+          </g>
+
+          <g className={`k8s-scheduler-queue ${queueActive ? "active" : ""}`}>
+            <rect x="304" y="126" width="266" height="122" rx="24" />
+            <text className="k8s-scheduler-panel-title" x="332" y="164">Scheduling Queue</text>
+            <text className="k8s-scheduler-panel-subtitle" x="332" y="188">activeQ · backoffQ · unschedulablePods</text>
+            <g className={`k8s-scheduler-chip brand ${queueActive ? "active" : ""}`}>
+              <rect x="332" y="210" width="196" height="28" rx="14" />
+              <text x="430" y="229">QueueSort checkout-7f9c</text>
+            </g>
+          </g>
+
+          <g className={`k8s-scheduler-profile ${profileActive ? "active" : ""}`}>
+            <rect x="626" y="126" width="420" height="122" rx="24" />
+            <text className="k8s-scheduler-panel-title" x="654" y="164">Scheduling Framework extension points</text>
+            <text className="k8s-scheduler-panel-subtitle" x="654" y="188">profile=default-scheduler · PodSchedulingContext shared by plugins</text>
+            <path className="k8s-scheduler-extension-rail" d="M 672 220 L 1008 220" />
+            {extensionPoints.map((point) => (
+              <g key={point.name} className={`k8s-scheduler-extension ${point.tone} ${point.active ? "active" : ""}`}>
+                <circle cx={point.x} cy="220" r="15" />
+                <text x={point.x} y="247">{point.name}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-scheduler-filter ${filterActive ? "active" : ""}`}>
+            <rect x="64" y="326" width="316" height="192" rx="24" />
+            <text className="k8s-scheduler-panel-title" x="92" y="364">Filter plugins</text>
+            {pluginRows.map((row, index) => (
+              <g key={row.name} className={`k8s-scheduler-plugin-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="92" y={386 + index * 30} width="238" height="23" rx="12" />
+                <text x="106" y={402 + index * 30}>{row.name}</text>
+                <text x="318" y={402 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="k8s-scheduler-node-zone">
+            <rect x="430" y="302" width="280" height="236" rx="26" />
+            <text className="k8s-scheduler-panel-title" x="458" y="340">{label("节点快照", "Node snapshot")}</text>
+            <text className="k8s-scheduler-panel-subtitle" x="458" y="362">NodeInfo cache · allocatable · labels · taints</text>
+            {nodes.map((node, index) => (
+              <g key={node.name} className={`k8s-scheduler-node-row ${node.tone} ${node.active ? "active" : ""}`}>
+                <rect x="458" y={386 + index * 42} width="206" height="32" rx="15" />
+                <text x="474" y={401 + index * 42}>{node.name} · {node.zone}</text>
+                <text x="474" y={414 + index * 42}>{node.cpu}</text>
+                <text x="650" y={407 + index * 42}>{node.status}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-scheduler-score ${scoreActive ? "active" : ""}`}>
+            <rect x="750" y="302" width="296" height="154" rx="24" />
+            <text className="k8s-scheduler-panel-title" x="778" y="340">Score plugins</text>
+            <text className="k8s-scheduler-panel-subtitle" x="778" y="362">NormalizeScore · weights · highest score wins</text>
+            {scoreRows.map((row, index) => (
+              <g key={row.name} className={`k8s-scheduler-score-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="778" y={384 + index * 28} width={row.width} height="20" rx="10" />
+                <text x="790" y={398 + index * 28}>{row.name}</text>
+                <text x="1010" y={398 + index * 28}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-scheduler-bind ${bindActive ? "active" : ""}`}>
+            <rect x="750" y="478" width="296" height="82" rx="24" />
+            <text className="k8s-scheduler-panel-title" x="778" y="512">Binding Cycle</text>
+            {bindingRows.map((row, index) => (
+              <g key={row.name} className={`k8s-scheduler-bind-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x={778 + index * 84} y="526" width="70" height="24" rx="12" />
+                <text x={813 + index * 84} y="542">{row.name}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-scheduler-queue-path ${queueActive ? "active" : ""}`}>
+            <path d="M 254 202 C 280 198, 288 190, 304 188" markerEnd="url(#k8s-scheduler-arrow-brand)" />
+            <rect x="240" y="140" width="144" height="32" rx="16" />
+            <text x="312" y="161">watch Pod</text>
+          </g>
+
+          <g className={`k8s-scheduler-profile-path ${profileActive ? "active" : ""}`}>
+            <path d="M 570 188 C 598 186, 606 184, 626 184" markerEnd="url(#k8s-scheduler-arrow-teal)" />
+          </g>
+
+          <g className={`k8s-scheduler-filter-path ${filterActive ? "active" : ""}`}>
+            <path d="M 760 248 C 652 278, 534 296, 380 396" markerEnd="url(#k8s-scheduler-arrow-warning)" />
+            <path d="M 380 424 C 410 418, 420 410, 430 408" markerEnd="url(#k8s-scheduler-arrow-warning)" />
+            <rect x="284" y="286" width="168" height="32" rx="16" />
+            <text x="368" y="307">Filter feasible nodes</text>
+          </g>
+
+          <g className={`k8s-scheduler-score-path ${scoreActive ? "active" : ""}`}>
+            <path d="M 710 410 C 728 402, 736 394, 750 390" markerEnd="url(#k8s-scheduler-arrow-success)" />
+            <rect x="610" y="542" width="190" height="32" rx="16" />
+            <text x="705" y="563">NormalizeScore result</text>
+          </g>
+
+          <g className={`k8s-scheduler-bind-path ${bindActive ? "active" : ""}`}>
+            <path d="M 898 456 L 898 478" markerEnd="url(#k8s-scheduler-arrow-teal)" />
+            <path d="M 750 522 C 650 594, 258 580, 166 280" markerEnd="url(#k8s-scheduler-arrow-success)" />
+            <rect x="936" y="578" width="128" height="30" rx="15" />
+            <text x="1000" y="598">kubelet node-c</text>
+          </g>
+
+          <g className="k8s-scheduler-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`k8s-scheduler-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={64 + index * 258} y="578" width="218" height="34" rx="16" />
+                <text x={84 + index * 258} y="592">{signal.name}</text>
+                <text x={270 + index * 258} y="606">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="k8s-scheduler-mobile-map">
+          <div className="k8s-scheduler-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`k8s-scheduler-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="k8s-scheduler-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`k8s-scheduler-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption k8s-scheduler-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

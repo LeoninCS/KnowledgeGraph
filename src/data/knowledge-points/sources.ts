@@ -3099,7 +3099,7 @@ export const knowledgeSources = {
   },
   "kubernetes-assign-pod-node": {
     title: "Kubernetes Docs: Assigning Pods to Nodes",
-    url: "https://kubernetes.io/docs/concepts/configuration/assign-pod-node/",
+    url: "https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/",
   },
   "kubernetes-taints-tolerations": {
     title: "Kubernetes Docs: Taints and Tolerations",

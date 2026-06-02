@@ -1377,6 +1377,7 @@
 .k8s-service-stage,
 .k8s-ingress-stage,
 .k8s-hpa-stage,
+.k8s-scheduler-stage,
 .k8s-crashloop-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -1386,6 +1387,7 @@
 .k8s-service-card,
 .k8s-ingress-card,
 .k8s-hpa-card,
+.k8s-scheduler-card,
 .k8s-crashloop-card {
   position: relative;
   justify-self: center;
@@ -1403,6 +1405,7 @@
 :root[data-theme="dark"] .k8s-service-card,
 :root[data-theme="dark"] .k8s-ingress-card,
 :root[data-theme="dark"] .k8s-hpa-card,
+:root[data-theme="dark"] .k8s-scheduler-card,
 :root[data-theme="dark"] .k8s-crashloop-card {
   background:
     linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
@@ -1412,6 +1415,7 @@
 .k8s-service-diagram,
 .k8s-ingress-diagram,
 .k8s-hpa-diagram,
+.k8s-scheduler-diagram,
 .k8s-crashloop-diagram {
   display: block;
   width: 100%;
@@ -1423,6 +1427,7 @@
 .k8s-service-mobile-map,
 .k8s-ingress-mobile-map,
 .k8s-hpa-mobile-map,
+.k8s-scheduler-mobile-map,
 .k8s-crashloop-mobile-map {
   display: none;
 }
@@ -6686,6 +6691,258 @@
 }
 
 .k8s-hpa-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.k8s-scheduler-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 44%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+}
+
+.k8s-scheduler-title {
+  fill: var(--text);
+  font-size: 24px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.k8s-scheduler-subtitle {
+  fill: var(--muted);
+  font-size: 12.5px;
+  font-weight: 750;
+  text-anchor: middle;
+}
+
+.k8s-scheduler-pod,
+.k8s-scheduler-queue,
+.k8s-scheduler-profile,
+.k8s-scheduler-filter,
+.k8s-scheduler-score,
+.k8s-scheduler-bind,
+.k8s-scheduler-queue-path,
+.k8s-scheduler-profile-path,
+.k8s-scheduler-filter-path,
+.k8s-scheduler-score-path,
+.k8s-scheduler-bind-path,
+.k8s-scheduler-chip,
+.k8s-scheduler-plugin-row,
+.k8s-scheduler-node-row,
+.k8s-scheduler-score-row,
+.k8s-scheduler-bind-row,
+.k8s-scheduler-signal,
+.k8s-scheduler-extension {
+  opacity: 0.34;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.k8s-scheduler-pod.active,
+.k8s-scheduler-queue.active,
+.k8s-scheduler-profile.active,
+.k8s-scheduler-filter.active,
+.k8s-scheduler-score.active,
+.k8s-scheduler-bind.active,
+.k8s-scheduler-queue-path.active,
+.k8s-scheduler-profile-path.active,
+.k8s-scheduler-filter-path.active,
+.k8s-scheduler-score-path.active,
+.k8s-scheduler-bind-path.active,
+.k8s-scheduler-chip.active,
+.k8s-scheduler-plugin-row.active,
+.k8s-scheduler-node-row.active,
+.k8s-scheduler-score-row.active,
+.k8s-scheduler-bind-row.active,
+.k8s-scheduler-signal.active,
+.k8s-scheduler-extension.active {
+  opacity: 1;
+}
+
+.k8s-scheduler-pod > rect,
+.k8s-scheduler-queue > rect,
+.k8s-scheduler-profile > rect,
+.k8s-scheduler-filter > rect,
+.k8s-scheduler-node-zone > rect,
+.k8s-scheduler-score > rect,
+.k8s-scheduler-bind > rect {
+  fill: color-mix(in srgb, var(--surface) 94%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 14%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#k8s-scheduler-soft-shadow);
+}
+
+.k8s-scheduler-pod.active > rect,
+.k8s-scheduler-queue.active > rect,
+.k8s-scheduler-chip.brand.active rect,
+.k8s-scheduler-plugin-row.brand.active rect,
+.k8s-scheduler-node-row.brand.active rect,
+.k8s-scheduler-bind-row.brand.active rect,
+.k8s-scheduler-signal.brand.active rect,
+.k8s-scheduler-extension.brand.active circle {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 52%, var(--border));
+}
+
+.k8s-scheduler-profile.active > rect,
+.k8s-scheduler-plugin-row.teal.active rect,
+.k8s-scheduler-bind-row.teal.active rect,
+.k8s-scheduler-signal.teal.active rect,
+.k8s-scheduler-extension.teal.active circle {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+}
+
+.k8s-scheduler-filter.active > rect,
+.k8s-scheduler-plugin-row.warning.active rect,
+.k8s-scheduler-signal.warning.active rect,
+.k8s-scheduler-extension.warning.active circle {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 54%, var(--border));
+}
+
+.k8s-scheduler-score.active > rect,
+.k8s-scheduler-node-row.success.active rect,
+.k8s-scheduler-score-row.success.active rect,
+.k8s-scheduler-bind-row.success.active rect,
+.k8s-scheduler-signal.success.active rect,
+.k8s-scheduler-extension.success.active circle {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 52%, var(--border));
+}
+
+.k8s-scheduler-plugin-row.danger.active rect,
+.k8s-scheduler-node-row.danger.active rect,
+.k8s-scheduler-score-row.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 52%, var(--border));
+}
+
+.k8s-scheduler-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.k8s-scheduler-panel-subtitle,
+.k8s-scheduler-pod text,
+.k8s-scheduler-queue text,
+.k8s-scheduler-profile text,
+.k8s-scheduler-filter text,
+.k8s-scheduler-node-zone text,
+.k8s-scheduler-score text,
+.k8s-scheduler-bind text,
+.k8s-scheduler-queue-path text,
+.k8s-scheduler-filter-path text,
+.k8s-scheduler-score-path text,
+.k8s-scheduler-bind-path text,
+.k8s-scheduler-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.k8s-scheduler-chip rect,
+.k8s-scheduler-plugin-row rect,
+.k8s-scheduler-node-row rect,
+.k8s-scheduler-score-row rect,
+.k8s-scheduler-bind-row rect,
+.k8s-scheduler-queue-path rect,
+.k8s-scheduler-filter-path rect,
+.k8s-scheduler-score-path rect,
+.k8s-scheduler-bind-path rect,
+.k8s-scheduler-signal rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 12%, var(--border));
+  filter: url(#k8s-scheduler-soft-shadow);
+}
+
+.k8s-scheduler-panel-title,
+.k8s-scheduler-chip text,
+.k8s-scheduler-plugin-row text:first-of-type,
+.k8s-scheduler-node-row text:first-of-type,
+.k8s-scheduler-score-row text:first-of-type,
+.k8s-scheduler-bind-row text,
+.k8s-scheduler-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 900;
+}
+
+.k8s-scheduler-plugin-row text:last-of-type,
+.k8s-scheduler-node-row text:last-of-type,
+.k8s-scheduler-score-row text:last-of-type,
+.k8s-scheduler-signal text:last-of-type {
+  fill: var(--brand-strong);
+  font-weight: 900;
+  text-anchor: end;
+}
+
+.k8s-scheduler-chip text,
+.k8s-scheduler-queue-path text,
+.k8s-scheduler-filter-path text,
+.k8s-scheduler-score-path text,
+.k8s-scheduler-bind-path text,
+.k8s-scheduler-bind-row text {
+  text-anchor: middle;
+}
+
+.k8s-scheduler-extension-rail,
+.k8s-scheduler-queue-path path,
+.k8s-scheduler-profile-path path,
+.k8s-scheduler-filter-path path,
+.k8s-scheduler-score-path path,
+.k8s-scheduler-bind-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.k8s-scheduler-extension-rail {
+  stroke: color-mix(in srgb, var(--muted) 30%, transparent);
+  stroke-width: 3;
+}
+
+.k8s-scheduler-queue-path path {
+  stroke: var(--brand);
+}
+
+.k8s-scheduler-profile-path path,
+.k8s-scheduler-bind-path path {
+  stroke: var(--tertiary);
+}
+
+.k8s-scheduler-filter-path path {
+  stroke: #f59e0b;
+}
+
+.k8s-scheduler-score-path path {
+  stroke: var(--success);
+}
+
+.k8s-scheduler-queue-path path,
+.k8s-scheduler-profile-path path,
+.k8s-scheduler-filter-path path,
+.k8s-scheduler-score-path path,
+.k8s-scheduler-bind-path path {
+  stroke-width: 4;
+}
+
+.k8s-scheduler-extension circle {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 24%, var(--border));
+  stroke-width: 1.6;
+}
+
+.k8s-scheduler-extension text {
+  fill: var(--muted);
+  font-size: 9.8px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.k8s-scheduler-extension.active text {
+  fill: var(--text);
+}
+
+.k8s-scheduler-caption {
   right: 16px;
   bottom: 14px;
 }

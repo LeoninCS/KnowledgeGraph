@@ -108,6 +108,23 @@ test("kubernetes HPA is backed by a dedicated visual simulation", async () => {
   );
 });
 
+test("kubernetes scheduler is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("kubernetes");
+  const scheduler = points.find((point) => point.id === "scheduler");
+
+  expect(visualPointIds.kubernetes).toContain("scheduler");
+  expect(scheduler).toBeTruthy();
+
+  const simulation = buildVisualSimulation("kubernetes", scheduler!);
+
+  expect(simulation.key).toBe("kubernetes:scheduler");
+  expect(simulation.pattern.en).toContain("scheduling cycle");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["PodSchedulingContext", "Filter plugins", "Score plugins", "Binding cycle"]),
+  );
+});
+
 test("linux epoll is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("os");
   const epoll = points.find((point) => point.id === "epoll");

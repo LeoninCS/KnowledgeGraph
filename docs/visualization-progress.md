@@ -151,6 +151,7 @@
 | 主从复制 | `step-simulation` | completed | SVG review captured; PNG blocked by platform permissions | MySQL Replication 链路模拟器，覆盖 Source commit、Binlog Dump Thread、I/O Receiver、Relay Log、SQL Applier、GTID 差距和复制延迟 |
 | GTID | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | MySQL GTID 集合对账状态模型，覆盖 server_uuid:sequence、gtid_executed、gtid_purged、Retrieved/Executed 集合、候选副本对账和自动定位恢复 |
 | HPA | `step-simulation` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes HPA 自动伸缩控制环模拟器，覆盖负载升高、Metrics API、desiredReplicas 公式、Scale 子资源和稳定窗口 |
+| Scheduler | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes Scheduler 调度周期模拟器，覆盖 Pending Pod、Scheduling Queue/Profile、Filter/Score 插件、Binding Cycle 和 FailedScheduling 事件 |
 | epoll | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Linux epoll 事件通知状态模型，覆盖 epoll_create1、epoll_ctl、interest list、socket wait queue、ready list、epoll_wait 批量返回和 LT/ET drain |
 
 ## Buffer Pool Visualization
@@ -322,11 +323,11 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Docker `容器网络` 或 Kubernetes `Pod 调度` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Docker `资源限制` 或 Kubernetes `污点与容忍` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 Docker `容器网络` 或 Kubernetes `Pod 调度`。容器网络能围绕 namespace、veth、bridge、iptables/NAT 和端口映射形成分层结构模型；Pod 调度能围绕 Scheduler 队列、过滤、打分、绑定和 Pending 原因形成动态机制模拟。
+优先选择 Docker `资源限制` 或 Kubernetes `污点与容忍`。资源限制能围绕 cgroups、requests/limits、CPU throttle、OOMKilled 和 QoS 形成状态模型；污点与容忍能围绕 Node taint、Pod toleration、NoSchedule/NoExecute 和驱逐信号形成调度约束模拟。
 
 ## Kubernetes HPA Visualization
 
@@ -382,6 +383,61 @@
 - 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/hpa/mobile.svg`。
 - 截图结论：桌面 SVG 可识别 Deployment、Pod CPU 行、Metrics Server、HPA Controller、Scale 子资源、稳定窗口和底部排障信号；移动端摘要完整展示五步流程和四个事实卡片。
 - 验收备注：Chrome DevTools MCP profile 被占用，Browser 插件返回 in-app browser 不可用；本轮使用 `npm run build`、`npm run test:data -- --grep "kubernetes HPA"`、完整 `npm run test:data`、`git diff --check` 和本地 SVG 审查图完成验收。
+
+## Kubernetes Scheduler Visualization
+
+### Online Image References
+
+- `source`：Kubernetes Docs - Scheduling Framework，https://kubernetes.io/docs/concepts/scheduling-eviction/scheduling-framework/
+  - `image`：`https://kubernetes.io/images/docs/scheduling-framework-extensions.png`
+  - `role`：main
+  - `qualityReason`：官方图清楚呈现 PreEnqueue、QueueSort、Scheduling Cycle、Binding Cycle 和扩展点顺序，是调度周期主构图的权威参考。
+  - `takeaways`：主画布采用 Pending Pod、Scheduling Queue、Framework extension points、Filter、Score、Binding Cycle 的横向推进结构。
+  - `originalChanges`：改成本项目的五步交互模拟，加入节点快照、插件结果、Score 条形图、底部诊断信号和移动端流程卡。
+- `source`：Kubernetes Docs - Kubernetes Scheduler，https://kubernetes.io/docs/concepts/scheduling-eviction/kube-scheduler/
+  - `image`：页面中的 scheduler filter、score、bind 行为说明。
+  - `role`：supporting
+  - `qualityReason`：官方概念页定义 kube-scheduler 如何过滤节点、给剩余节点打分并选择最高分节点。
+  - `takeaways`：步骤保留 Filter feasible nodes、Score and pick Node、Bind and verify 三段主动作。
+  - `originalChanges`：把文字流程转换为节点列表、插件行和绑定状态，高亮 `0/N nodes are available` 与 `spec.nodeName` 验收信号。
+- `source`：Kubernetes Docs - Assigning Pods to Nodes，https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  - `image`：页面中的 nodeSelector、node affinity 和 preferred weight 示例。
+  - `role`：supporting
+  - `qualityReason`：官方示例能校准节点标签、硬性约束、软性偏好和权重进入 Filter/Score 的方式。
+  - `takeaways`：Filter 插件区展示 NodeAffinity 约束，Score 区展示拓扑和资源权重。
+  - `originalChanges`：用 `zone in a,c` 与 `node-c score=92` 表达约束输入和归一化结果。
+- `source`：Kubernetes Docs - Taints and Tolerations，https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  - `image`：页面中的 `kubectl taint`、`NoSchedule` 和 tolerations YAML 示例。
+  - `role`：supporting
+  - `qualityReason`：官方说明 taint/toleration 如何影响调度可行性，适合补足 Pending 事件中的失败原因。
+  - `takeaways`：Filter 插件区加入 `TaintToleration` 失败行，节点快照保留 taints 语义。
+  - `originalChanges`：把 taint 结果压缩成 `gpu:NoSchedule fail`，配合 FailedScheduling Events 做排障线索。
+- `source`：Kubernetes Docs - Pod Priority and Preemption，https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
+  - `image`：页面中的 priority class 与 preemption 调度说明。
+  - `role`：supporting
+  - `qualityReason`：官方文档补充 PostFilter/Preemption 作为无可行节点时的调度恢复路径。
+  - `takeaways`：右侧理解重点可提示优先级、抢占和 Pending 恢复分支。
+  - `originalChanges`：主模拟保持普通 Filter/Score/Bind 链路，底部和任务文案保留 FailedScheduling 与抢占排查入口。
+
+### Reference Breakdown
+
+- 主体布局：左侧 Pending Pod，中部 Scheduling Queue 与 Framework extension points，下方 Filter plugins 和 Node snapshot，右侧 Score plugins 与 Binding Cycle，底部四个诊断信号。
+- 视觉焦点：`checkout-7f9c` 从 `activeQ` 进入 `default-scheduler profile`，经过 Filter 选出 `node-a,node-c`，Score 选择 `node-c=92`，Binding 写回 `spec.nodeName=node-c`。
+- 领域对象：Pending Pod、Scheduling Queue、scheduler profile、QueueSort、PreFilter、Filter、Score、NormalizeScore、Reserve、Permit、Bind、NodeInfo cache、FailedScheduling Events。
+- 容器层级：Pod 输入决定调度上下文；Profile 决定插件链；Filter/Score 使用节点快照；Binding Cycle 写入 API Server；kubelet 接手目标节点启动。
+- 连线方向：Pod watch -> activeQ -> profile extension points -> Filter -> Node snapshot -> Score -> Binding Cycle -> kubelet node-c。
+- 状态表达：五步通过透明度、边框、箭头、插件行、分数条和底部信号从等待状态推进到 `Scheduled=True`。
+- 颜色策略：品牌蓝表示 Pod/Queue，青色表示 Profile 和 Binding 审批，橙色表示 Filter 约束，绿色表示 Score 胜出和绑定完成，红色表示被过滤节点与 Pending 风险。
+- 文字密度：桌面 SVG 保留对象名、插件名和关键读数；解释留给右侧任务面板、理解重点和底部步骤条。
+- 交互节奏：读取待调度 Pod -> 选择调度 Profile -> 过滤可行节点 -> 打分并选 Node -> 绑定并验证。
+- 原创改造点：把官方扩展点图拆成生产排障视角，加入 Pending 事件、节点快照、插件结果、Score 归一化和 Binding 验收信号。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/scheduler/desktop.svg` 与 `.codex-artifacts/visualizations/scheduler/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/scheduler/mobile.svg`。
+- 截图结论：桌面 SVG 可识别 Pending Pod、Scheduling Queue、Framework extension points、Filter plugins、Node snapshot、Score plugins、Binding Cycle 和底部四个信号；移动端 SVG 展示五步流程和指标摘要。
+- 验收备注：Chrome DevTools MCP profile 被占用，Browser 插件返回 in-app browser 不可用，Playwright/Chromium 受平台权限限制；本轮使用官方页面视觉确认、`npm run build`、`npm run test:data -- --grep "kubernetes scheduler"`、完整 `npm run test:data`、`git diff --check` 和真实 React `SimulationStage` 渲染的 SVG/HTML 审查图完成验收。
 
 ## MySQL Replication Visualization
 
