@@ -145,6 +145,7 @@
 | 两阶段提交 | `state-model` | completed | desktop/mobile captured | MySQL Two Phase Commit 提交一致性状态模型，覆盖 redo prepare、Binlog Xid、redo commit 和崩溃恢复判定 |
 | 死锁 | `state-model` | completed | desktop/mobile captured | MySQL Deadlock 锁等待状态模型，覆盖交叉持锁、wait-for graph 闭环、检测器、victim rollback 和重试分支 |
 | EXPLAIN | `state-model` | completed | desktop/mobile captured | MySQL EXPLAIN 执行计划诊断台，覆盖 Visual Explain、type/key/rows/Extra、谓词改写、复合索引和实测校验 |
+| 主从复制 | `step-simulation` | completed | SVG review captured; PNG blocked by platform permissions | MySQL Replication 链路模拟器，覆盖 Source commit、Binlog Dump Thread、I/O Receiver、Relay Log、SQL Applier、GTID 差距和复制延迟 |
 
 ## Buffer Pool Visualization
 
@@ -209,7 +210,74 @@
 
 ## Next Candidate
 
-优先选择 MySQL `Replication` 或 `Replication Lag`，它们能承接已完成的 Binlog 模拟器，展示 source、replica、relay log、I/O thread、SQL applier、GTID 集合和延迟观测。
+优先选择 MySQL `Replication Lag` 或 `GTID`，它们能承接已完成的 Replication 模拟器，继续展示网络读取延迟、relay backlog、applier worker、GTID 集合差距和故障切换定位。
+
+## MySQL Replication Visualization
+
+### Online Image References
+
+- `source`：MySQL Reference Manual - Source to Replica Replication，https://dev.mysql.com/doc/refman/8.4/en/group-replication-primary-secondary-replication.html
+  - `image`：页面中的 `Figure 20.1 Asynchronous replication` 与 `Figure 20.2 Semisynchronous replication`，展示 source 到 replica 的复制通道和半同步确认节奏。
+  - `role`：main
+  - `qualityReason`：官方图直接展示 source、replica、异步提交与半同步 ACK，是本轮主从复制链路的最权威主构图。
+  - `takeaways`：主画布采用左侧 Source commit、中间复制通道与 ACK、右侧 Replica 接收和应用、底部延迟指标。
+  - `originalChanges`：把官方静态复制结构改造成五步交互链路，加入 Retrieved/Executed GTID、Relay backlog 和 `Seconds_Behind_Source` 观测。
+- `source`：Percona - MySQL with Diagrams Part One: Replication Architecture，https://www.percona.com/blog/mysql-with-diagrams-part-one-replication-architecture/
+  - `image`：文章中的 MySQL replication architecture 图解，覆盖 Binlog、Binlog Dump Thread、Replica I/O Thread、Relay Log 和 SQL Thread。
+  - `role`：supporting
+  - `qualityReason`：工程图解把复制线程和日志对象分层表达，适合补齐官方图中较少展开的内部线程与 relay log 细节。
+  - `takeaways`：画布保留 Dump Thread、I/O Receiver、Relay Log、SQL Applier 四个节点。
+  - `originalChanges`：把图解式对象替换成本项目自己的 SVG 面板、颜色体系和中文排障文案。
+- `source`：MySQL Reference Manual - Replication Implementation，https://dev.mysql.com/doc/refman/8.4/en/replication-implementation.html
+  - `image`：页面中的复制实现说明，覆盖 source binary log、replica relay log 和复制事件流。
+  - `role`：supporting
+  - `qualityReason`：官方结构说明直接定义 Source 到 Replica 的复制边界，适合校准对象命名和链路方向。
+  - `takeaways`：主流程保持 Source -> Binary Log -> Relay Log -> Replica Apply。
+  - `originalChanges`：将文字结构转为可逐步高亮的链路模型。
+- `source`：MySQL Reference Manual - Replication Threads，https://dev.mysql.com/doc/refman/8.4/en/replication-threads.html
+  - `image`：页面中的 source dump thread、replica I/O receiver 和 SQL applier 线程说明。
+  - `role`：supporting
+  - `qualityReason`：官方线程职责划分清楚，适合校准画布中的 dump、receiver 和 applier 节点。
+  - `takeaways`：把读取端和应用端分开呈现，避免把复制延迟混成单一读数。
+  - `originalChanges`：用两个面板分别承载 network retrieval lag 和 apply lag，底部指标负责最终判断。
+- `source`：MySQL Reference Manual - Replica Logs，https://dev.mysql.com/doc/refman/8.4/en/replica-logs.html
+  - `image`：页面中的 relay log 和复制元数据说明。
+  - `role`：supporting
+  - `qualityReason`：官方定义 relay log 是副本本地复制事件缓存，适合支撑中右侧 relay log 容器。
+  - `takeaways`：Relay Log 面板显示 `mysql-relay.000091`、position 和 backlog。
+  - `originalChanges`：把日志文件和连接元数据转成可高亮的 receiver state、relay file、relay pos 三行。
+- `source`：MySQL Reference Manual - SHOW REPLICA STATUS Statement，https://dev.mysql.com/doc/refman/8.4/en/show-replica-status.html
+  - `image`：页面中的 `SHOW REPLICA STATUS` 字段说明。
+  - `role`：supporting
+  - `qualityReason`：官方字段可直接映射到线上排障读数，尤其是 retrieved/applied GTID、relay log position 和 Seconds_Behind_Source。
+  - `takeaways`：底部信号保留 Retrieved GTID、Executed GTID、Relay backlog、Seconds behind。
+  - `originalChanges`：把状态字段压缩成四个阶段性指标，随五步推进从落后到收敛。
+- `source`：MySQL Reference Manual - Semisynchronous Replication，https://dev.mysql.com/doc/refman/8.4/en/replication-semisync.html
+  - `image`：页面中的半同步确认流程说明。
+  - `role`：supporting
+  - `qualityReason`：补充 ACK 对 source 提交等待和复制可靠性的影响。
+  - `takeaways`：网络面板加入 ACK received 状态，解释 source commit wait 与 receiver 已接收的关系。
+  - `originalChanges`：只保留半同步 ACK 的关键等待点，主流程仍聚焦普通 source-to-replica 链路。
+
+### Reference Breakdown
+
+- 主体布局：左上应用写入与 Source MySQL，中上 Binary Log Stream，右下 Replica I/O Receiver 与 Relay Log，左下 SQL Applier，中下网络与 ACK，底部四个复制指标。
+- 视觉焦点：`T43 COMMIT -> mysql-bin.000143:884 -> mysql-relay.000091:1218 -> Executed_Gtid_Set += uuid:43`。
+- 领域对象：Source MySQL、Binary Log、Binlog Dump Thread、Replica I/O Receiver、Relay Log、SQL Applier、Coordinator、worker、Retrieved_Gtid_Set、Executed_Gtid_Set、Seconds_Behind_Source。
+- 容器层级：Source 负责提交顺序和 Binlog；Dump Thread 负责顺序推送；Replica I/O Receiver 负责写 relay log；SQL Applier 负责按依赖重放；底部信号负责区分读取延迟和应用延迟。
+- 连线方向：应用写入进入 Source；Source 到 Binary Log Stream；Dump Thread 到 Receiver 和 Relay Log；Relay Log 回流到 SQL Applier；Applier 完成后回到副本读可见。
+- 状态表达：五步通过 active class 控制节点、箭头、事件行、worker 行和底部指标从灰态到高亮。
+- 颜色策略：品牌蓝表示 source commit 与应用可见，青色表示 dump thread 和 binlog stream，橙色表示 receiver/relay/ACK，绿色表示 applier 收敛和延迟归零。
+- 文字密度：SVG 保留对象、文件名、GTID 和关键状态；解释放到右侧面板和底部步骤条。
+- 交互节奏：五步依次推进“Source 提交 -> 读取 Binlog -> 写入 Relay Log -> Applier 重放 -> 延迟收敛”。
+- 原创改造点：融合官方复制结构、复制线程、relay log、SHOW REPLICA STATUS 和半同步 ACK，做成面向读写分离一致性与复制延迟排障的链路模拟器。
+
+### Screenshot Review
+
+- 桌面：PNG 截图受当前平台权限限制；保存本地 SVG 验收图 `.codex-artifacts/visualizations/replication/desktop.svg`。
+- 移动端：PNG 截图受当前平台权限限制；保存本地 SVG 验收图 `.codex-artifacts/visualizations/replication/mobile.svg`。
+- 截图结论：桌面 SVG 验收图可识别 Source MySQL、Binary Log Stream、Binlog Dump Thread、网络 ACK、Replica I/O Receiver、Relay Log、SQL Applier 和底部复制指标；移动端 SVG 摘要完整展示五步链路和四个延迟读数。
+- 验收备注：Chrome DevTools MCP profile 被占用，Browser 插件返回 in-app browser 不可用，Playwright Chromium 受 macOS Mach port 权限限制，QuickLook PNG 转换受沙箱初始化限制；本轮使用构建产物、数据测试、静态 SVG 验收图和代码检查完成验收。
 
 ## MySQL EXPLAIN Visualization
 
@@ -1104,3 +1172,14 @@
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Commit/Push：功能提交 `37dc753 feat: add explain visualization` 与后续本地进度提交已存在；本轮补充 access type 指标修正与最新浏览器验收记录后继续执行 rebase 和 push。
 - Resume Point：同步完成后继续 MySQL `Replication` 或 `Replication Lag` 找图与设计。
+
+### 2026-06-02 14:30 CST
+
+- Branch/Pull：当前分支 `main`；`git fetch origin main` 与 `git pull --ff-only origin main` 成功，远端已同步到 `34da110`。
+- Selected：MySQL `Replication`，原因是 Source commit、Binlog Dump Thread、Replica I/O Receiver、Relay Log、SQL Applier、GTID 集合差距和 `Seconds_Behind_Source` 能承接已完成的 Binlog 模拟器，形成强工程排障链路。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；保留 MySQL 官方 Source to Replica Replication 异步/半同步图为主参考，Percona Replication Architecture、Replication Implementation、Replication Threads、Replica Logs、SHOW REPLICA STATUS、Semisynchronous Replication 和 Binary Log 为辅助参考。
+- Browser Note：Chrome DevTools MCP profile 被占用；Browser 插件返回 in-app browser 不可用；Playwright Chromium 受 macOS Mach port 权限限制；QuickLook PNG 转换受沙箱初始化限制。本轮使用官方页面 URL、搜索结果、构建产物和本地 SVG 验收图完成参考确认与截图验收。
+- Implementation：新增 `mysql:replication` 专用 `step-simulation` 构建器、Replication SVG 舞台、移动端纵向摘要、响应式样式，并给 MySQL 主从复制知识点补充官方复制来源引用。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/replication/desktop.svg` 与 `.codex-artifacts/visualizations/replication/mobile.svg`；桌面 SVG 可识别 Source、Binary Log Stream、Dump Thread、Receiver、Relay Log、SQL Applier 和底部复制指标，移动端摘要完整展示五步和四个延迟读数。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
+- Next Candidate：MySQL `Replication Lag` 或 `GTID`。

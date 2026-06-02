@@ -235,6 +235,11 @@
     justify-content: start;
   }
 
+  .replication-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .two-phase-stage {
     overflow-x: auto;
     justify-content: start;
@@ -655,6 +660,20 @@
     padding: 18px;
   }
 
+  .replication-card {
+    width: 100%;
+  }
+
+  .replication-diagram {
+    display: none;
+  }
+
+  .replication-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
   .two-phase-card {
     width: 100%;
   }
@@ -731,6 +750,8 @@
   .undo-log-mobile-facts,
   .binlog-mobile-flow,
   .binlog-mobile-facts,
+  .replication-mobile-flow,
+  .replication-mobile-facts,
   .two-phase-mobile-flow,
   .two-phase-mobile-facts,
   .explain-mobile-flow,
@@ -755,6 +776,8 @@
   .undo-log-mobile-fact,
   .binlog-mobile-hop,
   .binlog-mobile-fact,
+  .replication-mobile-hop,
+  .replication-mobile-fact,
   .two-phase-mobile-hop,
   .two-phase-mobile-fact,
   .explain-mobile-hop,
@@ -783,6 +806,8 @@
   .undo-log-mobile-fact.active,
   .binlog-mobile-hop.active,
   .binlog-mobile-fact.active,
+  .replication-mobile-hop.active,
+  .replication-mobile-fact.active,
   .two-phase-mobile-hop.active,
   .two-phase-mobile-fact.active,
   .explain-mobile-hop.active,
@@ -807,6 +832,8 @@
   .undo-log-mobile-fact span,
   .binlog-mobile-hop span,
   .binlog-mobile-fact span,
+  .replication-mobile-hop span,
+  .replication-mobile-fact span,
   .two-phase-mobile-hop span,
   .two-phase-mobile-fact span,
   .explain-mobile-hop span,
@@ -832,6 +859,8 @@
   .undo-log-mobile-fact strong,
   .binlog-mobile-hop strong,
   .binlog-mobile-fact strong,
+  .replication-mobile-hop strong,
+  .replication-mobile-fact strong,
   .two-phase-mobile-hop strong,
   .two-phase-mobile-fact strong,
   .explain-mobile-hop strong,

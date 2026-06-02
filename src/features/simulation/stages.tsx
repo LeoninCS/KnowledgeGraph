@@ -231,6 +231,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:replication") {
+    return (
+      <ReplicationStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "mysql:two-phase-commit") {
     return (
       <TwoPhaseCommitStage
@@ -2679,6 +2690,240 @@ function BinlogStage({
           </div>
         </div>
         <div className="tcp-handshake-caption binlog-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReplicationStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const commitActive = completedSteps >= 1;
+  const dumpActive = completedSteps >= 2;
+  const relayActive = completedSteps >= 3;
+  const applyActive = completedSteps >= 4;
+  const caughtUpActive = completedSteps >= 5;
+  const eventRows = [
+    { name: "GTID_LOG_EVENT", value: "uuid:43", active: commitActive, tone: "brand" },
+    { name: "TABLE_MAP_EVENT", value: "orders", active: dumpActive, tone: "teal" },
+    { name: "UPDATE_ROWS_EVENT", value: "status shipped", active: dumpActive, tone: "warning" },
+    { name: "XID_EVENT", value: "commit T43", active: relayActive, tone: "success" },
+  ];
+  const relayRows = [
+    { name: "Receiver state", value: relayActive ? "Queueing events" : "Waiting", active: relayActive },
+    { name: "Relay file", value: relayActive ? "mysql-relay.000091" : "empty", active: relayActive },
+    { name: "Relay pos", value: relayActive ? "1218" : "0", active: relayActive },
+  ];
+  const workerRows = [
+    { name: "Coordinator", value: applyActive ? "dispatch uuid:43" : "idle", active: applyActive },
+    { name: "worker#1", value: caughtUpActive ? "commit ok" : applyActive ? "applying" : "idle", active: applyActive },
+    { name: "worker#2", value: applyActive ? "dependency wait" : "idle", active: applyActive },
+  ];
+  const signalRows = [
+    { name: "Retrieved GTID", value: relayActive ? "uuid:1-43" : dumpActive ? "uuid:1-42" : "uuid:1-41", active: dumpActive },
+    { name: "Executed GTID", value: caughtUpActive ? "uuid:1-43" : applyActive ? "uuid:1-42" : "uuid:1-41", active: applyActive },
+    { name: "Relay backlog", value: caughtUpActive ? "0 events" : relayActive ? "3 events" : "idle", active: relayActive },
+    { name: "Seconds behind", value: caughtUpActive ? "0s" : relayActive ? "4s" : "n/a", active: caughtUpActive },
+  ];
+  const mobileFlow = [
+    { name: "Source commit", value: commitActive ? "GTID uuid:43" : "waiting", active: commitActive },
+    { name: "Dump thread", value: dumpActive ? "mysql-bin.000143:884" : "idle", active: dumpActive },
+    { name: "Relay log", value: relayActive ? "receiver persisted events" : "empty", active: relayActive },
+    { name: "SQL applier", value: applyActive ? "workers replay transaction" : "pending", active: applyActive },
+    { name: "Replica lag", value: caughtUpActive ? "Seconds_Behind_Source=0" : "tracking", active: caughtUpActive },
+  ];
+
+  return (
+    <div className="visual-stage replication-stage">
+      <div className="replication-card">
+        <svg
+          className="replication-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["replication-arrow-brand", "var(--brand)"],
+              ["replication-arrow-teal", "var(--tertiary)"],
+              ["replication-arrow-warning", "#f59e0b"],
+              ["replication-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="replication-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="replication-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="replication-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="replication-subtitle" x="560" y="100">
+            {label(
+              "source commit -> binlog dump -> receiver -> relay log -> SQL applier -> lag metrics",
+              "source commit -> binlog dump -> receiver -> relay log -> SQL applier -> lag metrics",
+            )}
+          </text>
+
+          <g className={`replication-client-panel ${commitActive ? "active" : ""}`}>
+            <rect x="64" y="134" width="204" height="122" rx="24" />
+            <text className="replication-panel-title" x="92" y="172">{label("应用写入", "Application write")}</text>
+            <text className="replication-panel-subtitle" x="92" y="196">UPDATE orders SET status='shipped'</text>
+            <g className={`replication-chip brand ${commitActive ? "active" : ""}`}>
+              <rect x="92" y="216" width="134" height="30" rx="15" />
+              <text x="159" y="236">T43 COMMIT</text>
+            </g>
+          </g>
+
+          <g className={`replication-source-panel ${commitActive ? "active" : ""}`}>
+            <rect x="326" y="118" width="306" height="198" rx="26" />
+            <text className="replication-panel-title" x="354" y="158">Source MySQL</text>
+            <text className="replication-panel-subtitle" x="354" y="182">{label("提交顺序进入 Binary Log", "Commit order enters the binary log")}</text>
+            <g className={`replication-chip brand ${commitActive ? "active" : ""}`}>
+              <rect x="354" y="212" width="212" height="34" rx="17" />
+              <text x="460" y="234">mysql-bin.000143:884</text>
+            </g>
+            <g className={`replication-chip teal ${dumpActive ? "active" : ""}`}>
+              <rect x="354" y="258" width="212" height="34" rx="17" />
+              <text x="460" y="280">Binlog Dump Thread</text>
+            </g>
+          </g>
+
+          <g className={`replication-commit-path ${commitActive ? "active" : ""}`}>
+            <path d="M 268 196 C 294 196, 302 196, 326 196" markerEnd="url(#replication-arrow-brand)" />
+            <rect x="244" y="316" width="162" height="32" rx="16" />
+            <text x="325" y="337">{label("提交生成 GTID", "commit generates GTID")}</text>
+          </g>
+
+          <g className={`replication-binlog-panel ${dumpActive ? "active" : ""}`}>
+            <rect x="704" y="114" width="342" height="214" rx="28" />
+            <text className="replication-panel-title" x="732" y="154">Binary Log Stream</text>
+            <text className="replication-panel-subtitle" x="732" y="178">{label("按 file/pos 或 GTID 连续发送", "Streams by file/pos or GTID")}</text>
+            {eventRows.map((row, index) => (
+              <g key={row.name} className={`replication-event-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="732" y={204 + index * 32} width="256" height="24" rx="12" />
+                <text x="748" y={221 + index * 32}>{row.name}</text>
+                <text x="972" y={221 + index * 32}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`replication-dump-path ${dumpActive ? "active" : ""}`}>
+            <path d="M 632 240 C 668 232, 684 232, 704 240" markerEnd="url(#replication-arrow-teal)" />
+            <rect x="606" y="346" width="180" height="32" rx="16" />
+            <text x="696" y="367">{label("dump thread 推送", "dump thread streams")}</text>
+          </g>
+
+          <g className={`replication-network-panel ${relayActive ? "active" : ""}`}>
+            <rect x="474" y="382" width="230" height="116" rx="24" />
+            <text className="replication-panel-title" x="502" y="420">{label("网络与 ACK", "Network and ACK")}</text>
+            <text className="replication-panel-subtitle" x="502" y="444">{label("半同步在接收后返回确认", "Semisync returns ACK after receipt")}</text>
+            <g className={`replication-chip warning ${relayActive ? "active" : ""}`}>
+              <rect x="502" y="462" width="152" height="28" rx="14" />
+              <text x="578" y="481">{relayActive ? "ACK received" : "ACK pending"}</text>
+            </g>
+          </g>
+
+          <g className={`replication-relay-panel ${relayActive ? "active" : ""}`}>
+            <rect x="736" y="382" width="302" height="150" rx="26" />
+            <text className="replication-panel-title" x="764" y="422">Replica I/O Receiver</text>
+            <text className="replication-panel-subtitle" x="764" y="446">writes mysql-relay.000091</text>
+            {relayRows.map((row, index) => (
+              <g key={row.name} className={`replication-relay-row ${row.active ? "active" : ""}`}>
+                <rect x="764" y={466 + index * 30} width="216" height="23" rx="11.5" />
+                <text x="778" y={482 + index * 30}>{row.name}</text>
+                <text x="966" y={482 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`replication-relay-path ${relayActive ? "active" : ""}`}>
+            <path d="M 874 328 C 858 356, 852 370, 854 382" markerEnd="url(#replication-arrow-warning)" />
+            <path d="M 704 444 C 716 444, 724 444, 736 444" markerEnd="url(#replication-arrow-warning)" />
+            <rect x="760" y="342" width="146" height="32" rx="16" />
+            <text x="833" y="363">{label("接收并落盘", "receive and persist")}</text>
+          </g>
+
+          <g className={`replication-applier-panel ${applyActive ? "active" : ""}`}>
+            <rect x="72" y="380" width="350" height="156" rx="28" />
+            <text className="replication-panel-title" x="100" y="420">SQL Applier</text>
+            <text className="replication-panel-subtitle" x="100" y="444">{label("按依赖关系调度 worker", "Schedules workers by dependency")}</text>
+            {workerRows.map((row, index) => (
+              <g key={row.name} className={`replication-worker-row ${row.active ? "active" : ""}`}>
+                <rect x="100" y={466 + index * 32} width="250" height="24" rx="12" />
+                <text x="116" y={483 + index * 32}>{row.name}</text>
+                <text x="334" y={483 + index * 32}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`replication-apply-path ${applyActive ? "active" : ""}`}>
+            <path d="M 736 500 C 626 586, 476 584, 352 510" markerEnd="url(#replication-arrow-brand)" />
+            <rect x="462" y="548" width="170" height="32" rx="16" />
+            <text x="547" y="569">{label("重放 relay log", "replay relay log")}</text>
+          </g>
+
+          <g className={`replication-catchup-path ${caughtUpActive ? "active" : ""}`}>
+            <path d="M 106 380 C 78 330, 92 280, 132 256" markerEnd="url(#replication-arrow-success)" />
+            <rect x="72" y="304" width="154" height="32" rx="16" />
+            <text x="149" y="325">{label("副本读可见", "replica read visible")}</text>
+          </g>
+
+          <g className="replication-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`replication-signal ${signal.active ? "active" : ""}`}>
+                <rect x={66 + index * 252} y="588" width="210" height="34" rx="16" />
+                <text x={86 + index * 252} y="602">{signal.name}</text>
+                <text x={256 + index * 252} y="614">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="replication-mobile-map">
+          <div className="replication-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`replication-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="replication-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`replication-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption replication-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

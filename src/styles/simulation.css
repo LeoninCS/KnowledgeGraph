@@ -487,6 +487,44 @@
   display: none;
 }
 
+.replication-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.replication-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 22%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .replication-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.replication-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.replication-mobile-map {
+  display: none;
+}
+
 .two-phase-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -3493,6 +3531,210 @@
 }
 
 .binlog-apply-path path {
+  stroke: var(--success);
+}
+
+.replication-bg {
+  fill: color-mix(in srgb, var(--tertiary-soft) 24%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 20%, var(--border));
+}
+
+.replication-title {
+  fill: var(--text);
+  font-size: 22px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.replication-subtitle {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.replication-client-panel,
+.replication-source-panel,
+.replication-binlog-panel,
+.replication-network-panel,
+.replication-relay-panel,
+.replication-applier-panel,
+.replication-commit-path,
+.replication-dump-path,
+.replication-relay-path,
+.replication-apply-path,
+.replication-catchup-path,
+.replication-chip,
+.replication-event-row,
+.replication-relay-row,
+.replication-worker-row,
+.replication-signal {
+  opacity: 0.26;
+  transition: opacity 180ms ease;
+}
+
+.replication-client-panel.active,
+.replication-source-panel.active,
+.replication-binlog-panel.active,
+.replication-network-panel.active,
+.replication-relay-panel.active,
+.replication-applier-panel.active,
+.replication-commit-path.active,
+.replication-dump-path.active,
+.replication-relay-path.active,
+.replication-apply-path.active,
+.replication-catchup-path.active,
+.replication-chip.active,
+.replication-event-row.active,
+.replication-relay-row.active,
+.replication-worker-row.active,
+.replication-signal.active {
+  opacity: 1;
+}
+
+.replication-client-panel > rect,
+.replication-source-panel > rect,
+.replication-binlog-panel > rect,
+.replication-network-panel > rect,
+.replication-relay-panel > rect,
+.replication-applier-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#replication-soft-shadow);
+}
+
+.replication-client-panel.active > rect,
+.replication-source-panel.active > rect,
+.replication-chip.brand.active rect,
+.replication-event-row.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.replication-binlog-panel.active > rect,
+.replication-chip.teal.active rect,
+.replication-event-row.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 36%, var(--border));
+}
+
+.replication-network-panel.active > rect,
+.replication-relay-panel.active > rect,
+.replication-chip.warning.active rect,
+.replication-event-row.warning.active rect,
+.replication-relay-row.active rect {
+  fill: color-mix(in srgb, #f59e0b 8%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 32%, var(--border));
+}
+
+.replication-applier-panel.active > rect,
+.replication-worker-row.active rect,
+.replication-event-row.success.active rect,
+.replication-signal.active rect {
+  fill: color-mix(in srgb, var(--success) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.replication-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.replication-panel-subtitle,
+.replication-client-panel text,
+.replication-source-panel text,
+.replication-binlog-panel text,
+.replication-network-panel text,
+.replication-relay-panel text,
+.replication-applier-panel text,
+.replication-commit-path text,
+.replication-dump-path text,
+.replication-relay-path text,
+.replication-apply-path text,
+.replication-catchup-path text,
+.replication-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.replication-chip rect,
+.replication-event-row rect,
+.replication-relay-row rect,
+.replication-worker-row rect,
+.replication-commit-path rect,
+.replication-dump-path rect,
+.replication-relay-path rect,
+.replication-apply-path rect,
+.replication-catchup-path rect,
+.replication-signal rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#replication-soft-shadow);
+}
+
+.replication-panel-title,
+.replication-chip text,
+.replication-event-row text:first-of-type,
+.replication-relay-row text:first-of-type,
+.replication-worker-row text:first-of-type,
+.replication-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.replication-event-row text:nth-of-type(2),
+.replication-relay-row text:nth-of-type(2),
+.replication-worker-row text:nth-of-type(2),
+.replication-signal text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.replication-chip text,
+.replication-commit-path text,
+.replication-dump-path text,
+.replication-relay-path text,
+.replication-apply-path text,
+.replication-catchup-path text {
+  text-anchor: middle;
+}
+
+.replication-commit-path path,
+.replication-dump-path path,
+.replication-relay-path path,
+.replication-apply-path path,
+.replication-catchup-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.replication-commit-path path {
+  stroke: var(--brand);
+}
+
+.replication-dump-path path {
+  stroke: var(--tertiary);
+}
+
+.replication-relay-path path {
+  stroke: #f59e0b;
+}
+
+.replication-apply-path path {
+  stroke: var(--brand);
+}
+
+.replication-catchup-path path {
   stroke: var(--success);
 }
 

@@ -3703,11 +3703,19 @@ export const knowledgeSources = {
   },
   "mysql-replication-implementation": {
     title: "MySQL Reference Manual: Replication Implementation Details",
-    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-implementation-details.html",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-implementation.html",
+  },
+  "mysql-source-replica-replication": {
+    title: "MySQL Reference Manual: Source to Replica Replication",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/group-replication-primary-secondary-replication.html",
   },
   "mysql-semisync-replication": {
     title: "MySQL Reference Manual: Semisynchronous Replication",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replication-semisync.html",
+  },
+  "percona-mysql-replication-architecture": {
+    title: "Percona: MySQL with Diagrams Part One: Replication Architecture",
+    url: "https://www.percona.com/blog/mysql-with-diagrams-part-one-replication-architecture/",
   },
   "mysql-replication-formats": {
     title: "MySQL Reference Manual: Binary Logging Formats",
@@ -3720,6 +3728,18 @@ export const knowledgeSources = {
   "mysql-binary-log-transaction-dependency": {
     title: "MySQL Reference Manual: Binary Log Transaction Dependency Tracking",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html#sysvar_binlog_transaction_dependency_tracking",
+  },
+  "mysql-replication-threads": {
+    title: "MySQL Reference Manual: Replication Threads",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-threads.html",
+  },
+  "mysql-replica-logs-status": {
+    title: "MySQL Reference Manual: Replica Logs and Status",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replica-logs.html",
+  },
+  "mysql-show-replica-status": {
+    title: "MySQL Reference Manual: SHOW REPLICA STATUS Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/show-replica-status.html",
   },
   "mysql-workbench-visual-explain": {
     title: "MySQL Workbench Manual: Tutorial: Using Explain to Improve Query Performance",
