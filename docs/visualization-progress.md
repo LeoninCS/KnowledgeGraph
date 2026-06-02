@@ -1341,5 +1341,6 @@
 - Screenshot Review：保存 `.codex-artifacts/visualizations/crashloopbackoff/desktop.svg` 与 `.codex-artifacts/visualizations/crashloopbackoff/mobile.svg`；PNG 捕获受平台权限限制；桌面 SVG 可识别 Pod、Container Process、kubelet、BackOff、Events、Evidence 和 Fix Gate，移动端五步流程与四个事实卡片可读。
 - Browser Note：Vite preview 已在 `http://127.0.0.1:4234/KnowledgeGraph/` 启动；Chrome DevTools MCP profile 被占用；Browser 插件返回 in-app browser 不可用；Playwright Chromium 受 macOS Mach port 权限限制；QuickLook PNG 转换被沙箱初始化拦截。
 - Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `crashloopbackoff`，补实现后 `npm run test:data -- --grep "CrashLoopBackOff"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 6 项；`git diff --check` 通过。
-- Commit/Push Plan：提交 `feat: add crashloopbackoff visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Commit/Push：功能提交 `2026ab3 feat: add crashloopbackoff visualization` 已推送到 `origin/main`。
+- Cleanup Note：Vite preview 进程 `node` PID `98500` 仍监听 `tcp:4234`；`kill 98500` 受当前沙箱权限限制返回 `operation not permitted`。
 - Next Candidate：Kubernetes `Horizontal Pod Autoscaler` 或 Docker `容器网络`。
