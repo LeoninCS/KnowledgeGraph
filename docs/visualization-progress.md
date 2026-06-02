@@ -1745,3 +1745,11 @@
 - Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `taint-toleration`，补实现后 `npm run test:data -- --grep "taints and tolerations"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 13 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add taint toleration visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Docker `CPU 限制` 或 Kubernetes `拓扑分布约束`。
+
+### 2026-06-03 04:03 CST
+
+- Branch/Fetch：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `d8834df7e5ff8c2cd3b585fcc8d01fad14a06519`。
+- Pull Gate：`git pull --ff-only origin main` 失败，原因是 `Could not resolve host: github.com`。
+- Working Tree：进入同步门禁时工作区干净；本条记录写入后仅 `docs/visualization-progress.md` 发生变化。
+- Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
+- Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后提交本条 docs-only 阻塞记录，再继续 Docker `CPU 限制` 或 Kubernetes `拓扑分布约束` 找图与设计。
