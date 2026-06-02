@@ -3749,6 +3749,22 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: The GTID Life Cycle",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replication-gtids-lifecycle.html",
   },
+  "mysql-replication-gtid-format": {
+    title: "MySQL Reference Manual: GTID Format and Storage",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-gtids-concepts.html",
+  },
+  "mysql-replication-gtid-auto-positioning": {
+    title: "MySQL Reference Manual: GTID Auto-Positioning",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-gtids-auto-positioning.html",
+  },
+  "oracle-mysql-ha-solutions-gtid": {
+    title: "Oracle MySQL HA Solutions: GTID failover diagrams",
+    url: "https://www.slideshare.net/matkeep/mysql-ha-solutions",
+  },
+  "hackmysql-gtid-missing-writes": {
+    title: "HackMySQL: MySQL GTID Missing Writes",
+    url: "https://hackmysql.com/mysql-gtid-missing-writes/",
+  },
   "mysql-workbench-visual-explain": {
     title: "MySQL Workbench Manual: Tutorial: Using Explain to Improve Query Performance",
     url: "https://dev.mysql.com/doc/workbench/en/wb-tutorial-visual-explain-dbt3.html",

@@ -195,6 +195,7 @@ export const coreKnowledgePointIdsByCategory: Record<CategoryId, string[]> = {
     "replication",
     "read-write-splitting",
     "replication-lag",
+    "gtid",
     "connection-pool",
   ],
   redis: [

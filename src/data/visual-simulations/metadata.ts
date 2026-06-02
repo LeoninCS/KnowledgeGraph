@@ -305,6 +305,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
     "deadlock",
     "replication",
     "replication-lag",
+    "gtid",
     "explain",
   ],
   redis: [

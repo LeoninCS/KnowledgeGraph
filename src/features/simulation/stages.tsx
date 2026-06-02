@@ -253,6 +253,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:gtid") {
+    return (
+      <GtidStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "mysql:two-phase-commit") {
     return (
       <TwoPhaseCommitStage
@@ -3163,6 +3174,230 @@ function ReplicationLagStage({
           </div>
         </div>
         <div className="tcp-handshake-caption replication-lag-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GtidStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const generatedActive = completedSteps >= 1;
+  const loggedActive = completedSteps >= 2;
+  const retrievedActive = completedSteps >= 3;
+  const comparedActive = completedSteps >= 4;
+  const recoveredActive = completedSteps >= 5;
+  const gtidTokens = [
+    { value: "uuidA:578", active: loggedActive, tone: "brand" },
+    { value: "uuidA:579", active: loggedActive, tone: "brand" },
+    { value: "uuidA:580", active: comparedActive, tone: "danger" },
+    { value: "uuidA:581", active: generatedActive, tone: recoveredActive ? "success" : comparedActive ? "danger" : "teal" },
+  ];
+  const setRows = [
+    { name: "gtid_executed", value: loggedActive ? "uuidA:1-581" : "uuidA:1-580", active: loggedActive, tone: "teal" },
+    { name: "gtid_purged", value: loggedActive ? "uuidA:1-240" : "uuidA:1-220", active: loggedActive, tone: "brand" },
+    { name: "Retrieved_Gtid_Set", value: retrievedActive ? "uuidA:1-581" : "uuidA:1-579", active: retrievedActive, tone: "warning" },
+    { name: "Executed_Gtid_Set", value: recoveredActive ? "uuidA:1-581" : comparedActive ? "uuidA:1-579" : "uuidA:1-578", active: retrievedActive, tone: recoveredActive ? "success" : "danger" },
+  ];
+  const candidateRows = [
+    { name: "Replica A", value: recoveredActive ? "uuidA:1-581" : comparedActive ? "uuidA:1-581" : "waiting", active: comparedActive || recoveredActive, tone: "success" },
+    { name: "Replica B", value: comparedActive ? "missing 580-581" : "waiting", active: comparedActive, tone: "danger" },
+    { name: "Replica C", value: comparedActive ? "missing 581" : "waiting", active: comparedActive, tone: "warning" },
+  ];
+  const signalRows = [
+    { name: "GTID gap", value: recoveredActive ? "0" : comparedActive ? "2 tx" : "pending", active: comparedActive || recoveredActive },
+    { name: "Candidate", value: comparedActive ? "Replica A" : "pending", active: comparedActive },
+    { name: "Auto position", value: recoveredActive ? "on" : "standby", active: recoveredActive },
+    { name: "Traffic gate", value: recoveredActive ? "open" : comparedActive ? "hold" : "watch", active: comparedActive || recoveredActive },
+  ];
+  const mobileFlow = [
+    { name: "Source UUID", value: generatedActive ? "uuidA:581" : "waiting", active: generatedActive },
+    { name: "Binary log", value: loggedActive ? "GTID event persisted" : "idle", active: loggedActive },
+    { name: "Replica sets", value: retrievedActive ? "retrieved ahead" : "steady", active: retrievedActive },
+    { name: "Candidate check", value: comparedActive ? "Replica A freshest" : "waiting", active: comparedActive },
+    { name: "Auto position", value: recoveredActive ? "missing range filled" : "standby", active: recoveredActive },
+  ];
+
+  return (
+    <div className="visual-stage gtid-stage">
+      <div className="gtid-card">
+        <svg
+          className="gtid-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["gtid-arrow-brand", "var(--brand)"],
+              ["gtid-arrow-teal", "var(--tertiary)"],
+              ["gtid-arrow-warning", "#f59e0b"],
+              ["gtid-arrow-danger", "var(--danger)"],
+              ["gtid-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="gtid-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="gtid-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="gtid-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="gtid-subtitle" x="560" y="100">
+            {label(
+              "server_uuid:sequence -> gtid_executed -> Retrieved / Executed sets -> candidate diff -> auto position",
+              "server_uuid:sequence -> gtid_executed -> Retrieved / Executed sets -> candidate diff -> auto position",
+            )}
+          </text>
+
+          <g className={`gtid-source-panel ${generatedActive ? "active" : ""}`}>
+            <rect x="64" y="136" width="252" height="150" rx="26" />
+            <text className="gtid-panel-title" x="92" y="174">Source MySQL</text>
+            <text className="gtid-panel-subtitle" x="92" y="198">server_uuid = uuidA</text>
+            <g className={`gtid-server-chip ${generatedActive ? "active" : ""}`}>
+              <rect x="92" y="224" width="166" height="34" rx="17" />
+              <text x="175" y="246">{generatedActive ? "uuidA:581" : "next sequence"}</text>
+            </g>
+          </g>
+
+          <g className={`gtid-binlog-panel ${loggedActive ? "active" : ""}`}>
+            <rect x="382" y="126" width="298" height="172" rx="28" />
+            <text className="gtid-panel-title" x="410" y="164">Binary Log</text>
+            <text className="gtid-panel-subtitle" x="410" y="188">{label("GTID event 在事务事件前", "GTID event before transaction events")}</text>
+            {gtidTokens.map((token, index) => (
+              <g key={token.value} className={`gtid-token ${token.tone} ${token.active ? "active" : ""}`}>
+                <rect x={410 + index * 58} y="218" width="50" height="48" rx="16" />
+                <text x={435 + index * 58} y="239">{token.value.slice(-3)}</text>
+                <text x={435 + index * 58} y="255">GTID</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`gtid-replica-panel ${retrievedActive ? "active" : ""}`}>
+            <rect x="742" y="122" width="314" height="210" rx="28" />
+            <text className="gtid-panel-title" x="770" y="162">Replica GTID Sets</text>
+            <text className="gtid-panel-subtitle" x="770" y="186">{label("接收集合与应用集合分开看", "Separate retrieved and executed sets")}</text>
+            {setRows.map((row, index) => (
+              <g key={row.name} className={`gtid-set-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="770" y={210 + index * 38} width="240" height="28" rx="14" />
+                <text x="786" y={229 + index * 38}>{row.name}</text>
+                <text x="998" y={229 + index * 38}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`gtid-generate-path ${generatedActive ? "active" : ""}`}>
+            <path d="M 316 214 C 344 214, 356 212, 382 212" markerEnd="url(#gtid-arrow-brand)" />
+            <rect x="270" y="318" width="150" height="32" rx="16" />
+            <text x="345" y="339">{label("生成编号", "assign GTID")}</text>
+          </g>
+
+          <g className={`gtid-retrieve-path ${retrievedActive ? "active" : ""}`}>
+            <path d="M 680 226 C 708 226, 720 224, 742 224" markerEnd="url(#gtid-arrow-warning)" />
+            <rect x="628" y="346" width="166" height="32" rx="16" />
+            <text x="711" y="367">{label("集合推进", "sets advance")}</text>
+          </g>
+
+          <g className={`gtid-candidate-panel ${comparedActive ? "active" : ""}`}>
+            <rect x="90" y="402" width="334" height="152" rx="28" />
+            <text className="gtid-panel-title" x="118" y="438">{label("候选副本对账", "Candidate comparison")}</text>
+            <text className="gtid-panel-subtitle" x="118" y="462">{label("按 Executed_Gtid_Set 找最新副本", "Use Executed_Gtid_Set to find the freshest replica")}</text>
+            {candidateRows.map((row, index) => (
+              <g key={row.name} className={`gtid-candidate-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="118" y={484 + index * 32} width="244" height="24" rx="12" />
+                <text x="134" y={501 + index * 32}>{row.name}</text>
+                <text x="346" y={501 + index * 32}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`gtid-gap-panel ${comparedActive ? "active" : ""}`}>
+            <rect x="506" y="396" width="270" height="160" rx="28" />
+            <text className="gtid-panel-title" x="534" y="436">Set Diff</text>
+            <text className="gtid-panel-subtitle" x="534" y="460">{label("缺失范围决定补齐计划", "Missing ranges decide catch-up plan")}</text>
+            <g className={`gtid-gap-chip danger ${comparedActive && !recoveredActive ? "active" : ""}`}>
+              <rect x="534" y="488" width="184" height="34" rx="17" />
+              <text x="626" y="510">{recoveredActive ? "gap = 0" : "missing 580-581"}</text>
+            </g>
+          </g>
+
+          <g className={`gtid-auto-panel ${recoveredActive ? "active" : ""}`}>
+            <rect x="842" y="404" width="210" height="148" rx="28" />
+            <text className="gtid-panel-title" x="870" y="440">Auto Positioning</text>
+            <text className="gtid-panel-subtitle" x="870" y="464">SOURCE_AUTO_POSITION=1</text>
+            <g className={`gtid-auto-chip ${recoveredActive ? "active" : ""}`}>
+              <rect x="870" y="492" width="148" height="34" rx="17" />
+              <text x="944" y="514">{recoveredActive ? "uuidA:580-581" : "standby"}</text>
+            </g>
+          </g>
+
+          <g className={`gtid-compare-path ${comparedActive ? "active" : ""}`}>
+            <path d="M 856 332 C 718 390, 556 424, 424 458" markerEnd="url(#gtid-arrow-danger)" />
+            <rect x="438" y="348" width="166" height="32" rx="16" />
+            <text x="521" y="369">{label("比较集合", "compare sets")}</text>
+          </g>
+
+          <g className={`gtid-auto-path ${recoveredActive ? "active" : ""}`}>
+            <path d="M 776 488 C 802 488, 818 488, 842 488" markerEnd="url(#gtid-arrow-success)" />
+            <path d="M 944 404 C 894 346, 846 326, 802 312" markerEnd="url(#gtid-arrow-success)" />
+          </g>
+
+          <g className="gtid-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`gtid-signal ${signal.active ? "active" : ""}`}>
+                <rect x={66 + index * 252} y="588" width="210" height="34" rx="16" />
+                <text x={86 + index * 252} y="602">{signal.name}</text>
+                <text x={256 + index * 252} y="614">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="gtid-mobile-map">
+          <div className="gtid-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`gtid-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="gtid-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`gtid-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption gtid-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

@@ -146,6 +146,7 @@
 | 死锁 | `state-model` | completed | desktop/mobile captured | MySQL Deadlock 锁等待状态模型，覆盖交叉持锁、wait-for graph 闭环、检测器、victim rollback 和重试分支 |
 | EXPLAIN | `state-model` | completed | desktop/mobile captured | MySQL EXPLAIN 执行计划诊断台，覆盖 Visual Explain、type/key/rows/Extra、谓词改写、复合索引和实测校验 |
 | 主从复制 | `step-simulation` | completed | SVG review captured; PNG blocked by platform permissions | MySQL Replication 链路模拟器，覆盖 Source commit、Binlog Dump Thread、I/O Receiver、Relay Log、SQL Applier、GTID 差距和复制延迟 |
+| GTID | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | MySQL GTID 集合对账状态模型，覆盖 server_uuid:sequence、gtid_executed、gtid_purged、Retrieved/Executed 集合、候选副本对账和自动定位恢复 |
 
 ## Buffer Pool Visualization
 
@@ -202,15 +203,70 @@
 - 截图结论：主题 10 秒内可识别；LRU young/old、midpoint、Free List、Flush List、Page Cleaner 和表空间链路完整；右侧任务、操作面板、理解重点可读；底部五步进度完整；移动端保留核心画布和面板信息。
 - 验收备注：Playwright Chromium 在当前 macOS 沙箱中受 Mach port 权限限制；Chrome DevTools MCP 恢复后完成页面交互和截图。代码验证以 `npm run build`、`npm run test:data` 和 `git diff --check` 为准。
 
+## MySQL GTID Visualization
+
+### Online Image References
+
+- `source`：Oracle MySQL HA Solutions，https://www.slideshare.net/matkeep/mysql-ha-solutions
+  - `image`：第 18 页 GTID 在复制层级中传播，并用 GTID 判断最新副本与缺失事务的图。
+  - `role`：main
+  - `qualityReason`：图中同时呈现主库、多个副本、GTID 传播和故障切换选择，是 GTID 用于 HA 判断的高密度主构图。
+  - `takeaways`：主画布采用 Source、Binary Log、Replica GTID Sets、Candidate Comparison 和 Auto Positioning 五区结构。
+  - `originalChanges`：改写为本项目自己的 GTID 集合对账状态模型，加入 `gtid_executed`、`gtid_purged`、`Retrieved_Gtid_Set`、`Executed_Gtid_Set` 和流量闸门信号。
+- `source`：MySQL Reference Manual - The GTID Life Cycle，https://dev.mysql.com/doc/refman/8.4/en/replication-gtids-lifecycle.html
+  - `image`：官方 GTID 生命周期说明，覆盖事务提交、写入 binary log、传输到副本和执行集合推进。
+  - `role`：supporting
+  - `qualityReason`：官方定义 GTID 生成、持久化、传输和执行顺序，适合校准五步状态。
+  - `takeaways`：交互步骤按生成 GTID、写入 Binlog、副本拉取、候选对账、自动定位恢复推进。
+  - `originalChanges`：把文字生命周期转换成可高亮的 token、集合行和缺口路径。
+- `source`：MySQL Reference Manual - GTID Format and Storage，https://dev.mysql.com/doc/refman/8.4/en/replication-gtids-concepts.html
+  - `image`：官方 GTID 格式与集合存储说明。
+  - `role`：supporting
+  - `qualityReason`：权威说明 `server_uuid:sequence`、GTID set、`gtid_executed` 与 `gtid_purged`。
+  - `takeaways`：Source 面板保留 `server_uuid=uuidA`，底部信号保留 executed/purged 边界。
+  - `originalChanges`：用 token 卡片表达 `uuidA:578-581`，用集合行表达区间推进。
+- `source`：MySQL Reference Manual - GTID Auto-Positioning，https://dev.mysql.com/doc/refman/8.4/en/replication-gtids-auto-positioning.html
+  - `image`：官方 auto-positioning 流程说明。
+  - `role`：supporting
+  - `qualityReason`：校准新复制连接如何发送自身 GTID 集合并继续拉取缺失范围。
+  - `takeaways`：右下角 Auto Positioning 面板展示 `SOURCE_AUTO_POSITION=1` 与缺失范围补齐。
+  - `originalChanges`：把连接握手简化为恢复路径和流量闸门，突出故障切换后验收。
+- `source`：HackMySQL - MySQL GTID Missing Writes，https://hackmysql.com/mysql-gtid-missing-writes/
+  - `image`：文章中的 GTID 缺失写入、集合差异和排查语境。
+  - `role`：supporting
+  - `qualityReason`：工程案例能解释 errant/missing transaction 对恢复的影响，补足官方文档的排障视角。
+  - `takeaways`：Candidate Comparison 和 Set Diff 面板突出 missing range 与 traffic gate。
+  - `originalChanges`：用 Replica A/B/C 对账卡片替代长日志输出，保留线上判断口径。
+
+### Reference Breakdown
+
+- 主体布局：上排 Source MySQL、Binary Log、Replica GTID Sets；下排 Candidate Comparison、Set Diff、Auto Positioning；底部四个恢复信号。
+- 视觉焦点：`uuidA:581` token 与 `Retrieved_Gtid_Set=uuidA:1-581`、`Executed_Gtid_Set=uuidA:1-579` 的差距。
+- 领域对象：server_uuid、GTID event、binary log、gtid_executed、gtid_purged、Retrieved_Gtid_Set、Executed_Gtid_Set、candidate replica、missing range、auto-positioning link。
+- 容器层级：Source 负责生成事务身份；Binary Log 保存可复制顺序；Replica Sets 记录接收/执行边界；Candidate Comparison 和 Set Diff 服务切换决策；Auto Positioning 负责恢复连接。
+- 连线方向：Source 生成 GTID 后写入 Binlog，副本拉取推进集合，故障切换时从 Replica Sets 回看候选，再由 Auto Positioning 补齐缺失范围。
+- 状态表达：五步分别高亮生成、落盘、拉取、对账、恢复；danger 表达缺失范围，success 表达补齐后开放流量。
+- 颜色策略：品牌蓝表示 source identity，青色表示 binlog/executed 推进，橙色表示 retrieved 与 apply 差距，红色表示 missing range，绿色表示 auto-positioning 恢复完成。
+- 文字密度：桌面画布只保留 GTID 集合关键字段和短标签；详细解释放在右侧面板和底部步骤条。
+- 交互节奏：生成 GTID -> 写入 Binlog -> 副本拉取 -> 候选对账 -> 自动定位恢复。
+- 原创改造点：把 HA 方案图和官方生命周期文档融合为集合对账模拟器，强调生产恢复时的缺失集合、purged 边界、候选副本和流量闸门。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/gtid/desktop.svg`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/gtid/mobile.svg`。
+- 截图结论：桌面 SVG 可识别 Source、Binary Log、Replica GTID Sets、Candidate Comparison、Set Diff、Auto Positioning 和底部恢复信号；移动端摘要完整展示五步流程和四个事实卡片。
+- 验收备注：Chrome DevTools MCP profile 被占用，Browser 插件返回 in-app browser 不可用，Vite preview 端口监听失败，Playwright Chromium 受 macOS Mach port 权限限制，QuickLook PNG 转换被沙箱初始化拦截；本轮使用 `npm run build`、`npm run test:data -- --grep "mysql GTID"`、完整 `npm run test:data`、`git diff --check` 和本地 SVG 审查图完成验收。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 MySQL `Replication` 或 `Replication Lag` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 MySQL `Failover` 或 Kubernetes `CrashLoopBackOff` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 MySQL `Replication Lag` 或 `GTID`，它们能承接已完成的 Replication 模拟器，继续展示网络读取延迟、relay backlog、applier worker、GTID 集合差距和故障切换定位。
+优先选择 MySQL `Failover` 或 Kubernetes `CrashLoopBackOff`，它们都能围绕真实故障切换、状态判断、恢复动作和排障信号形成高价值交互模型。
 
 ## MySQL Replication Visualization
 
@@ -1201,3 +1257,18 @@
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add replication lag visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：MySQL `GTID` 或 `Failover`。
+
+### 2026-06-02 16:12 CST
+
+- Branch/Pull：当前分支 `main`；`git fetch origin main` 与 `git pull --ff-only origin main` 成功，远端已同步到 `144de19`。
+- Selected：MySQL `GTID`，原因是 server_uuid:sequence、GTID event、`gtid_executed`、`gtid_purged`、Retrieved/Executed 集合、候选副本对账和 auto-positioning 恢复能承接已完成的 Replication 与 Replication Lag 可视化，形成主从切换定位模型。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；Chrome DevTools MCP profile 占用，Browser 插件不可用，本轮用搜索结果、页面 URL 和可访问资料确认 1 张主参考图与 4 个辅助来源。
+- Main Reference：Oracle MySQL HA Solutions，第 18 页 GTID failover / latest replica / missing transactions 图。
+- Supporting References：MySQL GTID Life Cycle、GTID Format and Storage、GTID Auto-Positioning、HackMySQL GTID Missing Writes。
+- Reference Breakdown：采用上排 Source / Binary Log / Replica Sets，下排 Candidate Comparison / Set Diff / Auto Positioning，底部 GTID gap、Candidate、Auto position、Traffic gate 四个信号；视觉焦点是 `Retrieved_Gtid_Set=uuidA:1-581` 与 `Executed_Gtid_Set=uuidA:1-579` 的集合差距。
+- Implementation：新增 `mysql:gtid` 专用 `state-model` 构建器、GTID SVG 舞台、移动端纵向摘要、响应式样式、GTID 专用来源和数据测试，并把 GTID 加入 MySQL 核心/可视化清单。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/gtid/desktop.svg` 与 `.codex-artifacts/visualizations/gtid/mobile.svg`；PNG 捕获受平台权限限制；桌面 SVG 可识别 GTID token、集合行、候选副本对账、缺失范围和自动定位恢复，移动端五步流程与四个事实卡片可读。
+- Browser Note：Chrome DevTools MCP profile 被占用；Browser 插件返回 in-app browser 不可用；Vite preview 端口监听失败；Playwright Chromium 受 macOS Mach port 权限限制；QuickLook PNG 转换被沙箱初始化拦截。
+- Verification：新增测试先失败于 `visualPointIds.mysql` 缺少 `gtid`，补实现后 `npm run test:data -- --grep "mysql GTID"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 5 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add gtid visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：MySQL `Failover` 或 Kubernetes `CrashLoopBackOff`。

@@ -4028,6 +4028,216 @@
   stroke: var(--success);
 }
 
+.gtid-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 28%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 20%, var(--border));
+}
+
+.gtid-title {
+  fill: var(--text);
+  font-size: 22px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.gtid-subtitle {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.gtid-source-panel,
+.gtid-binlog-panel,
+.gtid-replica-panel,
+.gtid-candidate-panel,
+.gtid-gap-panel,
+.gtid-auto-panel,
+.gtid-generate-path,
+.gtid-retrieve-path,
+.gtid-compare-path,
+.gtid-auto-path,
+.gtid-server-chip,
+.gtid-token,
+.gtid-set-row,
+.gtid-candidate-row,
+.gtid-gap-chip,
+.gtid-auto-chip,
+.gtid-signal {
+  opacity: 0.25;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.gtid-source-panel.active,
+.gtid-binlog-panel.active,
+.gtid-replica-panel.active,
+.gtid-candidate-panel.active,
+.gtid-gap-panel.active,
+.gtid-auto-panel.active,
+.gtid-generate-path.active,
+.gtid-retrieve-path.active,
+.gtid-compare-path.active,
+.gtid-auto-path.active,
+.gtid-server-chip.active,
+.gtid-token.active,
+.gtid-set-row.active,
+.gtid-candidate-row.active,
+.gtid-gap-chip.active,
+.gtid-auto-chip.active,
+.gtid-signal.active {
+  opacity: 1;
+}
+
+.gtid-source-panel > rect,
+.gtid-binlog-panel > rect,
+.gtid-replica-panel > rect,
+.gtid-candidate-panel > rect,
+.gtid-gap-panel > rect,
+.gtid-auto-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 20%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#gtid-soft-shadow);
+}
+
+.gtid-source-panel.active > rect,
+.gtid-server-chip.active rect,
+.gtid-token.brand.active rect,
+.gtid-set-row.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.gtid-binlog-panel.active > rect,
+.gtid-token.teal.active rect,
+.gtid-set-row.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 36%, var(--border));
+}
+
+.gtid-replica-panel.active > rect,
+.gtid-set-row.warning.active rect,
+.gtid-candidate-row.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 8%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 34%, var(--border));
+}
+
+.gtid-candidate-panel.active > rect,
+.gtid-gap-panel.active > rect,
+.gtid-token.danger.active rect,
+.gtid-set-row.danger.active rect,
+.gtid-candidate-row.danger.active rect,
+.gtid-gap-chip.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.gtid-auto-panel.active > rect,
+.gtid-token.success.active rect,
+.gtid-candidate-row.success.active rect,
+.gtid-auto-chip.active rect,
+.gtid-signal.active rect {
+  fill: color-mix(in srgb, var(--success) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.gtid-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.gtid-panel-subtitle,
+.gtid-source-panel text,
+.gtid-binlog-panel text,
+.gtid-replica-panel text,
+.gtid-candidate-panel text,
+.gtid-gap-panel text,
+.gtid-auto-panel text,
+.gtid-generate-path text,
+.gtid-retrieve-path text,
+.gtid-compare-path text,
+.gtid-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.gtid-server-chip rect,
+.gtid-token rect,
+.gtid-set-row rect,
+.gtid-candidate-row rect,
+.gtid-gap-chip rect,
+.gtid-auto-chip rect,
+.gtid-generate-path rect,
+.gtid-retrieve-path rect,
+.gtid-compare-path rect,
+.gtid-signal rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#gtid-soft-shadow);
+}
+
+.gtid-panel-title,
+.gtid-server-chip text,
+.gtid-token text,
+.gtid-set-row text:first-of-type,
+.gtid-candidate-row text:first-of-type,
+.gtid-gap-chip text,
+.gtid-auto-chip text,
+.gtid-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.gtid-set-row text:nth-of-type(2),
+.gtid-candidate-row text:nth-of-type(2),
+.gtid-signal text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.gtid-server-chip text,
+.gtid-token text,
+.gtid-gap-chip text,
+.gtid-auto-chip text,
+.gtid-generate-path text,
+.gtid-retrieve-path text,
+.gtid-compare-path text {
+  text-anchor: middle;
+}
+
+.gtid-generate-path path,
+.gtid-retrieve-path path,
+.gtid-compare-path path,
+.gtid-auto-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.gtid-generate-path path {
+  stroke: var(--brand);
+}
+
+.gtid-retrieve-path path {
+  stroke: #f59e0b;
+}
+
+.gtid-compare-path path {
+  stroke: var(--danger);
+}
+
+.gtid-auto-path path {
+  stroke: var(--success);
+}
+
 .two-phase-bg {
   fill: color-mix(in srgb, var(--tertiary-soft) 28%, var(--surface));
   stroke: color-mix(in srgb, var(--tertiary) 20%, var(--border));

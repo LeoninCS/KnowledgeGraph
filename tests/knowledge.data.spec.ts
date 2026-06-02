@@ -3,6 +3,7 @@ import { copy } from "../src/app/copy";
 import { loadKnowledgePoints } from "../src/data/knowledge-points/loaders";
 import { categoryIds } from "../src/data/knowledge-points/metadata";
 import { knowledgeSources } from "../src/data/knowledge-points/sources";
+import { buildVisualSimulation } from "../src/data/visual-simulations";
 import { visualPointIds } from "../src/data/visual-simulations/metadata";
 import { buildSphereGraphLayout, withFocusedRelations } from "../src/features/knowledge/graph-layout";
 import {
@@ -54,6 +55,23 @@ test("core and visual point lists reference existing knowledge points", async ()
       expect(pointIds.has(id), `${categoryId} visual ${id}`).toBe(true);
     }
   }
+});
+
+test("mysql GTID is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("mysql");
+  const gtid = points.find((point) => point.id === "gtid");
+
+  expect(visualPointIds.mysql).toContain("gtid");
+  expect(gtid).toBeTruthy();
+
+  const simulation = buildVisualSimulation("mysql", gtid!);
+
+  expect(simulation.key).toBe("mysql:gtid");
+  expect(simulation.pattern.zh).toContain("GTID");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["gtid_executed", "gtid_purged", "Retrieved_Gtid_Set", "Executed_Gtid_Set"]),
+  );
 });
 
 test("search scoring and category lookup find expected topics", async () => {
