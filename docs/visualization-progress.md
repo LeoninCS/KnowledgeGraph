@@ -1484,3 +1484,10 @@
 - Verification：新增测试先失败于通用 OS 模型，补实现后 `npm run test:data -- --grep "linux epoll"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 8 项；继续执行 `git diff --check`、rebase 和 push。
 - Commit/Push Plan：提交 `feat: add epoll visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Docker `容器网络` 或 Kubernetes `Pod 调度`。
+
+### 2026-06-02 21:03 CST
+
+- Branch/Pull：当前分支 `main`；`git fetch origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `19443ee`；`git pull --ff-only origin main` 失败，原因是 `Could not resolve host: github.com`。
+- Working Tree：进入同步门禁时工作区干净；本条记录写入后仅 `docs/visualization-progress.md` 发生变化。
+- Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
+- Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后继续 Docker `容器网络` 或 Kubernetes `Pod 调度` 找图与设计。
