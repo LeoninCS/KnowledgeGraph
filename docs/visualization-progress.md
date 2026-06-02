@@ -1091,3 +1091,16 @@
 - Browser Note：in-app browser 返回不可用；本轮使用本地 Playwright 在 `http://127.0.0.1:4207/KnowledgeGraph/` 从首页进入 Mysql 分类、打开 MySQL 死锁详情、进入模拟器、推进 5 步，并完成桌面/移动端截图验收。
 - Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
 - Next Candidate：MySQL `Deadlock Log` 或 `SHOW ENGINE INNODB STATUS`。
+
+### 2026-06-02 13:12 CST
+
+- Branch/Pull：当前分支 `main`；`git fetch origin main` 与 `git pull --ff-only origin main` 成功，远端已同步到 `e268109`。
+- Existing Work：工作区已有 MySQL `EXPLAIN` 可视化现场，本轮继续验收并提交。
+- Selected：MySQL `EXPLAIN`，原因是 Visual Explain、type/key/rows/Extra、谓词可索引性、复合索引和 `EXPLAIN ANALYZE` 能形成高价值慢 SQL 诊断状态模型。
+- Candidate Sources：普通搜索与官方页面确认保留 MySQL Workbench Visual Explain 教程为主参考，MySQL EXPLAIN Output Format 与 EXPLAIN Statement 为辅助参考。
+- Browser Note：预览服务启动在 `http://127.0.0.1:4210/KnowledgeGraph/`；in-app browser 返回不可用，Chrome DevTools MCP profile 被占用，Playwright Chromium 受 macOS Mach port 权限限制；本轮使用官方资料、实现结构和本地渲染图完成截图验收。
+- Implementation：新增 `mysql:explain` 专用 `state-model` 构建器、EXPLAIN SVG 舞台、移动端纵向摘要、响应式样式和 EXPLAIN 专用来源。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/explain/desktop.png`（2880x1882）与 `.codex-artifacts/visualizations/explain/mobile.png`（1000x2720）；桌面和移动端验收图均可读。
+- Verification：`npm run build` 通过；`npm run test:data` 通过 4 项；`git diff --check` 通过。
+- Commit/Push：功能提交 `37dc753 feat: add explain visualization` 已创建；`git pull --rebase origin main` 失败，原因是 `LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443`。当前本地 `main` 相对 `origin/main` ahead 1，另有本条 docs 阻塞记录待提交。
+- Resume Point：下一轮先执行 `git pull --rebase origin main`，成功后推送 `37dc753` 和本条 docs 记录；同步完成后继续 MySQL `Replication` 或 `Replication Lag` 找图与设计。
