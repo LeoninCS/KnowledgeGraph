@@ -375,6 +375,7 @@ export function SphereGraphView({
               <button
                 className={classes}
                 aria-label={accessibleLabel}
+                data-node-id={node.id}
                 style={{ "--category-color": categoryColors[node.categoryId] } as CSSProperties}
                 title={node.label}
                 type="button"

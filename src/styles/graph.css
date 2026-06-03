@@ -156,6 +156,11 @@
   touch-action: none;
 }
 
+.react-transform-wrapper.sphere-graph-stage {
+  width: auto;
+  height: auto;
+}
+
 .sphere-graph {
   width: 100%;
   height: 100%;

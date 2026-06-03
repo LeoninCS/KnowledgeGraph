@@ -169,6 +169,69 @@ function getGraphCenteredZoom(rect: CanvasStageRect, bounds: GraphContentBounds)
   return Math.min(maxCanvasZoom, Math.max(minCanvasZoom, Math.min(defaultCanvasZoom, fitZoom)));
 }
 
+function clampCanvasZoom(zoom: number) {
+  return Math.min(maxCanvasZoom, Math.max(minCanvasZoom, zoom));
+}
+
+function getScaleFromCssTransform(transform: string) {
+  const matrix = transform.match(/^matrix\(([^,]+)/);
+
+  return matrix ? Number(matrix[1]) : undefined;
+}
+
+function getCanvasViewFromCssTransform(transform: string): CanvasView | undefined {
+  const matrix = transform.match(/^matrix\(([^)]+)\)$/);
+  const matrix3d = transform.match(/^matrix3d\(([^)]+)\)$/);
+  const values = matrix?.[1]
+    .split(",")
+    .map((value) => Number(value.trim()));
+  const values3d = matrix3d?.[1]
+    .split(",")
+    .map((value) => Number(value.trim()));
+
+  if (values?.length === 6 && values.every(Number.isFinite)) {
+    return {
+      x: values[4],
+      y: values[5],
+      zoom: values[0],
+    };
+  }
+
+  if (values3d?.length === 16 && values3d.every(Number.isFinite)) {
+    return {
+      x: values3d[12],
+      y: values3d[13],
+      zoom: values3d[0],
+    };
+  }
+
+  return undefined;
+}
+
+function getCurrentCanvasView(
+  ref: ReactZoomPanPinchContentRef | null,
+  fallbackView: CanvasView,
+): CanvasView {
+  const transform = ref?.instance.contentComponent
+    ? window.getComputedStyle(ref.instance.contentComponent).transform
+    : "";
+  const view = getCanvasViewFromCssTransform(transform);
+
+  return view ?? {
+    x: ref?.instance.state.positionX ?? fallbackView.x,
+    y: ref?.instance.state.positionY ?? fallbackView.y,
+    zoom: ref?.instance.state.scale ?? fallbackView.zoom,
+  };
+}
+
+function getCurrentCanvasZoom(ref: ReactZoomPanPinchContentRef | null, fallbackView: CanvasView) {
+  const transform = ref?.instance.contentComponent
+    ? window.getComputedStyle(ref.instance.contentComponent).transform
+    : "";
+
+  return getScaleFromCssTransform(transform) ?? ref?.instance.state.scale ?? fallbackView.zoom;
+}
+
 function PageGraphFallback() {
   return <div className="graph-empty-state" aria-busy="true" />;
 }
@@ -237,6 +300,7 @@ export function HomePage({
   const [canvasView, setCanvasView] = useState<CanvasView>(defaultCanvasView);
   const [isCanvasGestureActive, setIsCanvasGestureActive] = useState(false);
   const transformRef = useRef<ReactZoomPanPinchContentRef | null>(null);
+  const latestCanvasViewRef = useRef<CanvasView>(defaultCanvasView);
   const hasSearch = normalizeSearch(searchQuery).length > 0;
   const visualizablePoints = useMemo(
     () => getVisualizablePoints(selectedCategory, points),
@@ -253,9 +317,9 @@ export function HomePage({
     () => getGraphRelationItems(points, graphFocusId),
     [points, graphFocusId],
   );
-  const graph = useMemo(
+  const baseGraph = useMemo(
     () => {
-      const layout = buildSphereGraphLayout({
+      return buildSphereGraphLayout({
         t,
         locale,
         selectedCategory,
@@ -266,8 +330,6 @@ export function HomePage({
         searchQuery,
         visualizableIdSet,
       });
-
-      return withFocusedRelations(layout, graphFocusId);
     },
     [
       t,
@@ -279,8 +341,11 @@ export function HomePage({
       graphBoard,
       searchQuery,
       visualizableIdSet,
-      graphFocusId,
     ],
+  );
+  const graph = useMemo(
+    () => withFocusedRelations(baseGraph, graphFocusId),
+    [baseGraph, graphFocusId],
   );
   const graphTransformKey = [
     selectedCategory,
@@ -293,10 +358,12 @@ export function HomePage({
     graph.width,
     graph.height,
   ].join(":");
-  const shouldCenterFocusNode = hasSearch || graphFocusId !== selectedKnowledgeId;
+  const graphTransformKeyRef = useRef(graphTransformKey);
+  const graphFocusIdRef = useRef(graphFocusId);
+  const shouldCenterSelectedNode = hasSearch;
   const initialCanvasView = useMemo(
-    () => getDefaultCanvasView(getViewportStageRect(), graph, graphFocusId, shouldCenterFocusNode),
-    [graph, graphFocusId, shouldCenterFocusNode],
+    () => getDefaultCanvasView(getViewportStageRect(), baseGraph, selectedKnowledgeId, shouldCenterSelectedNode),
+    [baseGraph, selectedKnowledgeId, shouldCenterSelectedNode],
   );
   const hasResults = graph.nodes.some(
     (node) => node.kind === "knowledge" && node.matched,
@@ -313,23 +380,77 @@ export function HomePage({
 
   useEffect(() => {
     const ref = transformRef.current;
+    const previousTransformKey = graphTransformKeyRef.current;
+    const previousFocusId = graphFocusIdRef.current;
+    const hasGraphTransformChanged = previousTransformKey !== graphTransformKey;
+    const hasFocusChanged = previousFocusId !== graphFocusId;
 
-    if (!ref || isEmptySearch) {
+    graphTransformKeyRef.current = graphTransformKey;
+    graphFocusIdRef.current = graphFocusId;
+
+    if (!ref || isEmptySearch || (!hasGraphTransformChanged && !hasFocusChanged)) {
       return;
     }
 
     window.requestAnimationFrame(() => {
-      applyCanvasView(ref, getDefaultTransform(ref), canvasControlAnimationMs);
+      const view = hasGraphTransformChanged
+        ? getDefaultTransform(ref)
+        : getFocusedTransform(ref, graphFocusId);
+
+      if (view) {
+        applyCanvasView(ref, view, canvasControlAnimationMs);
+      }
     });
-  }, [graphTransformKey, graphFocusId, shouldCenterFocusNode, isEmptySearch]);
+  }, [graphTransformKey, graphFocusId, isEmptySearch]);
 
   function getDefaultTransform(ref: ReactZoomPanPinchContentRef | null) {
     return getDefaultCanvasView(
       ref?.instance.wrapperComponent?.getBoundingClientRect(),
       graph,
-      graphFocusId,
-      shouldCenterFocusNode,
+      selectedKnowledgeId,
+      shouldCenterSelectedNode,
     );
+  }
+
+  function getFocusedTransform(
+    ref: ReactZoomPanPinchContentRef | null,
+    focusPointId: string,
+  ) {
+    const currentView = getCurrentCanvasView(ref, latestCanvasViewRef.current);
+    const wrapperRect = ref?.instance.wrapperComponent?.getBoundingClientRect();
+    const focusedElement = ref?.instance.contentComponent?.querySelector<HTMLElement>(
+      `.sphere-node[data-node-id="${CSS.escape(focusPointId)}"]`,
+    );
+
+    if (focusedElement && wrapperRect) {
+      const nodeRect = focusedElement.getBoundingClientRect();
+      const nodeCenterX = nodeRect.left + nodeRect.width / 2;
+      const nodeCenterY = nodeRect.top + nodeRect.height / 2;
+      const wrapperCenterX = wrapperRect.left + wrapperRect.width / 2;
+      const wrapperCenterY = wrapperRect.top + wrapperRect.height / 2;
+
+      return {
+        x: currentView.x + wrapperCenterX - nodeCenterX,
+        y: currentView.y + wrapperCenterY - nodeCenterY,
+        zoom: clampCanvasZoom(currentView.zoom),
+      };
+    }
+
+    const currentZoom = getCurrentCanvasZoom(ref, latestCanvasViewRef.current);
+    const focusedNode = graph.nodes.find((node) => node.id === focusPointId && node.kind === "knowledge");
+
+    if (!focusedNode) {
+      return undefined;
+    }
+
+    const stageRect = ref?.instance.wrapperComponent?.getBoundingClientRect() ?? fallbackStageRect;
+    const box = getGraphNodeBox(focusedNode);
+
+    return {
+      x: stageRect.width / 2 - (box.left + box.width / 2) * currentZoom,
+      y: stageRect.height / 2 - (box.top + box.height / 2) * currentZoom,
+      zoom: currentZoom,
+    };
   }
 
   function applyCanvasView(
@@ -337,12 +458,31 @@ export function HomePage({
     view: CanvasView,
     animationTime = 0,
   ) {
+    latestCanvasViewRef.current = view;
     setCanvasView(view);
     ref?.setTransform(view.x, view.y, view.zoom, animationTime, "easeOut");
   }
 
+  function syncCurrentCanvasView() {
+    const ref = transformRef.current;
+    const view = getCurrentCanvasView(ref, latestCanvasViewRef.current);
+
+    latestCanvasViewRef.current = view;
+    setCanvasView(view);
+    ref?.instance.setState(view.zoom, view.x, view.y);
+
+    return view;
+  }
+
+  function handleFocusKnowledge(pointId: string) {
+    syncCurrentCanvasView();
+    setFocusedKnowledgeId(pointId);
+  }
+
   function handleTransformInit(ref: ReactZoomPanPinchContentRef) {
     transformRef.current = ref;
+    graphTransformKeyRef.current = graphTransformKey;
+    graphFocusIdRef.current = graphFocusId;
     window.requestAnimationFrame(() => {
       applyCanvasView(ref, getDefaultTransform(ref));
     });
@@ -476,13 +616,16 @@ export function HomePage({
                 animationType: "easeOut",
               }}
               onInit={handleTransformInit}
-              onTransform={(_, state) =>
-                setCanvasView({
+              onTransform={(_, state) => {
+                const nextView = {
                   x: state.positionX,
                   y: state.positionY,
                   zoom: state.scale,
-                })
-              }
+                };
+
+                latestCanvasViewRef.current = nextView;
+                setCanvasView(nextView);
+              }}
               onPanningStart={() => setIsCanvasGestureActive(true)}
               onPanningStop={() => setIsCanvasGestureActive(false)}
               onPinchStart={() => setIsCanvasGestureActive(true)}
@@ -503,7 +646,7 @@ export function HomePage({
                       focusedLabel={t.focused}
                       highlightedKnowledgeId={graphFocusId}
                       onOpenDetail={onOpenDetail}
-                      onFocusKnowledge={setFocusedKnowledgeId}
+                      onFocusKnowledge={handleFocusKnowledge}
                     />
                   </TransformComponent>
                   <GraphRelationPanel
@@ -514,7 +657,7 @@ export function HomePage({
                     prerequisites={relationPanel.prerequisites}
                     dependents={relationPanel.dependents}
                     related={relationPanel.related}
-                    onFocusKnowledge={setFocusedKnowledgeId}
+                    onFocusKnowledge={handleFocusKnowledge}
                     onOpenDetail={onOpenDetail}
                   />
                   <div className="graph-canvas-controls" aria-label={t.canvasControls}>
