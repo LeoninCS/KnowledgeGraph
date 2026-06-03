@@ -397,6 +397,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
     "deployment",
     "rolling-update",
     "service",
+    "endpoint-slice",
     "ingress",
     "configmap",
     "secret",

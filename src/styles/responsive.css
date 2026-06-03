@@ -286,6 +286,7 @@
   }
 
   .k8s-service-stage,
+  .k8s-endpointslice-stage,
   .k8s-ingress-stage,
   .k8s-crashloop-stage {
     overflow-x: auto;
@@ -881,6 +882,7 @@
   }
 
   .k8s-service-stage,
+  .k8s-endpointslice-stage,
   .k8s-ingress-stage,
   .k8s-hpa-stage,
   .k8s-scheduler-stage,
@@ -894,6 +896,7 @@
   }
 
   .k8s-service-card,
+  .k8s-endpointslice-card,
   .k8s-ingress-card,
   .k8s-hpa-card,
   .k8s-scheduler-card,
@@ -907,6 +910,7 @@
   }
 
   .k8s-service-diagram,
+  .k8s-endpointslice-diagram,
   .k8s-ingress-diagram,
   .k8s-hpa-diagram,
   .k8s-scheduler-diagram,
@@ -920,6 +924,7 @@
   }
 
   .k8s-service-mobile-map,
+  .k8s-endpointslice-mobile-map,
   .k8s-ingress-mobile-map,
   .k8s-hpa-mobile-map,
   .k8s-scheduler-mobile-map,
@@ -936,6 +941,8 @@
 
   .k8s-service-mobile-flow,
   .k8s-service-mobile-facts,
+  .k8s-endpointslice-mobile-flow,
+  .k8s-endpointslice-mobile-facts,
   .k8s-ingress-mobile-flow,
   .k8s-ingress-mobile-facts,
   .k8s-hpa-mobile-flow,
@@ -991,6 +998,8 @@
 
   .k8s-service-mobile-hop,
   .k8s-service-mobile-fact,
+  .k8s-endpointslice-mobile-hop,
+  .k8s-endpointslice-mobile-fact,
   .k8s-ingress-mobile-hop,
   .k8s-ingress-mobile-fact,
   .k8s-hpa-mobile-hop,
@@ -1048,6 +1057,8 @@
 
   .k8s-service-mobile-hop.active,
   .k8s-service-mobile-fact.active,
+  .k8s-endpointslice-mobile-hop.active,
+  .k8s-endpointslice-mobile-fact.active,
   .k8s-ingress-mobile-hop.active,
   .k8s-ingress-mobile-fact.active,
   .k8s-hpa-mobile-hop.active,
@@ -1101,6 +1112,8 @@
 
   .k8s-service-mobile-hop span,
   .k8s-service-mobile-fact span,
+  .k8s-endpointslice-mobile-hop span,
+  .k8s-endpointslice-mobile-fact span,
   .k8s-ingress-mobile-hop span,
   .k8s-ingress-mobile-fact span,
   .k8s-hpa-mobile-hop span,
@@ -1153,6 +1166,8 @@
 
   .k8s-service-mobile-hop strong,
   .k8s-service-mobile-fact strong,
+  .k8s-endpointslice-mobile-hop strong,
+  .k8s-endpointslice-mobile-fact strong,
   .k8s-ingress-mobile-hop strong,
   .k8s-ingress-mobile-fact strong,
   .k8s-hpa-mobile-hop strong,

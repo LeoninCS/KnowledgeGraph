@@ -210,6 +210,23 @@ test("kubernetes preemption is backed by a dedicated visual simulation", async (
   );
 });
 
+test("kubernetes EndpointSlice is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("kubernetes");
+  const endpointSlice = points.find((point) => point.id === "endpoint-slice");
+
+  expect(visualPointIds.kubernetes).toContain("endpoint-slice");
+  expect(endpointSlice).toBeTruthy();
+
+  const simulation = buildVisualSimulation("kubernetes", endpointSlice!);
+
+  expect(simulation.key).toBe("kubernetes:endpoint-slice");
+  expect(simulation.pattern.en).toContain("EndpointSlice fan-out resource model");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["slice batch size", "Ready endpoints", "topology hints", "kube-proxy watch"]),
+  );
+});
+
 test("linux epoll is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("os");
   const epoll = points.find((point) => point.id === "epoll");

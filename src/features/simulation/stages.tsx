@@ -396,6 +396,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "kubernetes:endpoint-slice") {
+    return (
+      <KubernetesEndpointSliceStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:ingress") {
     return (
       <KubernetesIngressStage
@@ -4714,6 +4725,263 @@ function KubernetesServiceStage({
           </div>
         </div>
         <div className="tcp-handshake-caption k8s-service-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KubernetesEndpointSliceStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const serviceActive = completedSteps >= 1;
+  const shardActive = completedSteps >= 2;
+  const conditionActive = completedSteps >= 3;
+  const topologyActive = completedSteps >= 4;
+  const watchActive = completedSteps >= 5;
+  const podRows = [
+    { name: "checkout-7d9-a", ip: "10.244.1.8", zone: "zone-a", state: "Ready", active: serviceActive, tone: "success" },
+    { name: "checkout-7d9-b", ip: "10.244.2.11", zone: "zone-b", state: "Ready", active: serviceActive, tone: "success" },
+    { name: "checkout-7d9-c", ip: "10.244.3.6", zone: "zone-c", state: "Terminating", active: conditionActive, tone: "warning" },
+  ];
+  const sliceRows = [
+    { name: "checkout-abc", value: shardActive ? "100 endpoints" : "pending", zone: topologyActive ? "zone-a hint" : "IPv4", active: shardActive, tone: "brand" },
+    { name: "checkout-def", value: shardActive ? "100 endpoints" : "pending", zone: topologyActive ? "zone-b hint" : "IPv4", active: shardActive, tone: "teal" },
+    { name: "checkout-ghi", value: shardActive ? "37 endpoints" : "pending", zone: topologyActive ? "zone-c hint" : "IPv4", active: shardActive, tone: "success" },
+  ];
+  const conditionRows = [
+    { name: "ready", value: conditionActive ? "true" : "pending", active: conditionActive, tone: "success" },
+    { name: "serving", value: conditionActive ? "true" : "pending", active: conditionActive, tone: "teal" },
+    { name: "terminating", value: conditionActive ? "checkout-7d9-c" : "pending", active: conditionActive, tone: "warning" },
+  ];
+  const watcherRows = [
+    { name: "kube-proxy node-a", value: watchActive ? "same-zone endpoint" : "watching", active: watchActive, tone: "success" },
+    { name: "CoreDNS", value: watchActive ? "A records updated" : "watching", active: watchActive, tone: "brand" },
+    { name: "controller cache", value: watchActive ? "rv=182291" : "watching", active: watchActive, tone: "teal" },
+  ];
+  const signals = [
+    { name: "slice size", value: shardActive ? "100 max / 3 slices" : "pending", active: shardActive, tone: "brand" },
+    { name: "Ready", value: conditionActive ? "236/237 endpoints" : "pending", active: conditionActive, tone: "success" },
+    { name: "hints", value: topologyActive ? "forZones set" : "pending", active: topologyActive, tone: "teal" },
+    { name: "watch lag", value: watchActive ? "< 1s synced" : "pending", active: watchActive, tone: "warning" },
+  ];
+
+  return (
+    <div className="visual-stage k8s-endpointslice-stage">
+      <div className="k8s-endpointslice-card">
+        <svg
+          className="k8s-endpointslice-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["k8s-endpointslice-arrow-brand", "var(--brand)"],
+              ["k8s-endpointslice-arrow-teal", "var(--tertiary)"],
+              ["k8s-endpointslice-arrow-warning", "#f59e0b"],
+              ["k8s-endpointslice-arrow-success", "var(--success)"],
+              ["k8s-endpointslice-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="k8s-endpointslice-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="k8s-endpointslice-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="k8s-endpointslice-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="k8s-endpointslice-subtitle" x="560" y="100">
+            Service selector {"->"} EndpointSlice controller {"->"} shards / conditions / hints {"->"} kube-proxy watch
+          </text>
+
+          <g className={`k8s-endpointslice-service ${serviceActive ? "active" : ""}`}>
+            <rect x="64" y="146" width="224" height="150" rx="24" />
+            <text className="k8s-endpointslice-panel-title" x="92" y="180">Service checkout</text>
+            <text x="92" y="206">selector app=checkout</text>
+            <text x="92" y="228">ports: http {"->"} 8080</text>
+            <text x="92" y="250">addressType: IPv4</text>
+            <g className={`k8s-endpointslice-chip brand ${serviceActive ? "active" : ""}`}>
+              <rect x="92" y="264" width="158" height="24" rx="12" />
+              <text x="104" y="281">owner Service UID</text>
+            </g>
+          </g>
+
+          <g className={`k8s-endpointslice-controller ${serviceActive ? "active" : ""}`}>
+            <rect x="368" y="132" width="222" height="170" rx="24" />
+            <text className="k8s-endpointslice-panel-title" x="394" y="166">EndpointSlice Controller</text>
+            <text x="394" y="192">watch Service</text>
+            <text x="394" y="214">watch Pods + readiness</text>
+            <text x="394" y="236">managed-by=endpointslice-controller</text>
+            <g className={`k8s-endpointslice-chip teal ${shardActive ? "active" : ""}`}>
+              <rect x="394" y="252" width="152" height="24" rx="12" />
+              <text x="406" y="269">batch reconcile</text>
+            </g>
+          </g>
+
+          <g className={`k8s-endpointslice-pods ${serviceActive ? "active" : ""}`}>
+            <rect x="64" y="354" width="270" height="178" rx="24" />
+            <text className="k8s-endpointslice-panel-title" x="92" y="388">{label("后端 Pod 快照", "Backend Pod snapshot")}</text>
+            <text className="k8s-endpointslice-panel-subtitle" x="92" y="410">labels app=checkout · readiness gates</text>
+            {podRows.map((pod, index) => (
+              <g
+                key={pod.name}
+                className={`k8s-endpointslice-row ${pod.tone} ${pod.active ? "active" : ""}`}
+              >
+                <rect x="92" y={430 + index * 34} width="216" height="26" rx="13" />
+                <text x="106" y={447 + index * 34}>{pod.ip}</text>
+                <text x="300" y={447 + index * 34}>{pod.state}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-endpointslice-slices ${shardActive ? "active" : ""}`}>
+            <rect x="654" y="122" width="314" height="238" rx="26" />
+            <text className="k8s-endpointslice-panel-title" x="682" y="158">EndpointSlice shards</text>
+            <text className="k8s-endpointslice-panel-subtitle" x="682" y="180">discovery.k8s.io/v1 · max 100 endpoints</text>
+            {sliceRows.map((slice, index) => (
+              <g
+                key={slice.name}
+                className={`k8s-endpointslice-slice ${slice.tone} ${slice.active ? "active" : ""}`}
+              >
+                <rect x="682" y={202 + index * 48} width="238" height="36" rx="15" />
+                <text x="698" y={217 + index * 48}>{slice.name}</text>
+                <text x="698" y={232 + index * 48}>{slice.value} · {slice.zone}</text>
+              </g>
+            ))}
+            <g className={`k8s-endpointslice-chip success ${shardActive ? "active" : ""}`}>
+              <rect x="682" y="338" width="188" height="24" rx="12" />
+              <text x="694" y="355">labels: service-name=checkout</text>
+            </g>
+          </g>
+
+          <g className={`k8s-endpointslice-conditions ${conditionActive ? "active" : ""}`}>
+            <rect x="394" y="368" width="230" height="164" rx="24" />
+            <text className="k8s-endpointslice-panel-title" x="422" y="402">Endpoint conditions</text>
+            <text className="k8s-endpointslice-panel-subtitle" x="422" y="424">per endpoint status fields</text>
+            {conditionRows.map((row, index) => (
+              <g
+                key={row.name}
+                className={`k8s-endpointslice-condition ${row.tone} ${row.active ? "active" : ""}`}
+              >
+                <rect x="422" y={444 + index * 32} width="156" height="24" rx="12" />
+                <text x="436" y={461 + index * 32}>{row.name}</text>
+                <text x="570" y={461 + index * 32}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-endpointslice-topology ${topologyActive ? "active" : ""}`}>
+            <rect x="654" y="398" width="168" height="134" rx="24" />
+            <text className="k8s-endpointslice-panel-title" x="682" y="432">Topology hints</text>
+            <text x="682" y="458">forZones: zone-a</text>
+            <text x="682" y="480">local endpoint preferred</text>
+            <text x="682" y="502">cross-zone cost lower</text>
+          </g>
+
+          <g className={`k8s-endpointslice-watchers ${watchActive ? "active" : ""}`}>
+            <rect x="850" y="398" width="190" height="164" rx="24" />
+            <text className="k8s-endpointslice-panel-title" x="878" y="432">Watch consumers</text>
+            {watcherRows.map((row, index) => (
+              <g
+                key={row.name}
+                className={`k8s-endpointslice-watcher ${row.tone} ${row.active ? "active" : ""}`}
+              >
+                <rect x="878" y={452 + index * 34} width="136" height="26" rx="13" />
+                <text x="892" y={469 + index * 34}>{row.name}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-endpointslice-service-path ${serviceActive ? "active" : ""}`}>
+            <path d="M 288 214 C 324 210, 340 210, 368 210" markerEnd="url(#k8s-endpointslice-arrow-brand)" />
+            <path d="M 262 354 C 320 318, 376 294, 430 302" markerEnd="url(#k8s-endpointslice-arrow-brand)" />
+          </g>
+
+          <g className={`k8s-endpointslice-shard-path ${shardActive ? "active" : ""}`}>
+            <path d="M 590 212 C 626 208, 638 208, 654 208" markerEnd="url(#k8s-endpointslice-arrow-teal)" />
+            <rect x="504" y="318" width="174" height="36" rx="16" />
+            <text x="591" y="341">shard by endpoint count</text>
+          </g>
+
+          <g className={`k8s-endpointslice-condition-path ${conditionActive ? "active" : ""}`}>
+            <path d="M 654 300 C 616 334, 586 352, 548 368" markerEnd="url(#k8s-endpointslice-arrow-warning)" />
+            <rect x="380" y="554" width="210" height="34" rx="16" />
+            <text x="485" y="576">ready / serving / terminating</text>
+          </g>
+
+          <g className={`k8s-endpointslice-topology-path ${topologyActive ? "active" : ""}`}>
+            <path d="M 782 360 C 766 374, 754 384, 740 398" markerEnd="url(#k8s-endpointslice-arrow-success)" />
+          </g>
+
+          <g className={`k8s-endpointslice-watch-path ${watchActive ? "active" : ""}`}>
+            <path d="M 822 468 C 832 468, 840 468, 850 468" markerEnd="url(#k8s-endpointslice-arrow-danger)" />
+            <path d="M 918 398 C 900 334, 882 314, 842 292" markerEnd="url(#k8s-endpointslice-arrow-danger)" />
+            <rect x="854" y="328" width="164" height="34" rx="16" />
+            <text x="936" y="350">watch fan-out</text>
+          </g>
+
+          <g className="k8s-endpointslice-signals">
+            {signals.map((signal, index) => (
+              <g key={signal.name} className={`k8s-endpointslice-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={64 + index * 252} y="600" width="218" height="30" rx="14" />
+                <text x={82 + index * 252} y="619">{signal.name}</text>
+                <text x={264 + index * 252} y="619">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="k8s-endpointslice-mobile-map">
+          <div className="k8s-endpointslice-mobile-flow" aria-hidden="true">
+            {[
+              { name: "Service", value: "selector app=checkout / port http", active: serviceActive },
+              { name: "Controller", value: shardActive ? "3 EndpointSlices created" : "watching Pods", active: shardActive },
+              { name: "Conditions", value: conditionActive ? "ready + serving + terminating" : "pending", active: conditionActive },
+              { name: "Topology", value: topologyActive ? "forZones hints set" : "pending", active: topologyActive },
+              { name: "Watchers", value: watchActive ? "kube-proxy rules synced" : "waiting", active: watchActive },
+            ].map((item) => (
+              <div key={item.name} className={`k8s-endpointslice-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="k8s-endpointslice-mobile-facts">
+            {signals.map((signal) => (
+              <div key={signal.name} className={`k8s-endpointslice-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption k8s-endpointslice-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

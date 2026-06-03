@@ -4475,6 +4475,245 @@
   bottom: 14px;
 }
 
+.k8s-endpointslice-bg {
+  fill: color-mix(in srgb, var(--tertiary) 18%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);
+}
+
+.k8s-endpointslice-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.k8s-endpointslice-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.k8s-endpointslice-service,
+.k8s-endpointslice-controller,
+.k8s-endpointslice-pods,
+.k8s-endpointslice-slices,
+.k8s-endpointslice-conditions,
+.k8s-endpointslice-topology,
+.k8s-endpointslice-watchers,
+.k8s-endpointslice-row,
+.k8s-endpointslice-slice,
+.k8s-endpointslice-condition,
+.k8s-endpointslice-watcher,
+.k8s-endpointslice-chip,
+.k8s-endpointslice-service-path,
+.k8s-endpointslice-shard-path,
+.k8s-endpointslice-condition-path,
+.k8s-endpointslice-topology-path,
+.k8s-endpointslice-watch-path,
+.k8s-endpointslice-signal {
+  opacity: 0.26;
+  transition: opacity 180ms ease;
+}
+
+.k8s-endpointslice-service.active,
+.k8s-endpointslice-controller.active,
+.k8s-endpointslice-pods.active,
+.k8s-endpointslice-slices.active,
+.k8s-endpointslice-conditions.active,
+.k8s-endpointslice-topology.active,
+.k8s-endpointslice-watchers.active,
+.k8s-endpointslice-row.active,
+.k8s-endpointslice-slice.active,
+.k8s-endpointslice-condition.active,
+.k8s-endpointslice-watcher.active,
+.k8s-endpointslice-chip.active,
+.k8s-endpointslice-service-path.active,
+.k8s-endpointslice-shard-path.active,
+.k8s-endpointslice-condition-path.active,
+.k8s-endpointslice-topology-path.active,
+.k8s-endpointslice-watch-path.active,
+.k8s-endpointslice-signal.active {
+  opacity: 1;
+}
+
+.k8s-endpointslice-service > rect,
+.k8s-endpointslice-controller > rect,
+.k8s-endpointslice-pods > rect,
+.k8s-endpointslice-slices > rect,
+.k8s-endpointslice-conditions > rect,
+.k8s-endpointslice-topology > rect,
+.k8s-endpointslice-watchers > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#k8s-endpointslice-soft-shadow);
+}
+
+.k8s-endpointslice-service.active > rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.k8s-endpointslice-controller.active > rect,
+.k8s-endpointslice-slices.active > rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 36%, var(--border));
+}
+
+.k8s-endpointslice-conditions.active > rect {
+  fill: color-mix(in srgb, #f59e0b 10%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 38%, var(--border));
+}
+
+.k8s-endpointslice-topology.active > rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.k8s-endpointslice-watchers.active > rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.k8s-endpointslice-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.k8s-endpointslice-panel-subtitle,
+.k8s-endpointslice-service text,
+.k8s-endpointslice-controller text,
+.k8s-endpointslice-pods text,
+.k8s-endpointslice-slices text,
+.k8s-endpointslice-conditions text,
+.k8s-endpointslice-topology text,
+.k8s-endpointslice-watchers text,
+.k8s-endpointslice-service-path text,
+.k8s-endpointslice-shard-path text,
+.k8s-endpointslice-condition-path text,
+.k8s-endpointslice-watch-path text,
+.k8s-endpointslice-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.k8s-endpointslice-row text:first-of-type,
+.k8s-endpointslice-slice text:first-of-type,
+.k8s-endpointslice-condition text:first-of-type,
+.k8s-endpointslice-watcher text:first-of-type,
+.k8s-endpointslice-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.k8s-endpointslice-row text:nth-of-type(2),
+.k8s-endpointslice-condition text:nth-of-type(2),
+.k8s-endpointslice-signal text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.k8s-endpointslice-chip rect,
+.k8s-endpointslice-row rect,
+.k8s-endpointslice-slice rect,
+.k8s-endpointslice-condition rect,
+.k8s-endpointslice-watcher rect,
+.k8s-endpointslice-service-path rect,
+.k8s-endpointslice-shard-path rect,
+.k8s-endpointslice-condition-path rect,
+.k8s-endpointslice-watch-path rect,
+.k8s-endpointslice-signal rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#k8s-endpointslice-soft-shadow);
+}
+
+.k8s-endpointslice-chip.brand.active rect,
+.k8s-endpointslice-slice.brand.active rect,
+.k8s-endpointslice-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.k8s-endpointslice-chip.teal.active rect,
+.k8s-endpointslice-slice.teal.active rect,
+.k8s-endpointslice-condition.teal.active rect,
+.k8s-endpointslice-watcher.teal.active rect,
+.k8s-endpointslice-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.k8s-endpointslice-chip.success.active rect,
+.k8s-endpointslice-row.success.active rect,
+.k8s-endpointslice-slice.success.active rect,
+.k8s-endpointslice-signal.success.active rect,
+.k8s-endpointslice-watcher.success.active rect {
+  fill: color-mix(in srgb, var(--success) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.k8s-endpointslice-row.warning.active rect,
+.k8s-endpointslice-condition.warning.active rect,
+.k8s-endpointslice-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 11%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 38%, var(--border));
+}
+
+.k8s-endpointslice-service-path path,
+.k8s-endpointslice-shard-path path,
+.k8s-endpointslice-condition-path path,
+.k8s-endpointslice-topology-path path,
+.k8s-endpointslice-watch-path path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.k8s-endpointslice-shard-path path {
+  stroke: var(--tertiary);
+}
+
+.k8s-endpointslice-condition-path path {
+  stroke: #f59e0b;
+}
+
+.k8s-endpointslice-topology-path path {
+  stroke: var(--success);
+}
+
+.k8s-endpointslice-watch-path path {
+  stroke: var(--danger);
+  stroke-dasharray: 8 8;
+}
+
+.k8s-endpointslice-shard-path text,
+.k8s-endpointslice-condition-path text,
+.k8s-endpointslice-watch-path text {
+  fill: var(--text);
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.k8s-endpointslice-mobile-map {
+  display: none;
+}
+
+.k8s-endpointslice-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .docker-layer-bg {
   fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
   stroke: color-mix(in srgb, var(--tertiary) 20%, transparent);

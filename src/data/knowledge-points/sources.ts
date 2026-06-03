@@ -3065,6 +3065,18 @@ export const knowledgeSources = {
     title: "Kubernetes Docs: EndpointSlices",
     url: "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/",
   },
+  "kubernetes-topology-aware-routing": {
+    title: "Kubernetes Docs: Topology Aware Routing",
+    url: "https://kubernetes.io/docs/concepts/services-networking/topology-aware-routing/",
+  },
+  "aws-eks-cost-opt-networking": {
+    title: "Amazon EKS Best Practices: Optimize networking costs",
+    url: "https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-networking.html",
+  },
+  "kubernetes-endpointslice-kep": {
+    title: "Kubernetes KEP 752: EndpointSlices",
+    url: "https://github.com/kubernetes/enhancements/tree/master/keps/sig-network/0752-endpointslices",
+  },
   "tkng-clusterip": {
     title: "The Kubernetes Networking Guide: ClusterIP",
     url: "https://www.tkng.io/services/clusterip/",

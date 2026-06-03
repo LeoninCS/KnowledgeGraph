@@ -137,6 +137,7 @@
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
 | 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
 | Service | `step-simulation` | completed | desktop/mobile captured | Kubernetes Service 数据面转发模拟器，覆盖 selector、EndpointSlice、ClusterIP/DNS、kube-proxy 规则和 Ready Pod |
+| EndpointSlice | `explorable-architecture` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes EndpointSlice 分片资源模型，覆盖 Service selector、EndpointSlice controller、批量分片、endpoint conditions、topology hints 和 kube-proxy watch fan-out |
 | Ingress | `step-simulation` | completed | desktop/mobile captured | Kubernetes Ingress 七层入口路由模拟器，覆盖公网入口、Ingress Controller、TLS Secret、host/path 规则和 Service 后端 |
 | CrashLoopBackOff | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes CrashLoopBackOff 重启退避状态模型，覆盖 Pod 启动、进程退出、kubelet restartPolicy、BackOff 延迟、Events/logs 证据链和修复恢复 |
 | 镜像层 | `storage-layout` | completed | desktop/mobile captured | Docker 镜像层结构模型，覆盖 Dockerfile 指令、Build Cache、只读层共享、overlay2 和可写层 |
@@ -381,15 +382,70 @@
 - 截图结论：桌面截图可识别 TCP/IP 四层封装主画布、OSI 对照、接收端解封装、右侧任务/操作面板和底部 5/5 进度；移动端截图保留标题、画布、完成态任务、五个操作按钮、理解重点、历史记录和纵向步骤条。
 - 验收备注：Chrome DevTools MCP 完成 Oracle/MDN/Microsoft 参考页视觉确认、本地生产预览交互和桌面/移动截图；Browser 插件返回 `iab` 连接失败；Cloudflare 参考页触发安全验证，降级为知识来源上下文。
 
+## Kubernetes EndpointSlice Visualization
+
+### Online Image References
+
+- `source`：Amazon EKS Best Practices - Optimize networking costs，https://docs.aws.amazon.com/eks/latest/best-practices/cost-opt-networking.html
+  - `image`：页面中 EndpointSlice、Topology Aware Hints 和跨可用区流量优化相关架构图。
+  - `role`：main
+  - `qualityReason`：图把 Service 后端、EndpointSlice、可用区 hints 和 kube-proxy 选择路径放在同一张成本优化语境中，适合作为主构图参考。
+  - `takeaways`：主画布采用 Service selector -> EndpointSlice controller -> slice 分片 -> topology hints -> kube-proxy watch 的横向 fan-out 架构。
+  - `originalChanges`：改造成项目自己的五步可探索结构模型，加入 conditions、watch lag、batch size、CoreDNS 和 controller cache 信号。
+- `source`：Kubernetes Docs - EndpointSlices，https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/
+  - `image`：官方 EndpointSlice resource 文档中的 addresses、ports、conditions、addressType、managed-by 和 Service 关联说明。
+  - `role`：supporting
+  - `qualityReason`：官方定义 EndpointSlice 字段和默认分片规模，适合校准批量分片和 endpoint conditions。
+  - `takeaways`：画布保留 `discovery.k8s.io/v1`、`max 100 endpoints`、`conditions.ready/serving/terminating`、`kubernetes.io/service-name`。
+  - `originalChanges`：把字段说明压缩为三张 slice 卡片和 conditions 面板。
+- `source`：Kubernetes Docs - Topology Aware Routing，https://kubernetes.io/docs/concepts/services-networking/topology-aware-routing/
+  - `image`：官方 topology-aware routing 和 EndpointSlice hints 说明。
+  - `role`：supporting
+  - `qualityReason`：校准 `hints.forZones`、同区 endpoint 倾向和跨区流量成本语义。
+  - `takeaways`：Topology hints 面板展示 `forZones: zone-a` 与本区 endpoint 优先。
+  - `originalChanges`：把拓扑提示从文档字段扩展为可见的 zone hint 路径和底部 hints 信号。
+- `source`：Kubernetes Docs - Virtual IPs and Service Proxies，https://kubernetes.io/docs/reference/networking/virtual-ips/
+  - `image`：Service proxy、kube-proxy、traffic policies 和 EndpointSlice watch 相关说明。
+  - `role`：supporting
+  - `qualityReason`：官方说明 kube-proxy 如何消费 Service/EndpointSlice 并同步节点转发规则。
+  - `takeaways`：Watch consumers 面板保留 `kube-proxy node-a` 和规则同步读数。
+  - `originalChanges`：把单个 Service 转发扩展为 API watch fan-out 模型，补充 CoreDNS 和 controller cache 消费者。
+- `source`：Kubernetes KEP 752 - EndpointSlices，https://github.com/kubernetes/enhancements/tree/master/keps/sig-network/0752-endpointslices
+  - `image`：KEP 中 EndpointSlice 设计动机、可扩展性和分片模型说明。
+  - `role`：supporting
+  - `qualityReason`：补充 EndpointSlice 取代大型 Endpoints 对象的设计目标，强化大规模 watch 与序列化成本背景。
+  - `takeaways`：底部信号加入 slice batch size、Ready endpoints、watch lag。
+  - `originalChanges`：用三段 slice 分片展示 237 个 endpoint 的批量发布和消费者增量同步。
+
+### Reference Breakdown
+
+- 主体布局：左侧 Service 与 selector、左下 Pod 快照，中上 EndpointSlice Controller，右上 EndpointSlice shards，中下 Endpoint conditions，右下 Topology hints 和 Watch consumers，底部四个信号。
+- 视觉焦点：`selector app=checkout` 经过 controller 分片成 `checkout-abc/def/ghi`，再写入 conditions 和 `hints.forZones`，最后 fan-out 到 kube-proxy、CoreDNS 和 controller cache。
+- 领域对象：Service selector、ports、owner UID、EndpointSlice controller、EndpointSlice shard、addressType、conditions.ready、serving、terminating、topology hints、kube-proxy watch、CoreDNS、watch lag。
+- 容器层级：Service 定义后端选择边界；controller 汇总 Pod 与 Service 事件；shards 承载批量 endpoint；conditions 与 topology hints 修饰每个 endpoint；watchers 消费 API 变更并驱动数据面。
+- 连线方向：Service/Pod -> EndpointSlice Controller -> EndpointSlice shards -> Endpoint conditions -> Topology hints -> Watch consumers。
+- 状态表达：五步依次高亮读取 Service、批量分片、写入条件、计算拓扑提示、fan-out watch；底部信号展示 slice size、Ready endpoints、hints 和 watch lag。
+- 颜色策略：品牌蓝表示 Service 输入，青色表示 controller/shard，橙色表示 conditions，绿色表示 topology hints，红色虚线表示 watch fan-out。
+- 文字密度：桌面 SVG 保留字段名、短状态、endpoint 数量和关键读数；移动端切换为五张流程卡和四张事实卡。
+- 交互节奏：解析 selector 与端口 -> 创建 EndpointSlice 分片 -> 标记 ready/serving/terminating -> 写入 zone hints -> kube-proxy/CoreDNS/watch cache 消费。
+- 原创改造点：把 AWS 成本优化图的 topology-aware 视角、Kubernetes 官方字段定义和 KEP 可扩展性目标融合成 EndpointSlice 独立结构模型，强调大规模后端、watch 压力和同区路由。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/endpoint-slice/desktop.svg` 与 `.codex-artifacts/visualizations/endpoint-slice/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/endpoint-slice/mobile.html` 与 `.codex-artifacts/visualizations/endpoint-slice/mobile.html.fragment`。
+- 截图结论：桌面 SVG 可识别 Service checkout、EndpointSlice Controller、后端 Pod 快照、EndpointSlice shards、Endpoint conditions、Topology hints、Watch consumers 和底部四个信号；移动 HTML 展示五步流程和 EndpointSlice 指标摘要。
+- 验收备注：Chrome DevTools MCP profile 被占用，Browser 插件返回 in-app browser 不可用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied`；QuickLook PNG 转换被沙箱初始化拦截；本轮使用官方/参考页面 URL、HTTP HEAD 成功记录、项目数据测试、生产构建和真实 React `SimulationStage` SSR 渲染的 SVG/HTML 审查图完成验收。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Kubernetes `EndpointSlice` 或 Redis `AOF 重写` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Redis `AOF 重写` 或 MySQL `Undo Log` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 Kubernetes `EndpointSlice`，备选 Redis `AOF 重写`。EndpointSlice 可承接 Service、Ingress 和 kube-proxy，围绕 selector、slice 分片、Ready Endpoint、拓扑提示和转发规则展开；AOF 重写适合展示增量写入、fork 子进程、rewrite buffer、临时文件和原子替换。
+优先选择 Redis `AOF 重写`，备选 MySQL `Undo Log`。AOF 重写适合展示增量写入、fork 子进程、rewrite buffer、临时文件和原子替换；Undo Log 可承接 MVCC、ReadView 和 Purge，展示版本链、回滚段和历史清理。
 
 ## Docker Resource Limit Visualization
 
@@ -2126,3 +2182,17 @@
 - Verification：`npm run test:data -- --grep "network TCP/IP model"` 通过 1 项；`npm run test:data` 通过 21 项；`npm run build` 通过；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add tcp ip model visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Kubernetes `EndpointSlice` 或 Redis `AOF 重写`。
+
+### 2026-06-03 17:16 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `709976e feat: add tcp ip model visualization`，从干净工作区继续。
+- Selected：Kubernetes `EndpointSlice`，原因是 Service selector、EndpointSlice controller、批量分片、endpoint conditions、topology hints 和 kube-proxy watch fan-out 形成清晰的大规模服务发现结构模型，并承接 Service、Ingress 与 kube-proxy 数据面。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；保留 AWS EKS networking cost optimization EndpointSlice/topology hints 图文为主参考，Kubernetes 官方 EndpointSlices、Topology Aware Routing、Virtual IPs and Service Proxies、EndpointSlice KEP 为辅助参考；Chrome DevTools MCP profile 被占用，Browser 插件返回 `iab` 不可用，本轮使用搜索视觉结果、页面 URL、HTTP HEAD 成功记录和本地 SSR 审查完成确认。
+- Online Image References：见 `Kubernetes EndpointSlice Visualization` 小节；主参考决定 Service selector -> EndpointSlice controller -> shards / conditions / hints -> kube-proxy watch 的整体构图，辅助来源校准字段、分片规模、拓扑提示、watch 消费者和设计动机。
+- Reference Breakdown：主体布局为左侧 Service 与 Pod 快照，中部 EndpointSlice Controller，右上 EndpointSlice shards，中下 Endpoint conditions，右下 Topology hints 与 Watch consumers，底部 slice size、Ready、hints、watch lag 四个信号；视觉焦点是 `selector app=checkout` 分片成 `checkout-abc/def/ghi` 并写入 `hints.forZones=zone-a` 后被 kube-proxy/CoreDNS 消费。
+- Implementation：新增 `kubernetes:endpoint-slice` 专用 `explorable-architecture` 构建器、EndpointSlice SVG 舞台、移动端流程卡、响应式样式、来源引用和数据测试，并把 `endpoint-slice` 加入 Kubernetes core 与可视化清单。
+- Browser Note：本地已有 Vite preview 进程监听 `127.0.0.1:4174`；Chrome DevTools MCP profile 被占用；Browser 插件返回 in-app browser 不可用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied`；QuickLook PNG 转换被沙箱初始化拦截；Vite SSR loader 触发 HMR WebSocket `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` SSR 渲染完成。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/endpoint-slice/desktop.svg`、`.codex-artifacts/visualizations/endpoint-slice/desktop.html`、`.codex-artifacts/visualizations/endpoint-slice/mobile.html` 与 `.codex-artifacts/visualizations/endpoint-slice/mobile.html.fragment`；桌面 SVG 可识别 Service checkout、EndpointSlice Controller、后端 Pod 快照、EndpointSlice shards、Endpoint conditions、Topology hints、Watch consumers 和底部四个信号，移动 HTML 展示五步流程和指标摘要。
+- Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `endpoint-slice`，补 core/visual 清单与专用 builder 后 `npm run test:data -- --grep "EndpointSlice"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 22 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add endpoint slice visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Redis `AOF 重写` 或 MySQL `Undo Log`。
