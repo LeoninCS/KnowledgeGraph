@@ -2049,3 +2049,11 @@
 - Verification：`npm run test:data -- --grep "node affinity"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 20 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add node affinity visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：网络 `TCP/IP 四层模型` 或 Kubernetes `EndpointSlice`。
+
+### 2026-06-03 15:06 CST
+
+- Branch/Fetch：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `287be66 feat: add node affinity visualization`。
+- Pull Gate：`git pull --ff-only origin main` 失败，输出为 `LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443`。
+- Working Tree：进入同步门禁前已有 `src/features/knowledge/pages/HomePage.tsx` 与 `tests/app.e2e.spec.ts` 本地实现改动；本条记录写入后新增 `docs/visualization-progress.md` 修改。
+- Action：本轮停在同步门禁，跳过继续找图、拆图、编码、截图复验、提交和推送，保留现有首页图谱实现现场。
+- Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后先处理现有首页图谱实现现场和本条进度记录，再从网络 `TCP/IP 四层模型` 或 Kubernetes `EndpointSlice` 继续找图与设计。
