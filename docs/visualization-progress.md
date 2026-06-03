@@ -1827,3 +1827,11 @@
 - Verification：新增测试先失败于 `visualPointIds.docker` 缺少 `cpu-limit`，补 core/visual 清单与专用 builder 后 `npm run test:data -- --grep "docker cpu limit"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 16 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add cpu limit visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Kubernetes `Pod 亲和性` 或 Docker `PIDs 限制`。
+
+### 2026-06-03 08:03 CST
+
+- Branch/Fetch：当前分支 `main`；先读取自动化记忆，记忆文件尚未创建；`git fetch origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `c97a7feb42de78797d7851dd22406b50239f10c0`。
+- Pull Gate：`git pull --ff-only origin main` 受 DNS 解析阻塞，输出为 `Could not resolve host: github.com`。
+- Working Tree：进入同步门禁时工作区干净；本条记录写入后仅 `docs/visualization-progress.md` 发生变化。
+- Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
+- Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后提交本条 docs-only 阻塞记录，再继续 Kubernetes `Pod 亲和性` 或 Docker `PIDs 限制` 找图与设计。
