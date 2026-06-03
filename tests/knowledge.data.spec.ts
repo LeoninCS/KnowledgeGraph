@@ -369,6 +369,29 @@ test("network TCP/IP model is backed by a dedicated visual simulation", async ()
   );
 });
 
+test("redis AOF rewrite is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("redis");
+  const aofRewrite = points.find((point) => point.id === "aof-rewrite");
+
+  expect(visualPointIds.redis).toContain("aof-rewrite");
+  expect(aofRewrite).toBeTruthy();
+
+  const simulation = buildVisualSimulation("redis", aofRewrite!);
+
+  expect(simulation.key).toBe("redis:aof-rewrite");
+  expect(simulation.pattern.en).toContain("AOF rewrite state model");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining([
+      "rewrite buffer",
+      "temporary base file",
+      "AOF manifest",
+      "fork COW",
+      "recovery replay size",
+    ]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");

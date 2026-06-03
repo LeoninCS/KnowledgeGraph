@@ -3453,6 +3453,18 @@ export const knowledgeSources = {
     title: "Redis Commands: BGREWRITEAOF",
     url: "https://redis.io/docs/latest/commands/bgrewriteaof/",
   },
+  "redisbook-aof": {
+    title: "Redis Design and Implementation: AOF",
+    url: "https://redisbook.readthedocs.io/en/latest/internal/aof.html",
+  },
+  "deepwiki-redis-aof": {
+    title: "DeepWiki Redis: AOF Persistence",
+    url: "https://deepwiki.com/redis/redis/4.1-aof-persistence",
+  },
+  "nootcode-redis-aof": {
+    title: "NootCode: Redis Persistence",
+    url: "https://www.nootcode.com/knowledge/en/redis-aof-rdb-persistence",
+  },
   "redis-latency-docs": {
     title: "Redis Docs: Diagnosing latency issues",
     url: "https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/latency/",

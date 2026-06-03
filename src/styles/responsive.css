@@ -687,6 +687,20 @@
     padding: 18px;
   }
 
+  .redis-aof-card {
+    width: 100%;
+  }
+
+  .redis-aof-diagram {
+    display: none;
+  }
+
+  .redis-aof-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
   .docker-bridge-card {
     width: 100%;
   }

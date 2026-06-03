@@ -135,6 +135,7 @@
 | TCP/IP 四层模型 | `step-simulation` | completed | desktop/mobile captured | TCP/IP 四层封装与解封装模拟器，覆盖应用数据、TCP/UDP 头、IP 包、以太网/Wi-Fi 帧、OSI 对照和排障观察点 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
+| AOF 重写 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis BGREWRITEAOF 状态模型，覆盖 fork 子进程、Copy-on-Write、当前增量 AOF、rewrite buffer、临时基础文件、manifest 原子切换和恢复重放 |
 | 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
 | Service | `step-simulation` | completed | desktop/mobile captured | Kubernetes Service 数据面转发模拟器，覆盖 selector、EndpointSlice、ClusterIP/DNS、kube-proxy 规则和 Ready Pod |
 | EndpointSlice | `explorable-architecture` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes EndpointSlice 分片资源模型，覆盖 Service selector、EndpointSlice controller、批量分片、endpoint conditions、topology hints 和 kube-proxy watch fan-out |
@@ -437,15 +438,70 @@
 - 截图结论：桌面 SVG 可识别 Service checkout、EndpointSlice Controller、后端 Pod 快照、EndpointSlice shards、Endpoint conditions、Topology hints、Watch consumers 和底部四个信号；移动 HTML 展示五步流程和 EndpointSlice 指标摘要。
 - 验收备注：Chrome DevTools MCP profile 被占用，Browser 插件返回 in-app browser 不可用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied`；QuickLook PNG 转换被沙箱初始化拦截；本轮使用官方/参考页面 URL、HTTP HEAD 成功记录、项目数据测试、生产构建和真实 React `SimulationStage` SSR 渲染的 SVG/HTML 审查图完成验收。
 
+## Redis AOF Rewrite Visualization
+
+### Online Image References
+
+- `source`：Redis Design and Implementation - AOF，https://redisbook.readthedocs.io/en/latest/internal/aof.html
+  - `image`：页面中的 AOF rewrite buffer SVG：`https://redisbook.readthedocs.io/en/latest/_images/graphviz-982033b83f571a133367a8830ee5cca84f6a08e5.svg`。
+  - `role`：main
+  - `qualityReason`：图把父进程写命令、AOF buffer、AOF rewrite buffer 和子进程收尾合并放在同一张图中，是重写期间“双写”路径最清晰的主参考。
+  - `takeaways`：主画布采用父进程、rewrite child、当前追加缓冲、rewrite buffer、临时文件和最终切换的分区布局。
+  - `originalChanges`：升级为 Redis 7 multi-part AOF 视角，加入 base/incr 文件组、AOF manifest、恢复重放和底部运维信号。
+- `source`：Redis Docs - Persistence，https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/
+  - `image`：官方 AOF rewrite、hybrid AOF、Redis 7 multi-part AOF、manifest 和失败恢复说明。
+  - `role`：supporting
+  - `qualityReason`：官方文档定义 AOF 重写、自动触发、multi-part 文件组织和 manifest 语义，适合校准现代实现。
+  - `takeaways`：画布保留 `base.rdb/base.aof`、`incr.aof`、manifest 文件序列和恢复时先 base 后 incr 的顺序。
+  - `originalChanges`：把文档机制压缩成五步状态模型，用 manifest switch 替代旧式单文件 rename 作为最终焦点。
+- `source`：Redis Commands - BGREWRITEAOF，https://redis.io/docs/latest/commands/bgrewriteaof/
+  - `image`：命令页对后台重写、调度互斥和返回语义的说明。
+  - `role`：supporting
+  - `qualityReason`：官方命令语义补足入口条件、后台任务互斥和运维触发点。
+  - `takeaways`：第一步展示 `BGREWRITEAOF` 被接受、`aof_rewrite_in_progress=1` 和 BGSAVE 调度关系。
+  - `originalChanges`：把命令语义落到右侧任务面板和底部 status 信号。
+- `source`：DeepWiki Redis - AOF Persistence，https://deepwiki.com/redis/redis/4.1-aof-persistence
+  - `image`：页面中的 AOF 管理、rewrite 生命周期和 manifest 代码结构说明。
+  - `role`：supporting
+  - `qualityReason`：从源码结构解释 rewrite、buffer、manifest 和状态字段，适合补足实现对象名称。
+  - `takeaways`：保留 `aof_current_size`、`aof_base_size`、`aof_last_bgrewrite_status`、rewrite buffer 等观测字段。
+  - `originalChanges`：把源码字段整理成底部四个运维信号，而画布保持教学化对象。
+- `source`：NootCode - Redis Persistence，https://www.nootcode.com/knowledge/en/redis-aof-rdb-persistence
+  - `image`：页面中的 AOF/RDB persistence 示意和 AOF rewrite 过程说明。
+  - `role`：supporting
+  - `qualityReason`：课程式分步表达适合校准任务面板文案和移动端流程卡。
+  - `takeaways`：移动端按 Trigger、Fork、Dual write、Base file、Manifest 五张流程卡表达。
+  - `originalChanges`：不复用课程图样式，使用本项目 Redis 红色系与状态卡组件重绘。
+
+### Reference Breakdown
+
+- 主体布局：左上 Redis 主进程，左下 AOF 文件组，中上 Rewrite 子进程，右上写入缓冲区，右中 AOF Manifest，右下恢复重放，底部四个运维信号。
+- 视觉焦点：父进程在重写期间同时把新写入送入当前 `incr.aof` 和 rewrite buffer，子进程基于 fork 快照生成临时 base，最后由 manifest 切到新文件组。
+- 领域对象：BGREWRITEAOF、parent process、rewrite child、fork snapshot、Copy-on-Write、AOF append buffer、AOF rewrite buffer、temp base、base/incr AOF、AOF manifest、recovery replay。
+- 容器层级：Redis 主进程承接命令；子进程只读 fork 快照；缓冲区承接重写期间增量；文件组表示旧文件和新文件并存；manifest 负责文件序列与原子切换；恢复重放验证新组可用性。
+- 连线方向：BGREWRITEAOF -> fork child；父进程写入 -> append buffer / rewrite buffer；child -> temp base；base + rewrite delta -> manifest；manifest -> recovery replay。
+- 状态表达：五步依次高亮触发重写、fork/COW、双缓冲写入、生成基础文件、manifest 原子切换；底部信号显示 fork COW、rewrite buffer、AOF size 和 last_bgrewrite 状态。
+- 颜色策略：Redis 红色作为主题背景和切换风险；品牌蓝表示触发命令；青色表示 fork/COW；橙色表示双写缓冲压力；绿色表示 base/recovery 就绪；红色箭头表示 manifest 切换与旧文件退休。
+- 文字密度：桌面 SVG 保留对象名、文件名和短指标；解释放入右侧任务、操作面板和理解重点；移动端使用流程卡和事实卡替代密集 SVG。
+- 交互节奏：触发 BGREWRITEAOF -> fork 子进程 -> 双缓冲承接写入 -> 生成 temp base -> 更新 manifest 并验收恢复路径。
+- 原创改造点：把 Redis book 的双缓冲图、Redis 官方 multi-part AOF 文档和源码字段说明融合为现代 Redis AOF rewrite 状态模型，突出恢复成本、文件组切换和运维观测。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/aof-rewrite/desktop.svg` 与 `.codex-artifacts/visualizations/aof-rewrite/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/aof-rewrite/mobile.html` 与 `.codex-artifacts/visualizations/aof-rewrite/mobile.html.fragment`。
+- 截图结论：桌面 SVG 可识别 Redis 主进程、Rewrite 子进程、写入缓冲区、AOF 文件组、AOF Manifest、恢复重放和底部四个信号；移动 HTML 展示五步流程卡和 AOF size/status/fork COW/rewrite buffer 事实卡。
+- 验收备注：Browser 插件返回 in-app browser 不可用，Chrome DevTools MCP profile 被占用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied`；本轮使用 Redis 官方/参考 URL 的 HTTP HEAD、数据测试、生产构建和真实 React `SimulationStage` SSR 渲染的 SVG/HTML 审查图完成验收。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Redis `AOF 重写` 或 MySQL `Undo Log` 找图与设计 |
+| RedisGate AOF 页面 | HTTP 自动跳转到 HTTPS 后返回 404 | 仅在页面恢复可访问或找到稳定镜像时复查 |
 
 ## Next Candidate
 
-优先选择 Redis `AOF 重写`，备选 MySQL `Undo Log`。AOF 重写适合展示增量写入、fork 子进程、rewrite buffer、临时文件和原子替换；Undo Log 可承接 MVCC、ReadView 和 Purge，展示版本链、回滚段和历史清理。
+优先选择 MySQL `Undo Log`，备选 Redis `Fork/COW` 或网络 `TCP 拥塞控制`。Undo Log 可承接 MVCC、ReadView 和 Purge，展示版本链、回滚段和历史清理；Fork/COW 可承接 AOF/RDB 重写成本，展示页复制、内存峰值和 fork 延迟。
 
 ## Docker Resource Limit Visualization
 
@@ -2196,3 +2252,17 @@
 - Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `endpoint-slice`，补 core/visual 清单与专用 builder 后 `npm run test:data -- --grep "EndpointSlice"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 22 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add endpoint slice visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Redis `AOF 重写` 或 MySQL `Undo Log`。
+
+### 2026-06-03 18:19 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `1f8c9b9 feat: add endpoint slice visualization`，从干净工作区继续。
+- Selected：Redis `AOF 重写`，原因是 BGREWRITEAOF、fork 子进程、Copy-on-Write、重写期间增量写入、临时基础文件、manifest 切换和恢复重放形成清晰状态模型，并承接 Redis `持久化`、`AOF`、`RDB` 与 `fork-cow`。
+- Candidate Sources：普通搜索筛选约 10 个候选来源；主参考为 Redis Design and Implementation 的 AOF rewrite buffer SVG；辅助来源为 Redis 官方 Persistence、BGREWRITEAOF、DeepWiki Redis AOF Persistence、NootCode Redis Persistence 和小林 coding Redis 持久化章节；Browser 插件返回 `iab` 不可用，Chrome DevTools MCP profile 被占用，本轮使用搜索结果、直接 URL、HTTP HEAD 成功记录和本地 React SSR 审查确认。
+- Online Image References：见 `Redis AOF Rewrite Visualization` 小节；主参考决定父进程、AOF buffer、rewrite buffer 与子进程收尾合并的双写构图，辅助来源校准 Redis 7 multi-part AOF、manifest、BGREWRITEAOF 调度和运维指标。
+- Reference Breakdown：主体布局为左上 Redis 主进程，左下 AOF 文件组，中上 Rewrite 子进程，右上写入缓冲区，右中 AOF Manifest，右下恢复重放，底部 fork COW、rewrite buffer、AOF size、status 四个信号；视觉焦点是重写期间 live incr AOF 与 rewrite buffer 并行，再由 manifest 原子切换到 base + incr 文件组。
+- Implementation：新增 `redis:aof-rewrite` 专用 `state-model` 构建器、AOF Rewrite SVG 舞台、移动端流程卡、响应式样式、来源引用和数据测试，并把 `aof-rewrite` 加入 Redis 可视化清单。
+- Browser Note：Vite preview 启动在 `http://localhost:4189/KnowledgeGraph/`；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied`；真实 React `SimulationStage` SSR 渲染成功生成审查 HTML/SVG。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/aof-rewrite/desktop.svg`、`.codex-artifacts/visualizations/aof-rewrite/desktop.html`、`.codex-artifacts/visualizations/aof-rewrite/mobile.html` 与 `.codex-artifacts/visualizations/aof-rewrite/mobile.html.fragment`；桌面 SVG 可识别 Redis 主进程、Rewrite 子进程、写入缓冲区、AOF 文件组、AOF Manifest、恢复重放和底部四个信号，移动 HTML 展示五步流程和 AOF 指标摘要。
+- Verification：新增测试先失败于 `visualPointIds.redis` 缺少 `aof-rewrite`，补可视化清单与专用 builder 后 `npm run test:data -- --grep "AOF rewrite"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 23 项；`git diff --check` 通过；继续执行 rebase 和 push。
+- Commit/Push Plan：提交 `feat: add aof rewrite visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：MySQL `Undo Log` 或 Redis `Fork/COW`。

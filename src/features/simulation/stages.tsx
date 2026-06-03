@@ -308,6 +308,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "redis:aof-rewrite") {
+    return (
+      <RedisAofRewriteStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "docker:image-layer") {
     return (
       <DockerImageLayerStage
@@ -1916,6 +1927,248 @@ function RedisHashSlotStage({
           </g>
         </svg>
         <div className="tcp-handshake-caption redis-hash-slot-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RedisAofRewriteStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const triggerActive = completedSteps >= 1;
+  const forkActive = completedSteps >= 2;
+  const dualWriteActive = completedSteps >= 3;
+  const baseActive = completedSteps >= 4;
+  const switchActive = completedSteps >= 5;
+  const bufferRows = [
+    { name: "client writes", value: dualWriteActive ? "SET order:9 paid" : "idle", active: dualWriteActive, tone: "brand" },
+    { name: "append buffer", value: dualWriteActive ? "current incr +12KB" : "ready", active: dualWriteActive, tone: "teal" },
+    { name: "rewrite buffer", value: dualWriteActive ? "+12KB delta" : "empty", active: dualWriteActive, tone: "warning" },
+    { name: "fsync", value: switchActive ? "everysec clean" : "policy everysec", active: triggerActive, tone: switchActive ? "success" : "brand" },
+  ];
+  const fileRows = [
+    { name: "old base.rdb", value: switchActive ? "cleanup queue" : "active", active: triggerActive, tone: switchActive ? "danger" : "brand" },
+    { name: "old incr.aof", value: dualWriteActive ? "+ live writes" : "active", active: triggerActive, tone: "teal" },
+    { name: "temp base", value: baseActive ? "240MB ready" : forkActive ? "writing" : "pending", active: forkActive || baseActive, tone: baseActive ? "success" : "warning" },
+    { name: "new incr.aof", value: switchActive ? "open for appends" : "pending", active: switchActive, tone: "success" },
+  ];
+  const manifestRows = [
+    { name: "seq 42", value: switchActive ? "old retired" : "current", active: triggerActive, tone: switchActive ? "danger" : "brand" },
+    { name: "seq 43", value: switchActive ? "base + incr" : "staged", active: baseActive || switchActive, tone: switchActive ? "success" : "warning" },
+    { name: "replay", value: switchActive ? "base then incr" : "long history", active: switchActive || triggerActive, tone: switchActive ? "success" : "teal" },
+  ];
+  const signals = [
+    { name: "fork COW", value: forkActive ? "18ms / +180MB" : "--", active: forkActive, tone: "teal" },
+    { name: "rewrite buffer", value: dualWriteActive ? "12KB" : "0", active: dualWriteActive, tone: "warning" },
+    { name: "AOF size", value: switchActive ? "1.8GB -> 286MB" : baseActive ? "temp 240MB" : "1.8GB", active: triggerActive, tone: switchActive ? "success" : "brand" },
+    { name: "status", value: switchActive ? "last_bgrewrite=ok" : triggerActive ? "in_progress" : "idle", active: triggerActive, tone: switchActive ? "success" : "brand" },
+  ];
+  const mobileFlow = [
+    { name: "Trigger", value: triggerActive ? "BGREWRITEAOF accepted" : "aof_current_size=1.8GB", active: triggerActive },
+    { name: "Fork", value: forkActive ? "child snapshot + COW pages" : "waiting fork", active: forkActive },
+    { name: "Dual write", value: dualWriteActive ? "append buffer + rewrite buffer" : "waiting writes", active: dualWriteActive },
+    { name: "Base file", value: baseActive ? "temp base ready" : "child writing", active: baseActive },
+    { name: "Manifest", value: switchActive ? "base + incr switched" : "old files active", active: switchActive },
+  ];
+
+  return (
+    <div className="visual-stage redis-aof-stage">
+      <div className="redis-aof-card">
+        <svg
+          className="redis-aof-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["redis-aof-arrow-brand", "var(--brand)"],
+              ["redis-aof-arrow-teal", "var(--tertiary)"],
+              ["redis-aof-arrow-success", "var(--success)"],
+              ["redis-aof-arrow-warning", "#f59e0b"],
+              ["redis-aof-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="redis-aof-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="redis-aof-bg" x="24" y="24" width="1072" height="584" rx="28" />
+          <text className="redis-aof-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="redis-aof-subtitle" x="560" y="100">
+            {label(
+              "BGREWRITEAOF -> fork snapshot -> dual write buffers -> compact base -> manifest switch",
+              "BGREWRITEAOF -> fork snapshot -> dual write buffers -> compact base -> manifest switch",
+            )}
+          </text>
+
+          <g className={`redis-aof-parent ${triggerActive ? "active" : ""}`}>
+            <rect x="64" y="146" width="250" height="170" rx="24" />
+            <text className="redis-aof-panel-title" x="94" y="184">{label("Redis 主进程", "Redis parent")}</text>
+            <text className="redis-aof-panel-subtitle" x="94" y="208">{label("事件循环继续接收写命令", "Event loop keeps accepting writes")}</text>
+            <g className={`redis-aof-chip brand ${triggerActive ? "active" : ""}`}>
+              <rect x="94" y="232" width="172" height="26" rx="13" />
+              <text x="180" y="250">BGREWRITEAOF</text>
+            </g>
+            <g className={`redis-aof-chip warning ${dualWriteActive ? "active" : ""}`}>
+              <rect x="94" y="268" width="172" height="26" rx="13" />
+              <text x="180" y="286">{dualWriteActive ? "SET order:9 paid" : "writes pending"}</text>
+            </g>
+          </g>
+
+          <g className={`redis-aof-child ${forkActive ? "active" : ""}`}>
+            <rect x="384" y="132" width="244" height="154" rx="24" />
+            <text className="redis-aof-panel-title" x="414" y="170">{label("Rewrite 子进程", "Rewrite child")}</text>
+            <text className="redis-aof-panel-subtitle" x="414" y="194">{label("读取 fork 快照", "Reads fork snapshot")}</text>
+            <g className={`redis-aof-chip teal ${forkActive ? "active" : ""}`}>
+              <rect x="414" y="218" width="164" height="26" rx="13" />
+              <text x="496" y="236">fork + COW</text>
+            </g>
+            <g className={`redis-aof-chip success ${baseActive ? "active" : ""}`}>
+              <rect x="414" y="250" width="164" height="26" rx="13" />
+              <text x="496" y="268">{baseActive ? "base ready" : "compacting"}</text>
+            </g>
+          </g>
+
+          <g className={`redis-aof-buffers ${dualWriteActive ? "active" : ""}`}>
+            <rect x="674" y="126" width="358" height="204" rx="26" />
+            <text className="redis-aof-panel-title" x="704" y="164">{label("写入缓冲区", "Write buffers")}</text>
+            <text className="redis-aof-panel-subtitle" x="704" y="188">{label("当前增量 AOF 与重写缓冲并行", "Current incr AOF and rewrite buffer in parallel")}</text>
+            {bufferRows.map((row, index) => (
+              <g key={row.name} className={`redis-aof-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="704" y={212 + index * 34} width="286" height="25" rx="12.5" />
+                <text x="720" y={229 + index * 34}>{row.name}</text>
+                <text x="974" y={229 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-aof-files ${triggerActive ? "active" : ""}`}>
+            <rect x="82" y="380" width="402" height="166" rx="26" />
+            <text className="redis-aof-panel-title" x="112" y="418">{label("AOF 文件组", "AOF file set")}</text>
+            <text className="redis-aof-panel-subtitle" x="112" y="442">{label("旧文件保持可恢复，新基础文件分阶段接入", "Old files remain recoverable while the new base is staged")}</text>
+            {fileRows.map((row, index) => (
+              <g key={row.name} className={`redis-aof-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="112" y={466 + index * 30} width="316" height="22" rx="11" />
+                <text x="128" y={481 + index * 30}>{row.name}</text>
+                <text x="408" y={481 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-aof-manifest ${baseActive || switchActive ? "active" : ""}`}>
+            <rect x="548" y="380" width="238" height="166" rx="26" />
+            <text className="redis-aof-panel-title" x="578" y="418">AOF Manifest</text>
+            <text className="redis-aof-panel-subtitle" x="578" y="442">{label("文件序列与原子切换", "File sequence and atomic switch")}</text>
+            {manifestRows.map((row, index) => (
+              <g key={row.name} className={`redis-aof-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="578" y={466 + index * 34} width="170" height="25" rx="12.5" />
+                <text x="594" y={483 + index * 34}>{row.name}</text>
+                <text x="734" y={483 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-aof-recovery ${switchActive ? "active" : ""}`}>
+            <rect x="842" y="382" width="210" height="164" rx="26" />
+            <text className="redis-aof-panel-title" x="872" y="420">{label("恢复重放", "Recovery replay")}</text>
+            <text className="redis-aof-panel-subtitle" x="872" y="444">{label("先 base，再 incr", "Base first, then incr")}</text>
+            <g className={`redis-aof-chip success ${switchActive ? "active" : ""}`}>
+              <rect x="872" y="474" width="140" height="26" rx="13" />
+              <text x="942" y="492">load base</text>
+            </g>
+            <g className={`redis-aof-chip teal ${switchActive ? "active" : ""}`}>
+              <rect x="872" y="512" width="140" height="26" rx="13" />
+              <text x="942" y="530">replay incr</text>
+            </g>
+          </g>
+
+          <g className={`redis-aof-trigger-path ${triggerActive ? "active" : ""}`}>
+            <path d="M 314 206 C 340 198, 360 192, 384 190" markerEnd="url(#redis-aof-arrow-brand)" />
+            <rect x="294" y="158" width="112" height="30" rx="15" />
+            <text x="350" y="178">fork</text>
+          </g>
+          <g className={`redis-aof-cow-path ${forkActive ? "active" : ""}`}>
+            <path d="M 248 316 C 286 356, 344 372, 410 380" markerEnd="url(#redis-aof-arrow-teal)" />
+            <rect x="286" y="334" width="134" height="30" rx="15" />
+            <text x="353" y="354">COW pages</text>
+          </g>
+          <g className={`redis-aof-live-path ${dualWriteActive ? "active" : ""}`}>
+            <path d="M 314 258 C 428 240, 548 236, 674 238" markerEnd="url(#redis-aof-arrow-warning)" />
+            <path d="M 314 282 C 424 318, 548 308, 674 276" markerEnd="url(#redis-aof-arrow-warning)" />
+            <rect x="446" y="250" width="142" height="30" rx="15" />
+            <text x="517" y="270">dual write</text>
+          </g>
+          <g className={`redis-aof-base-path ${baseActive ? "active" : ""}`}>
+            <path d="M 506 286 C 488 328, 428 362, 362 380" markerEnd="url(#redis-aof-arrow-success)" />
+            <rect x="456" y="318" width="146" height="30" rx="15" />
+            <text x="529" y="338">temp base</text>
+          </g>
+          <g className={`redis-aof-switch-path ${switchActive ? "active" : ""}`}>
+            <path d="M 484 462 C 510 462, 526 462, 548 462" markerEnd="url(#redis-aof-arrow-danger)" />
+            <path d="M 786 466 C 806 464, 822 464, 842 464" markerEnd="url(#redis-aof-arrow-success)" />
+            <path d="M 674 330 C 654 352, 656 366, 668 380" markerEnd="url(#redis-aof-arrow-danger)" />
+            <rect x="468" y="562" width="184" height="30" rx="15" />
+            <text x="560" y="582">manifest switch</text>
+          </g>
+
+          <g className="redis-aof-signals">
+            {signals.map((signal, index) => (
+              <g key={signal.name} className={`redis-aof-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={64 + index * 264} y="570" width="230" height="34" rx="16" />
+                <text x={84 + index * 264} y="584">{signal.name}</text>
+                <text x={272 + index * 264} y="598">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="redis-aof-mobile-map">
+          <div className="redis-aof-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`redis-aof-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="redis-aof-mobile-facts">
+            {signals.map((signal) => (
+              <div key={signal.name} className={`redis-aof-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption redis-aof-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

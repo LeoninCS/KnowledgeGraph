@@ -537,7 +537,16 @@ const redisKnowledgePointBase = [
   /* <!-- KG_REVIEWED: AOF 重写 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: AOF 重写 | 2026-05-23 | source_count=5 --> */
   {
-    sourceRefs: ["redis-persistence-docs", "redis-bgrewriteaof-command", "redis-info-command", "redis-latency-docs", "xiaolin-redis"],
+    sourceRefs: [
+      "redis-persistence-docs",
+      "redis-bgrewriteaof-command",
+      "redis-info-command",
+      "redis-latency-docs",
+      "redisbook-aof",
+      "deepwiki-redis-aof",
+      "nootcode-redis-aof",
+      "xiaolin-redis",
+    ],
     id: "aof-rewrite",
     zh: "AOF 重写",
     en: "AOF Rewrite",
