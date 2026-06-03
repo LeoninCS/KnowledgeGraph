@@ -143,6 +143,7 @@
 | 桥接网络 | `step-simulation` | completed | desktop/mobile captured | Docker Bridge packet path 模拟器，覆盖 network namespace、veth pair、Linux bridge、内置 DNS、端口发布、DNAT 和 MASQUERADE |
 | 端口映射 | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Docker published port path 模拟器，覆盖 HostIp/HostPort、DNAT、DOCKER-USER、容器监听地址和 EXPOSE 排障 |
 | 资源限制 | `state-model` | completed | desktop/mobile captured | Docker cgroup 资源治理状态模型，覆盖 HostConfig、cgroup v2 控制文件、CPU throttle、OOMKilled、docker stats 和运行中调整 |
+| 进程数限制 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Docker PIDs cgroup containment 状态模型，覆盖 `--pids-limit`、`pids.max/current/events`、fork/clone 拒绝、`docker stats PIDS` 和调参闭环 |
 | MVCC | `state-model` | completed | desktop/mobile captured | MySQL MVCC 版本可见性状态模型，覆盖隐藏列、Undo 版本链、ReadView、可见性判断和长事务 Purge 风险 |
 | Redo Log | `state-model` | completed | desktop/mobile captured | MySQL Redo Log WAL 与恢复状态模型，覆盖 redo record、log buffer、write/fsync、checkpoint 和 crash recovery |
 | Binlog | `step-simulation` | completed | desktop/mobile captured | MySQL Binlog 提交与复制通道模拟器，覆盖 GTID、Rows Event、Group Commit、Relay Log 和副本应用延迟 |
@@ -327,11 +328,11 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Docker `PIDs 限制` 或 Kubernetes `节点亲和性` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Kubernetes `节点亲和性` 或 Docker `多阶段构建` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 Docker `PIDs 限制`，备选 Kubernetes `节点亲和性`。PIDs 限制可承接 Docker 资源限制和 CPU 限制模型，围绕 pids.max、pids.current、fork/clone 失败、docker stats PIDS 和线程暴涨排障展开；节点亲和性可承接 Scheduler、污点容忍、Pod 亲和性和拓扑分布约束，围绕节点标签、required/preferred 规则和调度事件展开。
+优先选择 Kubernetes `节点亲和性`，备选 Docker `多阶段构建`。节点亲和性可承接 Scheduler、污点容忍、Pod 亲和性和拓扑分布约束，围绕节点标签、required/preferred 规则和调度事件展开；多阶段构建可承接镜像层与 Build Cache，围绕 stage、`COPY --from`、最终镜像体积和调试 target 展开。
 
 ## Docker Resource Limit Visualization
 
@@ -387,6 +388,55 @@
 - 移动端：captured `.codex-artifacts/visualizations/resource-limit/mobile.png`。
 - 截图结论：桌面可识别 `docker run` 参数、Docker daemon、cgroup v2 控制文件、应用容器、内核调度/OOM、`docker stats` 和底部四个信号；右侧任务/操作/理解重点完整；移动端使用流程卡与事实卡展示 `memory.max=768MiB`、`cpu.max=1.5 CPU`、`oom_kill=1 event`、`docker stats=CPU 142% MEM 69%`，文字可读。
 - 验收备注：Chrome DevTools 在 `http://127.0.0.1:4268/KnowledgeGraph/` 完成 Docker 分类、搜索 `资源限制`、详情页进入、模拟器进入、五步交互到 `观测并调整`，并捕获桌面/移动端截图。
+
+## Docker PIDs Limit Visualization
+
+### Online Image References
+
+- `source`：Datadog Security Labs - Container Security Fundamentals: Part 4，https://securitylabs.datadoghq.com/articles/container-security-fundamentals-part-4/
+  - `image`：页面中 Docker PIDs limit 生效后 fork bomb 被限制的终端截图。
+  - `role`：main
+  - `qualityReason`：截图直接展示 `--pids-limit` 对 fork storm 的保护效果，和本知识点的安全边界语义高度一致。
+  - `takeaways`：主画布采用容器任务数持续上涨、触达上限、fork/clone 被拒绝、观测面确认的状态节奏。
+  - `originalChanges`：改成本项目 Docker PIDs cgroup containment 状态模型，加入 HostConfig、`pids.max/current/events`、`docker stats PIDS`、`docker top` 和调参闭环。
+- `source`：Docker Docs - docker container run，https://docs.docker.com/reference/cli/docker/container/run/
+  - `image`：`--pids-limit` 选项说明。
+  - `role`：supporting
+  - `qualityReason`：官方 CLI 文档校准 `--pids-limit` 参数和 `-1` unlimited 语义。
+  - `takeaways`：左侧参数区从 `docker run --pids-limit 64 app` 开始，并保留 HostConfig.PidsLimit。
+  - `originalChanges`：把命令选项转成可点击步骤和画布中的参数卡。
+- `source`：Docker Docs - docker container stats，https://docs.docker.com/reference/cli/docker/container/stats/
+  - `image`：官方 `docker stats` 输出列，包含 PIDS 列。
+  - `role`：supporting
+  - `qualityReason`：官方定义 PIDS 指标可用于观察容器内任务数量。
+  - `takeaways`：右侧观测面板和底部信号展示 `docker stats PIDS 63 / 64`。
+  - `originalChanges`：把静态命令输出转成随步骤变化的 PIDS 当前值和调参反馈。
+- `source`：Linux Kernel Docs - Control Group v2，https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html
+  - `image`：`pids.max`、`pids.current`、`pids.events` 控制文件说明。
+  - `role`：supporting
+  - `qualityReason`：权威定义 pids controller 的硬上限、当前任务数和 max 事件计数。
+  - `takeaways`：中部 cgroup 面板展示 `pids.max=64`、`pids.current=63/64`、`pids.events max=4`。
+  - `originalChanges`：用 Docker 容器 cgroup 路径连接 daemon/runtime 写入和内核执行。
+
+### Reference Breakdown
+
+- 主体布局：左侧 `docker run` 参数与 HostConfig，中上 Docker daemon，右上 pids controller，左下应用容器任务视图，中下 Linux task creation，右下观测证据，底部四个 PIDs 信号。
+- 视觉焦点：`--pids-limit 64` 写入 `pids.max=64` 后，`pids.current` 从 17 增至 63，再在 fork/clone 触顶时出现 `EAGAIN` 与 `pids.events max=4`。
+- 领域对象：HostConfig.PidsLimit、Docker daemon、runtime、pids controller、`pids.max`、`pids.current`、`pids.events`、PID 1、worker threads、child processes、fork、clone、`docker stats PIDS`、`docker top`。
+- 容器层级：CLI 声明 PIDs 上限；daemon/runtime 写入 cgroup；pids controller 按内核任务数计数；容器进程和线程共同消耗额度；fork/clone 边界返回错误；观测面用 stats/top/events 校准调参。
+- 连线方向：docker flags -> HostConfig -> pids controller -> container task growth -> fork/clone boundary -> observation evidence -> `docker update --pids-limit`。
+- 状态表达：五步依次高亮声明上限、写入控制文件、任务数量增长、拒绝 fork/clone、观测并调参；危险状态使用红色 EAGAIN 路径，恢复状态使用绿色 update 路径。
+- 颜色策略：品牌蓝表示 Docker 参数与 HostConfig，青色表示 cgroup 控制文件，橙色表示任务数接近上限，红色表示 fork/clone 拒绝，绿色表示调参收敛。
+- 文字密度：桌面 SVG 保留字段名、短状态和关键计数；移动端切换为 5 张流程卡与 4 张事实卡。
+- 交互节奏：声明 PIDs 上限 -> 写入 pids controller -> 任务数量增长 -> 拒绝 fork/clone -> 观测并调参。
+- 原创改造点：把 Datadog fork bomb 保护截图、Docker CLI/stats 文档和 Linux pids controller 语义融合成生产排障模型。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/pids-limit/desktop.svg` 与 `.codex-artifacts/visualizations/pids-limit/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/pids-limit/mobile.html`。
+- 截图结论：桌面 SVG 可识别 `docker run`、Docker daemon、pids controller、应用容器、Linux task creation、观测证据和底部四个信号；移动 HTML 展示五步流程和 PIDs 指标摘要，文字可读。
+- 验收备注：Vite dev server 已在 `http://127.0.0.1:5173/KnowledgeGraph/` 启动；Browser 插件返回 in-app browser 不可用，Chrome DevTools MCP profile 被占用，Playwright Chromium 受 macOS Mach port 权限 `bootstrap_check_in ... Permission denied` 限制；本轮使用 `npm run test:data -- --grep "pids limit"`、`npm run build`、完整 `npm run test:data`、`git diff --check` 和本地 SVG/HTML 审查图完成验收。
 
 ## Kubernetes HPA Visualization
 
@@ -1863,3 +1913,17 @@
 - Verification：新增测试 `npm run test:data -- --grep "pod affinity"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 17 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add pod affinity visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Docker `PIDs 限制` 或 Kubernetes `节点亲和性`。
+
+### 2026-06-03 10:16 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `f256493`，从干净工作区继续。
+- Selected：Docker `PIDs 限制`，原因是 `--pids-limit`、`pids.max/current/events`、fork/clone 失败、`docker stats PIDS`、`docker top` 和线程暴涨排障形成清晰的资源保护状态模型，并承接 Docker `资源限制` 和 `CPU 限制` 可视化。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；主参考为 Datadog Security Labs fork bomb 受限截图，辅助参考为 Docker run、Docker stats 和 Linux cgroup v2 pids controller；Browser 插件返回 in-app browser 不可用，Chrome DevTools MCP profile 被占用，本轮使用可访问页面、官方文档和本地 SVG/HTML 审查完成确认。
+- Online Image References：见 `Docker PIDs Limit Visualization` 小节；主图决定“任务数量增长 -> fork/clone 被拒绝 -> 观测调参”的交互节奏，辅助来源校准 CLI、stats、cgroup 文件和安全基线语义。
+- Reference Breakdown：主体布局为左侧 `docker run` 与 HostConfig，中上 Docker daemon，右上 pids controller，左下应用容器任务视图，中下 Linux task creation，右下观测证据，底部 `pids.max`、`pids.current`、`pids.events max`、`docker stats PIDS` 四个信号。
+- Implementation：新增 `docker:pids-limit` 专用 `state-model` 构建器、PIDs Limit SVG 舞台、移动端流程卡、响应式样式和数据测试，并把 `pids-limit` 加入 Docker core 与可视化清单。
+- Browser Note：Vite dev server 在 `http://127.0.0.1:5173/KnowledgeGraph/` 可访问；Browser 插件返回 in-app browser 不可用；Chrome DevTools MCP profile 被占用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied`；本轮用本地 SVG/HTML 审查图完成截图验收。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/pids-limit/desktop.svg`、`.codex-artifacts/visualizations/pids-limit/desktop.html` 与 `.codex-artifacts/visualizations/pids-limit/mobile.html`；桌面 SVG 可识别 Docker flags、daemon、pids controller、container tasks、fork/clone boundary、observation evidence 和底部四个信号，移动 HTML 展示五步流程和 PIDs 指标摘要。
+- Verification：新增 `npm run test:data -- --grep "pids limit"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 18 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add pids limit visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Kubernetes `节点亲和性` 或 Docker `多阶段构建`。

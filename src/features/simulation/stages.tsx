@@ -363,6 +363,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "docker:pids-limit") {
+    return (
+      <DockerPidsLimitStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:service") {
     return (
       <KubernetesServiceStage
@@ -7732,6 +7743,223 @@ function DockerCpuLimitStage({
           </div>
         </div>
         <div className="tcp-handshake-caption docker-cpu-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DockerPidsLimitStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const flagsActive = completedSteps >= 1;
+  const cgroupActive = completedSteps >= 2;
+  const growthActive = completedSteps >= 3;
+  const rejectActive = completedSteps >= 4;
+  const tuneActive = completedSteps >= 5;
+  const controlRows = [
+    { name: "pids.max", value: tuneActive ? "96" : cgroupActive ? "64" : "max", active: cgroupActive || tuneActive, tone: tuneActive ? "success" : "brand" },
+    { name: "pids.current", value: rejectActive ? "64" : growthActive ? "63" : cgroupActive ? "17" : "0", active: cgroupActive || growthActive || rejectActive, tone: rejectActive ? "danger" : growthActive ? "warning" : "teal" },
+    { name: "pids.events", value: tuneActive ? "max 0" : rejectActive ? "max 4" : "max 0", active: rejectActive || tuneActive, tone: rejectActive ? "danger" : "success" },
+    { name: "HostConfig", value: flagsActive ? "PidsLimit=64" : "pending", active: flagsActive, tone: "brand" },
+  ];
+  const taskRows = [
+    { name: "PID 1", value: flagsActive ? "app server" : "idle", active: flagsActive, tone: "brand" },
+    { name: "worker threads", value: growthActive ? "48 active" : cgroupActive ? "8 active" : "idle", active: cgroupActive || growthActive, tone: growthActive ? "warning" : "teal" },
+    { name: "child processes", value: rejectActive ? "spawn failed" : growthActive ? "14 active" : "2 active", active: cgroupActive || growthActive || rejectActive, tone: rejectActive ? "danger" : "teal" },
+    { name: "health probe", value: rejectActive ? "thread create failed" : "ok", active: flagsActive || rejectActive, tone: rejectActive ? "danger" : "success" },
+  ];
+  const kernelRows = [
+    { name: "fork()", value: rejectActive ? "EAGAIN" : growthActive ? "allowed" : "waiting", active: growthActive || rejectActive, tone: rejectActive ? "danger" : "teal" },
+    { name: "clone()", value: rejectActive ? "cap reached" : growthActive ? "task +1" : "waiting", active: growthActive || rejectActive, tone: rejectActive ? "danger" : "warning" },
+    { name: "task accounting", value: tuneActive ? "headroom restored" : rejectActive ? "64 / 64" : growthActive ? "63 / 64" : "17 / 64", active: cgroupActive || growthActive || rejectActive || tuneActive, tone: tuneActive ? "success" : rejectActive ? "danger" : growthActive ? "warning" : "brand" },
+  ];
+  const signalRows = [
+    { name: "pids.max", value: tuneActive ? "96" : cgroupActive ? "64" : "--", active: cgroupActive || tuneActive, tone: tuneActive ? "success" : "brand" },
+    { name: "pids.current", value: rejectActive ? "64 / 64" : growthActive ? "63 / 64" : cgroupActive ? "17 / 64" : "--", active: cgroupActive || growthActive || rejectActive, tone: rejectActive ? "danger" : growthActive ? "warning" : "teal" },
+    { name: "pids.events max", value: tuneActive ? "0" : rejectActive ? "4" : "0", active: rejectActive || tuneActive, tone: rejectActive ? "danger" : "success" },
+    { name: "docker stats PIDS", value: tuneActive ? "58 / 96" : growthActive ? "63 / 64" : "--", active: growthActive || tuneActive, tone: tuneActive ? "success" : "warning" },
+  ];
+  const mobileFlow = [
+    { name: "HostConfig", value: flagsActive ? "--pids-limit 64 -> PidsLimit=64" : "pending flag", active: flagsActive },
+    { name: "pids controller", value: cgroupActive ? "pids.max=64, pids.current=17" : "waiting runtime", active: cgroupActive },
+    { name: "task growth", value: growthActive ? "threads + children raise current to 63" : "normal worker pool", active: growthActive },
+    { name: "fork boundary", value: rejectActive ? "fork/clone rejected, pids.events max=4" : "new tasks allowed", active: rejectActive },
+    { name: "tune cap", value: tuneActive ? "baseline 41, peak 58, update to 96" : "waiting evidence", active: tuneActive },
+  ];
+
+  return (
+    <div className="visual-stage docker-pids-stage">
+      <div className="docker-pids-card">
+        <svg
+          className="docker-pids-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["docker-pids-arrow-brand", "var(--brand)"],
+              ["docker-pids-arrow-teal", "var(--tertiary)"],
+              ["docker-pids-arrow-success", "var(--success)"],
+              ["docker-pids-arrow-warning", "#f59e0b"],
+              ["docker-pids-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker key={id} id={id} viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="docker-pids-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="docker-pids-bg" x="24" y="24" width="1072" height="584" rx="28" />
+          <text className="docker-pids-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="docker-pids-subtitle" x="560" y="100">
+            {label(
+              "docker run -> HostConfig.PidsLimit -> pids.max/current/events -> fork boundary -> stats/top tuning",
+              "docker run -> HostConfig.PidsLimit -> pids.max/current/events -> fork boundary -> stats/top tuning",
+            )}
+          </text>
+
+          <g className={`docker-pids-flags ${flagsActive ? "active" : ""}`}>
+            <rect x="58" y="136" width="246" height="184" rx="24" />
+            <text className="docker-pids-panel-title" x="88" y="174">docker run</text>
+            <text className="docker-pids-panel-subtitle" x="88" y="198">HostConfig boundary</text>
+            {["--pids-limit 64", "--memory 512m", "--read-only"].map((flag, index) => (
+              <g key={flag} className={`docker-pids-flag-row ${flagsActive ? "active" : ""}`}>
+                <rect x="88" y={224 + index * 34} width="178" height="24" rx="12" />
+                <text x="104" y={240 + index * 34}>{flag}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-pids-daemon ${flagsActive ? "active" : ""}`}>
+            <rect x="364" y="144" width="208" height="126" rx="24" />
+            <text className="docker-pids-panel-title" x="394" y="182">Docker daemon</text>
+            <text x="394" y="214">{flagsActive ? "PidsLimit=64" : "await flag"}</text>
+            <text x="394" y="240">{cgroupActive ? "runtime applied" : "container create"}</text>
+          </g>
+
+          <g className={`docker-pids-cgroup ${cgroupActive ? "active" : ""}`}>
+            <rect x="638" y="126" width="332" height="236" rx="28" />
+            <text className="docker-pids-panel-title" x="668" y="164">cgroup pids controller</text>
+            <text className="docker-pids-panel-subtitle" x="668" y="188">/sys/fs/cgroup/docker/&lt;id&gt;</text>
+            {controlRows.map((row, index) => (
+              <g key={row.name} className={`docker-pids-control-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="668" y={214 + index * 38} width="266" height="28" rx="14" />
+                <text x="686" y={233 + index * 38}>{row.name}</text>
+                <text x="916" y={233 + index * 38}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-pids-container ${flagsActive ? "active" : ""}`}>
+            <rect x="72" y="388" width="326" height="164" rx="26" />
+            <text className="docker-pids-panel-title" x="102" y="426">{label("应用容器", "App container")}</text>
+            <text className="docker-pids-panel-subtitle" x="102" y="450">PID namespace view + task count</text>
+            {taskRows.map((row, index) => (
+              <g key={row.name} className={`docker-pids-task-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="102" y={470 + index * 28} width="250" height="21" rx="11" />
+                <text x="118" y={484 + index * 28}>{row.name}</text>
+                <text x="338" y={484 + index * 28}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-pids-kernel ${growthActive || rejectActive ? "active" : ""}`}>
+            <rect x="454" y="394" width="270" height="152" rx="26" />
+            <text className="docker-pids-panel-title" x="484" y="432">Linux task creation</text>
+            {kernelRows.map((row, index) => (
+              <g key={row.name} className={`docker-pids-kernel-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="484" y={456 + index * 32} width="190" height="24" rx="12" />
+                <text x="500" y={472 + index * 32}>{row.name}</text>
+                <text x="660" y={472 + index * 32}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-pids-observe ${growthActive || rejectActive || tuneActive ? "active" : ""}`}>
+            <rect x="776" y="396" width="292" height="150" rx="26" />
+            <text className="docker-pids-panel-title" x="806" y="434">{label("观测证据", "Observation evidence")}</text>
+            <text x="806" y="464">{growthActive ? "docker stats PIDS 63 / 64" : "metrics pending"}</text>
+            <text x="806" y="494">{rejectActive ? "pids.events: max 4" : tuneActive ? "events cleared after update" : "events pending"}</text>
+            <text x="806" y="524">{tuneActive ? "docker update --pids-limit 96" : rejectActive ? "docker top + thread dump" : "docker top pending"}</text>
+          </g>
+
+          <g className={`docker-pids-flags-path ${flagsActive ? "active" : ""}`}>
+            <path d="M 304 214 C 330 208, 344 204, 364 202" markerEnd="url(#docker-pids-arrow-brand)" />
+            <rect x="286" y="168" width="138" height="30" rx="15" />
+            <text x="355" y="188">HostConfig</text>
+          </g>
+          <g className={`docker-pids-cgroup-path ${cgroupActive ? "active" : ""}`}>
+            <path d="M 572 206 C 604 198, 618 196, 638 196" markerEnd="url(#docker-pids-arrow-teal)" />
+            <rect x="548" y="164" width="148" height="30" rx="15" />
+            <text x="622" y="184">write pids.max</text>
+          </g>
+          <g className={`docker-pids-growth-path ${growthActive ? "active" : ""}`}>
+            <path d="M 398 474 C 434 458, 446 450, 454 450" markerEnd="url(#docker-pids-arrow-warning)" />
+            <path d="M 662 362 C 628 382, 612 402, 604 430" markerEnd="url(#docker-pids-arrow-warning)" />
+            <rect x="432" y="346" width="164" height="30" rx="15" />
+            <text x="514" y="366">pids.current rises</text>
+          </g>
+          <g className={`docker-pids-reject-path ${rejectActive ? "active" : ""}`}>
+            <path d="M 398 526 C 438 528, 446 520, 454 512" markerEnd="url(#docker-pids-arrow-danger)" />
+            <path d="M 724 470 C 754 466, 764 464, 776 464" markerEnd="url(#docker-pids-arrow-danger)" />
+            <rect x="588" y="562" width="160" height="30" rx="15" />
+            <text x="668" y="582">fork EAGAIN</text>
+          </g>
+          <g className={`docker-pids-tune-path ${tuneActive ? "active" : ""}`}>
+            <path d="M 876 396 C 826 366, 854 344, 912 362" markerEnd="url(#docker-pids-arrow-success)" />
+            <path d="M 806 546 C 660 610, 210 610, 166 552" markerEnd="url(#docker-pids-arrow-success)" />
+            <rect x="518" y="604" width="184" height="30" rx="15" />
+            <text x="610" y="624">baseline + headroom</text>
+          </g>
+
+          <g className="docker-pids-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`docker-pids-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={62 + index * 264} y="566" width="224" height="34" rx="16" />
+                <text x={82 + index * 264} y="580">{signal.name}</text>
+                <text x={264 + index * 264} y="594">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="docker-pids-mobile-map">
+          <div className="docker-pids-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`docker-pids-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="docker-pids-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`docker-pids-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption docker-pids-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

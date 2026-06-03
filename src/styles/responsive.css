@@ -832,22 +832,26 @@
   }
 
   .docker-resource-stage,
-  .docker-cpu-stage {
+  .docker-cpu-stage,
+  .docker-pids-stage {
     padding-inline: 12px;
   }
 
   .docker-resource-card,
-  .docker-cpu-card {
+  .docker-cpu-card,
+  .docker-pids-card {
     width: 100%;
   }
 
   .docker-resource-diagram,
-  .docker-cpu-diagram {
+  .docker-cpu-diagram,
+  .docker-pids-diagram {
     display: none;
   }
 
   .docker-resource-mobile-map,
-  .docker-cpu-mobile-map {
+  .docker-cpu-mobile-map,
+  .docker-pids-mobile-map {
     display: grid;
     gap: 16px;
     padding: 18px;
@@ -948,7 +952,9 @@
   .docker-port-mobile-flow,
   .docker-port-mobile-facts,
   .docker-resource-mobile-flow,
-  .docker-resource-mobile-facts {
+  .docker-resource-mobile-facts,
+  .docker-pids-mobile-flow,
+  .docker-pids-mobile-facts {
     display: grid;
     gap: 10px;
   }
@@ -996,7 +1002,9 @@
   .docker-port-mobile-hop,
   .docker-port-mobile-fact,
   .docker-resource-mobile-hop,
-  .docker-resource-mobile-fact {
+  .docker-resource-mobile-fact,
+  .docker-pids-mobile-hop,
+  .docker-pids-mobile-fact {
     display: grid;
     gap: 4px;
     padding: 12px;
@@ -1048,7 +1056,9 @@
   .docker-port-mobile-hop.active,
   .docker-port-mobile-fact.active,
   .docker-resource-mobile-hop.active,
-  .docker-resource-mobile-fact.active {
+  .docker-resource-mobile-fact.active,
+  .docker-pids-mobile-hop.active,
+  .docker-pids-mobile-fact.active {
     border-color: color-mix(in srgb, var(--brand) 36%, var(--border));
     background: color-mix(in srgb, var(--brand) 8%, var(--surface));
   }
@@ -1096,7 +1106,9 @@
   .docker-port-mobile-hop span,
   .docker-port-mobile-fact span,
   .docker-resource-mobile-hop span,
-  .docker-resource-mobile-fact span {
+  .docker-resource-mobile-fact span,
+  .docker-pids-mobile-hop span,
+  .docker-pids-mobile-fact span {
     color: var(--muted);
     font-size: 0.76rem;
     font-weight: 800;
@@ -1145,7 +1157,9 @@
   .docker-port-mobile-hop strong,
   .docker-port-mobile-fact strong,
   .docker-resource-mobile-hop strong,
-  .docker-resource-mobile-fact strong {
+  .docker-resource-mobile-fact strong,
+  .docker-pids-mobile-hop strong,
+  .docker-pids-mobile-fact strong {
     color: var(--text);
     font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.82rem;

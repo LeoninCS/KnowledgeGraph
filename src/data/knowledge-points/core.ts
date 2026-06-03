@@ -362,6 +362,7 @@ export const coreKnowledgePointIdsByCategory: Record<CategoryId, string[]> = {
     "resource-limit",
     "memory-limit",
     "cpu-limit",
+    "pids-limit",
     "oom",
     "security-hardening",
     "non-root-user",

@@ -278,6 +278,23 @@ test("docker cpu limit is backed by a dedicated visual simulation", async () => 
   );
 });
 
+test("docker pids limit is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("docker");
+  const pidsLimit = points.find((point) => point.id === "pids-limit");
+
+  expect(visualPointIds.docker).toContain("pids-limit");
+  expect(pidsLimit).toBeTruthy();
+
+  const simulation = buildVisualSimulation("docker", pidsLimit!);
+
+  expect(simulation.key).toBe("docker:pids-limit");
+  expect(simulation.pattern.en).toContain("PIDs cgroup containment model");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["pids.max", "pids.current", "pids.events max", "docker stats PIDS"]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");
