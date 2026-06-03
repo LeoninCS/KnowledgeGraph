@@ -398,6 +398,7 @@ export const coreKnowledgePointIdsByCategory: Record<CategoryId, string[]> = {
     "node",
     "kubelet",
     "scheduler",
+    "node-affinity",
     "taint-toleration",
     "pod-affinity",
     "topology-spread",

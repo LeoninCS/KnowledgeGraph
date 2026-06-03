@@ -3113,6 +3113,14 @@ export const knowledgeSources = {
     title: "Kubernetes Visual Handbook: Scheduling Affinity",
     url: "https://k8s.info/docs/intermediate/scheduling-affinity",
   },
+  "kubernetes-node-affinity-task": {
+    title: "Kubernetes Docs: Assign Pods to Nodes using Node Affinity",
+    url: "https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes-using-node-affinity/",
+  },
+  "kubernetes-node-labels": {
+    title: "Kubernetes Docs: Well-Known Labels, Annotations and Taints",
+    url: "https://kubernetes.io/docs/reference/labels-annotations-taints/",
+  },
   "kubex-taints-tolerations": {
     title: "Kubex: Taints and Tolerations",
     url: "https://kubex.ai/blog/kubernetes-taints/",

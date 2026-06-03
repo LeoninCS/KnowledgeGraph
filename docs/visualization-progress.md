@@ -156,6 +156,7 @@
 | HPA | `step-simulation` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes HPA 自动伸缩控制环模拟器，覆盖负载升高、Metrics API、desiredReplicas 公式、Scale 子资源和稳定窗口 |
 | Scheduler | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes Scheduler 调度周期模拟器，覆盖 Pending Pod、Scheduling Queue/Profile、Filter/Score 插件、Binding Cycle 和 FailedScheduling 事件 |
 | 污点与容忍 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes Taints and Tolerations 调度约束状态模型，覆盖 Node taint、Pod toleration、NoSchedule Filter、NoExecute 驱逐、tolerationSeconds 和 FailedScheduling 事件 |
+| 节点亲和性 | `state-model` | completed | desktop/mobile captured | Kubernetes Node Affinity 调度状态模型，覆盖 node label、nodeSelectorTerms、matchExpressions、required Filter、preferred Score 和调度事件 |
 | Pod 亲和性 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes Pod Affinity 调度状态模型，覆盖 labelSelector、topologyKey、PodAffinity、PodAntiAffinity、InterPodAffinity Filter、Score 和调度事件 |
 | epoll | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Linux epoll 事件通知状态模型，覆盖 epoll_create1、epoll_ctl、interest list、socket wait queue、ready list、epoll_wait 批量返回和 LT/ET drain |
 | 抢占 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes PriorityClass 抢占调度状态模型，覆盖 PriorityClass、普通 Filter 失败、victim/PDB、nominatedNodeName 和重新绑定验收 |
@@ -329,11 +330,11 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Kubernetes `节点亲和性` 或网络 `TCP/IP 四层模型` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入网络 `TCP/IP 四层模型` 或 Kubernetes `EndpointSlice` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 Kubernetes `节点亲和性`，备选网络 `TCP/IP 四层模型`。节点亲和性可承接 Scheduler、污点容忍、Pod 亲和性和拓扑分布约束，围绕节点标签、required/preferred 规则和调度事件展开；TCP/IP 四层模型可承接网络总览、OSI、以太网帧和路由，围绕分层封装、抓包字段、OSI 对照和排障证据展开。
+优先选择网络 `TCP/IP 四层模型`，备选 Kubernetes `EndpointSlice`。TCP/IP 四层模型可承接网络总览、OSI、以太网帧和路由，围绕分层封装、抓包字段、OSI 对照和排障证据展开；EndpointSlice 可承接 Service、Ingress 和 kube-proxy，围绕 selector、slice 分片、Ready Endpoint、拓扑提示和转发规则展开。
 
 ## Docker Resource Limit Visualization
 
@@ -2005,3 +2006,46 @@
 - Working Tree：进入同步门禁时工作区干净；本条记录写入后仅 `docs/visualization-progress.md` 发生变化。
 - Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
 - Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后提交本条 docs-only 阻塞记录，再继续 Kubernetes `节点亲和性` 或网络 `TCP/IP 四层模型` 找图与设计。
+
+### 2026-06-03 13:16 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功；上一轮 DNS 阻塞记录已提交并推送为 `bf9add1 docs: record visualization sync blockers`，再从干净跟踪状态继续。
+- Selected：Kubernetes `节点亲和性`，原因是 node label、nodeSelectorTerms、matchExpressions、required/preferred 分流、NodeAffinity Filter/Score 和 FailedScheduling 事件形成清晰的调度排障模型，并承接 Scheduler、污点容忍、Pod 亲和性、拓扑分布与抢占可视化。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；Chrome DevTools 视觉确认 Kubernetes Visual Handbook 的 HDD/SSD 节点亲和交互区和 Kubernetes 官方 Assigning Pods to Nodes 节点亲和字段说明，保留 1 个主参考与 4 个辅助来源。
+- Online Image References：
+  - source：Kubernetes Visual Handbook - Scheduling Affinity，https://k8s.info/docs/intermediate/scheduling-affinity；image：Node Affinity 交互区（No Affinity / Require SSD / Require HDD，Node 1 HDD、Node 2/3 SSD），本地参考截图 `.codex-artifacts/reference-checks/node-affinity-k8s-info.png`；role：main；qualityReason：页面直接用节点标签和三节点布局展示 Pod 如何被 hard rule 吸引到匹配节点，适合做主构图；takeaways：主画布采用左侧 Pending Pod 与规则、中部节点标签集合、右侧 Filter/Score 的横向调度路径；originalChanges：改成本项目五步状态模型，加入 OR/AND 选择器语义、preferred weight、底部信号和移动端流程卡。
+  - source：Kubernetes Docs - Assigning Pods to Nodes，https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity；image：官方 nodeAffinity YAML、required/preferred 类型、weight、operator 和 OR/AND 说明；role：supporting；qualityReason：官方校准 `.spec.affinity.nodeAffinity`、`requiredDuringSchedulingIgnoredDuringExecution`、`preferredDuringSchedulingIgnoredDuringExecution`、`nodeSelectorTerms`、`matchExpressions` 和 `weight` 语义；takeaways：步骤按读取规则、匹配节点标签、required Filter、preferred Score、绑定验收推进；originalChanges：把官方字段压缩进 `spec.affinity.nodeAffinity` 面板和底部四个信号。
+  - source：Kubernetes Docs - Assign Pods to Nodes using Node Affinity，https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes-using-node-affinity/；image：官方任务示例与命令路径；role：supporting；qualityReason：补充实际 label node、创建 Pod、验证调度位置的操作闭环；takeaways：事件验收区保留 `kubectl get nodes --show-labels` 与 `spec.nodeName`；originalChanges：把任务操作折叠成右侧事件验证和底部信号。
+  - source：Kubernetes Docs - Scheduling Framework，https://kubernetes.io/docs/concepts/scheduling-eviction/scheduling-framework/；image：Filter/Score/Bind 扩展点说明；role：supporting；qualityReason：校准 NodeAffinity 在调度周期中硬规则进入 Filter、软规则进入 Score 的位置；takeaways：画布右侧突出 NodeAffinity Filter 与 NodeAffinity Score 两段；originalChanges：复用项目调度器视觉语言，突出插件输出读数。
+  - source：Kubernetes Docs - Well-Known Labels, Annotations and Taints，https://kubernetes.io/docs/reference/labels-annotations-taints/；image：标准节点标签说明；role：supporting；qualityReason：校准 `topology.kubernetes.io/zone`、`node.kubernetes.io/instance-type` 等节点标签命名；takeaways：节点卡片展示 zone、accelerator、instance-type 三类标签；originalChanges：把标准标签与 GPU 节点隔离场景组合为生产调度模型。
+- Reference Breakdown：主体布局为左侧 `trainer` Pending Pod 与 `spec.affinity.nodeAffinity`，右上 NodeInfo label index，中部 node-a/node-b/node-c 三个候选节点，右侧 NodeAffinity Filter，底部 Score plugins、Events validation 和四个信号；视觉焦点是 `required zone In [a,b] + accelerator Exists` 过滤 node-b，再由 `preferred instance=gpu weight 90` 选择 node-c。
+- 领域对象：Pending Pod、nodeAffinity、requiredDuringSchedulingIgnoredDuringExecution、preferredDuringSchedulingIgnoredDuringExecution、nodeSelectorTerms、matchExpressions、NodeInfo labels、NodeAffinity Filter、NodeAffinity Score、preferred weight、FailedScheduling Events、`spec.nodeName`。
+- 容器层级：Pod 携带 nodeAffinity spec；调度器读取 NodeInfo 标签快照；nodeSelectorTerms 按 OR 形成候选项，matchExpressions 在 term 内按 AND 过滤；required 规则进入 Filter；preferred weight 进入 Score；Bind 与 Events 共同验收。
+- 连线方向：Pending Pod -> nodeAffinity rules -> NodeInfo label index -> candidate nodes -> required Filter -> preferred Score -> bind node-c。
+- 状态表达：五步依次高亮读取规则、匹配节点标签、硬规则过滤、软规则打分、绑定验收；底部信号展示 nodeSelectorTerms、matchExpressions、preferred weight、Events。
+- 颜色策略：品牌蓝表示规则输入，青色表示标签索引，橙色表示硬规则过滤，红色表示标签不匹配，绿色表示最高分节点和最终绑定。
+- 文字密度：桌面 SVG 保留字段名、短状态和节点标签；移动端切换为五张流程卡和四张事实卡。
+- 交互节奏：读取 nodeAffinity -> 索引节点标签 -> required Filter 淘汰标签不匹配节点 -> preferred weight 合并打分 -> 绑定并核对事件。
+- 原创改造点：把 Visual Handbook 的三节点亲和交互、Kubernetes 官方字段和调度框架扩展点融合成生产排障模型，强调 OR/AND 选择器语义、IgnoredDuringExecution、preferred weight 和事件验收。
+- Implementation：新增 `kubernetes:node-affinity` 专用 `state-model` 构建器、Node Affinity SVG 舞台、移动端纵向摘要、响应式样式、来源引用和数据测试，并把 `node-affinity` 加入 Kubernetes core 与可视化清单。
+- Browser Note：Browser 插件返回 `iab` 不可用；Chrome DevTools 成功打开参考页面和本地 `file://` 审查 HTML；Vite SSR loader 触发 HMR WebSocket `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` SSR 渲染完成。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/node-affinity/desktop.png`（2880x2060）、`.codex-artifacts/visualizations/node-affinity/mobile.png`（1000x1656）、`.codex-artifacts/visualizations/node-affinity/desktop.svg`、`.codex-artifacts/visualizations/node-affinity/desktop.html` 与 `.codex-artifacts/visualizations/node-affinity/mobile.html`；桌面可识别 Pending Pod、spec.affinity.nodeAffinity、NodeInfo label index、candidate nodes、NodeAffinity Filter、Score plugins、Events 和底部四个信号，移动端流程卡与事实卡可读。
+- Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `node-affinity`，补 core/visual 清单与专用 builder 后 `npm run test:data -- --grep "node affinity"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 20 项；继续执行 `git diff --check`、rebase 和 push。
+- Commit/Push Plan：提交 `feat: add node affinity visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：网络 `TCP/IP 四层模型` 或 Kubernetes `EndpointSlice`。
+
+### 2026-06-03 14:03 CST
+
+- Branch/Fetch：当前分支 `main`；先读取自动化记忆，工作区已有 Kubernetes `节点亲和性` 可视化实现现场，范围包括数据、模拟舞台、样式、测试和进度文档；`git fetch origin main` 失败，输出为 `LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443`。
+- Working Tree：保留现有未提交实现现场，涉及 `docs/visualization-progress.md`、`src/data/knowledge-points/core.ts`、`src/data/knowledge-points/kubernetes.ts`、`src/data/knowledge-points/sources.ts`、`src/data/visual-simulations/index.ts`、`src/data/visual-simulations/metadata.ts`、`src/features/simulation/stages.tsx`、`src/styles/responsive.css`、`src/styles/simulation.css` 和 `tests/knowledge.data.spec.ts`。
+- Action：本轮停在同步门禁，跳过继续找图、编码、截图复验、提交和推送。
+- Resume Point：下一轮先重试 `git fetch origin main` 与 `git pull --ff-only origin main`；同步成功后继续核验 Kubernetes `节点亲和性` 可视化现场，必要时重新运行 `npm run test:data -- --grep "node affinity"`、`npm run build`、完整 `npm run test:data` 和 `git diff --check`，再提交 `feat: add node affinity visualization` 并推送。
+
+### 2026-06-03 14:13 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功；本地 `HEAD` 与 `origin/main` 均为 `bf9add1 docs: record visualization sync blockers`，继续上一轮 Kubernetes `节点亲和性` 可视化现场。
+- Visual Recheck：Chrome DevTools 打开本地审查页 `.codex-artifacts/visualizations/node-affinity/desktop.html`，DOM 可见 `nodeSelectorTerms`、`matchExpressions`、`preferred weight`、`Scheduled node-c` 和 `5/5`；补充截图 `.codex-artifacts/visualizations/node-affinity/devtools-review.png`，尺寸为 `1000x1622`。
+- Screenshot Review：既有 `.codex-artifacts/visualizations/node-affinity/desktop.png`（2880x2060）与 `.codex-artifacts/visualizations/node-affinity/mobile.png`（1000x1656）存在；桌面、移动和 DevTools 本地审查图均保留在 `.codex-artifacts/visualizations/node-affinity/`，这些验收产物不纳入提交。
+- Verification：`npm run test:data -- --grep "node affinity"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 20 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add node affinity visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：网络 `TCP/IP 四层模型` 或 Kubernetes `EndpointSlice`。

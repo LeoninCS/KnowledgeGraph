@@ -176,6 +176,23 @@ test("kubernetes pod affinity is backed by a dedicated visual simulation", async
   );
 });
 
+test("kubernetes node affinity is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("kubernetes");
+  const nodeAffinity = points.find((point) => point.id === "node-affinity");
+
+  expect(visualPointIds.kubernetes).toContain("node-affinity");
+  expect(nodeAffinity).toBeTruthy();
+
+  const simulation = buildVisualSimulation("kubernetes", nodeAffinity!);
+
+  expect(simulation.key).toBe("kubernetes:node-affinity");
+  expect(simulation.pattern.en).toContain("node affinity scheduler state model");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["nodeSelectorTerms", "matchExpressions", "preferred weight", "FailedScheduling Events"]),
+  );
+});
+
 test("kubernetes preemption is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("kubernetes");
   const preemption = points.find((point) => point.id === "preemption");

@@ -385,6 +385,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
   kubernetes: [
     "cluster",
     "scheduler",
+    "node-affinity",
     "taint-toleration",
     "pod-affinity",
     "topology-spread",
