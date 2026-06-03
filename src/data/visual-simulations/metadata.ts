@@ -385,6 +385,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
     "cluster",
     "scheduler",
     "taint-toleration",
+    "pod-affinity",
     "topology-spread",
     "preemption",
     "node",

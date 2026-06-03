@@ -418,6 +418,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "kubernetes:pod-affinity") {
+    return (
+      <KubernetesPodAffinityStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:topology-spread") {
     return (
       <KubernetesTopologySpreadStage
@@ -6092,6 +6103,285 @@ function KubernetesTopologySpreadStage({
           </div>
         </div>
         <div className="tcp-handshake-caption k8s-topology-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KubernetesPodAffinityStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const ruleActive = completedSteps >= 1;
+  const matchActive = completedSteps >= 2;
+  const filterActive = completedSteps >= 3;
+  const scoreActive = completedSteps >= 4;
+  const bindActive = completedSteps >= 5;
+  const ruleRows = [
+    { name: "podAffinity", value: ruleActive ? "required app=backend" : "pending", active: ruleActive, tone: "brand" },
+    { name: "podAntiAffinity", value: filterActive ? "avoid app=frontend" : "pending", active: filterActive, tone: "danger" },
+    { name: "topologyKey", value: ruleActive ? "topology.kubernetes.io/zone" : "pending", active: ruleActive, tone: "teal" },
+    { name: "weight", value: scoreActive ? "preferred 80" : "pending", active: scoreActive, tone: "success" },
+  ];
+  const zones = [
+    {
+      name: "zone-a",
+      x: 88,
+      value: bindActive ? "frontend-v2 + backend" : matchActive ? "backend-1, backend-2" : "node-a",
+      tone: bindActive ? "success" : "brand",
+      active: matchActive || bindActive,
+      pods: bindActive ? 3 : 2,
+    },
+    {
+      name: "zone-b",
+      x: 366,
+      value: matchActive ? "backend-3 + frontend-v1" : "node-b",
+      tone: filterActive ? "danger" : "teal",
+      active: matchActive || filterActive,
+      pods: 2,
+    },
+    {
+      name: "zone-c",
+      x: 644,
+      value: filterActive ? "no backend match" : "node-c",
+      tone: filterActive ? "warning" : "brand",
+      active: filterActive,
+      pods: 1,
+    },
+  ];
+  const filterRows = [
+    { name: "node-a", value: filterActive ? "affinity yes" : "pending", active: filterActive, tone: "success" },
+    { name: "node-b", value: filterActive ? "anti-affinity hit" : "pending", active: filterActive, tone: "danger" },
+    { name: "node-c", value: filterActive ? "no backend" : "pending", active: filterActive, tone: "warning" },
+  ];
+  const scoreRows = [
+    { name: "InterPodAffinity", value: scoreActive ? "node-a +92" : "waiting", active: scoreActive, tone: "success", width: 184 },
+    { name: "NodeResourcesFit", value: scoreActive ? "node-a +76" : "waiting", active: scoreActive, tone: "teal", width: 146 },
+    { name: "PodTopologySpread", value: scoreActive ? "zone-a +68" : "waiting", active: scoreActive, tone: "warning", width: 126 },
+  ];
+  const signalRows = [
+    { name: "labelSelector", value: matchActive ? "app=backend" : "pending", active: matchActive, tone: "brand" },
+    { name: "topologyKey", value: ruleActive ? "zone" : "pending", active: ruleActive, tone: "teal" },
+    { name: "PodAffinity", value: filterActive ? "zone-a feasible" : "pending", active: filterActive, tone: "success" },
+    { name: "PodAntiAffinity", value: filterActive ? "zone-b blocked" : "pending", active: filterActive, tone: "danger" },
+  ];
+  const mobileFlow = [
+    { name: "Rules", value: ruleActive ? "required app=backend, topologyKey=zone" : "waiting spec", active: ruleActive },
+    { name: "Selector", value: matchActive ? "3 backend Pods matched" : "pending", active: matchActive },
+    { name: "Filter", value: filterActive ? "node-a feasible, node-b blocked" : "pending", active: filterActive },
+    { name: "Score", value: scoreActive ? "node-a highest InterPodAffinity score" : "pending", active: scoreActive },
+    { name: "Bind", value: bindActive ? "frontend-v2 running in zone-a" : "unbound", active: bindActive },
+  ];
+
+  return (
+    <div className="visual-stage k8s-affinity-stage">
+      <div className="k8s-affinity-card">
+        <svg
+          className="k8s-affinity-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["k8s-affinity-arrow-brand", "var(--brand)"],
+              ["k8s-affinity-arrow-teal", "var(--tertiary)"],
+              ["k8s-affinity-arrow-warning", "#f59e0b"],
+              ["k8s-affinity-arrow-success", "var(--success)"],
+              ["k8s-affinity-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="k8s-affinity-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="k8s-affinity-bg" x="24" y="24" width="1072" height="588" rx="28" />
+          <text className="k8s-affinity-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="k8s-affinity-subtitle" x="560" y="100">
+            {label(
+              "pending Pod -> labelSelector -> topologyKey domains -> InterPodAffinity Filter -> weighted score -> bind",
+              "pending Pod -> labelSelector -> topologyKey domains -> InterPodAffinity Filter -> weighted score -> bind",
+            )}
+          </text>
+
+          <g className={`k8s-affinity-workload ${ruleActive ? "active" : ""}`}>
+            <rect x="64" y="126" width="266" height="156" rx="24" />
+            <text className="k8s-affinity-panel-title" x="92" y="164">Pending Pod</text>
+            <text className="k8s-affinity-panel-subtitle" x="92" y="188">frontend-v2 · namespace=prod</text>
+            <g className={`k8s-affinity-chip brand ${ruleActive ? "active" : ""}`}>
+              <rect x="92" y="212" width="192" height="28" rx="14" />
+              <text x="188" y="231">spec.affinity loaded</text>
+            </g>
+            <g className={`k8s-affinity-chip success ${bindActive ? "active" : ""}`}>
+              <rect x="92" y="248" width="192" height="28" rx="14" />
+              <text x="188" y="267">{bindActive ? "Running on node-a" : "awaiting bind"}</text>
+            </g>
+          </g>
+
+          <g className={`k8s-affinity-rules ${ruleActive ? "active" : ""}`}>
+            <rect x="386" y="126" width="318" height="180" rx="24" />
+            <text className="k8s-affinity-panel-title" x="414" y="164">spec.affinity</text>
+            {ruleRows.map((row, index) => (
+              <g key={row.name} className={`k8s-affinity-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="414" y={188 + index * 30} width="236" height="23" rx="12" />
+                <text x="428" y={204 + index * 30}>{row.name}</text>
+                <text x="642" y={204 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-affinity-selector ${matchActive ? "active" : ""}`}>
+            <rect x="762" y="126" width="294" height="180" rx="24" />
+            <text className="k8s-affinity-panel-title" x="790" y="164">labelSelector match</text>
+            <text className="k8s-affinity-panel-subtitle" x="790" y="188">app=backend · namespace=prod</text>
+            <g className={`k8s-affinity-chip teal ${matchActive ? "active" : ""}`}>
+              <rect x="790" y="214" width="206" height="28" rx="14" />
+              <text x="893" y="233">matched Pods = 3</text>
+            </g>
+            <g className={`k8s-affinity-chip danger ${filterActive ? "active" : ""}`}>
+              <rect x="790" y="252" width="206" height="28" rx="14" />
+              <text x="893" y="271">frontend conflict in zone-b</text>
+            </g>
+          </g>
+
+          <g className={`k8s-affinity-domains ${matchActive ? "active" : ""}`}>
+            <rect x="64" y="340" width="858" height="162" rx="26" />
+            <text className="k8s-affinity-panel-title" x="92" y="376">topologyKey domains</text>
+            <text className="k8s-affinity-panel-subtitle" x="92" y="398">topology.kubernetes.io/zone · Pods projected from matching nodes</text>
+            {zones.map((zone) => (
+              <g key={zone.name} className={`k8s-affinity-zone ${zone.tone} ${zone.active ? "active" : ""}`}>
+                <rect x={zone.x} y="420" width="230" height="58" rx="20" />
+                <text x={zone.x + 22} y="444">{zone.name}</text>
+                <text x={zone.x + 22} y="466">{zone.value}</text>
+                {Array.from({ length: zone.pods }).map((_, index) => (
+                  <circle
+                    key={`${zone.name}-${index}`}
+                    className={bindActive && zone.name === "zone-a" && index === 2 ? "active" : ""}
+                    cx={zone.x + 154 + index * 24}
+                    cy="449"
+                    r="8"
+                  />
+                ))}
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-affinity-filter ${filterActive ? "active" : ""}`}>
+            <rect x="958" y="340" width="98" height="162" rx="24" />
+            <text className="k8s-affinity-panel-title" x="1007" y="376">Filter</text>
+            {filterRows.map((row, index) => (
+              <g key={row.name} className={`k8s-affinity-filter-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="974" y={400 + index * 34} width="58" height="25" rx="13" />
+                <text x="1003" y={417 + index * 34}>{row.name}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-affinity-score ${scoreActive ? "active" : ""}`}>
+            <rect x="64" y="526" width="456" height="62" rx="24" />
+            <text className="k8s-affinity-panel-title" x="92" y="554">Score plugins</text>
+            {scoreRows.map((row, index) => (
+              <g key={row.name} className={`k8s-affinity-score-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="220" y={534 + index * 17} width={row.width} height="14" rx="7" />
+                <text x="230" y={544 + index * 17}>{row.name}</text>
+                <text x="496" y={544 + index * 17}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-affinity-events ${filterActive || bindActive ? "active" : ""}`}>
+            <rect x="558" y="526" width="498" height="62" rx="24" />
+            <text className="k8s-affinity-panel-title" x="586" y="554">Events and validation</text>
+            <text className="k8s-affinity-panel-subtitle" x="586" y="574">
+              {bindActive ? "Scheduled frontend-v2 to node-a; colocated with backend Pods" : filterActive ? "InterPodAffinity: node(s) did not match pod affinity rules" : "waiting for scheduler evidence"}
+            </text>
+          </g>
+
+          <g className={`k8s-affinity-rule-path ${ruleActive ? "active" : ""}`}>
+            <path d="M 330 202 C 354 202, 366 202, 386 202" markerEnd="url(#k8s-affinity-arrow-brand)" />
+            <rect x="292" y="304" width="150" height="30" rx="15" />
+            <text x="367" y="324">parse rules</text>
+          </g>
+
+          <g className={`k8s-affinity-match-path ${matchActive ? "active" : ""}`}>
+            <path d="M 704 202 C 732 202, 744 202, 762 202" markerEnd="url(#k8s-affinity-arrow-teal)" />
+            <path d="M 908 306 C 850 326, 730 340, 560 364" markerEnd="url(#k8s-affinity-arrow-teal)" />
+          </g>
+
+          <g className={`k8s-affinity-filter-path ${filterActive ? "active" : ""}`}>
+            <path d="M 922 430 C 940 430, 948 430, 958 430" markerEnd="url(#k8s-affinity-arrow-warning)" />
+            <rect x="788" y="314" width="164" height="30" rx="15" />
+            <text x="870" y="334">required terms</text>
+          </g>
+
+          <g className={`k8s-affinity-score-path ${scoreActive ? "active" : ""}`}>
+            <path d="M 1006 502 C 836 536, 640 548, 520 556" markerEnd="url(#k8s-affinity-arrow-success)" />
+            <rect x="682" y="492" width="174" height="30" rx="15" />
+            <text x="769" y="512">preferred weight</text>
+          </g>
+
+          <g className={`k8s-affinity-bind-path ${bindActive ? "active" : ""}`}>
+            <path d="M 558 558 C 458 618, 230 610, 188 282" markerEnd="url(#k8s-affinity-arrow-success)" />
+            <rect x="326" y="594" width="140" height="28" rx="14" />
+            <text x="396" y="613">bind node-a</text>
+          </g>
+
+          <g className="k8s-affinity-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`k8s-affinity-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={64 + index * 258} y="594" width="218" height="32" rx="16" />
+                <text x={84 + index * 258} y="607">{signal.name}</text>
+                <text x={270 + index * 258} y="620">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="k8s-affinity-mobile-map">
+          <div className="k8s-affinity-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`k8s-affinity-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="k8s-affinity-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`k8s-affinity-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption k8s-affinity-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

@@ -2028,6 +2028,7 @@
 .k8s-hpa-stage,
 .k8s-scheduler-stage,
 .k8s-taint-stage,
+.k8s-affinity-stage,
 .k8s-topology-stage,
 .k8s-preemption-stage,
 .k8s-crashloop-stage {
@@ -2041,6 +2042,7 @@
 .k8s-hpa-card,
 .k8s-scheduler-card,
 .k8s-taint-card,
+.k8s-affinity-card,
 .k8s-topology-card,
 .k8s-preemption-card,
 .k8s-crashloop-card {
@@ -2062,6 +2064,7 @@
 :root[data-theme="dark"] .k8s-hpa-card,
 :root[data-theme="dark"] .k8s-scheduler-card,
 :root[data-theme="dark"] .k8s-taint-card,
+:root[data-theme="dark"] .k8s-affinity-card,
 :root[data-theme="dark"] .k8s-topology-card,
 :root[data-theme="dark"] .k8s-preemption-card,
 :root[data-theme="dark"] .k8s-crashloop-card {
@@ -2075,6 +2078,7 @@
 .k8s-hpa-diagram,
 .k8s-scheduler-diagram,
 .k8s-taint-diagram,
+.k8s-affinity-diagram,
 .k8s-topology-diagram,
 .k8s-preemption-diagram,
 .k8s-crashloop-diagram {
@@ -2090,6 +2094,7 @@
 .k8s-hpa-mobile-map,
 .k8s-scheduler-mobile-map,
 .k8s-taint-mobile-map,
+.k8s-affinity-mobile-map,
 .k8s-topology-mobile-map,
 .k8s-preemption-mobile-map,
 .k8s-crashloop-mobile-map {
@@ -8171,6 +8176,294 @@
 }
 
 .k8s-topology-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.k8s-affinity-bg {
+  fill: color-mix(in srgb, var(--brand) 15%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 20%, var(--border));
+}
+
+.k8s-affinity-title {
+  fill: var(--text);
+  font-size: 24px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.k8s-affinity-subtitle {
+  fill: var(--muted);
+  font-size: 12.5px;
+  font-weight: 750;
+  text-anchor: middle;
+}
+
+.k8s-affinity-workload,
+.k8s-affinity-rules,
+.k8s-affinity-selector,
+.k8s-affinity-domains,
+.k8s-affinity-filter,
+.k8s-affinity-score,
+.k8s-affinity-events,
+.k8s-affinity-row,
+.k8s-affinity-chip,
+.k8s-affinity-zone,
+.k8s-affinity-filter-row,
+.k8s-affinity-score-row,
+.k8s-affinity-signal,
+.k8s-affinity-rule-path,
+.k8s-affinity-match-path,
+.k8s-affinity-filter-path,
+.k8s-affinity-score-path,
+.k8s-affinity-bind-path {
+  opacity: 0.34;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.k8s-affinity-workload.active,
+.k8s-affinity-rules.active,
+.k8s-affinity-selector.active,
+.k8s-affinity-domains.active,
+.k8s-affinity-filter.active,
+.k8s-affinity-score.active,
+.k8s-affinity-events.active,
+.k8s-affinity-row.active,
+.k8s-affinity-chip.active,
+.k8s-affinity-zone.active,
+.k8s-affinity-filter-row.active,
+.k8s-affinity-score-row.active,
+.k8s-affinity-signal.active,
+.k8s-affinity-rule-path.active,
+.k8s-affinity-match-path.active,
+.k8s-affinity-filter-path.active,
+.k8s-affinity-score-path.active,
+.k8s-affinity-bind-path.active {
+  opacity: 1;
+}
+
+.k8s-affinity-workload > rect,
+.k8s-affinity-rules > rect,
+.k8s-affinity-selector > rect,
+.k8s-affinity-domains > rect,
+.k8s-affinity-filter > rect,
+.k8s-affinity-score > rect,
+.k8s-affinity-events > rect {
+  fill: color-mix(in srgb, var(--surface) 94%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 14%, var(--border));
+  stroke-width: 1.4;
+  filter: url(#k8s-affinity-soft-shadow);
+}
+
+.k8s-affinity-workload.active > rect,
+.k8s-affinity-rules.active > rect,
+.k8s-affinity-row.brand.active rect,
+.k8s-affinity-chip.brand.active rect,
+.k8s-affinity-zone.brand.active rect,
+.k8s-affinity-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 52%, var(--border));
+}
+
+.k8s-affinity-selector.active > rect,
+.k8s-affinity-row.teal.active rect,
+.k8s-affinity-chip.teal.active rect,
+.k8s-affinity-zone.teal.active rect,
+.k8s-affinity-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+}
+
+.k8s-affinity-filter.active > rect,
+.k8s-affinity-row.warning.active rect,
+.k8s-affinity-zone.warning.active rect,
+.k8s-affinity-filter-row.warning.active rect,
+.k8s-affinity-score-row.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 54%, var(--border));
+}
+
+.k8s-affinity-row.danger.active rect,
+.k8s-affinity-chip.danger.active rect,
+.k8s-affinity-zone.danger.active rect,
+.k8s-affinity-filter-row.danger.active rect,
+.k8s-affinity-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 46%, var(--border));
+}
+
+.k8s-affinity-events.active > rect,
+.k8s-affinity-row.success.active rect,
+.k8s-affinity-chip.success.active rect,
+.k8s-affinity-zone.success.active rect,
+.k8s-affinity-filter-row.success.active rect,
+.k8s-affinity-score-row.success.active rect,
+.k8s-affinity-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 52%, var(--border));
+}
+
+.k8s-affinity-row rect,
+.k8s-affinity-chip rect,
+.k8s-affinity-zone rect,
+.k8s-affinity-filter-row rect,
+.k8s-affinity-score-row rect,
+.k8s-affinity-signal rect,
+.k8s-affinity-rule-path rect,
+.k8s-affinity-filter-path rect,
+.k8s-affinity-score-path rect,
+.k8s-affinity-bind-path rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 12%, var(--border));
+  filter: url(#k8s-affinity-soft-shadow);
+}
+
+.k8s-affinity-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.k8s-affinity-panel-subtitle,
+.k8s-affinity-workload text,
+.k8s-affinity-rules text,
+.k8s-affinity-selector text,
+.k8s-affinity-domains text,
+.k8s-affinity-filter text,
+.k8s-affinity-score text,
+.k8s-affinity-events text,
+.k8s-affinity-rule-path text,
+.k8s-affinity-filter-path text,
+.k8s-affinity-score-path text,
+.k8s-affinity-bind-path text,
+.k8s-affinity-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.k8s-affinity-row text,
+.k8s-affinity-chip text,
+.k8s-affinity-filter-row text,
+.k8s-affinity-score-row text,
+.k8s-affinity-signal text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 900;
+}
+
+.k8s-affinity-panel-title,
+.k8s-affinity-row text:first-of-type,
+.k8s-affinity-chip text,
+.k8s-affinity-zone text:first-of-type,
+.k8s-affinity-filter-row text,
+.k8s-affinity-score-row text:first-of-type,
+.k8s-affinity-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 900;
+}
+
+.k8s-affinity-row text:last-of-type,
+.k8s-affinity-score-row text:last-of-type,
+.k8s-affinity-signal text:last-of-type {
+  fill: var(--brand-strong);
+  text-anchor: end;
+}
+
+.k8s-affinity-chip text,
+.k8s-affinity-filter-row text,
+.k8s-affinity-rule-path text,
+.k8s-affinity-filter-path text,
+.k8s-affinity-score-path text,
+.k8s-affinity-bind-path text {
+  text-anchor: middle;
+}
+
+.k8s-affinity-zone text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.k8s-affinity-zone circle {
+  fill: color-mix(in srgb, var(--brand) 38%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 52%, var(--border));
+  stroke-width: 1.2;
+}
+
+.k8s-affinity-zone circle.active {
+  fill: var(--success);
+  stroke: color-mix(in srgb, var(--success) 74%, var(--border));
+}
+
+.k8s-affinity-rule-path path,
+.k8s-affinity-match-path path,
+.k8s-affinity-filter-path path,
+.k8s-affinity-score-path path,
+.k8s-affinity-bind-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.k8s-affinity-rule-path path {
+  stroke: var(--brand);
+}
+
+.k8s-affinity-match-path path {
+  stroke: var(--tertiary);
+}
+
+.k8s-affinity-filter-path path {
+  stroke: #f59e0b;
+}
+
+.k8s-affinity-score-path path,
+.k8s-affinity-bind-path path {
+  stroke: var(--success);
+}
+
+.k8s-affinity-mobile-flow,
+.k8s-affinity-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.k8s-affinity-mobile-hop,
+.k8s-affinity-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+  padding: 12px;
+}
+
+.k8s-affinity-mobile-hop span,
+.k8s-affinity-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.k8s-affinity-mobile-hop strong,
+.k8s-affinity-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.k8s-affinity-mobile-hop.active,
+.k8s-affinity-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--brand) 42%, var(--border));
+  background: color-mix(in srgb, var(--brand) 10%, var(--surface));
+}
+
+.k8s-affinity-caption {
   right: 16px;
   bottom: 14px;
 }

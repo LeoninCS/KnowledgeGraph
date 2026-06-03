@@ -858,6 +858,7 @@
   .k8s-hpa-stage,
   .k8s-scheduler-stage,
   .k8s-taint-stage,
+  .k8s-affinity-stage,
   .k8s-topology-stage,
   .k8s-preemption-stage,
   .k8s-crashloop-stage {
@@ -869,6 +870,7 @@
   .k8s-hpa-card,
   .k8s-scheduler-card,
   .k8s-taint-card,
+  .k8s-affinity-card,
   .k8s-topology-card,
   .k8s-preemption-card,
   .k8s-crashloop-card {
@@ -880,6 +882,7 @@
   .k8s-hpa-diagram,
   .k8s-scheduler-diagram,
   .k8s-taint-diagram,
+  .k8s-affinity-diagram,
   .k8s-topology-diagram,
   .k8s-preemption-diagram,
   .k8s-crashloop-diagram {
@@ -891,6 +894,7 @@
   .k8s-hpa-mobile-map,
   .k8s-scheduler-mobile-map,
   .k8s-taint-mobile-map,
+  .k8s-affinity-mobile-map,
   .k8s-topology-mobile-map,
   .k8s-preemption-mobile-map,
   .k8s-crashloop-mobile-map {
@@ -909,6 +913,8 @@
   .k8s-scheduler-mobile-facts,
   .k8s-taint-mobile-flow,
   .k8s-taint-mobile-facts,
+  .k8s-affinity-mobile-flow,
+  .k8s-affinity-mobile-facts,
   .k8s-topology-mobile-flow,
   .k8s-topology-mobile-facts,
   .k8s-preemption-mobile-flow,

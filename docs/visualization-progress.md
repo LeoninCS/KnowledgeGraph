@@ -154,6 +154,7 @@
 | HPA | `step-simulation` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes HPA 自动伸缩控制环模拟器，覆盖负载升高、Metrics API、desiredReplicas 公式、Scale 子资源和稳定窗口 |
 | Scheduler | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes Scheduler 调度周期模拟器，覆盖 Pending Pod、Scheduling Queue/Profile、Filter/Score 插件、Binding Cycle 和 FailedScheduling 事件 |
 | 污点与容忍 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes Taints and Tolerations 调度约束状态模型，覆盖 Node taint、Pod toleration、NoSchedule Filter、NoExecute 驱逐、tolerationSeconds 和 FailedScheduling 事件 |
+| Pod 亲和性 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes Pod Affinity 调度状态模型，覆盖 labelSelector、topologyKey、PodAffinity、PodAntiAffinity、InterPodAffinity Filter、Score 和调度事件 |
 | epoll | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Linux epoll 事件通知状态模型，覆盖 epoll_create1、epoll_ctl、interest list、socket wait queue、ready list、epoll_wait 批量返回和 LT/ET drain |
 | 抢占 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes PriorityClass 抢占调度状态模型，覆盖 PriorityClass、普通 Filter 失败、victim/PDB、nominatedNodeName 和重新绑定验收 |
 
@@ -326,11 +327,11 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Docker `CPU 限制` 或 Kubernetes `Pod 亲和性` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Docker `PIDs 限制` 或 Kubernetes `节点亲和性` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 Docker `CPU 限制`，备选 Kubernetes `Pod 亲和性`。CPU 限制可承接 Docker 资源限制模型，围绕 CFS period/quota、throttled periods、cpu.shares、CPU set 和延迟排障展开；Pod 亲和性可承接 Scheduler、污点容忍、拓扑分布与抢占模型，围绕已有 Pod 分布、亲和/反亲和、拓扑域和调度事件展开。
+优先选择 Docker `PIDs 限制`，备选 Kubernetes `节点亲和性`。PIDs 限制可承接 Docker 资源限制和 CPU 限制模型，围绕 pids.max、pids.current、fork/clone 失败、docker stats PIDS 和线程暴涨排障展开；节点亲和性可承接 Scheduler、污点容忍、Pod 亲和性和拓扑分布约束，围绕节点标签、required/preferred 规则和调度事件展开。
 
 ## Docker Resource Limit Visualization
 
@@ -1835,3 +1836,30 @@
 - Working Tree：进入同步门禁时工作区干净；本条记录写入后仅 `docs/visualization-progress.md` 发生变化。
 - Action：本轮停在同步门禁，跳过找图、拆图、编码、截图、测试、提交和推送。
 - Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后提交本条 docs-only 阻塞记录，再继续 Kubernetes `Pod 亲和性` 或 Docker `PIDs 限制` 找图与设计。
+
+### 2026-06-03 09:16 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功；上一轮 DNS 阻塞记录已提交并推送为 `867efdd docs: record visualization sync blockers`，再从干净跟踪状态继续。
+- Selected：Kubernetes `Pod 亲和性`，原因是 labelSelector、topologyKey、已有 Pod 分布、PodAffinity、PodAntiAffinity、InterPodAffinity Filter/Score 和 FailedScheduling 事件能形成高价值调度排障模型，并承接 Scheduler、污点容忍、拓扑分布与抢占可视化。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；保留 Cisco Outshift pod affinity / anti-affinity flow 图为主参考，Kubernetes Assigning Pods to Nodes、Scheduling Framework、Kubernetes Visual Handbook Scheduling Affinity 和 Topology Spread Constraints 为辅助参考；Browser 插件返回 in-app browser 不可用，Chrome DevTools MCP profile 被占用，本轮使用可访问页面、HTTP HEAD 成功记录、官方文档和本地 SVG/HTML 审查完成确认。
+- Online Image References：
+  - source：Cisco Outshift - K8s Taints, Tolerations, and Affinities，https://outshift.cisco.com/blog/in-depth-tech/k8s-taints-tolerations-affinities；image：页面中的 pod affinity flow 与 pod anti-affinity flow 图；role：main；qualityReason：图直接展示新 Pod、已有 Pod、节点/拓扑域和 affinity/anti-affinity 调度判断，适合做主构图；takeaways：采用左侧 Pending Pod 与 affinity spec，中部 labelSelector/topologyKey 域，右侧 Filter/Score 与事件证据的横向调度路径；originalChanges：改成本项目五步交互状态模型，加入 required/preferred 分流、底部信号、右侧任务面板和移动端流程卡。
+  - source：Kubernetes Docs - Assigning Pods to Nodes，https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/；image：官方 inter-pod affinity / anti-affinity 字段和示例说明；role：supporting；qualityReason：官方校准 `requiredDuringSchedulingIgnoredDuringExecution`、`preferredDuringSchedulingIgnoredDuringExecution`、`labelSelector`、`topologyKey`、`matchLabelKeys` 和 `mismatchLabelKeys` 语义；takeaways：步骤按读取规则、匹配已有 Pod、Filter、Score、绑定验收推进；originalChanges：把官方字段压缩进 `spec.affinity` 面板和底部四个信号。
+  - source：Kubernetes Docs - Scheduling Framework，https://kubernetes.io/docs/concepts/scheduling-eviction/scheduling-framework/；image：Filter/Score/Bind 扩展点说明；role：supporting；qualityReason：校准 InterPodAffinity 在调度周期中的 Filter 与 Score 位置；takeaways：画布把 required 规则放入 Filter，把 preferred weight 放入 Score；originalChanges：复用项目调度器视觉语言，突出插件输出读数。
+  - source：Kubernetes Visual Handbook - Scheduling Affinity，https://k8s.info/docs/intermediate/scheduling-affinity；image：节点亲和、Pod 亲和和反亲和的图解页面；role：supporting；qualityReason：图形化解释亲和规则如何影响节点选择，适合补充移动端教学节奏；takeaways：保留 affinity、anti-affinity、topology domain 三类对象；originalChanges：全部重绘为本项目 Kubernetes SVG 样式。
+  - source：Kubernetes Docs - Pod Topology Spread Constraints，https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/；image：官方拓扑域示例；role：supporting；qualityReason：补充 topologyKey 与 zone/node 域的视觉表达；takeaways：中部域计数采用 zone-a/zone-b/zone-c 结构；originalChanges：把拓扑分布场景改成 affinity 的 selector 命中与反亲和冲突。
+- Reference Breakdown：主体布局为左上 Pending Pod 与 `spec.affinity`，右上 labelSelector 命中集合，中部三组 topologyKey domain，右侧 InterPodAffinity Filter，底部 Score plugins、Events evidence 和四个信号；视觉焦点是 `frontend-v2` 必须靠近 `app=backend`，同时避开已有 `app=frontend` 的 zone-b，最终绑定到 zone-a 的 node-a。
+- 领域对象：Pending Pod、`podAffinity`、`podAntiAffinity`、`labelSelector`、`topologyKey`、已有 backend Pod、冲突 frontend Pod、zone-a/zone-b/zone-c、InterPodAffinity Filter、preferred weight、FailedScheduling Events、`spec.nodeName`。
+- 容器层级：新 Pod 携带 affinity spec；selector 生成已有 Pod 参照集合；topologyKey 把参照 Pod 映射到拓扑域；required 规则过滤候选节点；preferred 规则参与 Score；Bind 与 Events 共同验收。
+- 连线方向：Pending Pod -> spec.affinity -> labelSelector match -> topologyKey domains -> InterPodAffinity Filter -> weighted Score -> bind node-a。
+- 状态表达：五步依次高亮读取规则、匹配已有 Pod、硬规则过滤、软规则打分、绑定验收；底部信号展示 labelSelector、topologyKey、PodAffinity 与 PodAntiAffinity。
+- 颜色策略：品牌蓝表示规则输入，青色表示 selector 与 topologyKey，橙色表示硬规则过滤，红色表示 anti-affinity 冲突，绿色表示可行节点和最终绑定。
+- 文字密度：桌面 SVG 保留字段名、短状态和节点/域标签；移动端切换为五张流程卡和四张事实卡。
+- 交互节奏：读取 affinity spec -> selector 命中参照 Pod -> required 过滤节点 -> preferred 打分 -> 绑定并核对事件。
+- 原创改造点：把 Outshift flow 图、Kubernetes 官方字段和调度框架扩展点融合成生产排障模型，强调 selector 为空、topologyKey 标签缺失、anti-affinity 冲突和软硬规则分流。
+- Implementation：新增 `kubernetes:pod-affinity` 专用 `state-model` 构建器、Pod Affinity SVG 舞台、移动端纵向摘要、响应式样式、来源引用和数据测试，并把 `pod-affinity` 加入 Kubernetes core 与可视化清单。
+- Browser Note：Browser 插件返回 in-app browser 不可用；Chrome DevTools MCP profile 被占用；Outshift 页面 HEAD 返回 `200 text/html`，后续 HTML 抽取受 DNS 间歇问题影响；Kubernetes 官方与 k8s.info 页面 HEAD 返回 `200`；本轮使用官方/参考页面 URL、HTTP HEAD 成功记录、项目数据测试、生产构建和真实 React `SimulationStage` SSR 审查图完成验收。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/pod-affinity/desktop.svg`、`.codex-artifacts/visualizations/pod-affinity/desktop.html` 与 `.codex-artifacts/visualizations/pod-affinity/mobile.html`；桌面 SVG 可识别 Pending Pod、spec.affinity、labelSelector match、topologyKey domains、zone-a/zone-b/zone-c、InterPodAffinity Filter、Score plugins、Events 和底部四个信号，移动 HTML 展示五步流程和指标摘要。
+- Verification：新增测试 `npm run test:data -- --grep "pod affinity"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 17 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add pod affinity visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Docker `PIDs 限制` 或 Kubernetes `节点亲和性`。

@@ -3105,6 +3105,14 @@ export const knowledgeSources = {
     title: "Kubernetes Docs: Taints and Tolerations",
     url: "https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/",
   },
+  "outshift-k8s-affinity": {
+    title: "Cisco Outshift: K8s Taints, Tolerations, and Affinities",
+    url: "https://outshift.cisco.com/blog/in-depth-tech/k8s-taints-tolerations-affinities",
+  },
+  "k8s-info-scheduling-affinity": {
+    title: "Kubernetes Visual Handbook: Scheduling Affinity",
+    url: "https://k8s.info/docs/intermediate/scheduling-affinity",
+  },
   "kubex-taints-tolerations": {
     title: "Kubex: Taints and Tolerations",
     url: "https://kubex.ai/blog/kubernetes-taints/",
