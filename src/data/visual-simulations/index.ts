@@ -1989,6 +1989,140 @@ function redisForkCow(point: GraphKnowledgePoint) {
   );
 }
 
+function redisRdb(point: GraphKnowledgePoint) {
+  const actors = [
+    actor("rule", "快照触发器", "Snapshot trigger", "save 规则、手动 BGSAVE 或复制全量同步", "Save rules, manual BGSAVE, or full sync", "tool"),
+    actor("parent", "Redis 主进程", "Redis parent", "fork 子进程后继续处理写命令", "Forks a child and keeps serving writes", "cache"),
+    actor("child", "RDB 子进程", "RDB child", "读取 fork 时刻快照并写临时文件", "Reads the fork-time snapshot and writes a temp file", "server"),
+    actor("memory", "内存快照", "Memory snapshot", "keyspace、TTL 和对象编码", "Keyspace, TTLs, and encodings", "data"),
+    actor("file", "dump.rdb", "dump.rdb", "临时文件校验后原子替换正式 RDB", "Atomically replaces the official RDB after temp-file validation", "storage"),
+    actor("restore", "重启加载", "Restart load", "按 RDB 文件重建 keyspace", "Rebuilds keyspace from the RDB file", "database"),
+  ];
+
+  return makeSimulation(
+    "redis",
+    point,
+    tx("RDB 快照状态模型", "RDB snapshot state model"),
+    tx(
+      "模拟 Redis 如何按 save 规则触发 BGSAVE，fork 子进程写入临时 RDB，处理写时复制成本，并在重启时快速加载快照。",
+      "Simulate how Redis triggers BGSAVE from save rules, forks a child to write a temporary RDB, handles copy-on-write cost, and quickly loads the snapshot on restart.",
+    ),
+    actors,
+    {
+      rule: tx("save 900 1 待触发", "save 900 1 pending"),
+      parent: tx("事件循环在线", "Event loop online"),
+      child: tx("后台空闲", "Background idle"),
+      memory: tx("keyspace 已变更", "Keyspace changed"),
+      file: tx("旧 dump.rdb 可用", "Old dump.rdb available"),
+      restore: tx("等待恢复演练", "Awaiting restore drill"),
+    },
+    [
+      step(
+        "触发快照",
+        "Trigger snapshot",
+        "save 规则命中或执行 BGSAVE",
+        "Save rule matches or BGSAVE runs",
+        "rule",
+        "parent",
+        "BGSAVE",
+        "BGSAVE",
+        "当写入次数和时间窗口满足 save 规则，或运维手动执行 BGSAVE 时，Redis 准备生成新的时间点快照。",
+        "When writes and the time window match a save rule, or an operator runs BGSAVE, Redis prepares a new point-in-time snapshot.",
+        "RDB 的数据安全窗口来自两次成功快照之间的间隔。",
+        "RDB's data-safety window comes from the interval between two successful snapshots.",
+        {
+          rule: tx("save 条件命中", "save rule matched"),
+          parent: tx("接受 BGSAVE", "BGSAVE accepted"),
+        },
+      ),
+      step(
+        "fork 子进程",
+        "Fork child",
+        "复制页表并冻结快照视图",
+        "Copy page tables and freeze snapshot view",
+        "parent",
+        "child",
+        "fork + snapshot",
+        "fork + snapshot",
+        "父进程 fork 出子进程，子进程看到 fork 时刻的 keyspace、TTL 和对象编码，父进程继续处理客户端请求。",
+        "The parent forks a child; the child sees the fork-time keyspace, TTLs, and encodings while the parent keeps serving clients.",
+        "大实例先看 latest_fork_usec 和 fork 期间主线程短暂停顿。",
+        "Large instances start with latest_fork_usec and the short main-thread pause during fork.",
+        {
+          parent: tx("继续服务写入", "keeps serving writes"),
+          child: tx("读取快照视图", "snapshot view ready"),
+          memory: tx("页表映射共享", "page-table mappings shared"),
+        },
+        "teal",
+      ),
+      step(
+        "写临时 RDB",
+        "Write temporary RDB",
+        "子进程序列化快照",
+        "Child serializes snapshot",
+        "child",
+        "file",
+        "temp dump.rdb",
+        "temp dump.rdb",
+        "子进程把 keyspace 按 RDB 二进制格式写入临时文件，成功后执行校验、fsync 和原子 rename。",
+        "The child writes the keyspace into a temporary binary RDB file, then validates, fsyncs, and atomically renames it on success.",
+        "快照失败时旧 RDB 继续可用，排查看 rdb_last_bgsave_status 和磁盘空间。",
+        "When snapshot writing fails, the old RDB remains usable; check rdb_last_bgsave_status and disk capacity.",
+        {
+          child: tx("序列化中", "serializing"),
+          file: tx("临时文件写入中", "temp file writing"),
+        },
+        "warning",
+      ),
+      step(
+        "处理写时复制",
+        "Handle copy-on-write",
+        "父进程写入共享页",
+        "Parent writes shared pages",
+        "parent",
+        "memory",
+        "COW pages",
+        "COW pages",
+        "快照期间的新写入由父进程继续处理；被修改的共享页会复制出新页，额外内存随写入峰值上升。",
+        "New writes continue in the parent during snapshotting; modified shared pages are copied, so extra memory rises with write bursts.",
+        "RDB 成本和 fork/COW、磁盘 I/O、写入峰值一起评估。",
+        "RDB cost is evaluated together with fork/COW, disk I/O, and write bursts.",
+        {
+          parent: tx("写入当前内存", "writes current memory"),
+          memory: tx("COW 额外页升高", "COW extra pages rise"),
+        },
+        "danger",
+      ),
+      step(
+        "加载恢复",
+        "Load and recover",
+        "用 dump.rdb 重建 keyspace",
+        "Rebuild keyspace from dump.rdb",
+        "file",
+        "restore",
+        "load RDB",
+        "load RDB",
+        "实例重启时直接加载 RDB 文件重建内存数据，恢复速度通常很快，恢复点停留在最近一次成功快照。",
+        "On restart, Redis loads the RDB file directly to rebuild in-memory data; recovery is usually fast and lands on the latest successful snapshot.",
+        "验收看 LASTSAVE、rdb_changes_since_last_save、恢复耗时和备份演练结果。",
+        "Verify LASTSAVE, rdb_changes_since_last_save, restore time, and backup drills.",
+        {
+          file: tx("dump.rdb 已切换", "dump.rdb switched"),
+          restore: tx("keyspace 已恢复", "keyspace restored"),
+        },
+        "success",
+      ),
+    ],
+    [
+      tx("save 规则", "save rule"),
+      tx("latest_fork_usec", "latest_fork_usec"),
+      tx("rdb_changes_since_last_save", "rdb_changes_since_last_save"),
+      tx("rdb_last_bgsave_status", "rdb_last_bgsave_status"),
+      tx("恢复耗时", "restore time"),
+    ],
+  );
+}
+
 function ipRouting(point: GraphKnowledgePoint) {
   const actors = [
     actor("host", "源主机", "Source host", "判断目标网段并交给默认网关", "Decides local vs remote and uses default gateway", "client"),
@@ -7346,6 +7480,7 @@ const customBuilders: Record<string, Builder> = {
   "mysql:explain": explainPlan,
   "mysql:deadlock": deadlock,
   "redis:hash-slot": redisHashSlot,
+  "redis:rdb": redisRdb,
   "redis:aof-rewrite": redisAofRewrite,
   "redis:fork-cow": redisForkCow,
   "docker:image-layer": dockerImageLayer,

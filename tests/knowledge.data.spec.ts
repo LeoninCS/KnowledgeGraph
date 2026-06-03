@@ -415,6 +415,29 @@ test("redis fork COW is backed by a dedicated visual simulation", async () => {
   );
 });
 
+test("redis RDB is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("redis");
+  const rdb = points.find((point) => point.id === "rdb");
+
+  expect(visualPointIds.redis).toContain("rdb");
+  expect(rdb).toBeTruthy();
+
+  const simulation = buildVisualSimulation("redis", rdb!);
+
+  expect(simulation.key).toBe("redis:rdb");
+  expect(simulation.pattern.en).toContain("RDB snapshot state model");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining([
+      "save rule",
+      "latest_fork_usec",
+      "rdb_changes_since_last_save",
+      "rdb_last_bgsave_status",
+      "restore time",
+    ]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");

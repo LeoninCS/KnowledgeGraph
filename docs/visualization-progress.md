@@ -135,6 +135,7 @@
 | TCP/IP 四层模型 | `step-simulation` | completed | desktop/mobile captured | TCP/IP 四层封装与解封装模拟器，覆盖应用数据、TCP/UDP 头、IP 包、以太网/Wi-Fi 帧、OSI 对照和排障观察点 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
+| RDB | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis RDB 快照状态模型，覆盖 save 规则、BGSAVE fork、fork 时刻 keyspace、临时 dump.rdb、COW 页、原子 rename、重启加载和 INFO 持久化指标 |
 | AOF 重写 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis BGREWRITEAOF 状态模型，覆盖 fork 子进程、Copy-on-Write、当前增量 AOF、rewrite buffer、临时基础文件、manifest 原子切换和恢复重放 |
 | fork 与写时复制 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis fork/COW 内存状态模型，覆盖后台任务、页表复制、共享物理页、写保护缺页、COW 页复制、RSS 回落和 fork/latency 指标 |
 | 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
@@ -494,15 +495,71 @@
 - 截图结论：桌面 SVG 可识别 Redis 主进程、Rewrite 子进程、写入缓冲区、AOF 文件组、AOF Manifest、恢复重放和底部四个信号；移动 HTML 展示五步流程卡和 AOF size/status/fork COW/rewrite buffer 事实卡。
 - 验收备注：Browser 插件返回 in-app browser 不可用，Chrome DevTools MCP profile 被占用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied`；本轮使用 Redis 官方/参考 URL 的 HTTP HEAD、数据测试、生产构建和真实 React `SimulationStage` SSR 渲染的 SVG/HTML 审查图完成验收。
 
+## Redis RDB Visualization
+
+### Online Image References
+
+- `source`：Redis Docs - Persistence，https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/
+  - `image`：官方 RDB persistence、BGSAVE、fork/Copy-on-Write、snapshot recovery 说明。
+  - `role`：supporting
+  - `qualityReason`：官方定义 RDB 快照、后台子进程、数据丢失窗口和 COW 成本，是机制语义的权威校准来源；HTTP HEAD 返回 `200 text/html`。
+  - `takeaways`：步骤按 save 触发、fork 子进程、写临时文件、COW 成本、重启加载推进。
+  - `originalChanges`：把官方文字机制改造成五步状态模型，加入底部 INFO 指标和移动端流程卡。
+- `source`：Redis Commands - BGSAVE，https://redis.io/docs/latest/commands/bgsave/
+  - `image`：命令页对后台保存、fork 子进程和返回语义的说明。
+  - `role`：supporting
+  - `qualityReason`：官方命令语义适合校准入口条件、后台任务状态和运维触发点。
+  - `takeaways`：第一步展示 `save 900 1` 命中后进入 `BGSAVE`，主进程继续处理写入。
+  - `originalChanges`：把命令入口放入左侧 Snapshot trigger 面板，并连接到 Redis parent。
+- `source`：OneUptime - Redis RDB Snapshots Step by Step，https://oneuptime.com/blog/post/2026-03-31-redis-rdb-snapshots-step-by-step/view
+  - `image`：文章中的 RDB snapshot step-by-step 图解与流程截图。
+  - `role`：main
+  - `qualityReason`：页面以分步方式表达 RDB 触发、后台写快照、文件生成和恢复，适合作为主参考构图；HTTP HEAD 返回 `200 text/html`。
+  - `takeaways`：主画布采用 trigger -> parent fork -> RDB child -> temp file -> restart load 的横向机制链路。
+  - `originalChanges`：加入 fork 时刻 keyspace、TTL、对象编码、COW 热写页、checksum/rename 和 INFO 指标，形成生产排障模型。
+- `source`：ByteByteGo - How does Redis persist data?，https://bytebytego.com/guides/guides/how-does-redis-persist-data/
+  - `image`：页面中的 Redis persistence / RDB / AOF 对比图和图标化流程。
+  - `role`：supporting
+  - `qualityReason`：图形化说明 RDB 与 AOF 的持久化定位，适合补足 RDB 快照和恢复速度的教学语境；HTTP HEAD 返回 `200 text/html`。
+  - `takeaways`：移动端用短流程卡表达 Trigger、Fork、Write、COW、Load。
+  - `originalChanges`：不复用图标风格，改用本项目 Redis 状态卡与 SVG 连线。
+- `source`：Redis Commands - INFO，https://redis.io/docs/latest/commands/info/
+  - `image`：INFO persistence 指标字段说明。
+  - `role`：supporting
+  - `qualityReason`：校准 `latest_fork_usec`、`rdb_changes_since_last_save`、`rdb_last_bgsave_status` 等运维信号。
+  - `takeaways`：底部指标卡保留 save rule、latest_fork_usec、changes_since_save、last_bgsave_status、restore time。
+  - `originalChanges`：把长 INFO 输出压缩成五个短信号，直接绑定模拟步骤。
+
+### Reference Breakdown
+
+- 主体布局：左上快照触发器，中上 Redis 主进程，右上 RDB 子进程，左下 fork 时刻内存快照，中下 `dump.rdb` 文件组，右下重启加载，底部五个 INFO/恢复信号。
+- 视觉焦点：`save 900 1` 触发 `BGSAVE`，父进程 fork 子进程；子进程序列化 fork 时刻 keyspace 到 `dump.rdb.tmp`，验证后原子切换，实例重启时加载 `dump.rdb` 重建内存。
+- 领域对象：save rule、BGSAVE、Redis parent、RDB child、fork snapshot、keyspace、TTL、object encoding、temp dump.rdb、checksum、atomic rename、Copy-on-Write、LASTSAVE、INFO persistence、restart load。
+- 容器层级：触发规则进入 Redis 主进程；子进程读取 fork 时刻内存；文件面板表达临时文件与旧 RDB 并存；重启加载面板表达快照恢复；底部信号承接排障证据。
+- 连线方向：Snapshot trigger -> Redis parent -> RDB child -> temp dump.rdb -> restart load；父进程写入 -> COW pages -> memory snapshot。
+- 状态表达：五步依次高亮触发快照、fork 子进程、写临时 RDB、处理写时复制、加载恢复；底部信号随步骤展示保存规则、fork 时间、未保存变更、bgsave 状态和恢复耗时。
+- 颜色策略：品牌蓝表示触发和父进程；青色表示 fork/快照视图；橙色表示临时文件写入；红色表示 COW 额外页和旧文件替换风险；绿色表示文件切换与恢复完成。
+- 文字密度：桌面 SVG 保留对象名、文件名、短命令和关键指标；移动端切换为五张流程卡和五张事实卡。
+- 交互节奏：save 规则命中 -> fork 出 RDB child -> 写临时 dump.rdb -> 热写触发 COW -> 重启加载验证恢复点。
+- 原创改造点：把 OneUptime 的分步 RDB 参考、Redis 官方持久化语义、BGSAVE 命令和 INFO 指标融合为本项目 Redis RDB 状态模型，突出快照窗口、COW 成本、原子文件切换和恢复演练。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/rdb/desktop.svg` 与 `.codex-artifacts/visualizations/rdb/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/rdb/mobile.html` 与 `.codex-artifacts/visualizations/rdb/mobile.html.fragment`。
+- 截图结论：桌面 SVG 可识别 Snapshot trigger、Redis parent、RDB child、fork 时刻 keyspace、`dump.rdb`、restart load、COW pages 和底部五个信号；移动 HTML 展示 Trigger/Fork/Write/COW/Load 五步流程和 save/fork/status/restore 事实卡。
+- 验收备注：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；SSR 审查时 Vite HMR WebSocket 触发 `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` 渲染完成；本轮使用参考页面 HTTP HEAD、项目数据测试、生产构建和 SSR SVG/HTML 审查图完成验收。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
 | RedisGate AOF 页面 | HTTP 自动跳转到 HTTPS 后返回 404 | 仅在页面恢复可访问或找到稳定镜像时复查 |
+| SoByte Redis RDB/AOF 页面 | 候选 URL 返回 HTTP 404 | 找到稳定新地址或镜像后再加入来源 |
 
 ## Next Candidate
 
-优先选择 MySQL `Undo Log`，备选 Redis `Fork/COW` 或网络 `TCP 拥塞控制`。Undo Log 可承接 MVCC、ReadView 和 Purge，展示版本链、回滚段和历史清理；Fork/COW 可承接 AOF/RDB 重写成本，展示页复制、内存峰值和 fork 延迟。
+优先选择 MySQL `Crash Recovery`，备选网络 `TCP 拥塞控制` 或 Kubernetes `拓扑分布约束`。Crash Recovery 可承接 Redo Log、Undo Log、Binlog 和两阶段提交，展示崩溃点、redo roll-forward、undo rollback 和一致性判定。
 
 ## Docker Resource Limit Visualization
 
@@ -2294,3 +2351,25 @@
 - Verification：`npm run test:data -- --grep "redis fork COW"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 24 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add fork cow visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：MySQL `Undo Log` 状态已在基线中，下一轮优先 MySQL `Crash Recovery` 或 Redis `RDB`。
+
+### 2026-06-03 20:14 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `696c326 feat: add fork cow visualization`，从干净工作区继续。
+- Selected：Redis `RDB`，原因是 save 规则、BGSAVE、fork 子进程、fork 时刻 keyspace、临时 `dump.rdb`、Copy-on-Write、原子 rename、重启加载和 INFO persistence 指标形成清晰状态模型，并承接 Redis `持久化`、`AOF 重写` 与 `fork 与写时复制`。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；选定 OneUptime Redis RDB snapshots step-by-step 为主参考，Redis 官方 Persistence、Redis BGSAVE、Redis INFO、ByteByteGo Redis persistence 和小林 coding 为辅助参考；Chrome DevTools MCP profile 被占用，Browser 插件返回 `iab` 不可用，本轮使用搜索结果、HTTP HEAD 可访问性、官方资料和本地 SSR 审查完成确认。
+- Online Image References：见 `Redis RDB Visualization` 小节；主参考决定 trigger -> parent fork -> RDB child -> temp dump.rdb -> restart load 的整体构图，辅助来源校准官方语义、命令入口、INFO 指标和移动端教学节奏。
+- Reference Breakdown：主体布局为左上 Snapshot trigger，中上 Redis parent，右上 RDB child，左下 memory snapshot，中下 dump.rdb 文件组，右下 restart load，底部 save/fork/changes/status/restore 五个信号；视觉焦点是 `save 900 1` 触发 BGSAVE 后写入 `dump.rdb.tmp`，完成校验和原子切换。
+- 领域对象：save rule、BGSAVE、Redis parent、RDB child、fork snapshot、keyspace、TTL、object encoding、temp dump.rdb、checksum、atomic rename、Copy-on-Write、LASTSAVE、INFO persistence、restart load。
+- 容器层级：触发规则进入 Redis 主进程；RDB child 读取 fork 快照；Memory snapshot 展示 key、TTL 和编码；dump.rdb 面板展示临时文件、checksum、rename 和旧文件；Restart load 面板验证恢复。
+- 连线方向：Snapshot trigger -> Redis parent -> RDB child -> temp dump.rdb -> restart load；Redis parent -> memory snapshot 的 COW pages 路径展示热写成本。
+- 状态表达：五步依次高亮触发快照、fork 子进程、写临时 RDB、处理写时复制、加载恢复；底部信号展示 save rule、latest_fork_usec、changes_since_save、last_bgsave_status 和 restore time。
+- 颜色策略：品牌蓝表示触发和父进程，青色表示 fork/快照视图，橙色表示临时文件写入，红色表示 COW 与旧文件替换风险，绿色表示恢复完成。
+- 文字密度：桌面 SVG 保留短标签、命令、文件名和指标；移动端改为五张流程卡和五张事实卡。
+- 交互节奏：save 规则命中 -> fork 子进程 -> 写临时 dump.rdb -> 热写触发 COW -> 重启加载恢复。
+- 原创改造点：把 OneUptime 分步 RDB 参考、Redis 官方持久化语义、BGSAVE 命令和 INFO 指标融合成本项目 Redis RDB 状态模型，突出快照窗口、COW 成本、原子文件切换和恢复演练。
+- Implementation：新增 `redis:rdb` 专用 `state-model` 构建器、RDB SVG 舞台、移动端流程卡、响应式样式、来源引用和数据测试，并给 RDB 知识点补充 `ai-visualized:2026-06-03` 与 visual-source 标签。
+- Browser Note：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；SSR 审查时 Vite HMR WebSocket 触发 `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` 渲染完成。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/rdb/desktop.svg`、`.codex-artifacts/visualizations/rdb/desktop.html`、`.codex-artifacts/visualizations/rdb/mobile.html` 与 `.codex-artifacts/visualizations/rdb/mobile.html.fragment`；桌面 SVG 可识别 Snapshot trigger、Redis parent、RDB child、fork 时刻 keyspace、`dump.rdb`、restart load、COW pages 和底部五个信号，移动 HTML 展示五步流程和五个指标事实卡。
+- Verification：新增测试先失败于 RDB 使用 generic `Persistence and memory` 模拟，补专用 builder/stage/source 后 `npm run test:data -- --grep "redis RDB"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 25 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add rdb visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：MySQL `Crash Recovery`，备选网络 `TCP 拥塞控制` 或 Kubernetes `拓扑分布约束`。

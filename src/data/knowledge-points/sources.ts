@@ -3445,6 +3445,14 @@ export const knowledgeSources = {
     title: "Redis Learn: Persistence and durability",
     url: "https://redis.io/learn/operate/redis-at-scale/persistence-and-durability",
   },
+  "oneuptime-redis-rdb": {
+    title: "OneUptime: Redis RDB Snapshots Step by Step",
+    url: "https://oneuptime.com/blog/post/2026-03-31-redis-rdb-snapshots-step-by-step/view",
+  },
+  "bytebytego-redis-persistence": {
+    title: "ByteByteGo: How does Redis persist data?",
+    url: "https://bytebytego.com/guides/guides/how-does-redis-persist-data/",
+  },
   "redis-bgsave-command": {
     title: "Redis Commands: BGSAVE",
     url: "https://redis.io/docs/latest/commands/bgsave/",

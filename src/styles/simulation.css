@@ -4502,6 +4502,297 @@
   bottom: 14px;
 }
 
+.redis-rdb-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.redis-rdb-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .redis-rdb-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.redis-rdb-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.redis-rdb-mobile-map {
+  display: none;
+}
+
+.redis-rdb-bg {
+  fill: color-mix(in srgb, var(--tertiary) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);
+}
+
+.redis-rdb-title {
+  fill: var(--text);
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.redis-rdb-subtitle {
+  fill: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.redis-rdb-trigger,
+.redis-rdb-parent,
+.redis-rdb-child,
+.redis-rdb-memory,
+.redis-rdb-file,
+.redis-rdb-restore,
+.redis-rdb-chip,
+.redis-rdb-row,
+.redis-rdb-signal,
+.redis-rdb-trigger-path,
+.redis-rdb-fork-path,
+.redis-rdb-write-path,
+.redis-rdb-cow-path,
+.redis-rdb-load-path {
+  opacity: 0.3;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.redis-rdb-trigger.active,
+.redis-rdb-parent.active,
+.redis-rdb-child.active,
+.redis-rdb-memory.active,
+.redis-rdb-file.active,
+.redis-rdb-restore.active,
+.redis-rdb-chip.active,
+.redis-rdb-row.active,
+.redis-rdb-signal.active,
+.redis-rdb-trigger-path.active,
+.redis-rdb-fork-path.active,
+.redis-rdb-write-path.active,
+.redis-rdb-cow-path.active,
+.redis-rdb-load-path.active {
+  opacity: 1;
+}
+
+.redis-rdb-trigger > rect,
+.redis-rdb-parent > rect,
+.redis-rdb-child > rect,
+.redis-rdb-memory > rect,
+.redis-rdb-file > rect,
+.redis-rdb-restore > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  stroke-width: 1.25;
+  filter: url("#redis-rdb-soft-shadow");
+}
+
+.redis-rdb-trigger.active > rect,
+.redis-rdb-chip.brand.active rect,
+.redis-rdb-row.brand.active rect,
+.redis-rdb-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.redis-rdb-parent.active > rect,
+.redis-rdb-child.active > rect,
+.redis-rdb-chip.teal.active rect,
+.redis-rdb-row.teal.active rect,
+.redis-rdb-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 42%, var(--border));
+}
+
+.redis-rdb-chip.warning.active rect,
+.redis-rdb-row.warning.active rect,
+.redis-rdb-signal.warning.active rect,
+.redis-rdb-file.active > rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 50%, var(--border));
+}
+
+.redis-rdb-chip.danger.active rect,
+.redis-rdb-row.danger.active rect,
+.redis-rdb-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 42%, var(--border));
+}
+
+.redis-rdb-chip.success.active rect,
+.redis-rdb-row.success.active rect,
+.redis-rdb-signal.success.active rect,
+.redis-rdb-restore.active > rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 42%, var(--border));
+}
+
+.redis-rdb-chip rect,
+.redis-rdb-row rect,
+.redis-rdb-signal rect,
+.redis-rdb-trigger-path rect,
+.redis-rdb-fork-path rect,
+.redis-rdb-write-path rect,
+.redis-rdb-cow-path rect,
+.redis-rdb-load-path rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 14%, var(--border));
+  filter: url("#redis-rdb-soft-shadow");
+}
+
+.redis-rdb-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.redis-rdb-panel-subtitle,
+.redis-rdb-trigger text,
+.redis-rdb-parent text,
+.redis-rdb-child text,
+.redis-rdb-memory text,
+.redis-rdb-file text,
+.redis-rdb-restore text,
+.redis-rdb-trigger-path text,
+.redis-rdb-fork-path text,
+.redis-rdb-write-path text,
+.redis-rdb-cow-path text,
+.redis-rdb-load-path text,
+.redis-rdb-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 820;
+}
+
+.redis-rdb-chip text,
+.redis-rdb-row text,
+.redis-rdb-signal text,
+.redis-rdb-trigger-path text,
+.redis-rdb-fork-path text,
+.redis-rdb-write-path text,
+.redis-rdb-cow-path text,
+.redis-rdb-load-path text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.redis-rdb-chip text,
+.redis-rdb-trigger-path text,
+.redis-rdb-fork-path text,
+.redis-rdb-write-path text,
+.redis-rdb-cow-path text,
+.redis-rdb-load-path text {
+  fill: var(--text);
+  text-anchor: middle;
+}
+
+.redis-rdb-row text:first-of-type,
+.redis-rdb-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.redis-rdb-row text:last-of-type,
+.redis-rdb-signal text:last-of-type {
+  fill: var(--brand-strong);
+  font-size: 9.2px;
+  text-anchor: end;
+}
+
+.redis-rdb-trigger-path path,
+.redis-rdb-fork-path path,
+.redis-rdb-write-path path,
+.redis-rdb-cow-path path,
+.redis-rdb-load-path path {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+.redis-rdb-trigger-path path {
+  stroke: var(--brand);
+}
+
+.redis-rdb-fork-path path {
+  stroke: var(--tertiary);
+}
+
+.redis-rdb-write-path path {
+  stroke: #f59e0b;
+}
+
+.redis-rdb-cow-path path {
+  stroke: var(--danger);
+}
+
+.redis-rdb-load-path path {
+  stroke: var(--success);
+}
+
+.redis-rdb-mobile-flow,
+.redis-rdb-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.redis-rdb-mobile-hop,
+.redis-rdb-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--tertiary) 5%, var(--surface));
+  padding: 12px;
+}
+
+.redis-rdb-mobile-hop span,
+.redis-rdb-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.redis-rdb-mobile-hop strong,
+.redis-rdb-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.redis-rdb-mobile-hop.active,
+.redis-rdb-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--tertiary) 42%, var(--border));
+  background: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+}
+
+.redis-rdb-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .ip-route-bg {
   fill: color-mix(in srgb, var(--brand-soft) 30%, var(--surface));
   stroke: color-mix(in srgb, var(--brand) 18%, transparent);

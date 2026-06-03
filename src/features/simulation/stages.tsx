@@ -308,6 +308,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "redis:rdb") {
+    return (
+      <RedisRdbStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "redis:aof-rewrite") {
     return (
       <RedisAofRewriteStage
@@ -2180,6 +2191,247 @@ function RedisAofRewriteStage({
           </div>
         </div>
         <div className="tcp-handshake-caption redis-aof-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RedisRdbStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const triggerActive = completedSteps >= 1;
+  const forkActive = completedSteps >= 2;
+  const writeActive = completedSteps >= 3;
+  const cowActive = completedSteps >= 4;
+  const loadActive = completedSteps >= 5;
+  const keyRows = [
+    { name: "orders:9", value: forkActive ? "hash ziplist" : "dirty", active: forkActive, tone: "brand" },
+    { name: "session:42", value: forkActive ? "ttl=520s" : "changed", active: forkActive, tone: "teal" },
+    { name: "hot:user", value: cowActive ? "parent writes new page" : "shared page", active: forkActive || cowActive, tone: cowActive ? "danger" : "warning" },
+    { name: "zset:rank", value: writeActive ? "serialized" : "pending", active: writeActive, tone: "success" },
+  ];
+  const fileRows = [
+    { name: "temp file", value: writeActive ? "dump.rdb.tmp" : "pending", active: writeActive, tone: "warning" },
+    { name: "checksum", value: writeActive ? "crc64 ok" : "waiting", active: writeActive, tone: "teal" },
+    { name: "rename", value: loadActive ? "atomic switch" : "after fsync", active: loadActive, tone: "success" },
+    { name: "old RDB", value: loadActive ? "replaced" : "recoverable", active: triggerActive, tone: loadActive ? "danger" : "brand" },
+  ];
+  const metricRows = [
+    { name: "save rule", value: triggerActive ? "900s / 1 change" : "pending", active: triggerActive, tone: "brand" },
+    { name: "latest_fork_usec", value: forkActive ? "22ms" : "0", active: forkActive, tone: "teal" },
+    { name: "changes_since_save", value: loadActive ? "0" : cowActive ? "1842" : "481", active: triggerActive, tone: cowActive ? "danger" : "warning" },
+    { name: "last_bgsave_status", value: loadActive ? "ok" : writeActive ? "in_progress" : "idle", active: writeActive || loadActive, tone: loadActive ? "success" : "warning" },
+    { name: "restore time", value: loadActive ? "4.8s" : "--", active: loadActive, tone: "success" },
+  ];
+  const mobileFlow = [
+    { name: "Trigger", value: triggerActive ? "save rule matched" : "save 900 1 pending", active: triggerActive },
+    { name: "Fork", value: forkActive ? "child snapshot view" : "background idle", active: forkActive },
+    { name: "Write", value: writeActive ? "temp dump.rdb writing" : "waiting serialization", active: writeActive },
+    { name: "COW", value: cowActive ? "hot writes copy pages" : "shared pages", active: cowActive },
+    { name: "Load", value: loadActive ? "keyspace restored" : "old RDB active", active: loadActive },
+  ];
+
+  return (
+    <div className="visual-stage redis-rdb-stage">
+      <div className="redis-rdb-card">
+        <svg
+          className="redis-rdb-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["redis-rdb-arrow-brand", "var(--brand)"],
+              ["redis-rdb-arrow-teal", "var(--tertiary)"],
+              ["redis-rdb-arrow-warning", "#f59e0b"],
+              ["redis-rdb-arrow-danger", "var(--danger)"],
+              ["redis-rdb-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="redis-rdb-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="redis-rdb-bg" x="24" y="24" width="1072" height="584" rx="28" />
+          <text className="redis-rdb-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="redis-rdb-subtitle" x="560" y="100">
+            {label(
+              "save rule -> BGSAVE fork -> temp dump.rdb -> COW during writes -> restart load",
+              "save rule -> BGSAVE fork -> temp dump.rdb -> COW during writes -> restart load",
+            )}
+          </text>
+
+          <g className={`redis-rdb-trigger ${triggerActive ? "active" : ""}`}>
+            <rect x="64" y="136" width="238" height="156" rx="24" />
+            <text className="redis-rdb-panel-title" x="94" y="174">{label("快照触发器", "Snapshot trigger")}</text>
+            <text className="redis-rdb-panel-subtitle" x="94" y="198">{label("配置规则或手动 BGSAVE", "Config rule or manual BGSAVE")}</text>
+            <g className={`redis-rdb-chip brand ${triggerActive ? "active" : ""}`}>
+              <rect x="94" y="222" width="156" height="28" rx="14" />
+              <text x="172" y="241">save 900 1</text>
+            </g>
+            <g className={`redis-rdb-chip teal ${triggerActive ? "active" : ""}`}>
+              <rect x="94" y="258" width="156" height="28" rx="14" />
+              <text x="172" y="277">BGSAVE</text>
+            </g>
+          </g>
+
+          <g className={`redis-rdb-parent ${triggerActive ? "active" : ""}`}>
+            <rect x="360" y="126" width="252" height="172" rx="24" />
+            <text className="redis-rdb-panel-title" x="390" y="164">{label("Redis 主进程", "Redis parent")}</text>
+            <text className="redis-rdb-panel-subtitle" x="390" y="188">{label("事件循环继续接收写入", "Event loop keeps serving writes")}</text>
+            <g className={`redis-rdb-chip brand ${triggerActive ? "active" : ""}`}>
+              <rect x="390" y="214" width="168" height="28" rx="14" />
+              <text x="474" y="233">{triggerActive ? "background save" : "event loop"}</text>
+            </g>
+            <g className={`redis-rdb-chip danger ${cowActive ? "active" : ""}`}>
+              <rect x="390" y="252" width="168" height="28" rx="14" />
+              <text x="474" y="271">{cowActive ? "SET hot:user" : "writes pending"}</text>
+            </g>
+          </g>
+
+          <g className={`redis-rdb-child ${forkActive ? "active" : ""}`}>
+            <rect x="680" y="126" width="354" height="172" rx="24" />
+            <text className="redis-rdb-panel-title" x="710" y="164">{label("RDB 子进程", "RDB child")}</text>
+            <text className="redis-rdb-panel-subtitle" x="710" y="188">{label("读取 fork 时刻快照", "Reads the fork-time snapshot")}</text>
+            <g className={`redis-rdb-chip teal ${forkActive ? "active" : ""}`}>
+              <rect x="710" y="214" width="134" height="28" rx="14" />
+              <text x="777" y="233">fork view</text>
+            </g>
+            <g className={`redis-rdb-chip warning ${writeActive ? "active" : ""}`}>
+              <rect x="866" y="214" width="134" height="28" rx="14" />
+              <text x="933" y="233">{writeActive ? "serialize" : "waiting"}</text>
+            </g>
+            <g className={`redis-rdb-chip success ${loadActive ? "active" : ""}`}>
+              <rect x="710" y="254" width="290" height="28" rx="14" />
+              <text x="855" y="273">{loadActive ? "child exit status=ok" : "writes binary RDB format"}</text>
+            </g>
+          </g>
+
+          <g className={`redis-rdb-memory ${forkActive ? "active" : ""}`}>
+            <rect x="64" y="360" width="358" height="176" rx="26" />
+            <text className="redis-rdb-panel-title" x="94" y="398">{label("内存快照", "Memory snapshot")}</text>
+            <text className="redis-rdb-panel-subtitle" x="94" y="422">{label("fork 时刻 keyspace + TTL + 编码", "Fork-time keyspace + TTL + encodings")}</text>
+            {keyRows.map((row, index) => (
+              <g key={row.name} className={`redis-rdb-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="94" y={446 + index * 30} width="276" height="23" rx="11.5" />
+                <text x="110" y={462 + index * 30}>{row.name}</text>
+                <text x="354" y={462 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-rdb-file ${writeActive || loadActive ? "active" : ""}`}>
+            <rect x="472" y="358" width="276" height="178" rx="26" />
+            <text className="redis-rdb-panel-title" x="502" y="396">dump.rdb</text>
+            <text className="redis-rdb-panel-subtitle" x="502" y="420">{label("临时文件验证后原子替换", "Temp file validated then atomically switched")}</text>
+            {fileRows.map((row, index) => (
+              <g key={row.name} className={`redis-rdb-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="502" y={444 + index * 32} width="198" height="24" rx="12" />
+                <text x="518" y={461 + index * 32}>{row.name}</text>
+                <text x="684" y={461 + index * 32}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-rdb-restore ${loadActive ? "active" : ""}`}>
+            <rect x="800" y="360" width="232" height="176" rx="26" />
+            <text className="redis-rdb-panel-title" x="830" y="398">{label("重启加载", "Restart load")}</text>
+            <text className="redis-rdb-panel-subtitle" x="830" y="422">{label("按快照重建内存", "Rebuilds memory from snapshot")}</text>
+            <g className={`redis-rdb-chip success ${loadActive ? "active" : ""}`}>
+              <rect x="830" y="454" width="152" height="30" rx="15" />
+              <text x="906" y="474">load dump.rdb</text>
+            </g>
+            <g className={`redis-rdb-chip teal ${loadActive ? "active" : ""}`}>
+              <rect x="830" y="496" width="152" height="30" rx="15" />
+              <text x="906" y="516">keyspace ready</text>
+            </g>
+          </g>
+
+          <g className={`redis-rdb-trigger-path ${triggerActive ? "active" : ""}`}>
+            <path d="M 302 216 C 322 208, 340 206, 360 206" markerEnd="url(#redis-rdb-arrow-brand)" />
+            <rect x="286" y="174" width="112" height="30" rx="15" />
+            <text x="342" y="194">start save</text>
+          </g>
+          <g className={`redis-rdb-fork-path ${forkActive ? "active" : ""}`}>
+            <path d="M 612 210 C 634 208, 656 208, 680 208" markerEnd="url(#redis-rdb-arrow-teal)" />
+            <path d="M 486 298 C 448 342, 388 358, 320 360" markerEnd="url(#redis-rdb-arrow-teal)" />
+            <rect x="548" y="166" width="102" height="30" rx="15" />
+            <text x="599" y="186">fork</text>
+          </g>
+          <g className={`redis-rdb-write-path ${writeActive ? "active" : ""}`}>
+            <path d="M 850 298 C 796 336, 742 356, 700 358" markerEnd="url(#redis-rdb-arrow-warning)" />
+            <rect x="754" y="320" width="126" height="30" rx="15" />
+            <text x="817" y="340">temp write</text>
+          </g>
+          <g className={`redis-rdb-cow-path ${cowActive ? "active" : ""}`}>
+            <path d="M 416 280 C 356 322, 298 342, 238 360" markerEnd="url(#redis-rdb-arrow-danger)" />
+            <rect x="268" y="306" width="118" height="30" rx="15" />
+            <text x="327" y="326">COW pages</text>
+          </g>
+          <g className={`redis-rdb-load-path ${loadActive ? "active" : ""}`}>
+            <path d="M 748 448 C 766 448, 782 448, 800 448" markerEnd="url(#redis-rdb-arrow-success)" />
+            <rect x="716" y="552" width="148" height="30" rx="15" />
+            <text x="790" y="572">restart load</text>
+          </g>
+
+          <g className="redis-rdb-signals">
+            {metricRows.map((row, index) => (
+              <g key={row.name} className={`redis-rdb-signal ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x={64 + index * 207} y="570" width="180" height="34" rx="16" />
+                <text x={80 + index * 207} y="584">{row.name}</text>
+                <text x={226 + index * 207} y="598">{row.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="redis-rdb-mobile-map">
+          <div className="redis-rdb-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`redis-rdb-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="redis-rdb-mobile-facts">
+            {metricRows.map((row) => (
+              <div key={row.name} className={`redis-rdb-mobile-fact ${row.active ? "active" : ""}`}>
+                <span>{row.name}</span>
+                <strong>{row.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption redis-rdb-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

@@ -473,7 +473,16 @@ const redisKnowledgePointBase = [
   /* <!-- KG_REVIEWED: RDB | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: RDB | 2026-05-23 | source_count=5 --> */
   {
-    sourceRefs: ["redis-persistence-docs", "redis-bgsave-command", "redis-info-command", "redis-commands", "xiaolin-redis"],
+    sourceRefs: [
+      "redis-persistence-docs",
+      "redis-bgsave-command",
+      "redis-info-command",
+      "redis-commands",
+      "oneuptime-redis-rdb",
+      "bytebytego-redis-persistence",
+      "xiaolin-redis",
+    ],
+    internalTags: ["ai-visualized:2026-06-03", "visual-source:oneuptime-redis-rdb", "visual-source:redis-persistence-docs"],
     id: "rdb",
     zh: "RDB",
     en: "RDB Snapshot",
