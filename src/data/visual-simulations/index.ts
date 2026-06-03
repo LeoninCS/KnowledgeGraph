@@ -6073,6 +6073,137 @@ function buildDockerSpecific(point: GraphKnowledgePoint) {
   );
 }
 
+function dockerMultiStageBuild(point: GraphKnowledgePoint) {
+  const actors = [
+    actor("dockerfile", "Dockerfile 阶段", "Dockerfile stages", "用多个 FROM 定义 builder、test 和 runtime", "Defines builder, test, and runtime with multiple FROM instructions", "data"),
+    actor("builder", "Builder Stage", "Builder stage", "安装工具链、下载依赖、编译产物", "Installs toolchain, downloads dependencies, and compiles artifacts", "container"),
+    actor("artifact", "COPY --from", "COPY --from", "只复制二进制、证书和运行时文件", "Copies only binaries, certificates, and runtime files", "storage"),
+    actor("runtime", "Final Image", "Final image", "小体积运行时镜像与入口命令", "Small runtime image with entrypoint", "container"),
+    actor("buildkit", "BuildKit / Cache", "BuildKit / cache", "跳过无关 stage，复用依赖缓存", "Skips unrelated stages and reuses dependency cache", "cache"),
+  ];
+
+  return makeSimulation(
+    "docker",
+    point,
+    tx("多阶段镜像装配", "multi-stage image assembly"),
+    tx(
+      "把一个 Dockerfile 拆成 builder、test 和 runtime 阶段，观察 COPY --from 如何只把产物装入最终镜像，并用 BuildKit 跳过无关阶段。",
+      "Split one Dockerfile into builder, test, and runtime stages, then observe COPY --from assembling only artifacts into the final image while BuildKit skips unrelated stages.",
+    ),
+    actors,
+    {
+      dockerfile: tx("FROM base AS deps/build/test/runtime", "FROM base AS deps/build/test/runtime"),
+      builder: tx("工具链和源码留在 build stage", "Toolchain and source stay in build stage"),
+      artifact: tx("等待选择输出产物", "Awaiting selected artifacts"),
+      runtime: tx("最终镜像待装配", "Final image pending"),
+      buildkit: tx("DAG / cache 待计算", "DAG / cache pending"),
+    },
+    [
+      step(
+        "拆出阶段",
+        "Split stages",
+        "解析多个 FROM 和 stage 名称",
+        "Parse multiple FROM instructions and stage names",
+        "dockerfile",
+        "builder",
+        "deps -> build -> test -> runtime",
+        "deps -> build -> test -> runtime",
+        "多阶段构建用多个 FROM 创建独立文件系统，前置阶段负责依赖、编译或测试，最后阶段负责承载运行时。",
+        "Multi-stage builds create independent filesystems with multiple FROM instructions; earlier stages handle dependencies, compilation, or tests, while the final stage carries runtime files.",
+        "给 stage 起名能让 COPY --from 和 --target 在 Dockerfile 调整顺序后仍然稳定。",
+        "Named stages keep COPY --from and --target stable when Dockerfile order changes.",
+        {
+          dockerfile: tx("stage names 已解析", "stage names parsed"),
+          builder: tx("deps/build/test 可执行", "deps/build/test executable"),
+        },
+      ),
+      step(
+        "构建产物",
+        "Build artifact",
+        "在 builder 中安装依赖并编译",
+        "Install dependencies and compile in builder",
+        "builder",
+        "artifact",
+        "/src -> /out/app",
+        "/src -> /out/app",
+        "builder stage 可以包含编译器、包管理器、源码和临时缓存，这些内容只参与构建过程。",
+        "The builder stage can contain compilers, package managers, source code, and temporary cache, all used only during the build.",
+        "体积优化的关键是把重依赖留在前置 stage，把运行所需文件变成清晰产物。",
+        "Image-size reduction comes from keeping heavy dependencies in earlier stages and turning runtime needs into explicit artifacts.",
+        {
+          builder: tx("go build / npm build 完成", "go build / npm build complete"),
+          artifact: tx("/out/app 已生成", "/out/app generated"),
+        },
+        "teal",
+      ),
+      step(
+        "复制产物",
+        "Copy artifacts",
+        "执行 COPY --from=build",
+        "Run COPY --from=build",
+        "artifact",
+        "runtime",
+        "COPY --from=build /out/app /app",
+        "COPY --from=build /out/app /app",
+        "COPY --from 只从指定 stage 复制选中的文件，编译器、源码、测试工具和缓存留在前置阶段。",
+        "COPY --from copies only selected files from a specified stage, leaving compilers, source code, test tools, and cache in earlier stages.",
+        "最终镜像的内容边界由 COPY --from、基础镜像和 ENTRYPOINT 共同决定。",
+        "The final image boundary is decided by COPY --from, the runtime base image, and ENTRYPOINT.",
+        {
+          artifact: tx("只选择 app + ca-certificates", "selected app + ca-certificates only"),
+          runtime: tx("runtime layer 接收产物", "runtime layer receives artifacts"),
+        },
+        "warning",
+      ),
+      step(
+        "生成最终镜像",
+        "Assemble final image",
+        "保留运行时层和入口命令",
+        "Keep runtime layers and entrypoint",
+        "runtime",
+        "buildkit",
+        "1.2GB builder -> 48MB runtime",
+        "1.2GB builder -> 48MB runtime",
+        "最终镜像默认来自 Dockerfile 最后一个 stage，常选择 scratch、distroless、alpine 或语言运行时基础镜像。",
+        "The final image defaults to the last Dockerfile stage and often uses scratch, distroless, alpine, or a language runtime base image.",
+        "镜像安全和体积验收看最终 stage 的层、用户、证书、动态库和入口命令。",
+        "Security and size checks focus on final-stage layers, user, certificates, dynamic libraries, and entrypoint.",
+        {
+          runtime: tx("最终镜像 48MB", "final image 48MB"),
+          buildkit: tx("history 只含 runtime 层", "history contains runtime layers only"),
+        },
+        "success",
+      ),
+      step(
+        "选择目标与缓存",
+        "Target and cache",
+        "使用 --target 与 BuildKit DAG",
+        "Use --target and BuildKit DAG",
+        "buildkit",
+        "dockerfile",
+        "--target test skips runtime",
+        "--target test skips runtime",
+        "docker build --target 可以停在指定 stage；BuildKit 会根据依赖图跳过无关 stage，并复用锁文件和 cache mount 提升构建速度。",
+        "docker build --target can stop at a specified stage; BuildKit skips unrelated stages from the dependency graph and reuses lockfile and cache-mount work.",
+        "调试构建问题时同时看 stage 名称、COPY --from 路径、目标 stage、缓存命中和最终镜像大小。",
+        "Build debugging should inspect stage names, COPY --from paths, target stage, cache hits, and final image size together.",
+        {
+          buildkit: tx("cache hit deps, skip prod", "cache hit deps, skip prod"),
+          dockerfile: tx("--target test 验证通过", "--target test verified"),
+        },
+        "danger",
+      ),
+    ],
+    [
+      tx("COPY --from", "COPY --from"),
+      tx("目标 stage", "target stage"),
+      tx("最终镜像体积", "final image size"),
+      tx("BuildKit 跳过无关 stage", "BuildKit skip"),
+      tx("缓存命中", "cache hit"),
+    ],
+  );
+}
+
 function buildKubernetesSpecific(point: GraphKnowledgePoint) {
   const area = getAreaKey(point);
 
@@ -6691,6 +6822,7 @@ const customBuilders: Record<string, Builder> = {
   "mysql:deadlock": deadlock,
   "redis:hash-slot": redisHashSlot,
   "docker:image-layer": dockerImageLayer,
+  "docker:multi-stage-build": dockerMultiStageBuild,
   "docker:bridge-network": (point) => buildDockerSpecific(point),
   "docker:port-mapping": (point) => buildDockerSpecific(point),
   "docker:resource-limit": (point) => buildDockerSpecific(point),

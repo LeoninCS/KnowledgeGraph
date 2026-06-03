@@ -4721,6 +4721,14 @@ export const knowledgeSources = {
     title: "Docker Docs: Multi-stage builds",
     url: "https://docs.docker.com/build/building/multi-stage/",
   },
+  "depot-docker-multistage": {
+    title: "Depot: Docker Multi-Stage Builds",
+    url: "https://depot.dev/blog/docker-multi-stage-builds",
+  },
+  "dockerfilegraph": {
+    title: "dockerfilegraph: Visualize your multi-stage Dockerfiles",
+    url: "https://github.com/patrickhoefler/dockerfilegraph",
+  },
   "docker-build-context": {
     title: "Docker Docs: Build context",
     url: "https://docs.docker.com/build/building/context/",

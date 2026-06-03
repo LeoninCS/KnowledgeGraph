@@ -319,6 +319,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "docker:multi-stage-build") {
+    return (
+      <DockerMultiStageBuildStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "docker:bridge-network") {
     return (
       <DockerBridgeNetworkStage
@@ -6877,6 +6888,201 @@ function DockerImageLayerStage({
           </div>
         </div>
         <div className="tcp-handshake-caption docker-layer-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DockerMultiStageBuildStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const splitActive = completedSteps >= 1;
+  const buildActive = completedSteps >= 2;
+  const copyActive = completedSteps >= 3;
+  const finalActive = completedSteps >= 4;
+  const buildkitActive = completedSteps >= 5;
+  const stages = [
+    { id: "deps", name: "deps", from: "node:22", y: 134, tone: "brand", active: splitActive, note: label("锁文件 + npm ci", "lockfile + npm ci") },
+    { id: "build", name: "build", from: "golang:1.22", y: 210, tone: "teal", active: buildActive, note: label("源码 -> /out/app", "source -> /out/app") },
+    { id: "test", name: "test", from: "build", y: 286, tone: "warning", active: buildkitActive, note: label("--target test", "--target test") },
+    { id: "runtime", name: "runtime", from: "distroless", y: 362, tone: "success", active: finalActive, note: label("ENTRYPOINT /app", "ENTRYPOINT /app") },
+  ];
+  const artifacts = [
+    { name: "/out/app", detail: "binary", active: buildActive },
+    { name: "/etc/ssl/certs", detail: "certs", active: copyActive },
+    { name: "/src", detail: "left behind", active: buildActive, muted: true },
+    { name: "/root/.cache", detail: "cache mount", active: buildkitActive, muted: true },
+  ];
+  const finalLayers = [
+    { name: "distroless base", size: "28MB", active: finalActive, tone: "success" },
+    { name: "/app", size: "17MB", active: copyActive, tone: "teal" },
+    { name: "certs + user", size: "3MB", active: finalActive, tone: "brand" },
+  ];
+  const mobileFlow = [
+    { name: "Dockerfile", value: splitActive ? "4 named stages parsed" : "waiting", active: splitActive },
+    { name: "Builder", value: buildActive ? "/out/app generated" : "pending", active: buildActive },
+    { name: "COPY --from", value: copyActive ? "app + certs only" : "pending", active: copyActive },
+    { name: "Final image", value: finalActive ? "48MB runtime" : "pending", active: finalActive },
+    { name: "BuildKit", value: buildkitActive ? "skip runtime for --target test" : "DAG pending", active: buildkitActive },
+  ];
+
+  return (
+    <div className="visual-stage docker-multistage-stage">
+      <div className="docker-multistage-card">
+        <svg
+          className="docker-multistage-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["docker-ms-arrow-brand", "var(--brand)"],
+              ["docker-ms-arrow-teal", "var(--tertiary)"],
+              ["docker-ms-arrow-warning", "#f59e0b"],
+              ["docker-ms-arrow-success", "var(--success)"],
+              ["docker-ms-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="docker-ms-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="docker-ms-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="docker-ms-title" x="560" y="70">{readLocalizedText(simulation.title, locale)}</text>
+          <text className="docker-ms-subtitle" x="560" y="100">
+            {label(
+              "Dockerfile stages -> builder filesystem -> COPY --from -> final runtime image -> BuildKit DAG",
+              "Dockerfile stages -> builder filesystem -> COPY --from -> final runtime image -> BuildKit DAG",
+            )}
+          </text>
+
+          <g className={`docker-ms-dockerfile ${splitActive ? "active" : ""}`}>
+            <rect x="64" y="126" width="260" height="358" rx="24" />
+            <text className="docker-ms-panel-title" x="92" y="162">Dockerfile</text>
+            <text className="docker-ms-panel-subtitle" x="92" y="186">{label("命名 stage 保持复制关系稳定", "Named stages keep copy relationships stable")}</text>
+            {stages.map((stage) => (
+              <g key={stage.id} className={`docker-ms-stage-row ${stage.tone} ${stage.active ? "active" : ""}`}>
+                <rect x="92" y={stage.y} width="200" height="54" rx="16" />
+                <text x="112" y={stage.y + 21}>FROM {stage.from}</text>
+                <text x="112" y={stage.y + 40}>AS {stage.name}</text>
+                <text x="278" y={stage.y + 32}>{stage.note}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-ms-builder ${buildActive ? "active" : ""}`}>
+            <rect x="374" y="136" width="260" height="240" rx="26" />
+            <text className="docker-ms-panel-title" x="404" y="172">{label("Builder 文件系统", "Builder filesystem")}</text>
+            <text className="docker-ms-panel-subtitle" x="404" y="196">{label("工具链、源码和缓存留在前置阶段", "Toolchain, source, and cache stay in earlier stages")}</text>
+            {artifacts.map((artifact, index) => (
+              <g
+                key={artifact.name}
+                className={`docker-ms-artifact ${artifact.active ? "active" : ""} ${artifact.muted ? "muted" : ""}`}
+              >
+                <rect x="404" y={220 + index * 40} width="190" height="30" rx="14" />
+                <text x="424" y={240 + index * 40}>{artifact.name}</text>
+                <text x="580" y={240 + index * 40}>{artifact.detail}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-ms-build-path ${buildActive ? "active" : ""}`}>
+            <path d="M 324 238 C 346 238, 352 238, 374 238" markerEnd="url(#docker-ms-arrow-teal)" />
+            <rect x="288" y="202" width="134" height="32" rx="16" />
+            <text x="355" y="223">{label("执行 build", "run build")}</text>
+          </g>
+
+          <g className={`docker-ms-copy-path ${copyActive ? "active" : ""}`}>
+            <path d="M 634 254 C 686 254, 710 254, 752 254" markerEnd="url(#docker-ms-arrow-warning)" />
+            <path d="M 634 294 C 690 314, 714 336, 752 360" markerEnd="url(#docker-ms-arrow-warning)" />
+            <rect x="622" y="186" width="194" height="42" rx="17" />
+            <text x="719" y="204">COPY --from=build</text>
+            <text x="719" y="221">/out/app /app</text>
+          </g>
+
+          <g className={`docker-ms-final ${finalActive ? "active" : ""}`}>
+            <rect x="752" y="134" width="288" height="272" rx="28" />
+            <text className="docker-ms-panel-title" x="782" y="172">{label("最终运行时镜像", "Final runtime image")}</text>
+            <text className="docker-ms-panel-subtitle" x="782" y="196">{label("只保留运行所需层", "Keeps runtime-only layers")}</text>
+            {finalLayers.map((layer, index) => (
+              <g key={layer.name} className={`docker-ms-final-layer ${layer.tone} ${layer.active ? "active" : ""}`}>
+                <rect x="802" y={228 + index * 48} width="184" height="36" rx="14" />
+                <text x="822" y={249 + index * 48}>{layer.name}</text>
+                <text x="968" y={249 + index * 48}>{layer.size}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-ms-size-compare ${finalActive ? "active" : ""}`}>
+            <rect x="706" y="432" width="338" height="82" rx="24" />
+            <text className="docker-ms-panel-title" x="736" y="464">{label("体积与攻击面", "Size and attack surface")}</text>
+            <g className="docker-ms-size-bar builder">
+              <rect x="738" y="480" width="212" height="16" rx="8" />
+              <text x="968" y="493">builder 1.2GB</text>
+            </g>
+            <g className="docker-ms-size-bar runtime">
+              <rect x="738" y="504" width="54" height="16" rx="8" />
+              <text x="810" y="517">runtime 48MB</text>
+            </g>
+          </g>
+
+          <g className={`docker-ms-buildkit ${buildkitActive ? "active" : ""}`}>
+            <rect x="92" y="516" width="570" height="62" rx="24" />
+            <text className="docker-ms-panel-title" x="122" y="548">BuildKit DAG / Cache</text>
+            {[
+              { x: 300, text: "deps cache hit", tone: "brand" },
+              { x: 432, text: "--target test", tone: "warning" },
+              { x: 562, text: "skip runtime", tone: "danger" },
+            ].map((chip) => (
+              <g key={chip.text} className={`docker-ms-buildkit-chip ${chip.tone} active`}>
+                <rect x={chip.x} y="530" width="108" height="28" rx="14" />
+                <text x={chip.x + 54} y="549">{chip.text}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-ms-buildkit-path ${buildkitActive ? "active" : ""}`}>
+            <path d="M 518 516 C 568 482, 610 430, 752 392" markerEnd="url(#docker-ms-arrow-danger)" />
+          </g>
+        </svg>
+        <div className="docker-multistage-mobile-map">
+          <div className="docker-multistage-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`docker-multistage-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption docker-multistage-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

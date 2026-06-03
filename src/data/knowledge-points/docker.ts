@@ -2579,6 +2579,8 @@ export const dockerKnowledgePoints = [
   {
     sourceRefs: [
       "docker-multistage-builds",
+      "depot-docker-multistage",
+      "dockerfilegraph",
       "dockerfile-reference",
       "dockerfile-best-practices",
       "docker-build-cache",
@@ -2601,7 +2603,7 @@ export const dockerKnowledgePoints = [
       "缓存和层顺序同样重要。依赖安装 stage 应优先复制锁文件和依赖清单，再复制源码；BuildKit 可以跳过无关 stage，并配合 cache mount 加速依赖下载。",
       "多平台构建中，多阶段常用于交叉编译。可以用 --platform、BUILDPLATFORM、TARGETPLATFORM 等自动参数，让 build stage 在构建平台运行，让输出产物面向目标平台。",
       "常见边界包括 COPY --from 路径写错、stage 名称变动、最终镜像缺少运行时动态库或证书、用户权限不匹配、调试工具留在生产镜像、缓存被源码变化频繁打断、跨平台编译产物架构错误。",
-      "参考来源：本讲解参考 Docker Multi-stage builds、Dockerfile reference、Dockerfile best practices、Build cache、Optimize cache usage、BuildKit、Build context 和 Multi-platform builds 官方文档。",
+      "参考来源：本讲解参考 Docker Multi-stage builds、Dockerfile reference、Dockerfile best practices、Build cache、Optimize cache usage、BuildKit、Build context 和 Multi-platform builds 官方文档，并结合 Depot 多阶段构建图解和 dockerfilegraph 依赖图视角。",
     ],
     typicalProblems: [
       "多阶段构建为什么能缩小镜像体积",

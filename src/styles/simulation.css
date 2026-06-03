@@ -715,6 +715,240 @@
   display: none;
 }
 
+.docker-multistage-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.docker-multistage-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .docker-multistage-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.docker-multistage-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.docker-multistage-mobile-map {
+  display: none;
+}
+
+.docker-ms-bg {
+  fill: color-mix(in srgb, var(--tertiary) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);
+}
+
+.docker-ms-title {
+  fill: var(--text);
+  font-size: 27px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.docker-ms-subtitle {
+  fill: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.docker-ms-dockerfile,
+.docker-ms-builder,
+.docker-ms-final,
+.docker-ms-size-compare,
+.docker-ms-buildkit,
+.docker-ms-build-path,
+.docker-ms-copy-path,
+.docker-ms-buildkit-path,
+.docker-ms-stage-row,
+.docker-ms-artifact,
+.docker-ms-final-layer {
+  opacity: 0.3;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.docker-ms-dockerfile.active,
+.docker-ms-builder.active,
+.docker-ms-final.active,
+.docker-ms-size-compare.active,
+.docker-ms-buildkit.active,
+.docker-ms-build-path.active,
+.docker-ms-copy-path.active,
+.docker-ms-buildkit-path.active,
+.docker-ms-stage-row.active,
+.docker-ms-artifact.active,
+.docker-ms-final-layer.active {
+  opacity: 1;
+}
+
+.docker-ms-dockerfile > rect,
+.docker-ms-builder > rect,
+.docker-ms-final > rect,
+.docker-ms-size-compare > rect,
+.docker-ms-buildkit > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  stroke-width: 1.25;
+  filter: url(#docker-ms-soft-shadow);
+}
+
+.docker-ms-dockerfile.active > rect,
+.docker-ms-stage-row.brand.active rect,
+.docker-ms-final-layer.brand.active rect,
+.docker-ms-buildkit-chip.brand rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.docker-ms-builder.active > rect,
+.docker-ms-stage-row.teal.active rect,
+.docker-ms-artifact.active rect,
+.docker-ms-final-layer.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 44%, var(--border));
+}
+
+.docker-ms-stage-row.warning.active rect,
+.docker-ms-final-layer.warning.active rect,
+.docker-ms-buildkit-chip.warning rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 52%, var(--border));
+}
+
+.docker-ms-final.active > rect,
+.docker-ms-stage-row.success.active rect,
+.docker-ms-final-layer.success.active rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 42%, var(--border));
+}
+
+.docker-ms-buildkit.active > rect,
+.docker-ms-buildkit-chip.danger rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.docker-ms-stage-row rect,
+.docker-ms-artifact rect,
+.docker-ms-final-layer rect,
+.docker-ms-copy-path rect,
+.docker-ms-build-path rect,
+.docker-ms-buildkit-chip rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 16%, var(--border));
+  filter: url(#docker-ms-soft-shadow);
+}
+
+.docker-ms-artifact.muted rect {
+  stroke-dasharray: 4 4;
+}
+
+.docker-ms-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.docker-ms-panel-subtitle,
+.docker-ms-stage-row text,
+.docker-ms-artifact text,
+.docker-ms-final-layer text,
+.docker-ms-copy-path text,
+.docker-ms-build-path text,
+.docker-ms-buildkit-chip text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 820;
+}
+
+.docker-ms-stage-row text:first-of-type,
+.docker-ms-artifact text:first-of-type,
+.docker-ms-final-layer text:first-of-type,
+.docker-ms-copy-path text,
+.docker-ms-build-path text,
+.docker-ms-buildkit-chip text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.docker-ms-stage-row text:nth-of-type(2),
+.docker-ms-artifact text:last-of-type,
+.docker-ms-final-layer text:last-of-type {
+  fill: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  text-anchor: end;
+}
+
+.docker-ms-stage-row text:nth-of-type(3) {
+  fill: var(--muted);
+  font-size: 9px;
+  text-anchor: end;
+}
+
+.docker-ms-build-path path,
+.docker-ms-copy-path path,
+.docker-ms-buildkit-path path {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.docker-ms-build-path path {
+  stroke: var(--tertiary);
+}
+
+.docker-ms-copy-path path {
+  stroke: #f59e0b;
+}
+
+.docker-ms-buildkit-path path {
+  stroke: var(--danger);
+  stroke-dasharray: 7 7;
+}
+
+.docker-ms-size-bar rect {
+  fill: color-mix(in srgb, var(--danger) 48%, var(--surface));
+}
+
+.docker-ms-size-bar.runtime rect {
+  fill: color-mix(in srgb, var(--success) 58%, var(--surface));
+}
+
+.docker-ms-size-bar text {
+  fill: var(--text);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.docker-multistage-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .epoll-bg {
   fill: color-mix(in srgb, var(--tertiary) 14%, var(--surface));
   stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);

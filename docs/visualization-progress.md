@@ -144,6 +144,7 @@
 | 端口映射 | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Docker published port path 模拟器，覆盖 HostIp/HostPort、DNAT、DOCKER-USER、容器监听地址和 EXPOSE 排障 |
 | 资源限制 | `state-model` | completed | desktop/mobile captured | Docker cgroup 资源治理状态模型，覆盖 HostConfig、cgroup v2 控制文件、CPU throttle、OOMKilled、docker stats 和运行中调整 |
 | 进程数限制 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Docker PIDs cgroup containment 状态模型，覆盖 `--pids-limit`、`pids.max/current/events`、fork/clone 拒绝、`docker stats PIDS` 和调参闭环 |
+| 多阶段构建 | `explorable-architecture` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Docker multi-stage image assembly 结构模型，覆盖 stage、builder 文件系统、`COPY --from`、最终镜像体积、`--target` 和 BuildKit skip |
 | MVCC | `state-model` | completed | desktop/mobile captured | MySQL MVCC 版本可见性状态模型，覆盖隐藏列、Undo 版本链、ReadView、可见性判断和长事务 Purge 风险 |
 | Redo Log | `state-model` | completed | desktop/mobile captured | MySQL Redo Log WAL 与恢复状态模型，覆盖 redo record、log buffer、write/fsync、checkpoint 和 crash recovery |
 | Binlog | `step-simulation` | completed | desktop/mobile captured | MySQL Binlog 提交与复制通道模拟器，覆盖 GTID、Rows Event、Group Commit、Relay Log 和副本应用延迟 |
@@ -328,11 +329,11 @@
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Kubernetes `节点亲和性` 或 Docker `多阶段构建` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Kubernetes `节点亲和性` 或网络 `TCP/IP 四层模型` 找图与设计 |
 
 ## Next Candidate
 
-优先选择 Kubernetes `节点亲和性`，备选 Docker `多阶段构建`。节点亲和性可承接 Scheduler、污点容忍、Pod 亲和性和拓扑分布约束，围绕节点标签、required/preferred 规则和调度事件展开；多阶段构建可承接镜像层与 Build Cache，围绕 stage、`COPY --from`、最终镜像体积和调试 target 展开。
+优先选择 Kubernetes `节点亲和性`，备选网络 `TCP/IP 四层模型`。节点亲和性可承接 Scheduler、污点容忍、Pod 亲和性和拓扑分布约束，围绕节点标签、required/preferred 规则和调度事件展开；TCP/IP 四层模型可承接网络总览、OSI、以太网帧和路由，围绕分层封装、抓包字段、OSI 对照和排障证据展开。
 
 ## Docker Resource Limit Visualization
 
@@ -437,6 +438,61 @@
 - 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/pids-limit/mobile.html`。
 - 截图结论：桌面 SVG 可识别 `docker run`、Docker daemon、pids controller、应用容器、Linux task creation、观测证据和底部四个信号；移动 HTML 展示五步流程和 PIDs 指标摘要，文字可读。
 - 验收备注：Vite dev server 已在 `http://127.0.0.1:5173/KnowledgeGraph/` 启动；Browser 插件返回 in-app browser 不可用，Chrome DevTools MCP profile 被占用，Playwright Chromium 受 macOS Mach port 权限 `bootstrap_check_in ... Permission denied` 限制；本轮使用 `npm run test:data -- --grep "pids limit"`、`npm run build`、完整 `npm run test:data`、`git diff --check` 和本地 SVG/HTML 审查图完成验收。
+
+## Docker Multi-stage Build Visualization
+
+### Online Image References
+
+- `source`：Depot - Docker Multi-Stage Builds: How to Make Your Images Smaller，https://depot.dev/blog/docker-multi-stage-builds
+  - `image`：页面中的 linear build 与 multi-stage build 对比流程图。
+  - `role`：main
+  - `qualityReason`：图直接展示单阶段肥镜像和多阶段 builder/runtime 分离的差异，适合作为主构图的信息层级参考。
+  - `takeaways`：主画布采用 Dockerfile stage 列、builder 文件系统、COPY --from 产物通道和最终 runtime image 体积对比。
+  - `originalChanges`：改成本项目的 Docker multi-stage image assembly 结构模型，加入 BuildKit DAG、`--target test`、cache hit 和移动端流程卡。
+- `source`：Docker Docs - Multi-stage builds，https://docs.docker.com/build/building/multi-stage/
+  - `image`：官方多阶段 Dockerfile 示例与 `COPY --from=0`、stage 命名、`--target`、BuildKit 章节说明。
+  - `role`：supporting
+  - `qualityReason`：官方定义多个 `FROM` 如何开启新 stage、最终镜像默认来自最后一个 stage、`COPY --from` 如何复制产物。
+  - `takeaways`：步骤覆盖拆出 stage、构建产物、复制产物、生成最终镜像和选择 target。
+  - `originalChanges`：把官方命令语义转成可交互的 stage 行、产物卡、最终镜像层和底部信号。
+- `source`：Docker Docs - Multi-stage builds get started，https://docs.docker.com/get-started/docker-concepts/building-images/multi-stage-builds/
+  - `image`：官方入门页中的 build 与 runtime stage 教学说明。
+  - `role`：supporting
+  - `qualityReason`：入门文档清楚解释最终镜像只保留运行所需文件，适合校准右侧面板文案。
+  - `takeaways`：强调编译器、源码、测试工具和缓存停留在前置 stage。
+  - `originalChanges`：用 `/src`、`/root/.cache` 的 muted artifact 表达“留在 builder”的边界。
+- `source`：Docker Docs - BuildKit，https://docs.docker.com/build/buildkit/
+  - `image`：官方 BuildKit 特性说明，包含 DAG 求解、跳过无关阶段和改进缓存。
+  - `role`：supporting
+  - `qualityReason`：官方校准 BuildKit 如何只构建目标依赖的 stage，并复用缓存。
+  - `takeaways`：底部 BuildKit 面板展示 `deps cache hit`、`--target test` 和 `skip runtime`。
+  - `originalChanges`：把 BuildKit 的求解器语义压缩成最终一步的 DAG/cache 验收区。
+- `source`：dockerfilegraph - Visualize your multi-stage Dockerfiles，https://github.com/patrickhoefler/dockerfilegraph
+  - `image`：README 中的 Dockerfile stage dependency graph 截图。
+  - `role`：supporting
+  - `qualityReason`：图形化表达 stage 之间的依赖关系，适合补充 COPY --from 连线和 target 视角。
+  - `takeaways`：用 DAG 语义解释 BuildKit skip 与目标 stage。
+  - `originalChanges`：只吸收依赖图视角，画布按本项目 Docker SVG 样式重绘。
+
+### Reference Breakdown
+
+- 主体布局：左侧 Dockerfile 阶段列，中部 Builder 文件系统，右侧 Final runtime image，右下体积与攻击面对比，底部 BuildKit DAG / Cache。
+- 视觉焦点：`COPY --from=build /out/app /app` 从 builder 只复制产物到 runtime，并把 `builder 1.2GB` 收敛成 `runtime 48MB`。
+- 领域对象：Dockerfile、`FROM ... AS deps/build/test/runtime`、builder filesystem、artifact、`COPY --from`、final image layers、entrypoint、`--target`、BuildKit DAG、cache hit。
+- 容器层级：Dockerfile 定义多个独立 stage；builder stage 包含工具链、源码和缓存；artifact 通道选择运行所需文件；runtime stage 只保留基础镜像、二进制、证书和入口命令；BuildKit 根据依赖图计算目标 stage。
+- 连线方向：Dockerfile stage -> builder filesystem -> artifact selection -> final image -> BuildKit/cache feedback。
+- 状态表达：五步依次高亮拆出阶段、构建产物、复制产物、生成最终镜像、选择目标与缓存。
+- 颜色策略：品牌蓝表示 stage 输入，青色表示 builder 产物，橙色表示 COPY --from 选择，绿色表示最终镜像收敛，红色虚线表示 BuildKit skip。
+- 文字密度：桌面 SVG 保留 stage 名、路径、体积和 cache 读数；移动端切换为五张流程卡。
+- 交互节奏：解析 stage -> 编译产物 -> COPY --from -> final runtime image -> --target/BuildKit cache。
+- 原创改造点：把多阶段构建对比图、Docker 官方语义和 stage dependency graph 组合为可探索结构模型，突出生产验收中的最终镜像体积、COPY 路径、target stage 和缓存命中。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/multi-stage-build/desktop.svg` 与 `.codex-artifacts/visualizations/multi-stage-build/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/multi-stage-build/mobile.html`。
+- 截图结论：桌面 SVG 可识别 Dockerfile、deps/build/test/runtime stages、Builder 文件系统、COPY --from 通道、Final runtime image、体积对比和 BuildKit DAG / Cache；移动 HTML 展示五步流程卡，文字可读。
+- 验收备注：Vite dev server 已在 `http://localhost:4185/KnowledgeGraph/` 启动；Browser 插件返回 in-app browser 不可用，Chrome DevTools MCP profile 被占用且当前进程无法释放，Playwright Chromium 受 macOS Mach port 权限 `bootstrap_check_in ... Permission denied` 限制；本轮使用 `npm run test:data -- --grep "multi-stage build"`、`npm run build`、完整 `npm run test:data`、`git diff --check` 和本地 SVG/HTML 审查图完成验收。
 
 ## Kubernetes HPA Visualization
 
@@ -1927,3 +1983,17 @@
 - Verification：新增 `npm run test:data -- --grep "pids limit"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 18 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add pids limit visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Kubernetes `节点亲和性` 或 Docker `多阶段构建`。
+
+### 2026-06-03 11:17 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `b1d8a01`，从干净工作区继续。
+- Selected：Docker `多阶段构建`，原因是 stage、builder 文件系统、`COPY --from`、最终 runtime image、`--target` 和 BuildKit cache/skip 形成清晰的镜像构建结构模型，并承接 Docker `镜像层`、`Build Cache` 和 `PIDs 限制` 可视化。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；主参考为 Depot multi-stage build 对比图，辅助参考为 Docker 官方 multi-stage builds、Docker get started multi-stage builds、Docker BuildKit 和 dockerfilegraph stage dependency graph；Browser 插件返回 in-app browser 不可用，Chrome DevTools MCP profile 被占用且无法释放，本轮使用搜索结果、官方文档、可访问页面 URL 和本地 SVG/HTML 审查完成确认。
+- Online Image References：见 `Docker Multi-stage Build Visualization` 小节；主图决定 Dockerfile stage -> builder -> COPY --from -> final image 的构图，辅助来源校准官方语义、BuildKit DAG/cache 和 stage 依赖图。
+- Reference Breakdown：主体布局为左侧 Dockerfile 阶段列，中部 Builder 文件系统，右侧 Final runtime image，右下体积与攻击面对比，底部 BuildKit DAG / Cache；视觉焦点是 `COPY --from=build /out/app /app` 和 `builder 1.2GB -> runtime 48MB`。
+- Implementation：新增 `docker:multi-stage-build` 专用 `explorable-architecture` 构建器、Multi-stage Build SVG 舞台、移动端流程卡、响应式样式和数据测试，并把 `multi-stage-build` 保持在 Docker core/visual 清单中。
+- Browser Note：Vite dev server 在 `http://localhost:4185/KnowledgeGraph/` 可访问；Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被 PID `44936` 占用且 `kill` 受权限限制；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied`；本轮用本地 SVG/HTML 审查图完成截图验收。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/multi-stage-build/desktop.svg`、`.codex-artifacts/visualizations/multi-stage-build/desktop.html` 与 `.codex-artifacts/visualizations/multi-stage-build/mobile.html`；桌面 SVG 可识别 Dockerfile、deps/build/test/runtime stages、Builder 文件系统、COPY --from 通道、Final runtime image、体积对比和 BuildKit DAG / Cache，移动 HTML 展示五步流程卡。
+- Verification：新增测试先失败于通用 Docker image build 模型，补专用 builder/stage 后 `npm run test:data -- --grep "multi-stage build"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 19 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add multi stage build visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Kubernetes `节点亲和性` 或网络 `TCP/IP 四层模型`。

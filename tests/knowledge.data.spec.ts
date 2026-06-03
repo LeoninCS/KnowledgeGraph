@@ -295,6 +295,23 @@ test("docker pids limit is backed by a dedicated visual simulation", async () =>
   );
 });
 
+test("docker multi-stage build is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("docker");
+  const multiStageBuild = points.find((point) => point.id === "multi-stage-build");
+
+  expect(visualPointIds.docker).toContain("multi-stage-build");
+  expect(multiStageBuild).toBeTruthy();
+
+  const simulation = buildVisualSimulation("docker", multiStageBuild!);
+
+  expect(simulation.key).toBe("docker:multi-stage-build");
+  expect(simulation.pattern.en).toContain("multi-stage image assembly");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["COPY --from", "target stage", "final image size", "BuildKit skip"]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");
