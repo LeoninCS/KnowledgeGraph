@@ -329,6 +329,29 @@ test("docker multi-stage build is backed by a dedicated visual simulation", asyn
   );
 });
 
+test("network TCP/IP model is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("network");
+  const tcpIpModel = points.find((point) => point.id === "tcp-ip-model");
+
+  expect(visualPointIds.network).toContain("tcp-ip-model");
+  expect(tcpIpModel).toBeTruthy();
+
+  const simulation = buildVisualSimulation("network", tcpIpModel!);
+
+  expect(simulation.key).toBe("network:tcp-ip-model");
+  expect(simulation.pattern.en).toContain("four-layer encapsulation");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining([
+      "Application protocol",
+      "Ports / connections",
+      "IP / routing",
+      "MAC / ARP / MTU",
+      "OSI mapping",
+    ]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");

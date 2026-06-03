@@ -132,7 +132,7 @@
 
 | 知识点 | 类型 | 状态 | 截图 | 备注 |
 |---|---|---|---|---|
-| TCP/IP 四层模型 | `step-simulation` | candidate | pending | 可作为协议分层标杆模板 |
+| TCP/IP 四层模型 | `step-simulation` | completed | desktop/mobile captured | TCP/IP 四层封装与解封装模拟器，覆盖应用数据、TCP/UDP 头、IP 包、以太网/Wi-Fi 帧、OSI 对照和排障观察点 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
 | 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
@@ -326,15 +326,70 @@
 - 截图结论：桌面 SVG 可识别 Pod Sandbox、Container Process、kubelet Restart Controller、BackOff Timer、Events Timeline、Evidence Stack、Fix Gate 和底部信号；移动端摘要完整展示五步流程和四个事实卡片。
 - 验收备注：Vite preview 已在 `http://127.0.0.1:4234/KnowledgeGraph/` 启动；Chrome DevTools MCP profile 被占用，Browser 插件返回 in-app browser 不可用，Playwright Chromium 受 macOS Mach port 权限限制，QuickLook PNG 转换被沙箱初始化拦截；本轮使用 `npm run build`、`npm run test:data -- --grep "CrashLoopBackOff"`、完整 `npm run test:data`、`git diff --check` 和本地 SVG 审查图完成验收。
 
+## TCP/IP Model Visualization
+
+### Online Image References
+
+- `source`：Oracle Solaris - Data Encapsulation and the TCP/IP Protocol Stack，https://docs.oracle.com/cd/E19683-01/806-4075/ipov-32/index.html
+  - `image`：页面 `Figure 2-1 How a Packet Travels Through the TCP/IP Stack`，图片 URL `https://docs.oracle.com/cd/E19683-01/806-4075/images/ipov.fig88.epsi.gif`。
+  - `role`：main
+  - `qualityReason`：Oracle 官方文档图，直接展示 packet 从发送端穿过 TCP/IP stack 到接收端的封装与解封装路径，PDU 名称和上下行方向清晰。
+  - `takeaways`：主画布采用发送端层栈、逐层封装对象、链路传输、接收端反向拆封的横向路径。
+  - `originalChanges`：改成本项目五步交互模拟，加入应用协议、TCP/UDP、IP/TTL、MAC/ARP/MTU、OSI 对照和排障观察点。
+- `source`：RFC 1122 - Requirements for Internet Hosts: Communication Layers，https://www.rfc-editor.org/rfc/rfc1122#page-8
+  - `image`：通信层次结构定义与 link/IP/transport/application 分层文字结构。
+  - `role`：supporting
+  - `qualityReason`：四层名称和主机通信分层的权威来源，用来校准模型边界。
+  - `takeaways`：四层顺序固定为 Application、Transport、Internet、Link，并保持 Internet 层命名。
+  - `originalChanges`：把规范文字压缩成左侧层栈和底部五步进度。
+- `source`：MDN Web Docs - How does the Internet work?，https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/How_does_the_Internet_work
+  - `image`：`internet-schema-7.png` Full Internet stack，以及页面中的 switch/router/network-of-networks 插图。
+  - `role`：supporting
+  - `qualityReason`：MDN 图解清楚表达计算机、交换机、路由器、ISP 和网络的网络，补足主图之外的真实链路语境。
+  - `takeaways`：链路投递背后包含本地网络、路由器和跨网络转发。
+  - `originalChanges`：在画布中保留“逐跳投递”箭头和链路层信号，把复杂互联网拓扑收敛到教学路径。
+- `source`：AWS - What is the OSI Model?，https://aws.amazon.com/what-is/osi-model/
+  - `image`：OSI 七层职责与分层解释图文。
+  - `role`：supporting
+  - `qualityReason`：适合校准 TCP/IP 四层到 OSI 七层的教学对照。
+  - `takeaways`：应用层覆盖 OSI 应用/表示/会话，链路层覆盖数据链路/物理。
+  - `originalChanges`：右侧 `OSI 对照` 小面板保留四行映射，主画布继续聚焦 TCP/IP 四层路径。
+- `source`：Microsoft Learn - TCP/IP addressing and subnetting，https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/tcpip-addressing-and-subnetting
+  - `image`：页面中的 IP address、subnet mask、default gateway、troubleshooting 结构说明。
+  - `role`：supporting
+  - `qualityReason`：官方排障文档明确 TCP/IP 配置需要 IP、子网掩码和默认网关，并说明默认网关如何影响远端网络访问。
+  - `takeaways`：Internet 层观察点应包含 IP、route、TTL、gateway；排障面板要覆盖配置错误信号。
+  - `originalChanges`：底部排障观察点用 `URL/Header/Status`、`Port/SYN/Window`、`IP/Route/TTL`、`MAC/ARP/FCS` 组织证据。
+
+### Reference Breakdown
+
+- 主体布局：左侧发送端 Host A，中部四层协议栈和逐层变大的封装包，右侧 OSI 对照与接收端解封装，底部排障观察点和五步进度。
+- 视觉焦点：应用数据依次变成 TCP/UDP segment/datagram、IP packet、Ethernet frame，再从链路侧进入接收端反向拆封。
+- 领域对象：Application payload、TCP/UDP header、ports/seq/window、IP header、src/dst IP、TTL、next-hop MAC、Ethernet/Wi-Fi frame、FCS、OSI mapping、receiver decapsulation。
+- 容器层级：发送端层栈表达职责边界；封装胶囊表达头部叠加；链路箭头表达逐跳投递；接收端竖向小栈表达拆头顺序。
+- 连线方向：应用层向下封装，链路层横向传输，接收端自下而上解封装。
+- 状态表达：五步依次点亮 payload、transport wrap、IP addressing、link delivery、receiver decapsulation；右侧操作面板同步按钮、理解重点和历史记录。
+- 颜色策略：品牌蓝表示应用语义，青色表示传输层，橙色表示 Internet 层，绿色表示链路层与接收端完成。
+- 文字密度：画布只保留协议名、PDU 名称和关键字段；解释和排障口径放到右侧面板。
+- 交互节奏：生成 HTTP/DNS 数据 -> 添加 TCP/UDP 头 -> 添加 IP 头并选路 -> 封装帧并发送 -> 接收端逐层交付。
+- 原创改造点：把 Oracle 官方封装图、RFC 四层定义、MDN 网络结构、AWS OSI 对照和 Microsoft 排障字段融合成项目风格的五步教学模拟器。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/tcp-ip-model/desktop.png`（2880x1622）
+- 移动端：captured `.codex-artifacts/visualizations/tcp-ip-model/mobile.png`（1000x4264）
+- 截图结论：桌面截图可识别 TCP/IP 四层封装主画布、OSI 对照、接收端解封装、右侧任务/操作面板和底部 5/5 进度；移动端截图保留标题、画布、完成态任务、五个操作按钮、理解重点、历史记录和纵向步骤条。
+- 验收备注：Chrome DevTools MCP 完成 Oracle/MDN/Microsoft 参考页视觉确认、本地生产预览交互和桌面/移动截图；Browser 插件返回 `iab` 连接失败；Cloudflare 参考页触发安全验证，降级为知识来源上下文。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
-| 暂无 | 当前暂缓队列为空 | 下一轮优先进入网络 `TCP/IP 四层模型` 或 Kubernetes `EndpointSlice` 找图与设计 |
+| 暂无 | 当前暂缓队列为空 | 下一轮优先进入 Kubernetes `EndpointSlice` 或 Redis `AOF 重写` 找图与设计 |
 
 ## Next Candidate
 
-优先选择网络 `TCP/IP 四层模型`，备选 Kubernetes `EndpointSlice`。TCP/IP 四层模型可承接网络总览、OSI、以太网帧和路由，围绕分层封装、抓包字段、OSI 对照和排障证据展开；EndpointSlice 可承接 Service、Ingress 和 kube-proxy，围绕 selector、slice 分片、Ready Endpoint、拓扑提示和转发规则展开。
+优先选择 Kubernetes `EndpointSlice`，备选 Redis `AOF 重写`。EndpointSlice 可承接 Service、Ingress 和 kube-proxy，围绕 selector、slice 分片、Ready Endpoint、拓扑提示和转发规则展开；AOF 重写适合展示增量写入、fork 子进程、rewrite buffer、临时文件和原子替换。
 
 ## Docker Resource Limit Visualization
 
@@ -2057,3 +2112,17 @@
 - Working Tree：进入同步门禁前已有 `src/features/knowledge/pages/HomePage.tsx` 与 `tests/app.e2e.spec.ts` 本地实现改动；本条记录写入后新增 `docs/visualization-progress.md` 修改。
 - Action：本轮停在同步门禁，跳过继续找图、拆图、编码、截图复验、提交和推送，保留现有首页图谱实现现场。
 - Resume Point：下一轮先重试 `git pull --ff-only origin main`；同步成功后先处理现有首页图谱实现现场和本条进度记录，再从网络 `TCP/IP 四层模型` 或 Kubernetes `EndpointSlice` 继续找图与设计。
+
+### 2026-06-03 16:23 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `55b34dd docs: 记录可视化进度同步状态`，从干净工作区继续。
+- Selected：网络 `TCP/IP 四层模型`，原因是应用层、传输层、Internet 层和链路层形成清晰的封装/解封装机制，可承接网络基础、OSI、以太网帧、IP 路由和抓包排障。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；Chrome DevTools 视觉确认 Oracle 官方 TCP/IP stack 封装图、MDN 网络结构图和 Microsoft Learn TCP/IP 配置排障页；Cloudflare 学习页触发安全验证后降级为来源上下文。
+- Online Image References：见 `TCP/IP Model Visualization` 小节；主参考为 Oracle `How a Packet Travels Through the TCP/IP Stack`，辅助来源为 RFC 1122、MDN、AWS OSI Model 和 Microsoft Learn。
+- Reference Breakdown：主体布局为发送端层栈、四层封装胶囊、链路传输、OSI 对照、接收端解封装和排障观察点；交互节奏为应用数据 -> TCP/UDP 头 -> IP 包 -> 以太网/Wi-Fi 帧 -> 接收端逐层交付。
+- Implementation：新增 `network:tcp-ip-model` 专用数据测试，并把既有专用模拟器状态从 candidate 更新为 completed，补齐本轮可视化交付记录。
+- Browser Note：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP 在 `http://127.0.0.1:4174/KnowledgeGraph/` 完成详情页、模拟器入口、五步交互和截图。Vite preview 进程 PID `67659` 仍监听 `127.0.0.1:4174`，`kill` 被沙箱权限拒绝。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/tcp-ip-model/desktop.png`（2880x1622）和 `.codex-artifacts/visualizations/tcp-ip-model/mobile.png`（1000x4264）；桌面可识别 TCP/IP 四层封装、OSI 对照、接收端解封装、右侧任务/操作面板和底部 5/5 进度，移动端保留完成态任务、五个操作按钮、理解重点、历史记录和纵向步骤条。
+- Verification：`npm run test:data -- --grep "network TCP/IP model"` 通过 1 项；`npm run test:data` 通过 21 项；`npm run build` 通过；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add tcp ip model visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Kubernetes `EndpointSlice` 或 Redis `AOF 重写`。
