@@ -32,6 +32,8 @@ const desktopSidebarWidth = 264;
 const desktopTopbarHeight = 68;
 const mobileTopbarHeight = 64;
 const fallbackStageRect = { width: 960, height: 620 };
+const graphContentPadding = 72;
+const graphFitPadding = 24;
 
 const transformExcludedTargets = [
   "graph-toolbar",
@@ -43,6 +45,12 @@ const transformExcludedTargets = [
 const panningExcludedTargets = [...transformExcludedTargets, "sphere-node"];
 
 type CanvasStageRect = Pick<DOMRect, "width" | "height">;
+type GraphContentBounds = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
 
 function getViewportStageRect(): CanvasStageRect {
   if (typeof window === "undefined") {
@@ -74,29 +82,91 @@ function getDefaultCanvasView(
   rect: CanvasStageRect | undefined | null,
   graph: Pick<SphereGraph, "width" | "height" | "nodes">,
   focusPointId?: string,
+  centerFocusNode = false,
 ): CanvasView {
-  const zoom = defaultCanvasZoom;
-  const focusedNode = graph.nodes.find((node) => node.id === focusPointId && node.kind === "knowledge");
-
-  if (!rect) {
-    return { x: 28, y: 26, zoom };
-  }
-
-  const scaledWidth = graph.width * zoom;
-  const scaledHeight = graph.height * zoom;
-  let targetLeft = scaledWidth < rect.width ? (rect.width - scaledWidth) / 2 : 28;
-  let targetTop = scaledHeight < rect.height ? (rect.height - scaledHeight) / 2 : 26;
+  const stageRect = rect ?? fallbackStageRect;
+  const bounds = getGraphContentBounds(graph);
+  const focusedNode = centerFocusNode
+    ? graph.nodes.find((node) => node.id === focusPointId && node.kind === "knowledge")
+    : undefined;
 
   if (focusedNode) {
-    targetLeft = rect.width / 2 - (focusedNode.x + (focusedNode.width ?? 0) / 2) * zoom;
-    targetTop = rect.height / 2 - (focusedNode.y + (focusedNode.height ?? 0) / 2) * zoom;
+    const box = getGraphNodeBox(focusedNode);
+    const zoom = defaultCanvasZoom;
+
+    return {
+      x: stageRect.width / 2 - (box.left + box.width / 2) * zoom,
+      y: stageRect.height / 2 - (box.top + box.height / 2) * zoom,
+      zoom,
+    };
+  }
+
+  const zoom = getGraphCenteredZoom(stageRect, bounds);
+
+  return {
+    x: stageRect.width / 2 - (bounds.left + bounds.width / 2) * zoom,
+    y: stageRect.height / 2 - (bounds.top + bounds.height / 2) * zoom,
+    zoom,
+  };
+}
+
+function getGraphNodeBox(node: SphereGraph["nodes"][number]) {
+  const width = node.width ?? node.radius * 2;
+  const height = node.height ?? node.radius * 2;
+
+  if (node.width && node.height) {
+    return {
+      left: node.x,
+      top: node.y,
+      width,
+      height,
+    };
   }
 
   return {
-    x: targetLeft,
-    y: targetTop,
-    zoom,
+    left: node.x - node.radius,
+    top: node.y - node.radius,
+    width,
+    height,
   };
+}
+
+function getGraphContentBounds(
+  graph: Pick<SphereGraph, "width" | "height" | "nodes">,
+): GraphContentBounds {
+  if (graph.nodes.length === 0) {
+    return {
+      left: 0,
+      top: 0,
+      width: Math.max(1, graph.width),
+      height: Math.max(1, graph.height),
+    };
+  }
+
+  const boxes = graph.nodes.map(getGraphNodeBox);
+  const left = Math.min(...boxes.map((box) => box.left));
+  const top = Math.min(...boxes.map((box) => box.top));
+  const right = Math.max(...boxes.map((box) => box.left + box.width));
+  const bottom = Math.max(...boxes.map((box) => box.top + box.height));
+  const paddedLeft = Math.max(0, left - graphContentPadding);
+  const paddedTop = Math.max(0, top - graphContentPadding);
+  const paddedRight = Math.min(graph.width, right + graphContentPadding);
+  const paddedBottom = Math.min(graph.height, bottom + graphContentPadding);
+
+  return {
+    left: paddedLeft,
+    top: paddedTop,
+    width: Math.max(1, paddedRight - paddedLeft),
+    height: Math.max(1, paddedBottom - paddedTop),
+  };
+}
+
+function getGraphCenteredZoom(rect: CanvasStageRect, bounds: GraphContentBounds) {
+  const availableWidth = Math.max(1, rect.width - graphFitPadding * 2);
+  const availableHeight = Math.max(1, rect.height - graphFitPadding * 2);
+  const fitZoom = Math.min(availableWidth / bounds.width, availableHeight / bounds.height);
+
+  return Math.min(maxCanvasZoom, Math.max(minCanvasZoom, Math.min(defaultCanvasZoom, fitZoom)));
 }
 
 function PageGraphFallback() {
@@ -223,9 +293,10 @@ export function HomePage({
     graph.width,
     graph.height,
   ].join(":");
+  const shouldCenterFocusNode = hasSearch || graphFocusId !== selectedKnowledgeId;
   const initialCanvasView = useMemo(
-    () => getDefaultCanvasView(getViewportStageRect(), graph, graphFocusId),
-    [graph, graphFocusId],
+    () => getDefaultCanvasView(getViewportStageRect(), graph, graphFocusId, shouldCenterFocusNode),
+    [graph, graphFocusId, shouldCenterFocusNode],
   );
   const hasResults = graph.nodes.some(
     (node) => node.kind === "knowledge" && node.matched,
@@ -240,11 +311,24 @@ export function HomePage({
     setFocusedKnowledgeId(selectedKnowledgeId);
   }, [selectedCategory, selectedKnowledgeId]);
 
+  useEffect(() => {
+    const ref = transformRef.current;
+
+    if (!ref || isEmptySearch) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      applyCanvasView(ref, getDefaultTransform(ref), canvasControlAnimationMs);
+    });
+  }, [graphTransformKey, graphFocusId, shouldCenterFocusNode, isEmptySearch]);
+
   function getDefaultTransform(ref: ReactZoomPanPinchContentRef | null) {
     return getDefaultCanvasView(
       ref?.instance.wrapperComponent?.getBoundingClientRect(),
       graph,
       graphFocusId,
+      shouldCenterFocusNode,
     );
   }
 
