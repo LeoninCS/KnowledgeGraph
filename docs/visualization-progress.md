@@ -136,6 +136,7 @@
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
 | AOF 重写 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis BGREWRITEAOF 状态模型，覆盖 fork 子进程、Copy-on-Write、当前增量 AOF、rewrite buffer、临时基础文件、manifest 原子切换和恢复重放 |
+| fork 与写时复制 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis fork/COW 内存状态模型，覆盖后台任务、页表复制、共享物理页、写保护缺页、COW 页复制、RSS 回落和 fork/latency 指标 |
 | 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
 | Service | `step-simulation` | completed | desktop/mobile captured | Kubernetes Service 数据面转发模拟器，覆盖 selector、EndpointSlice、ClusterIP/DNS、kube-proxy 规则和 Ready Pod |
 | EndpointSlice | `explorable-architecture` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes EndpointSlice 分片资源模型，覆盖 Service selector、EndpointSlice controller、批量分片、endpoint conditions、topology hints 和 kube-proxy watch fan-out |
@@ -2266,3 +2267,30 @@
 - Verification：新增测试先失败于 `visualPointIds.redis` 缺少 `aof-rewrite`，补可视化清单与专用 builder 后 `npm run test:data -- --grep "AOF rewrite"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 23 项；`git diff --check` 通过；继续执行 rebase 和 push。
 - Commit/Push Plan：提交 `feat: add aof rewrite visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：MySQL `Undo Log` 或 Redis `Fork/COW`。
+
+### 2026-06-03 19:12 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `8bc0d4b feat: add aof rewrite visualization`，从干净工作区继续。
+- Selected：Redis `fork 与写时复制`，原因是后台持久化、全量同步、页表复制、共享物理页、写保护缺页、COW 页复制和 RSS 回落形成清晰状态模型，并承接 Redis `RDB`、`AOF 重写`、`Redis 内存` 与 `Big Key`。
+- Candidate Sources：普通搜索筛选约 10 个候选来源；主参考为 RedisGate Redis Copy-on-Write 页面中的 fork 前后共享页与 COW 页复制图；辅助参考为 Redis 官方 Persistence、Redis latency docs、Redis INFO、Linux Kernel Labs Copy on Write 和小林 coding Redis fork/COW；Chrome DevTools MCP profile 被占用，本轮使用搜索结果、页面 URL、官方资料和本地 React 审查完成确认。
+- Online Image References：
+  - source：RedisGate - Redis Copy-on-Write，https://www.redisgate.jp/redis/configuration/copy-on-write.php；image：页面 Copy-on-Write / fork 前后内存页示意图；role：main；qualityReason：直接展示父子进程共享页、写入后复制页和快照一致性，是 fork/COW 最清晰主构图；takeaways：主画布采用父进程、子进程、页表快照、物理页、COW 分裂和指标面板；originalChanges：改成本项目五步状态模型，加入 Redis 后台任务入口、latest_fork_usec、RSS、latency event 和移动端流程卡。
+  - source：Redis Docs - Persistence，https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/；image：官方持久化流程说明；role：supporting；qualityReason：官方校准 RDB、AOF 重写、后台子进程和 Copy-on-Write 成本语义；takeaways：步骤按 BGSAVE/BGREWRITEAOF 触发、fork、主进程写入、COW、完成释放推进；originalChanges：将文字机制转成 Redis 主进程与后台 writer 的双泳道。
+  - source：Redis Docs - Diagnosing latency issues，https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/latency/；image：延迟诊断与 fork 事件说明；role：supporting；qualityReason：官方给出 fork 延迟和大实例阻塞窗口的排查口径；takeaways：底部指标保留 `latest_fork_usec` 和 latency event；originalChanges：把运维读数放入右下角 Debug metrics 面板。
+  - source：Redis Commands - INFO，https://redis.io/docs/latest/commands/info/；image：INFO persistence/memory 指标字段说明；role：supporting；qualityReason：校准 `latest_fork_usec`、`rdb_bgsave_in_progress`、`aof_rewrite_in_progress`、`used_memory_rss` 和碎片指标；takeaways：验收信号覆盖 fork 时间、RSS、水位和后台状态；originalChanges：用四个短指标卡替代长 INFO 输出。
+  - source：Linux Kernel Labs - Copy on Write，https://linux-kernel-labs.github.io/refs/heads/master/so2/lec9-memory.html；image：COW 与页表/页框机制说明；role：supporting；qualityReason：补足 OS 层写保护缺页和页复制语义；takeaways：物理页卡片表现 Page A/B/C、old B/new B 分裂；originalChanges：只抽取页级机制，Redis 领域对象和指标保持项目原创。
+- Reference Breakdown：主体布局为左侧 Redis 主进程与后台子进程，中上页表快照，右上物理内存页，右中 old/new 页分裂，中下 RDB/AOF/full sync writer，右下 Debug metrics；视觉焦点是 `vpage 31 -> Page B` 在主进程写入 `SET hot:user:42` 后触发 write fault，再分裂成 `old B` 和 `new B`。
+- 领域对象：Redis parent、background child、BGSAVE、BGREWRITEAOF、full sync、page table snapshot、virtual page、physical page、write-protection fault、Copy-on-Write、used_memory_rss、latest_fork_usec、latency event、background status。
+- 容器层级：Redis 主进程承接客户端写入；后台子进程读取 fork 快照；页表映射虚拟页到共享物理页；写入路径触发 COW；后台 writer 完成后释放快照引用；指标面板用于验收。
+- 连线方向：background job -> fork page tables -> shared physical pages -> parent write fault -> COW copy -> child exit / RSS release。
+- 状态表达：五步依次高亮触发后台任务、fork 复制页表、主进程写入共享页、复制脏页、后台完成释放；底部/右侧信号展示 latest_fork_usec、COW extra、used_memory_rss 和 latency event。
+- 颜色策略：品牌蓝表示后台任务入口，青色表示 fork 与共享映射，橙色表示写保护缺页，红色表示 COW 额外页和内存风险，绿色表示后台完成与 RSS 回落。
+- 文字密度：桌面 SVG 保留短标签、页号、虚拟页映射和指标值；移动端切换为五张流程卡和四张事实卡。
+- 交互节奏：触发后台任务 -> fork 复制页表 -> 主进程继续写入 -> COW 复制脏页 -> 后台完成释放并核对指标。
+- 原创改造点：把 RedisGate 页级 COW 图、Redis 官方持久化/延迟指标和 Linux 页表语义融合成 Redis 生产排障模型，强调大实例 fork 阻塞、写入峰值放大 RSS、后台任务互斥和验收指标。
+- Implementation：新增 `redis:fork-cow` 专用 `state-model` 构建器、Fork/COW SVG 舞台、移动端流程卡、响应式样式、来源引用和数据测试，并把 `fork-cow` 加入 Redis 可视化清单。
+- Browser Note：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；Vite SSR loader 触发 HMR WebSocket `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` SSR 渲染完成。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/fork-cow/desktop.svg`、`.codex-artifacts/visualizations/fork-cow/desktop.html`、`.codex-artifacts/visualizations/fork-cow/mobile.html` 与 `.codex-artifacts/visualizations/fork-cow/mobile.html.fragment`；桌面 SVG 可识别 Redis 主进程、后台子进程、页表快照、Page A/B/C、old/new B、COW copy、Debug metrics 和 5/5 进度，移动 HTML 展示五步流程和四个指标事实卡。
+- Verification：`npm run test:data -- --grep "redis fork COW"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 24 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add fork cow visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：MySQL `Undo Log` 状态已在基线中，下一轮优先 MySQL `Crash Recovery` 或 Redis `RDB`。

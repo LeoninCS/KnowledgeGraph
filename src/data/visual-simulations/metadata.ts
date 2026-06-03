@@ -319,6 +319,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
     "rdb",
     "aof",
     "aof-rewrite",
+    "fork-cow",
     "expire-policy",
     "eviction-policy",
     "cache-penetration",

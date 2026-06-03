@@ -230,6 +230,11 @@
     justify-content: start;
   }
 
+  .redis-cow-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .binlog-stage {
     overflow-x: auto;
     justify-content: start;
@@ -771,6 +776,20 @@
     padding: 18px;
   }
 
+  .redis-cow-card {
+    width: 100%;
+  }
+
+  .redis-cow-diagram {
+    display: none;
+  }
+
+  .redis-cow-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
   .binlog-card {
     width: 100%;
   }
@@ -981,6 +1000,8 @@
   .redo-log-mobile-facts,
   .undo-log-mobile-flow,
   .undo-log-mobile-facts,
+  .redis-cow-mobile-flow,
+  .redis-cow-mobile-facts,
   .binlog-mobile-flow,
   .binlog-mobile-facts,
   .replication-mobile-flow,
@@ -1036,6 +1057,8 @@
   .redo-log-mobile-fact,
   .undo-log-mobile-hop,
   .undo-log-mobile-fact,
+  .redis-cow-mobile-hop,
+  .redis-cow-mobile-fact,
   .binlog-mobile-hop,
   .binlog-mobile-fact,
   .replication-mobile-hop,
@@ -1095,6 +1118,8 @@
   .redo-log-mobile-fact.active,
   .undo-log-mobile-hop.active,
   .undo-log-mobile-fact.active,
+  .redis-cow-mobile-hop.active,
+  .redis-cow-mobile-fact.active,
   .binlog-mobile-hop.active,
   .binlog-mobile-fact.active,
   .replication-mobile-hop.active,
@@ -1148,6 +1173,8 @@
   .redo-log-mobile-fact span,
   .undo-log-mobile-hop span,
   .undo-log-mobile-fact span,
+  .redis-cow-mobile-hop span,
+  .redis-cow-mobile-fact span,
   .binlog-mobile-hop span,
   .binlog-mobile-fact span,
   .replication-mobile-hop span,
@@ -1202,6 +1229,8 @@
   .redo-log-mobile-fact strong,
   .undo-log-mobile-hop strong,
   .undo-log-mobile-fact strong,
+  .redis-cow-mobile-hop strong,
+  .redis-cow-mobile-fact strong,
   .binlog-mobile-hop strong,
   .binlog-mobile-fact strong,
   .replication-mobile-hop strong,

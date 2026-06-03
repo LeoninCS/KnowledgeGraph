@@ -3477,6 +3477,14 @@ export const knowledgeSources = {
     title: "Redis Commands: INFO",
     url: "https://redis.io/docs/latest/commands/info/",
   },
+  "redisgate-copy-on-write": {
+    title: "RedisGate: Redis Copy-on-Write",
+    url: "https://www.redisgate.jp/redis/configuration/copy-on-write.php",
+  },
+  "linux-kernel-labs-copy-on-write": {
+    title: "Linux Kernel Labs: Copy on Write",
+    url: "https://linux-kernel-labs.github.io/refs/heads/master/so2/lec9-memory.html",
+  },
   "redis-replication-docs": {
     title: "Redis Docs: Replication",
     url: "https://redis.io/docs/latest/operate/oss_and_stack/management/replication/",

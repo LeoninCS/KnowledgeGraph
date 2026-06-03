@@ -319,6 +319,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "redis:fork-cow") {
+    return (
+      <RedisForkCowStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "docker:image-layer") {
     return (
       <DockerImageLayerStage
@@ -2169,6 +2180,226 @@ function RedisAofRewriteStage({
           </div>
         </div>
         <div className="tcp-handshake-caption redis-aof-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RedisForkCowStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const triggerActive = completedSteps >= 1;
+  const forkActive = completedSteps >= 2;
+  const writeActive = completedSteps >= 3;
+  const cowActive = completedSteps >= 4;
+  const releaseActive = completedSteps >= 5;
+  const pageRows = [
+    { id: "A", owner: "shared", value: "keyspace dict", active: forkActive, tone: "brand", x: 692, y: 226 },
+    { id: "B", owner: cowActive ? "split" : "shared", value: writeActive ? "hot:user:42" : "hash bucket", active: forkActive, tone: cowActive ? "danger" : "warning", x: 806, y: 226 },
+    { id: "C", owner: "shared", value: "listpack", active: forkActive, tone: "teal", x: 920, y: 226 },
+  ];
+  const metricRows = [
+    { name: "latest_fork_usec", value: forkActive ? "18ms" : "0", active: forkActive, tone: "teal" },
+    { name: "COW extra", value: cowActive ? "+640MB" : writeActive ? "pending" : "0", active: writeActive || cowActive, tone: cowActive ? "danger" : "warning" },
+    { name: "used_memory_rss", value: releaseActive ? "24.4GB" : cowActive ? "25.1GB" : "24.0GB", active: forkActive, tone: releaseActive ? "success" : "brand" },
+    { name: "latency event", value: writeActive ? "fork / cow" : "--", active: writeActive, tone: "warning" },
+  ];
+  const mobileFlow = [
+    { name: "Trigger", value: triggerActive ? "BGSAVE/BGREWRITEAOF queued" : "background idle", active: triggerActive },
+    { name: "Fork", value: forkActive ? "page tables copied" : "waiting fork", active: forkActive },
+    { name: "Write", value: writeActive ? "shared page write fault" : "writes pending", active: writeActive },
+    { name: "COW", value: cowActive ? "Page B old/new split" : "no copied pages", active: cowActive },
+    { name: "Release", value: releaseActive ? "child exit, RSS returns" : "snapshot retained", active: releaseActive },
+  ];
+
+  return (
+    <div className="visual-stage redis-cow-stage">
+      <div className="redis-cow-card">
+        <svg
+          className="redis-cow-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["redis-cow-arrow-brand", "var(--brand)"],
+              ["redis-cow-arrow-teal", "var(--tertiary)"],
+              ["redis-cow-arrow-warning", "#f59e0b"],
+              ["redis-cow-arrow-danger", "var(--danger)"],
+              ["redis-cow-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="redis-cow-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.14" />
+            </filter>
+          </defs>
+
+          <rect className="redis-cow-bg" x="24" y="24" width="1072" height="584" rx="28" />
+          <text className="redis-cow-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="redis-cow-subtitle" x="560" y="100">
+            {label(
+              "background job -> fork page tables -> shared pages -> write fault -> COW release",
+              "background job -> fork page tables -> shared pages -> write fault -> COW release",
+            )}
+          </text>
+
+          <g className={`redis-cow-parent ${triggerActive ? "active" : ""}`}>
+            <rect x="64" y="142" width="252" height="166" rx="24" />
+            <text className="redis-cow-panel-title" x="94" y="180">{label("Redis 主进程", "Redis parent")}</text>
+            <text className="redis-cow-panel-subtitle" x="94" y="204">{label("事件循环继续写入", "Event loop keeps writing")}</text>
+            <g className={`redis-cow-chip brand ${triggerActive ? "active" : ""}`}>
+              <rect x="94" y="228" width="168" height="28" rx="14" />
+              <text x="178" y="247">{triggerActive ? "BGSAVE / rewrite" : "background idle"}</text>
+            </g>
+            <g className={`redis-cow-chip warning ${writeActive ? "active" : ""}`}>
+              <rect x="94" y="266" width="168" height="28" rx="14" />
+              <text x="178" y="285">{writeActive ? "SET hot:user:42" : "writes pending"}</text>
+            </g>
+          </g>
+
+          <g className={`redis-cow-child ${forkActive ? "active" : ""}`}>
+            <rect x="64" y="382" width="252" height="154" rx="24" />
+            <text className="redis-cow-panel-title" x="94" y="420">{label("后台子进程", "Background child")}</text>
+            <text className="redis-cow-panel-subtitle" x="94" y="444">{label("读取 fork 时刻快照", "Reads the fork-time snapshot")}</text>
+            <g className={`redis-cow-chip teal ${forkActive ? "active" : ""}`}>
+              <rect x="94" y="468" width="168" height="28" rx="14" />
+              <text x="178" y="487">{forkActive ? "shared mappings" : "waiting fork"}</text>
+            </g>
+            <g className={`redis-cow-chip success ${releaseActive ? "active" : ""}`}>
+              <rect x="94" y="504" width="168" height="28" rx="14" />
+              <text x="178" y="523">{releaseActive ? "child exited" : "writing snapshot"}</text>
+            </g>
+          </g>
+
+          <g className={`redis-cow-pagetable ${forkActive ? "active" : ""}`}>
+            <rect x="382" y="142" width="238" height="166" rx="24" />
+            <text className="redis-cow-panel-title" x="412" y="180">{label("页表快照", "Page table snapshot")}</text>
+            <text className="redis-cow-panel-subtitle" x="412" y="204">{label("虚拟页映射复制", "Virtual mappings copied")}</text>
+            {["vpage 18 -> Page A", "vpage 31 -> Page B", "vpage 44 -> Page C"].map((row, index) => (
+              <g key={row} className={`redis-cow-row teal ${forkActive ? "active" : ""}`}>
+                <rect x="412" y={228 + index * 34} width="176" height="26" rx="13" />
+                <text x="428" y={246 + index * 34}>{row}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-cow-pages ${forkActive ? "active" : ""}`}>
+            <rect x="662" y="142" width="370" height="238" rx="26" />
+            <text className="redis-cow-panel-title" x="692" y="180">{label("物理内存页", "Physical memory pages")}</text>
+            <text className="redis-cow-panel-subtitle" x="692" y="204">{label("父子初始共享，写入触发分裂", "Initially shared, writes split pages")}</text>
+            {pageRows.map((page) => (
+              <g key={page.id} className={`redis-cow-page ${page.tone} ${page.active ? "active" : ""} ${page.owner}`}>
+                <rect x={page.x} y={page.y} width="116" height="92" rx="18" />
+                <text className="redis-cow-page-id" x={page.x + 58} y={page.y + 32}>Page {page.id}</text>
+                <text x={page.x + 58} y={page.y + 56}>{page.value}</text>
+                <text x={page.x + 58} y={page.y + 76}>{page.owner}</text>
+              </g>
+            ))}
+            <g className={`redis-cow-split ${cowActive ? "active" : ""}`}>
+              <rect x="684" y="334" width="108" height="42" rx="16" />
+              <text x="738" y="360">old B</text>
+              <rect x="808" y="334" width="108" height="42" rx="16" />
+              <text x="862" y="360">new B</text>
+            </g>
+          </g>
+
+          <g className={`redis-cow-writer ${forkActive ? "active" : ""}`}>
+            <rect x="382" y="400" width="238" height="136" rx="24" />
+            <text className="redis-cow-panel-title" x="412" y="438">{label("RDB/AOF/Full Sync", "RDB / AOF / full sync")}</text>
+            <text className="redis-cow-panel-subtitle" x="412" y="462">{label("子进程写快照", "Child writes the snapshot")}</text>
+            <g className={`redis-cow-chip success ${releaseActive ? "active" : ""}`}>
+              <rect x="412" y="488" width="168" height="28" rx="14" />
+              <text x="496" y="507">{releaseActive ? "status=ok" : "snapshot writing"}</text>
+            </g>
+          </g>
+
+          <g className={`redis-cow-metrics ${triggerActive ? "active" : ""}`}>
+            <rect x="662" y="408" width="370" height="166" rx="24" />
+            <text className="redis-cow-panel-title" x="692" y="442">{label("排障指标", "Debug metrics")}</text>
+            {metricRows.map((row, index) => (
+              <g key={row.name} className={`redis-cow-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="692" y={460 + index * 30} width="288" height="24" rx="12" />
+                <text x="708" y={476 + index * 30}>{row.name}</text>
+                <text x="964" y={476 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-cow-trigger-path ${triggerActive ? "active" : ""}`}>
+            <path d="M 316 220 C 338 214, 358 212, 382 212" markerEnd="url(#redis-cow-arrow-brand)" />
+            <rect x="306" y="178" width="106" height="30" rx="15" />
+            <text x="359" y="198">fork</text>
+          </g>
+          <g className={`redis-cow-share-path ${forkActive ? "active" : ""}`}>
+            <path d="M 620 230 C 638 228, 648 228, 662 228" markerEnd="url(#redis-cow-arrow-teal)" />
+            <path d="M 190 382 C 218 342, 348 322, 666 286" markerEnd="url(#redis-cow-arrow-teal)" />
+            <rect x="470" y="326" width="142" height="30" rx="15" />
+            <text x="541" y="346">shared pages</text>
+          </g>
+          <g className={`redis-cow-write-path ${writeActive ? "active" : ""}`}>
+            <path d="M 316 284 C 490 278, 648 270, 806 274" markerEnd="url(#redis-cow-arrow-warning)" />
+            <rect x="448" y="250" width="124" height="30" rx="15" />
+            <text x="510" y="270">write fault</text>
+          </g>
+          <g className={`redis-cow-copy-path ${cowActive ? "active" : ""}`}>
+            <path d="M 864 318 C 834 330, 780 334, 738 334" markerEnd="url(#redis-cow-arrow-danger)" />
+            <path d="M 864 318 C 868 328, 868 334, 862 334" markerEnd="url(#redis-cow-arrow-danger)" />
+            <rect x="816" y="296" width="112" height="30" rx="15" />
+            <text x="872" y="316">COW copy</text>
+          </g>
+          <g className={`redis-cow-release-path ${releaseActive ? "active" : ""}`}>
+            <path d="M 620 486 C 644 486, 652 486, 662 486" markerEnd="url(#redis-cow-arrow-success)" />
+            <rect x="514" y="548" width="136" height="30" rx="15" />
+            <text x="582" y="568">release RSS</text>
+          </g>
+        </svg>
+        <div className="redis-cow-mobile-map">
+          <div className="redis-cow-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`redis-cow-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="redis-cow-mobile-facts">
+            {metricRows.map((row) => (
+              <div key={row.name} className={`redis-cow-mobile-fact ${row.active ? "active" : ""}`}>
+                <span>{row.name}</span>
+                <strong>{row.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption redis-cow-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

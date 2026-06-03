@@ -392,6 +392,29 @@ test("redis AOF rewrite is backed by a dedicated visual simulation", async () =>
   );
 });
 
+test("redis fork COW is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("redis");
+  const forkCow = points.find((point) => point.id === "fork-cow");
+
+  expect(visualPointIds.redis).toContain("fork-cow");
+  expect(forkCow).toBeTruthy();
+
+  const simulation = buildVisualSimulation("redis", forkCow!);
+
+  expect(simulation.key).toBe("redis:fork-cow");
+  expect(simulation.pattern.en).toContain("fork/COW memory state model");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining([
+      "latest_fork_usec",
+      "COW extra pages",
+      "used_memory_rss",
+      "latency event",
+      "background status",
+    ]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");

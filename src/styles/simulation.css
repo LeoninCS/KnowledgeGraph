@@ -525,6 +525,247 @@
   display: none;
 }
 
+.redis-cow-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.redis-cow-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .redis-cow-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.redis-cow-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.redis-cow-mobile-map {
+  display: none;
+}
+
+.redis-cow-bg {
+  fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);
+}
+
+.redis-cow-title {
+  fill: var(--text);
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.redis-cow-subtitle {
+  fill: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.redis-cow-parent,
+.redis-cow-child,
+.redis-cow-pagetable,
+.redis-cow-pages,
+.redis-cow-writer,
+.redis-cow-metrics,
+.redis-cow-row,
+.redis-cow-chip,
+.redis-cow-page,
+.redis-cow-split,
+.redis-cow-trigger-path,
+.redis-cow-share-path,
+.redis-cow-write-path,
+.redis-cow-copy-path,
+.redis-cow-release-path {
+  opacity: 0.3;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.redis-cow-parent.active,
+.redis-cow-child.active,
+.redis-cow-pagetable.active,
+.redis-cow-pages.active,
+.redis-cow-writer.active,
+.redis-cow-metrics.active,
+.redis-cow-row.active,
+.redis-cow-chip.active,
+.redis-cow-page.active,
+.redis-cow-split.active,
+.redis-cow-trigger-path.active,
+.redis-cow-share-path.active,
+.redis-cow-write-path.active,
+.redis-cow-copy-path.active,
+.redis-cow-release-path.active {
+  opacity: 1;
+}
+
+.redis-cow-parent rect,
+.redis-cow-child rect,
+.redis-cow-pagetable > rect,
+.redis-cow-pages > rect,
+.redis-cow-writer rect,
+.redis-cow-metrics > rect {
+  fill: color-mix(in srgb, var(--surface) 90%, white);
+  stroke: color-mix(in srgb, var(--tertiary) 24%, var(--border));
+  filter: url("#redis-cow-soft-shadow");
+}
+
+.redis-cow-panel-title {
+  fill: var(--text);
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.redis-cow-panel-subtitle {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.redis-cow-chip rect,
+.redis-cow-row rect,
+.redis-cow-page rect,
+.redis-cow-split rect {
+  fill: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 22%, var(--border));
+}
+
+.redis-cow-chip text,
+.redis-cow-row text,
+.redis-cow-page text,
+.redis-cow-split text {
+  fill: var(--text);
+  font-size: 11px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.redis-cow-row text:first-of-type {
+  text-anchor: start;
+}
+
+.redis-cow-row text:last-of-type {
+  text-anchor: end;
+}
+
+.redis-cow-pagetable .redis-cow-row text {
+  text-anchor: start;
+}
+
+.redis-cow-chip.brand rect,
+.redis-cow-row.brand rect,
+.redis-cow-page.brand rect {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 36%, var(--border));
+}
+
+.redis-cow-chip.teal rect,
+.redis-cow-row.teal rect,
+.redis-cow-page.teal rect {
+  fill: color-mix(in srgb, var(--tertiary) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.redis-cow-chip.warning rect,
+.redis-cow-row.warning rect,
+.redis-cow-page.warning rect {
+  fill: color-mix(in srgb, #f59e0b 13%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 44%, var(--border));
+}
+
+.redis-cow-row.danger rect,
+.redis-cow-page.danger rect {
+  fill: color-mix(in srgb, var(--danger) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 44%, var(--border));
+}
+
+.redis-cow-chip.success rect,
+.redis-cow-row.success rect,
+.redis-cow-split.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 42%, var(--border));
+}
+
+.redis-cow-page-id {
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.redis-cow-trigger-path path,
+.redis-cow-share-path path,
+.redis-cow-write-path path,
+.redis-cow-copy-path path,
+.redis-cow-release-path path {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.redis-cow-trigger-path path {
+  stroke: var(--brand);
+}
+
+.redis-cow-share-path path {
+  stroke: var(--tertiary);
+}
+
+.redis-cow-write-path path {
+  stroke: #f59e0b;
+}
+
+.redis-cow-copy-path path {
+  stroke: var(--danger);
+}
+
+.redis-cow-release-path path {
+  stroke: var(--success);
+}
+
+.redis-cow-trigger-path rect,
+.redis-cow-share-path rect,
+.redis-cow-write-path rect,
+.redis-cow-copy-path rect,
+.redis-cow-release-path rect {
+  fill: color-mix(in srgb, var(--surface) 88%, white);
+  stroke: color-mix(in srgb, var(--border) 80%, transparent);
+}
+
+.redis-cow-trigger-path text,
+.redis-cow-share-path text,
+.redis-cow-write-path text,
+.redis-cow-copy-path text,
+.redis-cow-release-path text {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.redis-cow-caption {
+  right: 18px;
+  bottom: 16px;
+}
+
 .replication-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;

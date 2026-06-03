@@ -578,7 +578,15 @@ const redisKnowledgePointBase = [
   /* <!-- KG_REVIEWED: fork 与写时复制 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: fork 与写时复制 | 2026-05-23 | source_count=5 --> */
   {
-    sourceRefs: ["redis-persistence-docs", "redis-latency-docs", "redis-latency-monitor-docs", "redis-info-command", "xiaolin-redis"],
+    sourceRefs: [
+      "redisgate-copy-on-write",
+      "redis-persistence-docs",
+      "redis-latency-docs",
+      "redis-latency-monitor-docs",
+      "redis-info-command",
+      "linux-kernel-labs-copy-on-write",
+      "xiaolin-redis",
+    ],
     id: "fork-cow",
     zh: "fork 与写时复制",
     en: "fork and Copy-on-Write",
