@@ -72,3 +72,41 @@ test("sync-counts updates stale KG_REVIEWED source counts", async () => {
     await git(["worktree", "remove", "--force", worktree]).catch(() => {});
   }
 });
+
+test("strict article validation flags shallow reviewed explanations", async () => {
+  const worktree = await mkdtemp(join(tmpdir(), "kg-review-article-"));
+  await rm(worktree, { recursive: true, force: true });
+
+  try {
+    await git(["worktree", "add", "--detach", worktree, "HEAD"]);
+    await writeFile(
+      join(worktree, "scripts/kg-review-queue.mjs"),
+      await readFile(join(repoRoot, "scripts/kg-review-queue.mjs"), "utf8"),
+    );
+
+    const networkPath = join(worktree, "src/data/knowledge-points/network.ts");
+    const original = await readFile(networkPath, "utf8");
+    const shallow = original.replace(
+      /explanation: \[\n      "概念定义：计算机网络[\s\S]*?      "参考来源：分层和主机\/路由器模型采用 RFC 1122；互联网组成、packet、protocol、router、switch 和 Web 加载流程参考 Cloudflare、MDN 与 Cisco；IP、子网、网关和路由排查参考 Microsoft Learn；TCP\/IP 封装过程参考 Oracle Solaris；中文 URL 访问链路参考小林 coding。",\n    \]/,
+      `explanation: [
+      "概念定义：网络基础概览帮助理解主机之间如何通信。",
+      "核心机制：应用数据经过协议栈发送到对端。",
+    ]`,
+    );
+    assert.notEqual(shallow, original);
+    await writeFile(networkPath, shallow);
+
+    await assert.rejects(
+      node(["scripts/kg-review-queue.mjs", "validate", "--strict-article", "--ids", "network/network-overview"], {
+        cwd: worktree,
+      }),
+      (error) =>
+        error.stdout.includes("article-explanation-too-short") &&
+        error.stdout.includes("article-source-note-missing") &&
+        error.stdout.includes("article-format-structure-missing") &&
+        error.stdout.includes("article-practice-or-troubleshooting-missing"),
+    );
+  } finally {
+    await git(["worktree", "remove", "--force", worktree]).catch(() => {});
+  }
+});

@@ -118,7 +118,7 @@ export function DetailPage({
                   {explanationItems.map((item) => (
                     <section key={item.title} className="explanation-card">
                       <h3>{item.title}</h3>
-                      <p>{item.body}</p>
+                      <RichExplanation body={item.body} />
                     </section>
                   ))}
                 </div>
@@ -246,6 +246,152 @@ export function DetailPage({
       </div>
     </main>
   );
+}
+
+function RichExplanation({ body }: { body: string }) {
+  const blocks = parseRichBlocks(body);
+
+  return (
+    <div className="rich-explanation">
+      {blocks.map((block, index) => {
+        const key = `${block.type}-${index}`;
+
+        if (block.type === "code") {
+          return (
+            <pre key={key}>
+              <code>{block.content}</code>
+            </pre>
+          );
+        }
+
+        if (block.type === "ordered-list") {
+          return (
+            <ol key={key}>
+              {block.items.map((item) => (
+                <li key={item}>{renderInlineCode(item)}</li>
+              ))}
+            </ol>
+          );
+        }
+
+        if (block.type === "unordered-list") {
+          return (
+            <ul key={key}>
+              {block.items.map((item) => (
+                <li key={item}>{renderInlineCode(item)}</li>
+              ))}
+            </ul>
+          );
+        }
+
+        return <p key={key}>{renderInlineCode(block.content)}</p>;
+      })}
+    </div>
+  );
+}
+
+type RichBlock =
+  | { type: "paragraph"; content: string }
+  | { type: "code"; content: string }
+  | { type: "ordered-list"; items: string[] }
+  | { type: "unordered-list"; items: string[] };
+
+function parseRichBlocks(body: string): RichBlock[] {
+  const blocks: RichBlock[] = [];
+  const lines = body.split("\n");
+  let paragraph: string[] = [];
+  let listType: "ordered-list" | "unordered-list" | null = null;
+  let listItems: string[] = [];
+  let codeLines: string[] = [];
+  let inCodeBlock = false;
+
+  const flushParagraph = () => {
+    if (!paragraph.length) {
+      return;
+    }
+    blocks.push({ type: "paragraph", content: paragraph.join(" ").trim() });
+    paragraph = [];
+  };
+
+  const flushList = () => {
+    if (!listType || !listItems.length) {
+      return;
+    }
+    blocks.push({ type: listType, items: listItems });
+    listType = null;
+    listItems = [];
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trimEnd();
+
+    if (trimmed.trim().startsWith("```")) {
+      flushParagraph();
+      flushList();
+      if (inCodeBlock) {
+        blocks.push({ type: "code", content: codeLines.join("\n") });
+        codeLines = [];
+        inCodeBlock = false;
+      } else {
+        inCodeBlock = true;
+      }
+      continue;
+    }
+
+    if (inCodeBlock) {
+      codeLines.push(trimmed);
+      continue;
+    }
+
+    if (!trimmed.trim()) {
+      flushParagraph();
+      flushList();
+      continue;
+    }
+
+    const unorderedMatch = trimmed.match(/^\s*[-*]\s+(.+)$/);
+    if (unorderedMatch) {
+      flushParagraph();
+      if (listType !== "unordered-list") {
+        flushList();
+        listType = "unordered-list";
+      }
+      listItems.push(unorderedMatch[1]);
+      continue;
+    }
+
+    const orderedMatch = trimmed.match(/^\s*\d+\.\s+(.+)$/);
+    if (orderedMatch) {
+      flushParagraph();
+      if (listType !== "ordered-list") {
+        flushList();
+        listType = "ordered-list";
+      }
+      listItems.push(orderedMatch[1]);
+      continue;
+    }
+
+    flushList();
+    paragraph.push(trimmed.trim());
+  }
+
+  if (inCodeBlock && codeLines.length) {
+    blocks.push({ type: "code", content: codeLines.join("\n") });
+  }
+  flushParagraph();
+  flushList();
+
+  return blocks.length ? blocks : [{ type: "paragraph", content: body }];
+}
+
+function renderInlineCode(text: string) {
+  return text.split(/(`[^`]+`)/g).map((part, index) => {
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return <code key={`${part}-${index}`}>{part.slice(1, -1)}</code>;
+    }
+
+    return part;
+  });
 }
 
 function KnowledgeChip({

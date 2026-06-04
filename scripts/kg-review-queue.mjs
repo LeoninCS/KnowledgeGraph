@@ -92,6 +92,18 @@ function splitList(value) {
     .filter(Boolean);
 }
 
+function makeGlobalId(categoryId, pointId) {
+  return `${categoryId}/${pointId}`;
+}
+
+function itemMatchesFilters(item, { ids, categoryFilter }) {
+  const globalId = makeGlobalId(item.categoryId, item.id);
+  return (
+    (ids.size === 0 || ids.has(globalId) || ids.has(item.id)) &&
+    (categoryFilter.size === 0 || categoryFilter.has(item.categoryId))
+  );
+}
+
 function categoryFile(categoryId) {
   return join(dataDir, categoryFiles[categoryId]);
 }
@@ -243,10 +255,98 @@ function sameItem(a, b) {
 function makeSearchQueries(item) {
   return [
     `${item.zh} ${item.en} 官方文档`,
+    `${item.zh} ${item.en} RFC 标准 源码 设计文档`,
+    `${item.zh} ${item.en} 热门 技术博客 原理`,
     `${item.zh} ${item.en} 面试 常见问题`,
-    `${item.zh} ${item.en} 原理 特殊情况`,
-    `${item.zh} ${item.en} 中文博客`,
+    `${item.zh} ${item.en} 生产 排查 性能 边界`,
   ];
+}
+
+function getPointExplanationText(point) {
+  return (point.explanation ?? []).join("\n");
+}
+
+function hasAnyKeyword(text, keywords) {
+  return keywords.some((keyword) => text.includes(keyword));
+}
+
+function validateArticleQuality(item, point) {
+  const issues = [];
+  const globalId = makeGlobalId(item.categoryId, item.id);
+  const explanationText = getPointExplanationText(point);
+  const minSources = 4;
+  const minExplanations = 7;
+  const minQuestions = 5;
+
+  if (item.sourceRefs.length < minSources) {
+    issues.push({
+      type: "article-source-refs-too-few",
+      item: globalId,
+      sourceRefCount: item.sourceRefs.length,
+      minSources,
+    });
+  }
+
+  if (item.explanationCount < minExplanations) {
+    issues.push({
+      type: "article-explanation-too-short",
+      item: globalId,
+      explanationCount: item.explanationCount,
+      minExplanations,
+    });
+  }
+
+  if (item.typicalProblemCount < minQuestions) {
+    issues.push({
+      type: "article-interview-questions-too-few",
+      item: globalId,
+      typicalProblemCount: item.typicalProblemCount,
+      minQuestions,
+    });
+  }
+
+  if (!hasAnyKeyword(explanationText, ["参考来源", "资料来源", "主要参考"])) {
+    issues.push({ type: "article-source-note-missing", item: globalId });
+  }
+
+  if (!/```|(?:^|\n)\s*(?:[-*]|\d+\.)\s+/m.test(explanationText)) {
+    issues.push({ type: "article-format-structure-missing", item: globalId });
+  }
+
+  const requiredKeywordGroups = [
+    {
+      type: "article-problem-or-definition-missing",
+      keywords: ["概念", "定义", "解决", "问题"],
+    },
+    {
+      type: "article-mechanism-missing",
+      keywords: ["机制", "流程", "工作", "状态", "过程"],
+    },
+    {
+      type: "article-example-or-scenario-missing",
+      keywords: ["例子", "场景", "案例", "使用", "应用"],
+    },
+    {
+      type: "article-boundary-or-failure-missing",
+      keywords: ["边界", "特殊", "故障", "异常", "失败", "限制"],
+    },
+    {
+      type: "article-practice-or-troubleshooting-missing",
+      keywords: ["排查", "实践", "命令", "指标", "日志", "验证"],
+    },
+    {
+      type: "article-advanced-depth-missing",
+      keywords: ["性能", "取舍", "实现", "一致性", "并发", "安全", "容量", "版本"],
+    },
+  ];
+
+  for (const group of requiredKeywordGroups) {
+    if (!hasAnyKeyword(explanationText, group.keywords)) {
+      issues.push({ type: group.type, item: globalId });
+    }
+  }
+
+  return issues;
 }
 
 function getLimit(args, fallback = 10) {
@@ -308,11 +408,13 @@ async function start(args = {}) {
       startedAt: continuing ? state.current.startedAt : new Date().toISOString(),
       searchQueries: makeSearchQueries(item),
       researchChecklist: [
-        "Chrome DevTools search",
-        "official or authoritative source",
-        "high-quality Chinese source",
-        "special cases and boundaries",
-        "interview questions",
+        "official docs, standards, RFCs, or authoritative project docs",
+        "popular high-quality Chinese technical blogs or articles",
+        "high-quality English engineering references",
+        "beginner mental model and example",
+        "advanced mechanisms, tradeoffs, and boundaries",
+        "failure modes and troubleshooting evidence",
+        "interview questions and advanced follow-ups",
         "sourceRefs verified",
       ],
       notes: continuing ? state.current.notes ?? [] : [],
@@ -639,6 +741,9 @@ async function validate(args = {}) {
   const queue = await buildQueue(args);
   const essentialKnowledgeIds = coreKnowledgePointIdsByCategory;
   const sourceIds = new Set(Object.keys(knowledgeSources));
+  const strictArticle = Boolean(args["strict-article"] ?? args.strictArticle);
+  const ids = new Set(splitList(args.ids ?? args.id));
+  const categoryFilter = new Set(splitList(args.category ?? args.categories));
   const issues = [];
   const seenIds = new Map();
   const pointIdSets = Object.fromEntries(
@@ -658,7 +763,7 @@ async function validate(args = {}) {
     }
 
     for (const id of essentialIds) {
-      const globalId = `${categoryId}/${id}`;
+      const globalId = makeGlobalId(categoryId, id);
       const item = queueByGlobalId.get(globalId);
 
       if (!knownIds.has(id)) {
@@ -685,7 +790,7 @@ async function validate(args = {}) {
   }
 
   for (const item of queue) {
-    const globalId = `${item.categoryId}/${item.id}`;
+    const globalId = makeGlobalId(item.categoryId, item.id);
     if (seenIds.has(globalId)) {
       issues.push({ type: "duplicate-point-id", item: globalId });
     }
@@ -727,6 +832,10 @@ async function validate(args = {}) {
 
     if (item.reviewed && item.typicalProblemCount < 3) {
       issues.push({ type: "reviewed-interview-questions-too-few", item: globalId, typicalProblemCount: item.typicalProblemCount });
+    }
+
+    if (strictArticle && point && itemMatchesFilters(item, { ids, categoryFilter })) {
+      issues.push(...validateArticleQuality(item, point));
     }
   }
 
