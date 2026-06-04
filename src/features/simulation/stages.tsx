@@ -154,6 +154,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "network:nat") {
+    return (
+      <NatTranslationStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "network:dns") {
     return (
       <DnsResolutionStage
@@ -11976,6 +11987,296 @@ function CdnRequestStage({
           </g>
         </svg>
         <div className="tcp-handshake-caption cdn-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NatTranslationStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const outboundActive = completedSteps >= 1;
+  const snatActive = completedSteps >= 2;
+  const returnActive = completedSteps >= 3;
+  const dnatActive = completedSteps >= 4;
+  const capacityActive = completedSteps >= 5;
+  const tableRows = [
+    {
+      side: "out",
+      original: "10.0.1.23:51524",
+      translated: snatActive ? "198.51.100.9:40017" : "--",
+      peer: "203.0.113.20:443",
+      state: returnActive ? "ESTABLISHED" : outboundActive ? "NEW" : "--",
+      active: outboundActive,
+      tone: "teal",
+    },
+    {
+      side: "in",
+      original: dnatActive ? "198.51.100.9:8080" : "--",
+      translated: dnatActive ? "10.0.2.8:80" : "--",
+      peer: "198.51.100.200",
+      state: dnatActive ? "DNAT" : "--",
+      active: dnatActive,
+      tone: "warning",
+    },
+    {
+      side: "udp",
+      original: capacityActive ? "10.0.1.44:53001" : "--",
+      translated: capacityActive ? "198.51.100.9:40102" : "--",
+      peer: "8.8.8.8:53",
+      state: capacityActive ? "timeout 120s" : "--",
+      active: capacityActive,
+      tone: "danger",
+    },
+  ];
+  const portSlots = [
+    { port: "40017", active: snatActive, tone: "teal" },
+    { port: "40018", active: capacityActive, tone: "brand" },
+    { port: "40102", active: capacityActive, tone: "danger" },
+    { port: "40103", active: false, tone: "muted" },
+    { port: "40104", active: false, tone: "muted" },
+  ];
+  const paths = [
+    {
+      id: "outbound",
+      d: "M 252 228 C 330 192, 392 194, 456 244",
+      label: "10.0.1.23:51524",
+      x: 342,
+      y: 196,
+      tone: "brand",
+      active: outboundActive,
+    },
+    {
+      id: "snat",
+      d: "M 604 246 C 686 194, 756 188, 846 230",
+      label: "198.51.100.9:40017",
+      x: 720,
+      y: 190,
+      tone: "teal",
+      active: snatActive,
+    },
+    {
+      id: "return",
+      d: "M 846 290 C 704 374, 534 372, 260 300",
+      label: "reply -> table hit",
+      x: 548,
+      y: 374,
+      tone: "success",
+      active: returnActive,
+    },
+    {
+      id: "dnat",
+      d: "M 886 380 C 762 456, 642 448, 542 414",
+      label: "8080 -> 10.0.2.8:80",
+      x: 748,
+      y: 452,
+      tone: "warning",
+      active: dnatActive,
+    },
+  ];
+  const metrics = [
+    { name: label("端口池", "Port pool"), value: capacityActive ? "62%" : snatActive ? "1 active" : "--", active: snatActive, tone: "teal" },
+    { name: "conntrack", value: capacityActive ? "42k / 65k" : returnActive ? "ESTABLISHED" : "--", active: returnActive, tone: "success" },
+    { name: "drops", value: capacityActive ? "7 / min" : "--", active: capacityActive, tone: "danger" },
+    { name: label("真实客户端", "Real client"), value: capacityActive ? "lost at origin" : "--", active: capacityActive, tone: "warning" },
+  ];
+  const mobileHops = [
+    [1, label("私网出站", "Private egress"), "10.0.1.23:51524 -> NAT"],
+    [2, label("SNAT / PAT", "SNAT / PAT"), "198.51.100.9:40017"],
+    [3, label("回包命中", "Return hit"), "ESTABLISHED -> 10.0.1.23"],
+    [4, label("入口 DNAT", "Inbound DNAT"), "198.51.100.9:8080 -> 10.0.2.8:80"],
+    [5, label("容量治理", "Capacity control"), "ports 62% / timeout 120s"],
+  ] as const;
+  const mobileFacts = [
+    [label("共享出口", "Shared egress"), "many private hosts -> one public IP", snatActive],
+    [label("状态依赖", "Stateful mapping"), "return traffic must hit conntrack", returnActive],
+    [label("失效信号", "Failure signals"), "port exhaustion / timeout / asymmetric route", capacityActive],
+  ] as const;
+
+  return (
+    <div className="visual-stage nat-stage">
+      <div className="tcp-handshake-card nat-card">
+        <svg
+          className="nat-diagram"
+          viewBox="0 0 1120 650"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["nat-arrow-brand", "var(--brand)"],
+              ["nat-arrow-teal", "var(--tertiary)"],
+              ["nat-arrow-success", "var(--success)"],
+              ["nat-arrow-warning", "#f59e0b"],
+              ["nat-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="nat-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="nat-bg" x="24" y="24" width="1072" height="584" rx="30" />
+          <text className="nat-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="nat-subtitle" x="560" y="99">
+            {label(
+              "Private subnet -> NAT gateway -> translation table -> internet / inbound DNAT",
+              "Private subnet -> NAT gateway -> translation table -> internet / inbound DNAT",
+            )}
+          </text>
+
+          <g className={`nat-private ${outboundActive ? "active" : ""}`}>
+            <rect x="70" y="136" width="228" height="224" rx="26" />
+            <text className="nat-panel-title" x="96" y="170">{label("私有子网", "Private subnet")}</text>
+            <g className="nat-host active">
+              <rect x="100" y="198" width="164" height="54" rx="16" />
+              <text x="182" y="220">app-1</text>
+              <text x="182" y="240">10.0.1.23:51524</text>
+            </g>
+            <g className={`nat-host ${capacityActive ? "active" : ""}`}>
+              <rect x="100" y="272" width="164" height="54" rx="16" />
+              <text x="182" y="294">worker-2</text>
+              <text x="182" y="314">10.0.1.44:53001</text>
+            </g>
+            <text className="nat-route-note" x="184" y="344">{"0.0.0.0/0 -> NAT"}</text>
+          </g>
+
+          <g className={`nat-gateway ${outboundActive ? "active" : ""}`}>
+            <rect x="438" y="154" width="202" height="256" rx="30" />
+            <text className="nat-node-title" x="539" y="190">{label("NAT 网关", "NAT gateway")}</text>
+            <text x="539" y="218">public 198.51.100.9</text>
+            <g className={`nat-rewrite ${snatActive ? "active" : ""}`}>
+              <rect x="468" y="246" width="142" height="56" rx="18" />
+              <text x="539" y="268">SNAT / PAT</text>
+              <text x="539" y="288">src rewrite</text>
+            </g>
+            <g className={`nat-rewrite warning ${dnatActive ? "active" : ""}`}>
+              <rect x="468" y="324" width="142" height="56" rx="18" />
+              <text x="539" y="346">DNAT</text>
+              <text x="539" y="366">dst rewrite</text>
+            </g>
+          </g>
+
+          <g className={`nat-internet ${snatActive ? "active" : ""}`}>
+            <rect x="832" y="154" width="188" height="128" rx="26" />
+            <text className="nat-node-title" x="926" y="190">{label("公网服务", "Internet service")}</text>
+            <text x="926" y="218">203.0.113.20:443</text>
+            <text x="926" y="244">{snatActive ? "src=198.51.100.9:40017" : "waiting"}</text>
+          </g>
+
+          <g className={`nat-inbound ${dnatActive ? "active" : ""}`}>
+            <rect x="824" y="340" width="206" height="118" rx="24" />
+            <text className="nat-node-title" x="927" y="374">{label("外部客户端入口", "External inbound client")}</text>
+            <text x="927" y="404">198.51.100.200</text>
+            <text x="927" y="430">GET 198.51.100.9:8080</text>
+          </g>
+
+          <g className={`nat-private-service ${dnatActive ? "active" : ""}`}>
+            <rect x="318" y="424" width="188" height="72" rx="22" />
+            <text className="nat-node-title" x="412" y="452">{label("内网服务", "Internal service")}</text>
+            <text x="412" y="478">10.0.2.8:80</text>
+          </g>
+
+          <g className="nat-paths">
+            {paths.map((path) => (
+              <g key={path.id} className={`nat-path ${path.tone} ${path.active ? "active" : ""}`}>
+                <path d={path.d} markerEnd={`url(#nat-arrow-${path.tone})`} />
+                <rect x={path.x - 78} y={path.y - 18} width="156" height="32" rx="16" />
+                <text x={path.x} y={path.y + 3}>{path.label}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="nat-table-panel">
+            <rect x="70" y="388" width="430" height="172" rx="24" />
+            <text className="nat-panel-title" x="98" y="422">{label("转换表 / conntrack", "Translation table / conntrack")}</text>
+            <text className="nat-table-head" x="118" y="452">{label("方向", "dir")}</text>
+            <text className="nat-table-head" x="174" y="452">original</text>
+            <text className="nat-table-head" x="306" y="452">translated</text>
+            <text className="nat-table-head" x="444" y="452">state</text>
+            {tableRows.map((row, index) => (
+              <g key={`${row.side}-${row.peer}`} className={`nat-table-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="98" y={468 + index * 34} width="382" height="26" rx="13" />
+                <text x="118" y={486 + index * 34}>{row.side}</text>
+                <text x="174" y={486 + index * 34}>{row.original}</text>
+                <text x="306" y={486 + index * 34}>{row.translated}</text>
+                <text x="444" y={486 + index * 34}>{row.state}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="nat-port-panel">
+            <rect x="532" y="434" width="252" height="126" rx="24" />
+            <text className="nat-panel-title" x="558" y="466">{label("PAT 端口池", "PAT port pool")}</text>
+            {portSlots.map((slot, index) => (
+              <g key={slot.port} className={`nat-port-slot ${slot.tone} ${slot.active ? "active" : ""}`}>
+                <rect x={558 + index * 40} y="486" width="30" height="42" rx="11" />
+                <text x={573 + index * 40} y="512">{slot.port}</text>
+              </g>
+            ))}
+            <text className="nat-port-note" x="658" y="546">
+              {capacityActive ? label("端口耗尽会放大间歇失败", "Port exhaustion amplifies intermittent failures") : label("按连接分配公网源端口", "Public source ports are assigned per flow")}
+            </text>
+          </g>
+
+          <g className="nat-metrics-panel">
+            <rect x="814" y="490" width="228" height="70" rx="22" />
+            {metrics.map((metric, index) => (
+              <g key={metric.name} className={`nat-metric ${metric.tone} ${metric.active ? "active" : ""}`}>
+                <text x={840 + (index % 2) * 106} y={516 + Math.floor(index / 2) * 24}>{metric.name}</text>
+                <text x={922 + (index % 2) * 106} y={516 + Math.floor(index / 2) * 24}>{metric.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+
+        <div className="nat-mobile-map">
+          <div className="nat-mobile-flow">
+            {mobileHops.map(([stepNumber, title, value]) => (
+              <div key={title} className={`nat-mobile-hop ${completedSteps >= stepNumber ? "active" : ""}`}>
+                <span>{title}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="nat-mobile-facts">
+            {mobileFacts.map(([title, value, active]) => (
+              <div key={title} className={`nat-mobile-fact ${active ? "active" : ""}`}>
+                <span>{title}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="tcp-handshake-caption nat-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

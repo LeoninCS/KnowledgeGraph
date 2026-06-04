@@ -443,6 +443,29 @@ test("network DNS is backed by a recursive lookup visual simulation", async () =
   );
 });
 
+test("network NAT is backed by a translation table visual simulation", async () => {
+  const points = await loadKnowledgePoints("network");
+  const nat = points.find((point) => point.id === "nat");
+
+  expect(visualPointIds.network).toContain("nat");
+  expect(nat).toBeTruthy();
+
+  const simulation = buildVisualSimulation("network", nat!);
+
+  expect(simulation.key).toBe("network:nat");
+  expect(simulation.pattern.en).toContain("NAT translation table");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining([
+      "translation table",
+      "SNAT / MASQUERADE",
+      "DNAT port mapping",
+      "PAT port pool",
+      "conntrack timeout",
+    ]),
+  );
+});
+
 test("redis AOF rewrite is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("redis");
   const aofRewrite = points.find((point) => point.id === "aof-rewrite");

@@ -3695,6 +3695,267 @@
   overflow: visible;
 }
 
+.nat-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.nat-card {
+  position: relative;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 22%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .nat-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.nat-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.nat-mobile-map {
+  display: none;
+}
+
+.nat-bg {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);
+}
+
+.nat-title {
+  fill: var(--text);
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.nat-subtitle {
+  fill: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.nat-private,
+.nat-gateway,
+.nat-internet,
+.nat-inbound,
+.nat-private-service,
+.nat-rewrite,
+.nat-path,
+.nat-table-row,
+.nat-port-slot,
+.nat-metric {
+  opacity: 0.3;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.nat-private.active,
+.nat-gateway.active,
+.nat-internet.active,
+.nat-inbound.active,
+.nat-private-service.active,
+.nat-rewrite.active,
+.nat-path.active,
+.nat-table-row.active,
+.nat-port-slot.active,
+.nat-metric.active {
+  opacity: 1;
+}
+
+.nat-private > rect,
+.nat-gateway > rect,
+.nat-internet > rect,
+.nat-inbound > rect,
+.nat-private-service > rect,
+.nat-table-panel > rect,
+.nat-port-panel > rect,
+.nat-metrics-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, white);
+  stroke: color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  filter: url("#nat-soft-shadow");
+}
+
+.nat-node-title,
+.nat-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.nat-panel-title {
+  text-anchor: start;
+}
+
+.nat-private text,
+.nat-gateway text,
+.nat-internet text,
+.nat-inbound text,
+.nat-private-service text,
+.nat-path text,
+.nat-table-row text,
+.nat-port-slot text,
+.nat-metric text,
+.nat-port-note {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.nat-host rect {
+  fill: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 24%, var(--border));
+}
+
+.nat-route-note {
+  fill: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.nat-rewrite rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.nat-rewrite.warning rect {
+  fill: color-mix(in srgb, #f59e0b 11%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.nat-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.nat-path rect {
+  fill: color-mix(in srgb, var(--surface) 90%, white);
+  stroke: color-mix(in srgb, var(--border) 80%, transparent);
+}
+
+.nat-path.brand path {
+  stroke: var(--brand);
+}
+
+.nat-path.teal path {
+  stroke: var(--tertiary);
+}
+
+.nat-path.success path {
+  stroke: var(--success);
+}
+
+.nat-path.warning path {
+  stroke: #f59e0b;
+}
+
+.nat-table-head {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.nat-table-row rect {
+  fill: color-mix(in srgb, var(--brand) 6%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+}
+
+.nat-table-row.teal rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.nat-table-row.warning rect {
+  fill: color-mix(in srgb, #f59e0b 11%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 34%, var(--border));
+}
+
+.nat-table-row.danger rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 32%, var(--border));
+}
+
+.nat-table-row text,
+.nat-port-slot text,
+.nat-metric text:last-of-type {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.nat-table-row text {
+  text-anchor: start;
+}
+
+.nat-port-slot rect {
+  fill: color-mix(in srgb, var(--muted) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--muted) 20%, var(--border));
+}
+
+.nat-port-slot.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 18%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 46%, var(--border));
+}
+
+.nat-port-slot.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 16%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.nat-port-slot.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 14%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 42%, var(--border));
+}
+
+.nat-port-slot text {
+  font-size: 8px;
+  writing-mode: vertical-rl;
+  text-anchor: middle;
+}
+
+.nat-port-note {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.nat-metric text:first-of-type {
+  fill: var(--muted);
+  font-size: 10px;
+  text-anchor: start;
+}
+
+.nat-metric text:last-of-type {
+  fill: var(--brand-strong);
+  text-anchor: end;
+}
+
+.nat-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .cdn-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -14146,4 +14407,87 @@
   background: var(--success);
   border-color: var(--success);
   color: #ffffff;
+}
+
+@media (max-width: 760px) {
+  .nat-stage {
+    padding: 12px;
+  }
+
+  .nat-card {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .nat-diagram {
+    display: none;
+  }
+
+  .nat-mobile-map {
+    display: grid;
+    gap: 12px;
+  }
+
+  .nat-mobile-flow,
+  .nat-mobile-facts {
+    display: grid;
+    gap: 10px;
+  }
+
+  .nat-mobile-hop,
+  .nat-mobile-fact {
+    display: grid;
+    gap: 5px;
+    border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+    padding: 12px;
+  }
+
+  .nat-mobile-hop {
+    position: relative;
+  }
+
+  .nat-mobile-hop::after {
+    content: "";
+    position: absolute;
+    right: 18px;
+    bottom: -18px;
+    width: 2px;
+    height: 16px;
+    background: color-mix(in srgb, var(--brand) 32%, var(--border));
+  }
+
+  .nat-mobile-hop:last-child::after {
+    display: none;
+  }
+
+  .nat-mobile-hop span,
+  .nat-mobile-fact span {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 950;
+  }
+
+  .nat-mobile-hop strong,
+  .nat-mobile-fact strong {
+    color: var(--brand-strong);
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+  }
+
+  .nat-mobile-hop.active,
+  .nat-mobile-fact.active {
+    border-color: color-mix(in srgb, var(--success) 44%, var(--border));
+    background: color-mix(in srgb, var(--success) 11%, var(--surface));
+  }
+
+  .nat-caption {
+    position: static;
+    justify-content: space-between;
+    width: 100%;
+  }
 }

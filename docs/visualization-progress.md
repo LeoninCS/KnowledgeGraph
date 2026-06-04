@@ -135,6 +135,7 @@
 | TCP 拥塞控制 | `state-model` | completed | desktop/mobile captured | TCP cwnd 控制实验室，覆盖慢启动、拥塞避免、重复 ACK、快速重传、快速恢复、RTO 回退、ssthresh 和有效发送窗口 |
 | TCP/IP 四层模型 | `step-simulation` | completed | desktop/mobile captured | TCP/IP 四层封装与解封装模拟器，覆盖应用数据、TCP/UDP 头、IP 包、以太网/Wi-Fi 帧、OSI 对照和排障观察点 |
 | DNS | `step-simulation` | completed | desktop/mobile captured | DNS 递归解析路径模拟器，覆盖本地缓存、递归解析器、根区委派、TLD 委派、权威 A/AAAA 应答、TTL 缓存和后续连接 |
+| NAT | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | NAT 转换表路径模拟器，覆盖私有子网出站、SNAT/PAT、回包匹配、入口 DNAT、端口池和 conntrack 超时 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | B+ 树 | `data-structure-lab` | completed | SVG/HTML review captured; PNG blocked by platform permissions | MySQL B+ 树索引实验室，覆盖根页分隔键、Buffer Pool 热页、叶子页定位、叶子链表范围扫描、页分裂和父节点分隔键维护 |
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
@@ -725,6 +726,64 @@
 - 截图结论：桌面可识别 Browser/Stub、Recursive Resolver、DNS 层级委派、Root/TLD/Authoritative、Target Service、缓存面板、排障证据、右侧任务/操作/理解重点和 5/5 进度；移动端展示五步流程卡、慢/旧/错三张事实卡、完成态任务面板和历史记录，文字可读。
 - 验收备注：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP 成功打开 `http://127.0.0.1:4186/KnowledgeGraph/`，进入 DNS 详情页与模拟器并推进到 5/5，完成桌面与移动截图。
 
+## Network NAT Visualization
+
+### Online Image References
+
+- `source`：AWS VPC - NAT gateway use cases，https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateway-scenarios.html
+  - `image`：页面 `Access the internet from a private subnet` 场景中的 VPC、公有子网、私有子网、NAT gateway、internet gateway 路径图。
+  - `role`：main
+  - `qualityReason`：官方文档图清楚表达私有子网经 NAT gateway 出站、回包再转换回原始私网地址的主链路，适合做主画布骨架。
+  - `takeaways`：主画布采用私有子网、NAT 网关、互联网服务、转换回包和默认路由的横向流向。
+  - `originalChanges`：改成本项目五步 NAT 转换表路径模拟器，加入 PAT 端口池、conntrack 表、入口 DNAT、容量和超时治理。
+- `source`：RFC 3022 - Traditional IP Network Address Translator，https://www.rfc-editor.org/rfc/rfc3022
+  - `image`：RFC 中 Basic NAT / NAPT 地址与端口转换示意和术语模型。
+  - `role`：supporting
+  - `qualityReason`：标准文档定义传统 NAT、地址绑定、传输标识和会话映射语义，适合校准转换表字段。
+  - `takeaways`：NAT 表需要记录原始地址端口、转换后地址端口、对端和状态，回包依赖映射命中。
+  - `originalChanges`：把标准里的术语模型改成可读的 `original -> translated -> state` 三行 conntrack 表。
+- `source`：Docker Docs - Packet filtering and firewalls，https://docs.docker.com/engine/network/packet-filtering-firewalls/
+  - `image`：页面中 Docker bridge 网络、port publishing、NAT / masquerading 和 firewall rules 的说明。
+  - `role`：supporting
+  - `qualityReason`：官方文档把 NAT、MASQUERADE、端口发布和防火墙顺序放在同一工程上下文，适合补充 DNAT 与排障边界。
+  - `takeaways`：端口映射要同时观察 NAT 表、过滤规则、监听地址和转发路径。
+  - `originalChanges`：入口 DNAT 面板把 `198.51.100.9:8080` 转成 `10.0.2.8:80`，并把防火墙与服务健康放入右侧理解重点。
+- `source`：iximiuz - How To Publish Container Ports with Docker，https://iximiuz.com/en/posts/docker-publish-container-ports/
+  - `image`：文章中 Docker port publishing、iptables DNAT 和容器网络路径图。
+  - `role`：supporting
+  - `qualityReason`：图解把主机端口、DNAT、bridge、容器 IP 和应用监听地址连成可排障路径，适合补充入口转发视角。
+  - `takeaways`：DNAT 排障要核对 HostPort、ContainerPort、bridge IP、容器监听地址和回包路径。
+  - `originalChanges`：移动端用五张流程卡展示私网出站、SNAT/PAT、回包命中、入口 DNAT 和容量治理。
+- `source`：小林 coding - IP 基础知识全家桶，https://xiaolincoding.com/network/4_ip/ip_base.html
+  - `image`：文章中 IP 地址、私有地址、路由与 NAT 相关图解。
+  - `role`：supporting
+  - `qualityReason`：中文图解资料对私有地址、路由表和 NAT 缓解 IPv4 地址压力的表达直观，便于校准中文教学文案。
+  - `takeaways`：NAT 应和私有地址、默认路由、源地址改写和公网访问放在同一条路径里解释。
+  - `originalChanges`：文案保留中文工程词汇，画布使用本项目的网络节点、表格、端口池和指标卡样式重绘。
+
+### Reference Breakdown
+
+- 主体布局：左侧私有子网主机，中部 NAT 网关，右侧公网服务和外部入口客户端，底部转换表、PAT 端口池和运行指标，右侧任务面板与底部步骤由模拟器统一承载。
+- 视觉焦点：`10.0.1.23:51524` 出站到公网服务时改写成 `198.51.100.9:40017`，回包按 conntrack 表命中还原；入口请求 `198.51.100.9:8080` 通过 DNAT 转发到 `10.0.2.8:80`。
+- 领域对象：private subnet、default route、NAT gateway、SNAT、PAT、public egress IP、translation table、conntrack state、DNAT、port mapping、port pool、timeout、drops。
+- 容器层级：私有主机产生原始五元组；NAT 网关负责源/目的改写；转换表保存状态；公网服务只看到统一出口；入口端口映射转给内网服务；容量面板展示端口池、超时和丢弃。
+- 连线方向：私网主机 -> NAT 网关 -> PAT 端口池 -> 公网服务 -> 转换表回包命中 -> 私网主机；外部入口客户端 -> NAT 网关 DNAT -> 内网服务。
+- 状态表达：五步依次高亮出站进入 NAT、SNAT/PAT 分配端口、回包匹配转换表、入口 DNAT 端口映射、容量与超时治理。
+- 颜色策略：品牌蓝表示私网出站，青色表示 SNAT/PAT，绿色表示回包命中，橙色表示入口 DNAT，红色表示容量、超时和丢弃风险。
+- 文字密度：桌面 SVG 保留 IP:port、表字段、短状态和关键指标；移动端切换为五张流程卡和三张事实卡，长地址使用自动换行。
+- 交互节奏：确认默认路由 -> 分配公网源端口 -> 命中转换表回包 -> 检查入口映射 -> 观察端口池、conntrack 和 drops。
+- 原创改造点：把 AWS 私有子网 NAT 图、RFC NAPT 语义、Docker DNAT/MASQUERADE 资料和小林中文图解融合成项目风格的转换表路径模拟器，强调出站、入口和容量治理同场观察。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/nat/desktop.svg` 与 `.codex-artifacts/visualizations/nat/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/nat/mobile.html`。
+- 截图结论：桌面 SVG 可识别私有子网、NAT 网关、公网服务、外部入口客户端、内网服务、转换表、PAT 端口池、指标面板和 5/5 进度；移动 HTML 展示五步流程卡和三张事实卡，文字可读。
+- 候选来源数量：普通搜索筛选约 12 个候选入口，最终记录 5 个参考来源。
+- 验收备注：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；本轮使用项目数据测试、生产构建、SSR SVG/HTML 审查图、关键文本 grep 和 diff 检查完成验收。
+- 提交计划：功能代码与进度文档合并进入 `feat: add nat visualization`。
+- 推送计划：提交后执行 `git pull --rebase origin main` 与 `git push origin main`。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
@@ -736,7 +795,7 @@
 
 ## Next Candidate
 
-优先选择网络 `NAT`，备选 MySQL `二级索引/回表` 或 CDN `缓存失效/回源`。NAT 可承接 IP 路由、Docker 端口映射和桥接网络，展示私网地址、端口复用、SNAT/DNAT、连接跟踪和回包匹配。
+优先选择 MySQL `二级索引/回表`，备选 CDN `缓存失效/回源` 或 Kubernetes `kube-proxy iptables/IPVS`。二级索引/回表可承接 B+ 树索引实验室，展示二级索引叶子记录、主键回表、覆盖索引、扫描行数和执行计划证据。
 
 ## Docker Resource Limit Visualization
 
