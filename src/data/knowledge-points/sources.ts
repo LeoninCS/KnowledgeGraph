@@ -1341,6 +1341,10 @@ export const knowledgeSources = {
     title: "AWS VPC: NAT gateways",
     url: "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html",
   },
+  "aws-vpc-internet-gateway": {
+    title: "AWS VPC: Internet gateways",
+    url: "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html",
+  },
   "aliyun-vpc-network-planning": {
     title: "Alibaba Cloud VPC: Network planning",
     url: "https://www.alibabacloud.com/help/en/vpc/user-guide/network-planning",
@@ -1348,6 +1352,10 @@ export const knowledgeSources = {
   "cisco-ipv4-addressing": {
     title: "Cisco IOS XE: IP Addressing Services Configuration Guide",
     url: "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr/configuration/xe-3s/iad-xe-3s-book.html",
+  },
+  "rfc5798-vrrp": {
+    title: "RFC 5798: VRRP Version 3 for IPv4 and IPv6",
+    url: "https://www.rfc-editor.org/rfc/rfc5798",
   },
   "rfc768-udp": {
     title: "RFC 768: User Datagram Protocol",
