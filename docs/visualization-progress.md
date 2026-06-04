@@ -2775,3 +2775,11 @@
 - Verification：新增测试先失败于 `visualPointIds.mysql` 缺少 `secondary-index`，补专用 builder/stage/source 后 `npm run test:data -- --grep "mysql secondary index"` 通过 1 项；完整 `npm run test:data` 通过 31 项；`npm run build` 通过；`git diff --check` 通过；SSR 审查图关键文本 grep 通过。
 - Commit/Push Plan：提交 `feat: add secondary index visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：CDN `缓存失效/回源`，备选 Kubernetes `kube-proxy iptables/IPVS` 或 MySQL `JOIN 顺序`。
+
+### 2026-06-04 16:12 CST
+
+- Branch/Fetch：当前分支 `main`；自动化记忆文件读取路径为 `/Users/sealos/.codex/automations/kg/memory.md`；本地 `HEAD` 与 `origin/main` 均为 `e394a8c feat: add secondary index visualization`。
+- Network Gate：首次 `git fetch origin main` 返回 `LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443`，重试后成功；随后 `git pull --ff-only origin main` 返回 `Could not resolve host: github.com`。
+- Working Tree：同步门禁前工作区干净；本条记录写入后仅 `docs/visualization-progress.md` 有阻塞记录改动。
+- Action：本轮停在同步门禁，跳过找图、拆图、编码、截图验收、提交和推送。
+- Resume Point：下一轮先重试 `git fetch origin main` 与 `git pull --ff-only origin main`；同步成功后提交本条 docs-only 阻塞记录，再继续 CDN `缓存失效/回源`，备选 Kubernetes `kube-proxy iptables/IPVS` 或 MySQL `JOIN 顺序`。
