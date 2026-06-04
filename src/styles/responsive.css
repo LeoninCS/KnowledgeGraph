@@ -215,6 +215,11 @@
     justify-content: start;
   }
 
+  .bplus-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .redis-hash-slot-stage {
     overflow-x: auto;
     justify-content: start;
@@ -422,6 +427,16 @@
 
   .redis-hash-slot-diagram {
     height: 532px;
+  }
+
+  .bplus-card {
+    width: 960px;
+    max-width: none;
+    justify-self: start;
+  }
+
+  .bplus-diagram {
+    height: 548px;
   }
 
   .mvcc-card {
@@ -783,6 +798,20 @@
     padding: 18px;
   }
 
+  .bplus-card {
+    width: 100%;
+  }
+
+  .bplus-diagram {
+    display: none;
+  }
+
+  .bplus-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
   .mvcc-card {
     width: 100%;
   }
@@ -1057,6 +1086,8 @@
   .k8s-preemption-mobile-facts,
   .k8s-crashloop-mobile-flow,
   .k8s-crashloop-mobile-facts,
+  .bplus-mobile-flow,
+  .bplus-mobile-facts,
   .mvcc-mobile-flow,
   .mvcc-mobile-facts,
   .redo-log-mobile-flow,
@@ -1120,6 +1151,8 @@
   .k8s-preemption-mobile-fact,
   .k8s-crashloop-mobile-hop,
   .k8s-crashloop-mobile-fact,
+  .bplus-mobile-hop,
+  .bplus-mobile-fact,
   .mvcc-mobile-hop,
   .mvcc-mobile-fact,
   .redo-log-mobile-hop,
@@ -1187,6 +1220,8 @@
   .k8s-preemption-mobile-fact.active,
   .k8s-crashloop-mobile-hop.active,
   .k8s-crashloop-mobile-fact.active,
+  .bplus-mobile-hop.active,
+  .bplus-mobile-fact.active,
   .mvcc-mobile-hop.active,
   .mvcc-mobile-fact.active,
   .redo-log-mobile-hop.active,
@@ -1246,6 +1281,8 @@
   .k8s-preemption-mobile-fact span,
   .k8s-crashloop-mobile-hop span,
   .k8s-crashloop-mobile-fact span,
+  .bplus-mobile-hop span,
+  .bplus-mobile-fact span,
   .mvcc-mobile-hop span,
   .mvcc-mobile-fact span,
   .redo-log-mobile-hop span,
@@ -1308,6 +1345,8 @@
   .k8s-preemption-mobile-fact strong,
   .k8s-crashloop-mobile-hop strong,
   .k8s-crashloop-mobile-fact strong,
+  .bplus-mobile-hop strong,
+  .bplus-mobile-fact strong,
   .mvcc-mobile-hop strong,
   .mvcc-mobile-fact strong,
   .redo-log-mobile-hop strong,

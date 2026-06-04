@@ -3829,6 +3829,26 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: InnoDB Architecture",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-architecture.html",
   },
+  "mysql-innodb-physical-structure": {
+    title: "MySQL Reference Manual: InnoDB Row Formats and Physical Structure",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-physical-structure.html",
+  },
+  "jeremy-cole-innodb-btree": {
+    title: "Jeremy Cole: B+Tree index structures in InnoDB",
+    url: "https://blog.jcole.us/2013/01/10/btree-index-structures-in-innodb/",
+  },
+  "planetscale-btree-indexes": {
+    title: "PlanetScale: B-trees and database indexes",
+    url: "https://planetscale.com/learn/courses/mysql-for-developers/indexes/b-trees",
+  },
+  "oneuptime-mysql-btree-index": {
+    title: "OneUptime: MySQL B-tree Indexes",
+    url: "https://oneuptime.com/blog/post/2026-03-31-mysql-btree-indexes/view",
+  },
+  "xiaolincoding-mysql-index": {
+    title: "小林 coding: MySQL 索引",
+    url: "https://xiaolincoding.com/mysql/index/index_interview.html",
+  },
   "mysql-innodb-multi-versioning": {
     title: "MySQL Reference Manual: InnoDB Multi-Versioning",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-multi-versioning.html",

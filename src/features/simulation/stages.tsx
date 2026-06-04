@@ -198,6 +198,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:b-plus-tree") {
+    return (
+      <BPlusTreeStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "mysql:mvcc") {
     return (
       <MvccStage
@@ -2215,6 +2226,254 @@ function RedisHashSlotStage({
           </g>
         </svg>
         <div className="tcp-handshake-caption redis-hash-slot-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BPlusTreeStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const rootActive = completedSteps >= 1;
+  const bufferActive = completedSteps >= 2;
+  const leafActive = completedSteps >= 3;
+  const scanActive = completedSteps >= 4;
+  const splitActive = completedSteps >= 5;
+  const rootKeys = [
+    { key: "17", x: 466, active: rootActive },
+    { key: "33", x: 548, active: rootActive },
+    { key: "57", x: 630, active: splitActive },
+  ];
+  const bufferPages = [
+    { id: "#3", label: "root", x: 156, y: 254, active: rootActive, tone: "brand" },
+    { id: "#18", label: "branch", x: 258, y: 254, active: bufferActive, tone: "teal" },
+    { id: "#42", label: "leaf", x: 360, y: 254, active: leafActive, tone: "warning" },
+    { id: "#43", label: "leaf", x: 462, y: 254, active: scanActive, tone: "success" },
+  ];
+  const leaves = [
+    { id: "#41", range: "01..17", x: 138, active: bufferActive, tone: "brand" },
+    { id: "#42", range: "18..31", x: 318, active: leafActive, tone: "warning" },
+    { id: "#43", range: "32..49", x: 498, active: scanActive, tone: "success" },
+    { id: "#44", range: splitActive ? "50..57" : "50..72", x: 678, active: scanActive, tone: splitActive ? "danger" : "teal" },
+    { id: "#91", range: "58..72", x: 858, active: splitActive, tone: "danger" },
+  ];
+  const internalPages = [
+    { id: "page #18", keys: "17 | 33", x: 290, active: bufferActive, tone: "teal" },
+    { id: "page #27", keys: "57 | 80", x: 710, active: splitActive, tone: "danger" },
+  ];
+  const signals = [
+    { name: "tree height", value: rootActive ? "3" : "idle", active: rootActive, tone: "brand" },
+    { name: "Buffer Pool", value: bufferActive ? "3 hits" : "waiting", active: bufferActive, tone: "teal" },
+    { name: "range scan rows", value: scanActive ? "32" : "0", active: scanActive, tone: "success" },
+    { name: "page split", value: splitActive ? "#44 -> #44/#91" : "pending", active: splitActive, tone: "danger" },
+  ];
+  const mobileFlow = [
+    { name: "Root page", value: rootActive ? "page #3 keys 17 | 33 | 57" : "waiting", active: rootActive },
+    { name: "Buffer Pool", value: bufferActive ? "root + branch pages hit" : "awaiting page hits", active: bufferActive },
+    { name: "Leaf page", value: leafActive ? "cursor enters page #42 at key 18" : "awaiting leaf", active: leafActive },
+    { name: "Range scan", value: scanActive ? "page #42 -> #43, 32 rows" : "scan pending", active: scanActive },
+    { name: "Page split", value: splitActive ? "INSERT 58 promotes separator 57" : "insert pending", active: splitActive },
+  ];
+
+  return (
+    <div className="visual-stage bplus-stage">
+      <div className="bplus-card">
+        <svg
+          className="bplus-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["bplus-arrow-brand", "var(--brand)"],
+              ["bplus-arrow-teal", "var(--tertiary)"],
+              ["bplus-arrow-warning", "#f59e0b"],
+              ["bplus-arrow-success", "var(--success)"],
+              ["bplus-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="bplus-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="bplus-bg" x="24" y="24" width="1072" height="584" rx="28" />
+          <text className="bplus-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="bplus-subtitle" x="560" y="100">
+            {label(
+              "root separators -> hot index pages -> linked leaves -> range scan -> leaf split",
+              "root separators -> hot index pages -> linked leaves -> range scan -> leaf split",
+            )}
+          </text>
+
+          <g className={`bplus-query-panel ${rootActive ? "active" : ""}`}>
+            <rect x="62" y="136" width="250" height="150" rx="24" />
+            <text className="bplus-panel-title" x="92" y="174">{label("访问请求", "Access request")}</text>
+            <text className="bplus-panel-subtitle" x="92" y="198">orders PRIMARY</text>
+            <g className={`bplus-query-chip brand ${rootActive ? "active" : ""}`}>
+              <rect x="92" y="224" width="176" height="30" rx="15" />
+              <text x="180" y="244">WHERE id BETWEEN 18 AND 49</text>
+            </g>
+            <g className={`bplus-query-chip danger ${splitActive ? "active" : ""}`}>
+              <rect x="92" y="262" width="176" height="30" rx="15" />
+              <text x="180" y="282">INSERT id=58</text>
+            </g>
+          </g>
+
+          <g className={`bplus-root-panel ${rootActive ? "active" : ""}`}>
+            <rect x="386" y="128" width="272" height="128" rx="26" />
+            <text className="bplus-panel-title" x="416" y="166">{label("根页 page #3", "Root page #3")}</text>
+            <text className="bplus-panel-subtitle" x="416" y="190">{label("分隔键 + 子页指针", "Separator keys + child pointers")}</text>
+            {rootKeys.map((item) => (
+              <g key={item.key} className={`bplus-root-key ${item.active ? "active" : ""}`}>
+                <rect x={item.x} y="210" width="52" height="32" rx="12" />
+                <text x={item.x + 26} y="231">{item.key}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`bplus-root-path ${rootActive ? "active" : ""}`}>
+            <path d="M 312 216 C 342 208, 358 204, 386 204" markerEnd="url(#bplus-arrow-brand)" />
+            <rect x="286" y="310" width="150" height="34" rx="17" />
+            <text x="361" y="332">{label("选 child page #18", "choose child page #18")}</text>
+          </g>
+
+          <g className={`bplus-buffer-panel ${bufferActive ? "active" : ""}`}>
+            <rect x="72" y="336" width="550" height="154" rx="26" />
+            <text className="bplus-panel-title" x="102" y="374">Buffer Pool</text>
+            <text className="bplus-panel-subtitle" x="102" y="398">{label("根页和上层分支页保持热页", "Root and upper branch pages stay hot")}</text>
+            {bufferPages.map((page) => (
+              <g key={page.id} className={`bplus-buffer-page ${page.tone} ${page.active ? "active" : ""}`}>
+                <rect x={page.x} y={page.y + 160} width="78" height="54" rx="14" />
+                <text className="bplus-page-id" x={page.x + 39} y={page.y + 183}>{page.id}</text>
+                <text x={page.x + 39} y={page.y + 203}>{page.label}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`bplus-internal-panel ${bufferActive ? "active" : ""}`}>
+            <rect x="254" y="284" width="564" height="76" rx="24" />
+            <text className="bplus-panel-title" x="284" y="326">{label("内部页", "Internal pages")}</text>
+            {internalPages.map((page) => (
+              <g key={page.id} className={`bplus-internal-page ${page.tone} ${page.active ? "active" : ""}`}>
+                <rect x={page.x} y="304" width="164" height="40" rx="15" />
+                <text x={page.x + 18} y="322">{page.id}</text>
+                <text x={page.x + 146} y="338">{page.keys}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`bplus-descend-path ${bufferActive ? "active" : ""}`}>
+            <path d="M 524 256 C 504 278, 438 284, 372 304" markerEnd="url(#bplus-arrow-teal)" />
+            <path d="M 372 360 C 356 384, 350 396, 336 414" markerEnd="url(#bplus-arrow-warning)" />
+          </g>
+
+          <g className={`bplus-leaf-panel ${leafActive ? "active" : ""}`}>
+            <rect x="92" y="500" width="868" height="80" rx="26" />
+            <text className="bplus-panel-title" x="122" y="532">{label("叶子页链表", "Linked leaf pages")}</text>
+            {leaves.map((leaf) => (
+              <g key={leaf.id} className={`bplus-leaf-page ${leaf.tone} ${leaf.active ? "active" : ""}`}>
+                <rect x={leaf.x} y="522" width="126" height="56" rx="16" />
+                <text className="bplus-page-id" x={leaf.x + 20} y="545">{leaf.id}</text>
+                <text x={leaf.x + 106} y="562">{leaf.range}</text>
+              </g>
+            ))}
+            <g className={`bplus-leaf-links ${scanActive ? "active" : ""}`}>
+              <path d="M 264 550 L 318 550" markerEnd="url(#bplus-arrow-success)" />
+              <path d="M 444 550 L 498 550" markerEnd="url(#bplus-arrow-success)" />
+              <path d="M 624 550 L 678 550" markerEnd="url(#bplus-arrow-success)" />
+              <path d="M 804 550 L 858 550" markerEnd="url(#bplus-arrow-danger)" />
+            </g>
+          </g>
+
+          <g className={`bplus-scan-path ${scanActive ? "active" : ""}`}>
+            <path d="M 336 522 C 392 486, 548 486, 632 522" markerEnd="url(#bplus-arrow-success)" />
+            <rect x="460" y="454" width="174" height="34" rx="17" />
+            <text x="547" y="476">{label("顺序返回 32 行", "stream 32 rows")}</text>
+          </g>
+
+          <g className={`bplus-split-panel ${splitActive ? "active" : ""}`}>
+            <rect x="728" y="126" width="276" height="252" rx="26" />
+            <text className="bplus-panel-title" x="758" y="164">{label("页分裂维护", "Page split maintenance")}</text>
+            <text className="bplus-panel-subtitle" x="758" y="188">{label("插入随机主键或满页触发", "Random insert or full page triggers split")}</text>
+            {[
+              ["insert", "58 into page #44"],
+              ["move", "58..72 -> page #91"],
+              ["parent", "promote separator 57"],
+              ["link", "#44.next = #91"],
+            ].map(([name, value], index) => (
+              <g key={name} className={`bplus-split-row ${splitActive ? "active" : ""}`}>
+                <rect x="758" y={214 + index * 36} width="206" height="26" rx="13" />
+                <text x="774" y={232 + index * 36}>{name}</text>
+                <text x="948" y={232 + index * 36}>{value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`bplus-split-path ${splitActive ? "active" : ""}`}>
+            <path d="M 858 522 C 870 462, 876 410, 866 378" markerEnd="url(#bplus-arrow-danger)" />
+            <path d="M 830 214 C 750 184, 692 190, 630 210" markerEnd="url(#bplus-arrow-danger)" />
+          </g>
+
+          <g className="bplus-signal-panel">
+            <rect x="666" y="400" width="370" height="144" rx="24" />
+            <text className="bplus-panel-title" x="696" y="434">{label("运行信号", "Runtime signals")}</text>
+            {signals.map((signal, index) => (
+              <g key={signal.name} className={`bplus-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={696} y={452 + index * 28} width="280" height="22" rx="11" />
+                <text x="712" y={467 + index * 28}>{signal.name}</text>
+                <text x="960" y={467 + index * 28}>{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="bplus-mobile-map">
+          <div className="bplus-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`bplus-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="bplus-mobile-facts">
+            {signals.map((signal) => (
+              <div key={signal.name} className={`bplus-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption bplus-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

@@ -373,6 +373,44 @@
   display: none;
 }
 
+.bplus-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.bplus-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 22%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .bplus-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.bplus-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.bplus-mobile-map {
+  display: none;
+}
+
 .mvcc-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -6496,6 +6534,274 @@
 .docker-layer-caption {
   right: 16px;
   bottom: 14px;
+}
+
+.bplus-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 24%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 18%, transparent);
+}
+
+.bplus-title {
+  fill: var(--text);
+  font-size: 27px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.bplus-subtitle {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.bplus-query-panel,
+.bplus-root-panel,
+.bplus-buffer-panel,
+.bplus-internal-panel,
+.bplus-leaf-panel,
+.bplus-split-panel,
+.bplus-signal-panel,
+.bplus-root-path,
+.bplus-descend-path,
+.bplus-scan-path,
+.bplus-split-path,
+.bplus-query-chip,
+.bplus-root-key,
+.bplus-buffer-page,
+.bplus-internal-page,
+.bplus-leaf-page,
+.bplus-leaf-links,
+.bplus-split-row,
+.bplus-signal {
+  opacity: 0.28;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.bplus-query-panel.active,
+.bplus-root-panel.active,
+.bplus-buffer-panel.active,
+.bplus-internal-panel.active,
+.bplus-leaf-panel.active,
+.bplus-split-panel.active,
+.bplus-signal-panel,
+.bplus-root-path.active,
+.bplus-descend-path.active,
+.bplus-scan-path.active,
+.bplus-split-path.active,
+.bplus-query-chip.active,
+.bplus-root-key.active,
+.bplus-buffer-page.active,
+.bplus-internal-page.active,
+.bplus-leaf-page.active,
+.bplus-leaf-links.active,
+.bplus-split-row.active,
+.bplus-signal.active {
+  opacity: 1;
+}
+
+.bplus-query-panel > rect,
+.bplus-root-panel > rect,
+.bplus-buffer-panel > rect,
+.bplus-internal-panel > rect,
+.bplus-leaf-panel > rect,
+.bplus-split-panel > rect,
+.bplus-signal-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--border) 86%, var(--line));
+  stroke-width: 1.2;
+  filter: url(#bplus-soft-shadow);
+}
+
+.bplus-root-panel.active > rect,
+.bplus-query-chip.brand.active rect,
+.bplus-root-key.active rect,
+.bplus-buffer-page.brand.active rect,
+.bplus-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.bplus-buffer-panel.active > rect,
+.bplus-internal-panel.active > rect,
+.bplus-buffer-page.teal.active rect,
+.bplus-internal-page.teal.active rect,
+.bplus-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.bplus-leaf-panel.active > rect,
+.bplus-leaf-page.warning.active rect,
+.bplus-buffer-page.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 10%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 40%, var(--border));
+}
+
+.bplus-leaf-page.success.active rect,
+.bplus-buffer-page.success.active rect,
+.bplus-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.bplus-split-panel.active > rect,
+.bplus-query-chip.danger.active rect,
+.bplus-leaf-page.danger.active rect,
+.bplus-internal-page.danger.active rect,
+.bplus-split-row.active rect,
+.bplus-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 36%, var(--border));
+}
+
+.bplus-query-chip rect,
+.bplus-root-key rect,
+.bplus-buffer-page rect,
+.bplus-internal-page rect,
+.bplus-leaf-page rect,
+.bplus-split-row rect,
+.bplus-signal rect,
+.bplus-root-path rect,
+.bplus-scan-path rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#bplus-soft-shadow);
+}
+
+.bplus-panel-title {
+  fill: var(--text);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.bplus-panel-subtitle,
+.bplus-query-panel text,
+.bplus-root-panel text,
+.bplus-buffer-panel text,
+.bplus-internal-panel text,
+.bplus-leaf-panel text,
+.bplus-split-panel text,
+.bplus-signal-panel text,
+.bplus-root-path text,
+.bplus-scan-path text {
+  fill: var(--muted);
+  font-size: 10.5px;
+  font-weight: 840;
+}
+
+.bplus-query-chip text,
+.bplus-root-key text,
+.bplus-buffer-page text,
+.bplus-internal-page text,
+.bplus-leaf-page text,
+.bplus-split-row text,
+.bplus-signal text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.bplus-query-chip text,
+.bplus-root-key text,
+.bplus-buffer-page text,
+.bplus-root-path text,
+.bplus-scan-path text {
+  text-anchor: middle;
+}
+
+.bplus-page-id,
+.bplus-internal-page text:first-of-type,
+.bplus-leaf-page text:first-of-type,
+.bplus-split-row text:first-of-type,
+.bplus-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.bplus-internal-page text:nth-of-type(2),
+.bplus-leaf-page text:nth-of-type(2),
+.bplus-split-row text:nth-of-type(2),
+.bplus-signal text:nth-of-type(2) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.bplus-root-path path,
+.bplus-descend-path path,
+.bplus-leaf-links path,
+.bplus-scan-path path,
+.bplus-split-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3.6;
+}
+
+.bplus-root-path path {
+  stroke: var(--brand);
+}
+
+.bplus-descend-path path:first-child {
+  stroke: var(--tertiary);
+}
+
+.bplus-descend-path path:nth-child(2) {
+  stroke: #f59e0b;
+}
+
+.bplus-leaf-links path,
+.bplus-scan-path path {
+  stroke: var(--success);
+}
+
+.bplus-leaf-links path:last-child,
+.bplus-split-path path {
+  stroke: var(--danger);
+  stroke-dasharray: 8 7;
+}
+
+.bplus-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.bplus-mobile-flow,
+.bplus-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.bplus-mobile-hop,
+.bplus-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--tertiary) 5%, var(--surface));
+  padding: 12px;
+}
+
+.bplus-mobile-hop span,
+.bplus-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.bplus-mobile-hop strong,
+.bplus-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.bplus-mobile-hop.active,
+.bplus-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--tertiary) 42%, var(--border));
+  background: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
 }
 
 .mvcc-bg {

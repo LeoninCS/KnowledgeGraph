@@ -91,6 +91,23 @@ test("mysql crash recovery is backed by a dedicated visual simulation", async ()
   );
 });
 
+test("mysql B+ tree is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("mysql");
+  const bPlusTree = points.find((point) => point.id === "b-plus-tree");
+
+  expect(visualPointIds.mysql).toContain("b-plus-tree");
+  expect(bPlusTree).toBeTruthy();
+
+  const simulation = buildVisualSimulation("mysql", bPlusTree!);
+
+  expect(simulation.key).toBe("mysql:b-plus-tree");
+  expect(simulation.pattern.en).toContain("B+ tree index lab");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["tree height", "leaf page chain", "range scan rows", "page split"]),
+  );
+});
+
 test("kubernetes CrashLoopBackOff is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("kubernetes");
   const crashLoopBackOff = points.find((point) => point.id === "crashloopbackoff");

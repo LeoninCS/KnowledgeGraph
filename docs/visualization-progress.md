@@ -135,6 +135,7 @@
 | TCP 拥塞控制 | `state-model` | completed | desktop/mobile captured | TCP cwnd 控制实验室，覆盖慢启动、拥塞避免、重复 ACK、快速重传、快速恢复、RTO 回退、ssthresh 和有效发送窗口 |
 | TCP/IP 四层模型 | `step-simulation` | completed | desktop/mobile captured | TCP/IP 四层封装与解封装模拟器，覆盖应用数据、TCP/UDP 头、IP 包、以太网/Wi-Fi 帧、OSI 对照和排障观察点 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
+| B+ 树 | `data-structure-lab` | completed | SVG/HTML review captured; PNG blocked by platform permissions | MySQL B+ 树索引实验室，覆盖根页分隔键、Buffer Pool 热页、叶子页定位、叶子链表范围扫描、页分裂和父节点分隔键维护 |
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
 | RDB | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis RDB 快照状态模型，覆盖 save 规则、BGSAVE fork、fork 时刻 keyspace、临时 dump.rdb、COW 页、原子 rename、重启加载和 INFO 持久化指标 |
 | AOF 重写 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis BGREWRITEAOF 状态模型，覆盖 fork 子进程、Copy-on-Write、当前增量 AOF、rewrite buffer、临时基础文件、manifest 原子切换和恢复重放 |
@@ -613,6 +614,61 @@
 - 截图结论：桌面 SVG 可识别崩溃现场、Checkpoint、Redo Log Scan、数据页重做、Undo Log、Prepare 事务判定、四个恢复信号和 5/5 timeline；移动 HTML 展示 Crash point、Checkpoint、Redo apply、Undo rollback、Prepared decision 五步流程和 checkpoint_lsn/scan_lsn/undo_queue/prepare_rule 事实卡。
 - 验收备注：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；Playwright e2e 启动 preview 失败于 `listen EPERM 127.0.0.1:4174`；SSR 审查时 Vite HMR WebSocket 触发 `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` 渲染完成；`sips` 无法将当前 SVG 转 PNG，输出 `Cannot extract image from file`。本轮使用官方图片 HEAD、数据测试、生产构建、完整数据测试、diff 检查和 SSR SVG/HTML 审查图完成验收。
 
+## MySQL B+ Tree Visualization
+
+### Online Image References
+
+- `source`：Jeremy Cole - B+Tree index structures in InnoDB，https://blog.jcole.us/2013/01/10/btree-index-structures-in-innodb/
+  - `image`：文章中的 InnoDB B+Tree 页面、层级、叶子页和记录结构图。
+  - `role`：main
+  - `qualityReason`：经典 InnoDB 存储结构图解，信息密度高，能同时表达 root/internal/leaf page、页内记录和叶子页链路。
+  - `takeaways`：主画布采用根页、内部页、叶子页链表、页号、分隔键、next 指针和页分裂维护。
+  - `originalChanges`：改成本项目五步 B+ 树索引实验室，加入 Buffer Pool 热页、范围查询、插入 58、父节点分隔键和底部运行信号。
+- `source`：MySQL 8.4 Reference Manual - InnoDB Row Formats and Physical Structure，https://dev.mysql.com/doc/refman/8.4/en/innodb-physical-structure.html
+  - `image`：官方 InnoDB physical structure 说明，覆盖 tablespace、page、extent 和 row storage。
+  - `role`：supporting
+  - `qualityReason`：官方来源校准 InnoDB 页、表空间和物理存储边界。
+  - `takeaways`：画布中的 page #3、page #18、leaf page #42 等对象按页级结构表达。
+  - `originalChanges`：把官方物理结构压缩为索引页访问路径，并和 Buffer Pool 命中联系起来。
+- `source`：MySQL 8.4 Reference Manual - InnoDB Architecture，https://dev.mysql.com/doc/refman/8.4/en/innodb-architecture.html
+  - `image`：官方 InnoDB Architecture PNG 中 Buffer Pool、Change Buffer、Log Buffer 与表空间边界。
+  - `role`：supporting
+  - `qualityReason`：官方架构图补足索引页在内存与磁盘之间流转的上下文。
+  - `takeaways`：Buffer Pool 页帧需要展示根页、分支页和叶子页的缓存命中。
+  - `originalChanges`：只抽取 Buffer Pool 作为索引查找的运行环境，主画布聚焦 B+ 树本体。
+- `source`：PlanetScale Learn - B-trees and database indexes，https://planetscale.com/learn/courses/mysql-for-developers/indexes/b-trees
+  - `image`：课程中的 B-tree/B+tree 索引教学图与范围扫描说明。
+  - `role`：supporting
+  - `qualityReason`：课程式图解适合校准查询路径、范围扫描和右侧教学文案。
+  - `takeaways`：范围查询从命中叶子页开始，再沿相邻叶子页顺序读取。
+  - `originalChanges`：把课程流程转成可推进的五步交互，并用运行信号展示扫描行数和树高。
+- `source`：小林 coding - MySQL 索引，https://xiaolincoding.com/mysql/index/index_interview.html
+  - `image`：中文 B+ 树索引、聚簇索引、二级索引和回表图解。
+  - `role`：supporting
+  - `qualityReason`：中文资料对 B+ 树适合范围查询、叶子节点存储和回表成本表达清晰。
+  - `takeaways`：叶子节点保存记录，范围扫描依赖叶子链表，二级索引查询整行会继续访问聚簇索引。
+  - `originalChanges`：本轮先聚焦主键索引 B+ 树；把二级索引和回表作为下一轮候选。
+
+### Reference Breakdown
+
+- 主体布局：左上访问请求，中上根页 page #3，中部内部页和 Buffer Pool 页帧，底部叶子页链表，右上页分裂维护，右下运行信号，底部进度由模拟器统一承载。
+- 视觉焦点：`WHERE id BETWEEN 18 AND 49` 从根页分隔键进入 page #18，再定位 leaf page #42，随后沿 page #42 -> #43 -> #44 顺扫；`INSERT id=58` 触发 page #44 拆成 #44/#91。
+- 领域对象：root page、internal page、separator key、child pointer、Buffer Pool frame、leaf page、next page pointer、clustered record、range cursor、page split、parent separator。
+- 容器层级：查询请求进入索引树；根页和内部页负责路由；Buffer Pool 承载热页命中；叶子页链表负责有序记录与范围扫描；split 面板展示写入维护。
+- 连线方向：访问请求 -> 根页 -> Buffer Pool/内部页 -> 目标叶子页 -> 叶子链表顺扫；插入路径从请求进入 split 面板，再回写父节点分隔键并重连叶子链表。
+- 状态表达：五步依次高亮根页比较、Buffer Pool 命中、目标叶子页定位、范围顺扫、页分裂维护；信号卡展示 tree height、Buffer Pool、range scan rows 和 page split。
+- 颜色策略：品牌蓝表示根页查找，青色表示缓存页命中，橙色表示叶子页定位，绿色表示范围扫描，红色表示页分裂和分隔键回写。
+- 文字密度：桌面 SVG 保留页号、key range、短指标和关键动作；移动端切换成五张流程卡和四张事实卡。
+- 交互节奏：读取根页分隔键 -> 命中 Buffer Pool 页帧 -> 定位目标叶子页 -> 顺扫叶子链表 -> 处理插入与页分裂。
+- 原创改造点：把 Jeremy Cole 的 InnoDB B+Tree 结构图、MySQL 官方物理结构、Buffer Pool 上下文和中文索引图解融合成项目风格的数据结构实验室，强调查询读路径与写入维护的同场对照。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/b-plus-tree/desktop.svg` 与 `.codex-artifacts/visualizations/b-plus-tree/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/b-plus-tree/mobile.html` 与 `.codex-artifacts/visualizations/b-plus-tree/mobile.html.fragment`。
+- 截图结论：桌面 SVG 可识别访问请求、根页、Buffer Pool、内部页、叶子页链表、页分裂维护、运行信号和 5/5 进度；移动 HTML 展示 Root page、Buffer Pool、Leaf page、Range scan、Page split 五步流程和四个事实卡。
+- 验收备注：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；SSR 审查时 Vite HMR WebSocket 触发 `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` 渲染完成；本轮使用参考页面筛选、项目数据测试、生产构建、完整数据测试、KG review validate、diff 检查和 SSR SVG/HTML 审查图完成验收。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
@@ -620,10 +676,11 @@
 | RedisGate AOF 页面 | HTTP 自动跳转到 HTTPS 后返回 404 | 仅在页面恢复可访问或找到稳定镜像时复查 |
 | SoByte Redis RDB/AOF 页面 | 候选 URL 返回 HTTP 404 | 找到稳定新地址或镜像后再加入来源 |
 | MySQL BestHub crash recovery 文章 | 候选 URL 重定向到站点首页，具体文章页不可稳定访问 | 找到稳定原文 URL 后再作为辅助参考 |
+| MySQL Purge 独立知识点 | 当前 MySQL 数据集中 Purge 语义位于 MVCC/Undo/长事务上下文 | 新增独立 Purge 知识点或合并到 Undo/MVCC 改造任务时复查 |
 
 ## Next Candidate
 
-优先选择 Kubernetes `拓扑分布约束`，备选 MySQL `Purge` 或 CDN `缓存失效/回源`。拓扑分布约束可承接 Scheduler、节点亲和性和 Pod 亲和性，展示 maxSkew、topologyKey、whenUnsatisfiable、eligible domains 和 FailedScheduling 事件。
+优先选择 MySQL `二级索引/回表`，备选 CDN `缓存失效/回源` 或 Kubernetes `StatefulSet`。二级索引/回表可承接 B+ 树索引实验室，展示二级索引叶子保存主键、聚簇索引二次访问、覆盖索引分支和 rows/key_len/Extra 排障信号。
 
 ## Docker Resource Limit Visualization
 
@@ -2478,3 +2535,26 @@
 - Verification：新增测试先失败于 `visualPointIds.mysql` 缺少 `crash-recovery`，补可视化清单与专用 builder 后 `npm run test:data -- --grep "mysql crash recovery"` 通过 1 项；完整 `npm run test:data` 通过 27 项；`npm run build` 通过；`npm run kg:review:validate` 返回 `issueCount=0`；`git diff --check` 通过；e2e preview 权限阻塞已记录。
 - Commit/Push Plan：提交 `feat: add crash recovery visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Kubernetes `拓扑分布约束`，备选 MySQL `Purge` 或 CDN `缓存失效/回源`。
+
+### 2026-06-04 21:34 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `52ad0c1 feat: add crash recovery visualization`；从干净工作区继续。
+- Candidate Review：确认 Kubernetes `拓扑分布约束` 已在 `264c014 feat: add topology spread visualization` 完成，MySQL 数据集中 Purge 语义位于 MVCC/Undo/长事务上下文；本轮选择 MySQL `B+ 树`。
+- Selected：MySQL `B+ 树`，原因是根页分隔键、内部页、Buffer Pool 热页、叶子页链表、范围扫描和页分裂构成高价值数据结构实验室，并承接 MySQL 索引、聚簇索引、二级索引和 Buffer Pool。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；主参考为 Jeremy Cole `B+Tree index structures in InnoDB`，辅助参考为 MySQL 官方 InnoDB physical structure、InnoDB Architecture、PlanetScale B-trees course、OneUptime MySQL B-tree Indexes 和小林 coding MySQL 索引；Browser 插件返回 `iab` 不可用，Chrome DevTools MCP profile 被占用，本轮使用页面筛选、官方资料和本地 SSR 审查完成确认。
+- Online Image References：见 `MySQL B+ Tree Visualization` 小节；主参考决定 root/internal/leaf page 和叶子链表骨架，辅助来源校准 InnoDB 页、Buffer Pool、范围扫描、页分裂和中文教学表达。
+- Reference Breakdown：主体布局为左上访问请求，中上根页 page #3，中部内部页和 Buffer Pool 页帧，底部叶子页链表，右上页分裂维护，右下运行信号；视觉焦点是 `WHERE id BETWEEN 18 AND 49` 从根页进入 leaf page #42 并顺扫到 #44，`INSERT id=58` 拆分 page #44 并回写父节点分隔键。
+- 领域对象：root page、internal page、separator key、child pointer、Buffer Pool frame、leaf page、next page pointer、clustered record、range cursor、page split、parent separator。
+- 容器层级：访问请求进入索引树；根页和内部页负责路由；Buffer Pool 承载热页命中；叶子页链表负责有序记录与范围扫描；split 面板展示写入维护。
+- 连线方向：访问请求 -> 根页 -> Buffer Pool/内部页 -> 目标叶子页 -> 叶子链表顺扫；插入路径从请求进入 split 面板，再回写父节点分隔键并重连叶子链表。
+- 状态表达：五步依次高亮根页比较、Buffer Pool 命中、目标叶子页定位、范围顺扫、页分裂维护；信号卡展示 tree height、Buffer Pool、range scan rows 和 page split。
+- 颜色策略：品牌蓝表示根页查找，青色表示缓存页命中，橙色表示叶子页定位，绿色表示范围扫描，红色表示页分裂和分隔键回写。
+- 文字密度：桌面 SVG 保留页号、key range、短指标和关键动作；移动端切换成五张流程卡和四张事实卡。
+- 交互节奏：读取根页分隔键 -> 命中 Buffer Pool 页帧 -> 定位目标叶子页 -> 顺扫叶子链表 -> 处理插入与页分裂。
+- 原创改造点：把 Jeremy Cole 的 InnoDB B+Tree 结构图、MySQL 官方物理结构、Buffer Pool 上下文和中文索引图解融合成项目风格的数据结构实验室，强调查询读路径与写入维护的同场对照。
+- Implementation：新增 `mysql:b-plus-tree` 专用 `data-structure-lab` 构建器、B+ Tree SVG 舞台、移动端流程卡、响应式样式、来源引用和数据测试，并把 `KG_REVIEWED` 标记 source_count 同步为 6。
+- Browser Note：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；SSR 审查时 Vite HMR WebSocket 触发 `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` 渲染完成。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/b-plus-tree/desktop.svg`、`.codex-artifacts/visualizations/b-plus-tree/desktop.html`、`.codex-artifacts/visualizations/b-plus-tree/mobile.html` 与 `.codex-artifacts/visualizations/b-plus-tree/mobile.html.fragment`；桌面 SVG 可识别访问请求、根页、Buffer Pool、内部页、叶子页链表、页分裂维护、运行信号和 5/5 进度，移动 HTML 展示五步流程和四个事实卡。
+- Verification：新增测试先失败于 generic `Index lookup` 模拟，补专用 builder/stage/source 后 `npm run test:data -- --grep "mysql B\\+ tree"` 通过 1 项；完整 `npm run test:data` 通过 28 项；`npm run build` 通过；`npm run kg:review:validate` 返回 `issueCount=0`；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add b plus tree visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：MySQL `二级索引/回表`，备选 CDN `缓存失效/回源` 或 Kubernetes `StatefulSet`。
