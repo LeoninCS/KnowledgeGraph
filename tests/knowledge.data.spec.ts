@@ -244,6 +244,23 @@ test("linux epoll is backed by a dedicated visual simulation", async () => {
   );
 });
 
+test("network TCP congestion control is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("network");
+  const congestionControl = points.find((point) => point.id === "tcp-congestion-control");
+
+  expect(visualPointIds.network).toContain("tcp-congestion-control");
+  expect(congestionControl).toBeTruthy();
+
+  const simulation = buildVisualSimulation("network", congestionControl!);
+
+  expect(simulation.key).toBe("network:tcp-congestion-control");
+  expect(simulation.pattern.en).toContain("congestion window control lab");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["cwnd", "ssthresh", "duplicate ACKs", "effective send window"]),
+  );
+});
+
 test("docker bridge network is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("docker");
   const bridgeNetwork = points.find((point) => point.id === "bridge-network");

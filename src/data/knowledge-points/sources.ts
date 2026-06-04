@@ -1329,6 +1329,14 @@ export const knowledgeSources = {
     title: "RFC 5681: TCP Congestion Control",
     url: "https://www.rfc-editor.org/rfc/rfc5681",
   },
+  "wikimedia-tcp-slow-start-congestion-avoidance": {
+    title: "Wikimedia Commons: TCP Slow-Start and Congestion Avoidance",
+    url: "https://commons.wikimedia.org/wiki/File:TCP_Slow-Start_and_Congestion_Avoidance.svg",
+  },
+  "wustl-tcp-udp-congestion-slide": {
+    title: "Washington University: Transport Layer TCP and UDP - TCP Congestion Control Slide",
+    url: "https://www.cs.wustl.edu/~jain/cse473-16/ftp/i_3tcp_slide47.pdf",
+  },
   "rfc2018-tcp-sack": {
     title: "RFC 2018: TCP Selective Acknowledgment Options",
     url: "https://www.rfc-editor.org/rfc/rfc2018",

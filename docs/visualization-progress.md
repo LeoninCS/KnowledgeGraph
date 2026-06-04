@@ -132,6 +132,7 @@
 
 | 知识点 | 类型 | 状态 | 截图 | 备注 |
 |---|---|---|---|---|
+| TCP 拥塞控制 | `state-model` | completed | desktop/mobile captured | TCP cwnd 控制实验室，覆盖慢启动、拥塞避免、重复 ACK、快速重传、快速恢复、RTO 回退、ssthresh 和有效发送窗口 |
 | TCP/IP 四层模型 | `step-simulation` | completed | desktop/mobile captured | TCP/IP 四层封装与解封装模拟器，覆盖应用数据、TCP/UDP 头、IP 包、以太网/Wi-Fi 帧、OSI 对照和排障观察点 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
@@ -2373,3 +2374,30 @@
 - Verification：新增测试先失败于 RDB 使用 generic `Persistence and memory` 模拟，补专用 builder/stage/source 后 `npm run test:data -- --grep "redis RDB"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 25 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add rdb visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：MySQL `Crash Recovery`，备选网络 `TCP 拥塞控制` 或 Kubernetes `拓扑分布约束`。
+
+### 2026-06-04 10:38 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，发现上一轮遗留的 `tests/knowledge.data.spec.ts` 红测试指向 `network:tcp-congestion-control`；`git fetch origin main` 成功，第一次 `git pull --ff-only origin main` 因 DNS `Could not resolve host: github.com` 失败，重试后成功；本地与远端同步到 `f62e937`，继续完成遗留红测试。
+- Selected：网络 `TCP 拥塞控制`，原因是 cwnd、ssthresh、ACK clock、重复 ACK、快速重传、快速恢复、RTO 和 BDP/rwnd 排障信号构成清晰状态模型，并承接 TCP 重传、TCP 流量控制、延迟/带宽和可观测性。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；主参考为 Wikimedia Commons `TCP Slow-Start and Congestion Avoidance.svg`；辅助参考为 RFC Editor RFC 5681、RFC 9293、RFC 6298、Microsoft Learn latency/throughput、Washington University TCP/UDP congestion slide 和小林 coding；IETF Datatracker RFC 5681 页面触发 Cloudflare 验证，改用 RFC Editor 页面。
+- Online Image References：
+  - `source`：Wikimedia Commons - TCP Slow-Start and Congestion Avoidance，https://commons.wikimedia.org/wiki/File:TCP_Slow-Start_and_Congestion_Avoidance.svg；`image`：页面主 SVG/PNG 预览；`role`：main；`qualityReason`：清晰展示 cwnd 随 RTT 的慢启动、ssthresh、丢包降窗和拥塞避免曲线；`takeaways`：主画布采用 cwnd 曲线、ssthresh 虚线、loss/halve/RTO 标记和 RTT 横轴；`originalChanges`：改成本项目五步状态模型，加入发送端窗口、路径反馈、重复 ACK 报文流和底部指标卡。
+  - `source`：RFC Editor - RFC 5681: TCP Congestion Control，https://www.rfc-editor.org/rfc/rfc5681；`image`：官方算法章节文本结构；`role`：supporting；`qualityReason`：权威定义慢启动、拥塞避免、快速重传和快速恢复；`takeaways`：步骤语义按 RFC 四个算法推进；`originalChanges`：把规范文字转成可操作的 cwnd 控制实验室。
+  - `source`：RFC Editor - RFC 9293: Transmission Control Protocol，https://www.rfc-editor.org/rfc/rfc9293；`image`：TCP 基础与窗口/确认语义；`role`：supporting；`qualityReason`：校准 TCP 序号、ACK 和窗口基础；`takeaways`：发送端窗口面板保留 `min(cwnd, rwnd)`；`originalChanges`：用短指标卡表达实际发送窗口。
+  - `source`：RFC Editor - RFC 6298: Computing TCP's Retransmission Timer，https://www.rfc-editor.org/rfc/rfc6298；`image`：RTO 计算与超时语义；`role`：supporting；`qualityReason`：校准 RTO 与保守回退语义；`takeaways`：第五步展示 RTO 后 `cwnd=1 MSS`；`originalChanges`：将 RTO 放到路径反馈的 timer 信号与红色降窗段。
+  - `source`：Washington University - Transport Layer: TCP and UDP slide 47，https://www.cs.wustl.edu/~jain/cse473-16/ftp/i_3tcp_slide47.pdf；`image`：单页 TCP congestion control 课程图；`role`：supporting；`qualityReason`：课程型图能补充教学节奏和图表标注；`takeaways`：保留 cwnd 曲线和阶段标签；`originalChanges`：改为本项目的画布、中文标签、右侧面板和移动端流程卡。
+- Reference Breakdown：主体布局为左侧 cwnd-over-RTT 曲线图，右上发送端窗口，右中路径反馈，底部数据段/ACK 回路和指标卡；视觉焦点是 `IW -> slow start -> ssthresh -> loss -> halve -> fast recovery -> RTO` 的窗口曲线。
+- 领域对象：TCP sender、cwnd、ssthresh、rwnd、effective send window、ACK clock、bottleneck queue、duplicate ACK、fast retransmit、fast recovery、RTO、loss window、RTT、BDP。
+- 容器层级：主曲线图展示窗口演进；发送端窗口面板展示 cwnd/ssthresh/dupACK/effective；路径反馈面板展示 ACK clock、queue、dupACK、timer；底部报文流展示段 3 丢失和三次重复 ACK。
+- 连线方向：sender window -> bottleneck path -> receiver ACK -> recovery logic -> sender window；曲线按 RTT 从左到右推进，RTO 红色降窗作为最后状态。
+- 状态表达：五步依次高亮慢启动、拥塞避免、重复 ACK/快速重传、快速恢复、RTO 保守回退；指标卡随 completedSteps 更新。
+- 颜色策略：品牌蓝表示慢启动，青色表示拥塞避免，橙色表示重复 ACK 与降半阈值，绿色表示快速恢复，红色表示 RTO 和保守回退。
+- 文字密度：桌面 SVG 保留短标签、指标值和阶段名称；移动端改成五张流程卡与四张事实卡，隐藏复杂曲线。
+- 交互节奏：按 ACK 翻倍 cwnd -> 越过 ssthresh -> 三次重复 ACK 快速重传 -> 新 ACK 退出恢复 -> RTO 降到 loss window。
+- 原创改造点：把经典 cwnd 曲线、RFC 5681/6298 规范语义和工程排障指标融合成发送端控制实验室，强调 `min(cwnd,rwnd)`、dupACK 与 RTO 的不同恢复信号。
+- Implementation：新增 `network:tcp-congestion-control` 专用 `state-model` 构建器、TCP congestion SVG 舞台、移动端流程卡、响应式样式、来源引用和数据测试，并给 TCP 拥塞控制知识点补充 `ai-visualized:2026-06-04` 与 visual-source 标签。
+- Browser Note：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP 成功打开 Wikimedia、WUSTL PDF、RFC Editor 与本地 review HTML；Datatracker 触发 Cloudflare 验证；SSR 审查时 Vite HMR WebSocket 触发 `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` 渲染完成。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/tcp-congestion-control/desktop.png`（2800x1622）、`.codex-artifacts/visualizations/tcp-congestion-control/mobile.png`（1000x1766）、`.codex-artifacts/visualizations/tcp-congestion-control/desktop.svg`、`.codex-artifacts/visualizations/tcp-congestion-control/desktop.html`、`.codex-artifacts/visualizations/tcp-congestion-control/mobile.html` 与 `.codex-artifacts/visualizations/tcp-congestion-control/mobile.html.fragment`；桌面 PNG 可识别 cwnd 曲线、ssthresh、loss、halve、ACK、RTO、发送端窗口、路径反馈、重复 ACK 回路和 5/5 进度，移动 PNG 展示五步流程和四个事实卡。
+- Verification：继承红测试先失败于 generic `Transport control` 模拟，补专用 builder/stage/source 后 `npm run test:data -- --grep "network TCP congestion control"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 26 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add tcp congestion control visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：MySQL `Crash Recovery`，备选 Kubernetes `拓扑分布约束` 或 MySQL `Purge`。

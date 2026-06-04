@@ -205,6 +205,11 @@
     justify-content: start;
   }
 
+  .tcp-congestion-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .buffer-pool-stage {
     overflow-x: auto;
     justify-content: start;
@@ -725,6 +730,26 @@
     padding: 18px;
   }
 
+  .tcp-congestion-card {
+    width: 100%;
+  }
+
+  .tcp-congestion-diagram {
+    display: none;
+  }
+
+  .tcp-congestion-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
+  .tcp-congestion-caption {
+    position: static;
+    margin: 0 18px 18px;
+    justify-content: space-between;
+  }
+
   .docker-bridge-card {
     width: 100%;
   }
@@ -1021,6 +1046,8 @@
   .undo-log-mobile-facts,
   .redis-rdb-mobile-flow,
   .redis-rdb-mobile-facts,
+  .tcp-congestion-mobile-flow,
+  .tcp-congestion-mobile-facts,
   .redis-cow-mobile-flow,
   .redis-cow-mobile-facts,
   .binlog-mobile-flow,
@@ -1080,6 +1107,8 @@
   .undo-log-mobile-fact,
   .redis-rdb-mobile-hop,
   .redis-rdb-mobile-fact,
+  .tcp-congestion-mobile-hop,
+  .tcp-congestion-mobile-fact,
   .redis-cow-mobile-hop,
   .redis-cow-mobile-fact,
   .binlog-mobile-hop,
@@ -1200,6 +1229,8 @@
   .undo-log-mobile-fact span,
   .redis-rdb-mobile-hop span,
   .redis-rdb-mobile-fact span,
+  .tcp-congestion-mobile-hop span,
+  .tcp-congestion-mobile-fact span,
   .redis-cow-mobile-hop span,
   .redis-cow-mobile-fact span,
   .binlog-mobile-hop span,
@@ -1258,6 +1289,8 @@
   .undo-log-mobile-fact strong,
   .redis-rdb-mobile-hop strong,
   .redis-rdb-mobile-fact strong,
+  .tcp-congestion-mobile-hop strong,
+  .tcp-congestion-mobile-fact strong,
   .redis-cow-mobile-hop strong,
   .redis-cow-mobile-fact strong,
   .binlog-mobile-hop strong,

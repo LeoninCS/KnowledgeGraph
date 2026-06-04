@@ -3623,6 +3623,354 @@
   bottom: 14px;
 }
 
+.tcp-congestion-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.tcp-congestion-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .tcp-congestion-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.tcp-congestion-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.tcp-congestion-mobile-map {
+  display: none;
+}
+
+.tcp-congestion-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 28%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.tcp-congestion-title {
+  fill: var(--text);
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.tcp-congestion-subtitle {
+  fill: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.tcp-congestion-chart > rect,
+.tcp-congestion-sender > rect,
+.tcp-congestion-path > rect {
+  fill: color-mix(in srgb, var(--surface) 93%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 17%, var(--border));
+  stroke-width: 1.25;
+  filter: url("#tcp-congestion-soft-shadow");
+}
+
+.tcp-congestion-sender,
+.tcp-congestion-path,
+.tcp-congestion-curve,
+.tcp-congestion-point,
+.tcp-congestion-row,
+.tcp-congestion-signal,
+.tcp-congestion-segment,
+.tcp-congestion-wire,
+.tcp-congestion-ack-wire,
+.tcp-congestion-wire-label,
+.tcp-congestion-threshold {
+  opacity: 0.28;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.tcp-congestion-sender.active,
+.tcp-congestion-path.active,
+.tcp-congestion-curve.active,
+.tcp-congestion-point.active,
+.tcp-congestion-row.active,
+.tcp-congestion-signal.active,
+.tcp-congestion-segment.active,
+.tcp-congestion-wire.active,
+.tcp-congestion-ack-wire.active,
+.tcp-congestion-wire-label.active,
+.tcp-congestion-threshold.active {
+  opacity: 1;
+}
+
+.tcp-congestion-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.tcp-congestion-panel-subtitle {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 820;
+}
+
+.tcp-congestion-grid path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--muted) 16%, transparent);
+  stroke-width: 1;
+}
+
+.tcp-congestion-axis {
+  fill: none;
+  stroke: color-mix(in srgb, var(--text) 42%, transparent);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.tcp-congestion-axis-label,
+.tcp-congestion-threshold-label {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.tcp-congestion-threshold {
+  fill: none;
+  stroke: color-mix(in srgb, #f59e0b 55%, transparent);
+  stroke-width: 2;
+  stroke-dasharray: 7 7;
+}
+
+.tcp-congestion-threshold-label.active {
+  fill: #b45309;
+}
+
+.tcp-congestion-curve {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tcp-congestion-curve.brand {
+  stroke: var(--brand);
+}
+
+.tcp-congestion-curve.teal {
+  stroke: var(--tertiary);
+}
+
+.tcp-congestion-curve.warning {
+  stroke: #f59e0b;
+}
+
+.tcp-congestion-curve.success {
+  stroke: var(--success);
+}
+
+.tcp-congestion-curve.danger {
+  stroke: var(--danger);
+}
+
+.tcp-congestion-point circle {
+  fill: var(--surface);
+  stroke-width: 3;
+}
+
+.tcp-congestion-point.brand circle {
+  stroke: var(--brand);
+}
+
+.tcp-congestion-point.teal circle {
+  stroke: var(--tertiary);
+}
+
+.tcp-congestion-point.warning circle {
+  stroke: #f59e0b;
+}
+
+.tcp-congestion-point.success circle {
+  stroke: var(--success);
+}
+
+.tcp-congestion-point.danger circle {
+  stroke: var(--danger);
+}
+
+.tcp-congestion-point text,
+.tcp-congestion-row text,
+.tcp-congestion-signal text,
+.tcp-congestion-segment text,
+.tcp-congestion-wire-label {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 900;
+}
+
+.tcp-congestion-point text {
+  fill: var(--text);
+  text-anchor: middle;
+}
+
+.tcp-congestion-row rect,
+.tcp-congestion-signal rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 14%, var(--border));
+  filter: url("#tcp-congestion-soft-shadow");
+}
+
+.tcp-congestion-row.brand.active rect,
+.tcp-congestion-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.tcp-congestion-row.teal.active rect,
+.tcp-congestion-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 42%, var(--border));
+}
+
+.tcp-congestion-row.warning.active rect,
+.tcp-congestion-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 12%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 52%, var(--border));
+}
+
+.tcp-congestion-row.success.active rect,
+.tcp-congestion-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 42%, var(--border));
+}
+
+.tcp-congestion-row.danger.active rect,
+.tcp-congestion-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 42%, var(--border));
+}
+
+.tcp-congestion-row text:first-of-type {
+  fill: var(--text);
+  text-anchor: start;
+}
+
+.tcp-congestion-row text:last-of-type {
+  fill: var(--brand-strong);
+  font-size: 8.8px;
+  text-anchor: end;
+}
+
+.tcp-congestion-segment rect {
+  fill: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.tcp-congestion-segment.lost rect {
+  fill: color-mix(in srgb, var(--danger) 13%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 48%, var(--border));
+  stroke-dasharray: 5 4;
+}
+
+.tcp-congestion-segment text {
+  fill: var(--text);
+  text-anchor: middle;
+}
+
+.tcp-congestion-wire,
+.tcp-congestion-ack-wire {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+.tcp-congestion-wire {
+  stroke: var(--brand);
+}
+
+.tcp-congestion-ack-wire {
+  stroke: #f59e0b;
+  stroke-dasharray: 8 7;
+}
+
+.tcp-congestion-wire-label {
+  fill: #b45309;
+  text-anchor: middle;
+}
+
+.tcp-congestion-signal text {
+  text-anchor: middle;
+}
+
+.tcp-congestion-signal text:first-of-type {
+  fill: var(--muted);
+  font-size: 8px;
+}
+
+.tcp-congestion-signal text:last-of-type {
+  fill: var(--text);
+  font-size: 8.2px;
+}
+
+.tcp-congestion-mobile-flow,
+.tcp-congestion-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.tcp-congestion-mobile-hop,
+.tcp-congestion-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--brand) 5%, var(--surface));
+  padding: 12px;
+}
+
+.tcp-congestion-mobile-hop span,
+.tcp-congestion-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.tcp-congestion-mobile-hop strong,
+.tcp-congestion-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.tcp-congestion-mobile-hop.active,
+.tcp-congestion-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--brand) 42%, var(--border));
+  background: color-mix(in srgb, var(--brand) 9%, var(--surface));
+}
+
+.tcp-congestion-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .buffer-bg {
   fill: color-mix(in srgb, var(--brand-soft) 30%, var(--surface));
   stroke: color-mix(in srgb, var(--brand) 18%, transparent);

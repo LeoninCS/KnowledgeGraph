@@ -884,7 +884,24 @@ const networkKnowledgePointBase = [
   /* <!-- KG_REVIEWED: TCP 拥塞控制 | 2026-05-30 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: TCP 拥塞控制 | 2026-05-23 | source_count=5 --> */
   {
-    sourceRefs: ["rfc5681-tcp-congestion", "rfc9293-tcp", "rfc6298-tcp-rto", "microsoft-latency-throughput", "xiaolin-coding"],
+    sourceRefs: [
+      "rfc5681-tcp-congestion",
+      "rfc9293-tcp",
+      "rfc6298-tcp-rto",
+      "microsoft-latency-throughput",
+      "wikimedia-tcp-slow-start-congestion-avoidance",
+      "wustl-tcp-udp-congestion-slide",
+      "xiaolin-coding",
+    ],
+    internalTags: [
+      "ai-visualized:2026-06-04",
+      "visual-source:wikimedia-tcp-slow-start-congestion-avoidance",
+      "visual-source:rfc5681-tcp-congestion",
+      "visual-source:rfc9293-tcp",
+      "visual-source:rfc6298-tcp-rto",
+      "visual-source:microsoft-latency-throughput",
+      "visual-source:wustl-tcp-udp-congestion-slide",
+    ],
     id: "tcp-congestion-control",
     zh: "TCP 拥塞控制",
     en: "TCP Congestion Control",

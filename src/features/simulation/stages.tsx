@@ -110,6 +110,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "network:tcp-congestion-control") {
+    return (
+      <TcpCongestionControlStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "network:switch") {
     return (
       <SwitchForwardingStage
@@ -1548,6 +1559,250 @@ function TcpIpModelStage({
           </g>
         </svg>
         <div className="tcp-handshake-caption tcp-ip-model-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TcpCongestionControlStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const slowStartActive = completedSteps >= 1;
+  const avoidanceActive = completedSteps >= 2;
+  const dupAckActive = completedSteps >= 3;
+  const recoveryActive = completedSteps >= 4;
+  const rtoActive = completedSteps >= 5;
+  const curveSegments = [
+    { id: "slow", d: "M 126 444 L 206 386 L 286 270 L 366 150", tone: "brand", active: slowStartActive },
+    { id: "avoid", d: "M 366 150 L 438 138 L 506 126", tone: "teal", active: avoidanceActive },
+    { id: "loss", d: "M 506 126 L 552 312", tone: "warning", active: dupAckActive },
+    { id: "recover", d: "M 552 312 L 612 290 L 672 268", tone: "success", active: recoveryActive },
+    { id: "rto", d: "M 672 268 L 684 466", tone: "danger", active: rtoActive },
+  ];
+  const samplePoints = [
+    { x: 126, y: 444, label: "IW", step: 1, tone: "brand" },
+    { x: 366, y: 150, label: "ssthresh", step: 2, tone: "teal" },
+    { x: 506, y: 126, label: "loss", step: 3, tone: "warning" },
+    { x: 552, y: 312, label: "halve", step: 3, tone: "warning" },
+    { x: 672, y: 268, label: "ACK", step: 4, tone: "success" },
+    { x: 684, y: 466, label: "RTO", step: 5, tone: "danger" },
+  ];
+  const metricRows = [
+    {
+      name: "cwnd",
+      value: rtoActive ? "1 MSS" : recoveryActive ? "25 MSS" : dupAckActive ? "48 -> 24" : avoidanceActive ? "48 MSS" : slowStartActive ? "40 MSS" : "10 MSS",
+      active: slowStartActive,
+      tone: rtoActive ? "danger" : dupAckActive ? "warning" : "brand",
+    },
+    {
+      name: "ssthresh",
+      value: rtoActive ? "12 MSS" : dupAckActive ? "24 MSS" : avoidanceActive ? "40 MSS" : "pending",
+      active: avoidanceActive,
+      tone: dupAckActive ? "warning" : "teal",
+    },
+    {
+      name: "dup ACKs",
+      value: dupAckActive ? "3" : "0",
+      active: dupAckActive,
+      tone: "warning",
+    },
+    {
+      name: "effective",
+      value: rtoActive ? "min(1,48)" : recoveryActive ? "min(25,48)" : "min(cwnd,48)",
+      active: slowStartActive,
+      tone: rtoActive ? "danger" : "success",
+    },
+  ];
+  const feedbackRows = [
+    { name: "ACK clock", value: slowStartActive ? "paced" : "idle", active: slowStartActive, tone: "brand" },
+    { name: "queue", value: avoidanceActive ? "62%" : "12%", active: avoidanceActive, tone: "teal" },
+    { name: "dupACK", value: dupAckActive ? "#3" : "clear", active: dupAckActive, tone: "warning" },
+    { name: "timer", value: rtoActive ? "RTO" : "armed", active: rtoActive, tone: "danger" },
+  ];
+  const mobileFlow = [
+    { name: label("慢启动", "Slow start"), value: "cwnd 10 -> 40", active: slowStartActive },
+    { name: label("拥塞避免", "Avoidance"), value: "AI per RTT", active: avoidanceActive },
+    { name: label("快速重传", "Fast retransmit"), value: "dupACK=3", active: dupAckActive },
+    { name: label("快速恢复", "Fast recovery"), value: "cwnd -> ssthresh", active: recoveryActive },
+    { name: label("超时回退", "RTO backoff"), value: "cwnd=1 MSS", active: rtoActive },
+  ];
+
+  return (
+    <div className="visual-stage tcp-congestion-stage">
+      <div className="tcp-congestion-card">
+        <svg
+          className="tcp-congestion-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["tcp-congestion-arrow-brand", "var(--brand)"],
+              ["tcp-congestion-arrow-teal", "var(--tertiary)"],
+              ["tcp-congestion-arrow-warning", "#f59e0b"],
+              ["tcp-congestion-arrow-danger", "var(--danger)"],
+              ["tcp-congestion-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="tcp-congestion-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="tcp-congestion-bg" x="24" y="24" width="1072" height="584" rx="28" />
+          <text className="tcp-congestion-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="tcp-congestion-subtitle" x="560" y="100">
+            {label(
+              "ACK clock -> cwnd growth -> dupACK recovery -> RTO conservative restart",
+              "ACK clock -> cwnd growth -> dupACK recovery -> RTO conservative restart",
+            )}
+          </text>
+
+          <g className="tcp-congestion-chart">
+            <rect x="74" y="126" width="650" height="374" rx="24" />
+            <text className="tcp-congestion-panel-title" x="104" y="164">
+              {label("拥塞窗口曲线", "Congestion window curve")}
+            </text>
+            <text className="tcp-congestion-panel-subtitle" x="104" y="188">
+              {label("纵轴 cwnd，横轴 RTT；颜色表示当前控制阶段", "cwnd on Y, RTT on X; color marks the active control phase")}
+            </text>
+            <g className="tcp-congestion-grid">
+              {[0, 1, 2, 3, 4].map((index) => (
+                <path key={`h-${index}`} d={`M 116 ${444 - index * 74} H 684`} />
+              ))}
+              {[0, 1, 2, 3, 4, 5, 6].map((index) => (
+                <path key={`v-${index}`} d={`M ${126 + index * 88} 444 V 166`} />
+              ))}
+            </g>
+            <path className="tcp-congestion-axis" d="M 116 458 H 690 M 116 458 V 154" />
+            <text className="tcp-congestion-axis-label" x="104" y="156">cwnd</text>
+            <text className="tcp-congestion-axis-label" x="676" y="482">RTT</text>
+            <path className={`tcp-congestion-threshold ${avoidanceActive ? "active" : ""}`} d="M 116 270 H 690" />
+            <text className={`tcp-congestion-threshold-label ${avoidanceActive ? "active" : ""}`} x="618" y="262">ssthresh</text>
+            {curveSegments.map((segment) => (
+              <path
+                key={segment.id}
+                className={`tcp-congestion-curve ${segment.tone} ${segment.active ? "active" : ""}`}
+                d={segment.d}
+                markerEnd={`url(#tcp-congestion-arrow-${segment.tone})`}
+              />
+            ))}
+            {samplePoints.map((point) => (
+              <g
+                key={point.label}
+                className={`tcp-congestion-point ${point.tone} ${completedSteps >= point.step ? "active" : ""}`}
+              >
+                <circle cx={point.x} cy={point.y} r="8" />
+                <text x={point.x} y={point.y - 16}>{point.label}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`tcp-congestion-sender ${slowStartActive ? "active" : ""}`}>
+            <rect x="782" y="132" width="270" height="170" rx="24" />
+            <text className="tcp-congestion-panel-title" x="812" y="170">
+              {label("发送端窗口", "Sender window")}
+            </text>
+            <text className="tcp-congestion-panel-subtitle" x="812" y="194">
+              {label("实际可发 = min(cwnd, rwnd)", "Effective send = min(cwnd, rwnd)")}
+            </text>
+            {metricRows.map((row, index) => (
+              <g key={row.name} className={`tcp-congestion-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="812" y={218 + index * 28} width="188" height="22" rx="11" />
+                <text x="828" y={233 + index * 28}>{row.name}</text>
+                <text x="984" y={233 + index * 28}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`tcp-congestion-path ${avoidanceActive ? "active" : ""}`}>
+            <rect x="782" y="326" width="270" height="150" rx="24" />
+            <text className="tcp-congestion-panel-title" x="812" y="364">
+              {label("路径反馈", "Path feedback")}
+            </text>
+            {feedbackRows.map((row, index) => (
+              <g key={row.name} className={`tcp-congestion-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="812" y={388 + index * 25} width="188" height="20" rx="10" />
+                <text x="828" y={402 + index * 25}>{row.name}</text>
+                <text x="984" y={402 + index * 25}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="tcp-congestion-packets">
+            {[0, 1, 2, 3, 4, 5].map((index) => (
+              <g
+                key={`seg-${index}`}
+                className={`tcp-congestion-segment ${
+                  slowStartActive ? "active" : ""
+                } ${dupAckActive && index === 2 ? "lost" : ""}`}
+              >
+                <rect x={104 + index * 56} y="518" width="40" height="26" rx="10" />
+                <text x={124 + index * 56} y="535">{index + 1}</text>
+              </g>
+            ))}
+            <path className={`tcp-congestion-wire ${slowStartActive ? "active" : ""}`} d="M 448 532 C 540 502, 646 502, 746 532" markerEnd="url(#tcp-congestion-arrow-brand)" />
+            <path className={`tcp-congestion-ack-wire ${dupAckActive ? "active" : ""}`} d="M 746 558 C 646 590, 500 590, 376 558" markerEnd="url(#tcp-congestion-arrow-warning)" />
+            <text className={`tcp-congestion-wire-label ${dupAckActive ? "active" : ""}`} x="562" y="584">ACK 3, ACK 3, ACK 3</text>
+          </g>
+
+          <g className="tcp-congestion-signals">
+            {metricRows.map((row, index) => (
+              <g key={row.name} className={`tcp-congestion-signal ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x={782 + index * 68} y="506" width="60" height="52" rx="16" />
+                <text x={812 + index * 68} y="526">{row.name}</text>
+                <text x={812 + index * 68} y="546">{row.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="tcp-congestion-mobile-map">
+          <div className="tcp-congestion-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`tcp-congestion-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="tcp-congestion-mobile-facts">
+            {metricRows.map((row) => (
+              <div key={row.name} className={`tcp-congestion-mobile-fact ${row.active ? "active" : ""}`}>
+                <span>{row.name}</span>
+                <strong>{row.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption tcp-congestion-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>
