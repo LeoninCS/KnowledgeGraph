@@ -1285,6 +1285,26 @@ export const knowledgeSources = {
     title: "ip-route(8) - Linux routing table management",
     url: "https://man7.org/linux/man-pages/man8/ip-route.8.html",
   },
+  "man7-ip-rule": {
+    title: "ip-rule(8) - Linux routing policy database management",
+    url: "https://man7.org/linux/man-pages/man8/ip-rule.8.html",
+  },
+  "rfc1812-router-requirements": {
+    title: "RFC 1812: Requirements for IP Version 4 Routers",
+    url: "https://www.rfc-editor.org/rfc/rfc1812",
+  },
+  "rfc2328-ospf": {
+    title: "RFC 2328: OSPF Version 2",
+    url: "https://www.rfc-editor.org/rfc/rfc2328",
+  },
+  "rfc4271-bgp": {
+    title: "RFC 4271: A Border Gateway Protocol 4 (BGP-4)",
+    url: "https://www.rfc-editor.org/rfc/rfc4271",
+  },
+  "frr-zebra": {
+    title: "FRRouting Docs: Zebra",
+    url: "https://docs.frrouting.org/en/latest/zebra.html",
+  },
   "rfc8200-ipv6": {
     title: "RFC 8200: Internet Protocol, Version 6 (IPv6) Specification",
     url: "https://www.rfc-editor.org/rfc/rfc8200",
@@ -1336,6 +1356,10 @@ export const knowledgeSources = {
   "aws-vpc-route-options": {
     title: "AWS VPC: Example routing options",
     url: "https://docs.aws.amazon.com/vpc/latest/userguide/route-table-options.html",
+  },
+  "aws-vpc-reachability-analyzer": {
+    title: "AWS VPC: Troubleshoot reachability issues using Reachability Analyzer",
+    url: "https://docs.aws.amazon.com/vpc/latest/userguide/reachability-analyzer.html",
   },
   "aws-vpc-nat-gateway": {
     title: "AWS VPC: NAT gateways",
