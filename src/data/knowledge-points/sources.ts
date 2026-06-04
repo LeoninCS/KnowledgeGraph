@@ -2653,6 +2653,14 @@ export const knowledgeSources = {
     title: "IEEE 802.3 Ethernet Working Group",
     url: "https://www.ieee802.org/3/",
   },
+  "ieee-ra-faq": {
+    title: "IEEE SA: IEEE Registration Authority FAQs",
+    url: "https://standards.ieee.org/faqs/regauth/",
+  },
+  "rfc9542-ieee802-parameters": {
+    title: "RFC 9542: IANA Considerations for IEEE 802 Parameters",
+    url: "https://www.rfc-editor.org/rfc/rfc9542",
+  },
   "cisco-ethernet-autonegotiation": {
     title: "Cisco: Troubleshooting Ethernet Autonegotiation",
     url: "https://www.cisco.com/c/en/us/support/docs/lan-switching/ethernet/10561-3.html",
@@ -2673,9 +2681,17 @@ export const knowledgeSources = {
     title: "Cisco Catalyst 3560: Managing the MAC Address Table",
     url: "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3560/software/release/15-0_2_se/configuration/guide/scg3560/swadmin.html",
   },
+  "cisco-arp-cam-troubleshooting": {
+    title: "Cisco: Catalyst ARP or CAM Table Issues Troubleshooting",
+    url: "https://www.cisco.com/c/en/us/support/docs/switches/catalyst-6500-series-switches/71079-arp-cam-tableissues.html",
+  },
   "cisco-network-switching-operation": {
     title: "Cisco Community: Network Switching Operation",
     url: "https://community.cisco.com/t5/networking-knowledge-base/network-switching-operation/ta-p/4193160",
+  },
+  "h3c-mac-address-table": {
+    title: "H3C: MAC 地址表命令",
+    url: "https://www.h3c.com/cn/d_201908/1219357_30005_0.htm",
   },
   "gfg-switch-functions-layer2": {
     title: "GeeksForGeeks: Switch functions at layer 2",
