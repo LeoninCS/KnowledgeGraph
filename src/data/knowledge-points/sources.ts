@@ -2713,13 +2713,29 @@ export const knowledgeSources = {
     title: "RFC 826: An Ethernet Address Resolution Protocol",
     url: "https://www.rfc-editor.org/rfc/rfc826",
   },
+  "rfc5227-ipv4-acd": {
+    title: "RFC 5227: IPv4 Address Conflict Detection",
+    url: "https://www.rfc-editor.org/rfc/rfc5227",
+  },
   "wireshark-arp": {
     title: "Wireshark Wiki: Address Resolution Protocol",
     url: "https://wiki.wireshark.org/AddressResolutionProtocol",
   },
+  "man7-ip-neighbour": {
+    title: "Linux man-pages: ip-neighbour",
+    url: "https://man7.org/linux/man-pages/man8/ip-neighbour.8.html",
+  },
   "cisco-arp-config": {
     title: "Cisco: Configuring ARP",
     url: "https://www.cisco.com/c/en/us/td/docs/routers/asr920/configuration/guide/ip/ip-arp.html",
+  },
+  "cisco-dynamic-arp-inspection": {
+    title: "Cisco Catalyst 9400: Configuring Dynamic ARP Inspection",
+    url: "https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst9400/software/release/17-9/configuration_guide/sec/b_179_sec_9400_cg/configuring_dynamic_arp_inspection.html",
+  },
+  "h3c-arp-configuration": {
+    title: "H3C: ARP Configuration",
+    url: "https://wwwsg.h3c.com/en/d_202407/2225015_294551_0.htm",
   },
   "geeksforgeeks-ethernet-frame": {
     title: "GeeksForGeeks: Ethernet Frame Format",
