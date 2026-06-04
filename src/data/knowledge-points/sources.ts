@@ -4393,6 +4393,22 @@ export const knowledgeSources = {
     title: "Docker Docs: docker compose up",
     url: "https://docs.docker.com/reference/cli/docker/compose/up/",
   },
+  "docker-compose-production": {
+    title: "Docker Docs: Use Compose in production",
+    url: "https://docs.docker.com/compose/how-tos/production/",
+  },
+  "docker-compose-config-cli": {
+    title: "Docker Docs: docker compose config",
+    url: "https://docs.docker.com/reference/cli/docker/compose/config/",
+  },
+  "docker-compose-pull-cli": {
+    title: "Docker Docs: docker compose pull",
+    url: "https://docs.docker.com/reference/cli/docker/compose/pull/",
+  },
+  "docker-compose-restart-cli": {
+    title: "Docker Docs: docker compose restart",
+    url: "https://docs.docker.com/reference/cli/docker/compose/restart/",
+  },
   "docker-compose-profiles": {
     title: "Docker Docs: Using profiles with Compose",
     url: "https://docs.docker.com/compose/how-tos/profiles/",
@@ -4676,6 +4692,10 @@ export const knowledgeSources = {
   "docker-practice-architecture": {
     title: "Docker 从入门到实践: Docker 架构",
     url: "https://yeasy.gitbook.io/docker_practice/introduction/what",
+  },
+  "docker-practice-compose": {
+    title: "Docker 从入门到实践: Docker Compose",
+    url: "https://yeasy.gitbook.io/docker_practice/compose",
   },
   "docker-container-concepts": {
     title: "Docker Docs: What is a container?",
