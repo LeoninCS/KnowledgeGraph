@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Test review tooling
+        run: npm run test:review
+
       - name: Validate knowledge content
         run: npm run kg:review:validate
 

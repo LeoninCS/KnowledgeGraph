@@ -68,9 +68,11 @@ npm run kg:review:start
 npm run kg:review:batch -- --limit 5
 npm run kg:review:complete -- --source-count 5
 npm run kg:review:mark
+npm run kg:review:sync-counts
 npm run kg:review:autopass -- --limit 10
 npm run kg:review:handoff
 npm run kg:review:validate
+npm run test:review
 npm run kg:review:fail -- --reason "Chrome DevTools disconnected"
 ```
 
@@ -78,12 +80,15 @@ npm run kg:review:fail -- --reason "Chrome DevTools disconnected"
 
 `kg:review:batch -- --limit 5` 会领取下一批知识点，适合共享同一组资料一起审阅。审阅和改写完成后运行 `npm run kg:review:mark`，脚本会给当前批次逐个写入 `KG_REVIEWED` 标记。也可以用 `npm run kg:review:mark -- --ids network/tcp-ip-model,network/signal` 指定批量标记。
 
+`kg:review:sync-counts` 会扫描所有已有 `KG_REVIEWED` 标记的知识点，把标记里的 `source_count` 同步为实际 `sourceRefs` 数量。新增或删除引用来源后先运行这个命令，再运行校验。
+
 `kg:review:autopass -- --limit 10` 是自动快车道：对已经满足来源数、讲解段落数和面试题数量门槛的知识点批量写入 `KG_REVIEWED`。默认门槛是来源不少于 3 个、讲解不少于 5 段、面试题不少于 3 个。复杂、过时或来源较弱的知识点继续使用 Chrome DevTools 人工复核。
 
 推荐自动运行节奏：
 
 ```bash
 npm run kg:review:autopass -- --limit 20
+npm run kg:review:sync-counts
 npm run kg:review:validate
 npm run build
 ```

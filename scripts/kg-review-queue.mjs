@@ -512,6 +512,46 @@ async function markReviewed(args = {}) {
   });
 }
 
+async function syncCounts(args = {}) {
+  await withLock(async () => {
+    const queue = await buildQueue(args);
+    const date = args.date ?? today();
+    const ids = new Set(splitList(args.ids));
+    const categoryFilter = new Set(splitList(args.category ?? args.categories));
+    const synced = [];
+
+    for (const item of queue) {
+      const globalId = `${item.categoryId}/${item.id}`;
+      if (!item.reviewed) {
+        continue;
+      }
+      if (ids.size > 0 && !ids.has(globalId) && !ids.has(item.id)) {
+        continue;
+      }
+      if (categoryFilter.size > 0 && !categoryFilter.has(item.categoryId)) {
+        continue;
+      }
+      if (item.reviewedMarker.sourceCount === item.sourceRefs.length) {
+        continue;
+      }
+
+      await writeMarker({
+        categoryId: item.categoryId,
+        id: item.id,
+        date,
+        sourceCount: item.sourceRefs.length,
+      });
+      synced.push({
+        item: globalId,
+        markerSourceCount: item.reviewedMarker.sourceCount,
+        actualSourceCount: item.sourceRefs.length,
+      });
+    }
+
+    printJson({ synced, count: synced.length });
+  });
+}
+
 async function autopass(args = {}) {
   await withLock(async () => {
     const state = await readState();
@@ -724,6 +764,10 @@ async function main() {
   }
   if (command === "mark-reviewed") {
     await markReviewed(args);
+    return;
+  }
+  if (command === "sync-counts") {
+    await syncCounts(args);
     return;
   }
   if (command === "autopass") {
