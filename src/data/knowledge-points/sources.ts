@@ -1197,6 +1197,10 @@ export const knowledgeSources = {
     title: "小林 coding：键入网址到网页显示，期间发生了什么？",
     url: "https://xiaolincoding.com/network/1_base/what_happen_url.html",
   },
+  "xiaolincoding-tcp-feature": {
+    title: "小林 coding：TCP 重传、滑动窗口、流量控制、拥塞控制",
+    url: "https://xiaolincoding.com/network/3_tcp/tcp_feature.html",
+  },
   "rfc1122-internet-layers": {
     title: "RFC 1122 Requirements for Internet Hosts: Communication Layers",
     url: "https://www.rfc-editor.org/rfc/rfc1122#page-8",
@@ -1228,6 +1232,10 @@ export const knowledgeSources = {
   "microsoft-port-exhaustion": {
     title: "Microsoft Learn: Troubleshoot port exhaustion issues",
     url: "https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/tcp-ip-port-exhaustion-troubleshooting",
+  },
+  "microsoft-windows-network-adapter-performance": {
+    title: "Microsoft Learn: Network adapter performance tuning in Windows Server",
+    url: "https://learn.microsoft.com/en-us/windows-server/networking/technologies/network-subsystem/net-sub-performance-tuning-nics",
   },
   "oracle-packet-encapsulation": {
     title: "Oracle Solaris: Data Encapsulation and the TCP/IP Protocol Stack",
@@ -1292,6 +1300,10 @@ export const knowledgeSources = {
   "man7-socket": {
     title: "socket(7) - Linux socket interface",
     url: "https://man7.org/linux/man-pages/man7/socket.7.html",
+  },
+  "man7-tcp": {
+    title: "tcp(7) - Linux TCP protocol implementation",
+    url: "https://man7.org/linux/man-pages/man7/tcp.7.html",
   },
   "linux-ip-sysctl": {
     title: "Linux kernel documentation: IP sysctl",
@@ -1440,6 +1452,10 @@ export const knowledgeSources = {
   "rfc9293-tcp": {
     title: "RFC 9293: Transmission Control Protocol (TCP)",
     url: "https://www.rfc-editor.org/rfc/rfc9293",
+  },
+  "cloudflare-tcp-ip": {
+    title: "Cloudflare Learning Center: What is TCP/IP?",
+    url: "https://www.cloudflare.com/learning/ddos/glossary/tcp-ip/",
   },
   "rfc6056-port-randomization": {
     title: "RFC 6056: Recommendations for Transport-Protocol Port Randomization",
