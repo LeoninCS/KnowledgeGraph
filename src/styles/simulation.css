@@ -3266,6 +3266,271 @@
   display: none;
 }
 
+.dns-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.dns-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 24%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .dns-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.dns-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.dns-mobile-map {
+  display: none;
+}
+
+.dns-bg {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);
+}
+
+.dns-title {
+  fill: var(--text);
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.dns-subtitle {
+  fill: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.dns-client,
+.dns-resolver,
+.dns-hierarchy-node,
+.dns-app,
+.dns-local-cache,
+.dns-cache-drawer,
+.dns-ttl-gauge,
+.dns-path,
+.dns-cache-row,
+.dns-debug-row,
+.dns-refresh-loop {
+  opacity: 0.3;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.dns-client.active,
+.dns-resolver.active,
+.dns-hierarchy-node.active,
+.dns-app.active,
+.dns-local-cache.active,
+.dns-cache-drawer.active,
+.dns-ttl-gauge.active,
+.dns-path.active,
+.dns-cache-row.active,
+.dns-debug-row.active,
+.dns-refresh-loop.active {
+  opacity: 1;
+}
+
+.dns-client > rect,
+.dns-resolver > rect,
+.dns-hierarchy-node rect,
+.dns-app rect,
+.dns-cache-panel > rect,
+.dns-debug-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 91%, white);
+  stroke: color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  filter: url("#dns-soft-shadow");
+}
+
+.dns-node-title,
+.dns-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.dns-panel-title {
+  text-anchor: start;
+}
+
+.dns-client text,
+.dns-resolver text,
+.dns-hierarchy-node text,
+.dns-app text,
+.dns-path text,
+.dns-cache-row text,
+.dns-debug-row text,
+.dns-refresh-loop text {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.dns-local-cache rect,
+.dns-cache-drawer rect {
+  fill: color-mix(in srgb, var(--brand) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 26%, var(--border));
+}
+
+.dns-ttl-gauge rect:first-of-type {
+  fill: color-mix(in srgb, #f59e0b 16%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 34%, var(--border));
+}
+
+.dns-ttl-gauge rect:nth-of-type(2) {
+  fill: #f59e0b;
+  stroke: transparent;
+}
+
+.dns-hierarchy-rail path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--line));
+  stroke-dasharray: 6 8;
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.dns-hierarchy-rail text {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.dns-hierarchy-node circle {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--tertiary) 44%, var(--border));
+  stroke-width: 4;
+}
+
+.dns-hierarchy-node.teal circle,
+.dns-hierarchy-node.teal rect {
+  stroke: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+}
+
+.dns-hierarchy-node.warning circle,
+.dns-hierarchy-node.warning rect {
+  stroke: color-mix(in srgb, #f59e0b 48%, var(--border));
+}
+
+.dns-hierarchy-node.success circle,
+.dns-hierarchy-node.success rect {
+  stroke: color-mix(in srgb, var(--success) 48%, var(--border));
+}
+
+.dns-zone-chip {
+  fill: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.dns-path path,
+.dns-refresh-loop path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.dns-path rect,
+.dns-refresh-loop rect {
+  fill: color-mix(in srgb, var(--surface) 90%, white);
+  stroke: color-mix(in srgb, var(--border) 80%, transparent);
+}
+
+.dns-path.brand path {
+  stroke: var(--brand);
+}
+
+.dns-path.teal path {
+  stroke: var(--tertiary);
+}
+
+.dns-path.warning path {
+  stroke: #f59e0b;
+}
+
+.dns-path.success path {
+  stroke: var(--success);
+}
+
+.dns-refresh-loop path {
+  stroke: var(--danger);
+  stroke-dasharray: 8 7;
+}
+
+.dns-cache-row rect {
+  fill: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+}
+
+.dns-cache-row.success rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 30%, var(--border));
+}
+
+.dns-cache-row.warning rect {
+  fill: color-mix(in srgb, #f59e0b 11%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 34%, var(--border));
+}
+
+.dns-cache-row text:first-of-type {
+  text-anchor: start;
+}
+
+.dns-cache-row text:last-of-type {
+  fill: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.dns-debug-row circle {
+  fill: var(--tertiary);
+}
+
+.dns-debug-row text:nth-of-type(1) {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.dns-debug-row text:nth-of-type(2) {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  text-anchor: end;
+}
+
+.dns-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .k8s-service-stage,
 .k8s-ingress-stage,
 .k8s-hpa-stage,

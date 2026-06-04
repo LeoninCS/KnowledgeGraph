@@ -420,6 +420,29 @@ test("network TCP/IP model is backed by a dedicated visual simulation", async ()
   );
 });
 
+test("network DNS is backed by a recursive lookup visual simulation", async () => {
+  const points = await loadKnowledgePoints("network");
+  const dns = points.find((point) => point.id === "dns");
+
+  expect(visualPointIds.network).toContain("dns");
+  expect(dns).toBeTruthy();
+
+  const simulation = buildVisualSimulation("network", dns!);
+
+  expect(simulation.key).toBe("network:dns");
+  expect(simulation.pattern.en).toContain("recursive resolution path");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining([
+      "recursive resolver",
+      "root referral",
+      "TLD referral",
+      "authoritative A/AAAA",
+      "TTL cache",
+    ]),
+  );
+});
+
 test("redis AOF rewrite is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("redis");
   const aofRewrite = points.find((point) => point.id === "aof-rewrite");

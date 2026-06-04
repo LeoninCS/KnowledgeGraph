@@ -134,6 +134,7 @@
 |---|---|---|---|---|
 | TCP 拥塞控制 | `state-model` | completed | desktop/mobile captured | TCP cwnd 控制实验室，覆盖慢启动、拥塞避免、重复 ACK、快速重传、快速恢复、RTO 回退、ssthresh 和有效发送窗口 |
 | TCP/IP 四层模型 | `step-simulation` | completed | desktop/mobile captured | TCP/IP 四层封装与解封装模拟器，覆盖应用数据、TCP/UDP 头、IP 包、以太网/Wi-Fi 帧、OSI 对照和排障观察点 |
+| DNS | `step-simulation` | completed | desktop/mobile captured | DNS 递归解析路径模拟器，覆盖本地缓存、递归解析器、根区委派、TLD 委派、权威 A/AAAA 应答、TTL 缓存和后续连接 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | B+ 树 | `data-structure-lab` | completed | SVG/HTML review captured; PNG blocked by platform permissions | MySQL B+ 树索引实验室，覆盖根页分隔键、Buffer Pool 热页、叶子页定位、叶子链表范围扫描、页分裂和父节点分隔键维护 |
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
@@ -669,6 +670,61 @@
 - 截图结论：桌面 SVG 可识别访问请求、根页、Buffer Pool、内部页、叶子页链表、页分裂维护、运行信号和 5/5 进度；移动 HTML 展示 Root page、Buffer Pool、Leaf page、Range scan、Page split 五步流程和四个事实卡。
 - 验收备注：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；SSR 审查时 Vite HMR WebSocket 触发 `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` 渲染完成；本轮使用参考页面筛选、项目数据测试、生产构建、完整数据测试、KG review validate、diff 检查和 SSR SVG/HTML 审查图完成验收。
 
+## Network DNS Visualization
+
+### Online Image References
+
+- `source`：Cloudflare Learning Center - DNS server types，https://www.cloudflare.com/en-ca/learning/dns/dns-server-types/
+  - `image`：页面中的 recursive resolver、root nameserver、TLD nameserver、authoritative nameserver 四张角色图。
+  - `role`：main
+  - `qualityReason`：图像清楚拆出 DNS 查询链路中的四类服务器，结构稳定，适合转成主画布的递归解析路径。
+  - `takeaways`：主画布采用 Browser/Stub、Recursive Resolver、Root DNS、TLD DNS、Authoritative DNS 和 Target Service 的横向与纵向结合布局。
+  - `originalChanges`：改成本项目五步递归解析模拟器，加入 resolver cache、TTL gauge、过期刷新回路、排障证据和移动端流程卡。
+- `source`：Cloudflare Learning Center - What is DNS?，https://www.cloudflare.com/en-ca/learning/dns/what-is-dns/
+  - `image`：页面中的 DNS lookup 流程说明与步骤图。
+  - `role`：supporting
+  - `qualityReason`：适合校准浏览器输入域名后查询递归解析器、根、TLD 和权威服务器的教学顺序。
+  - `takeaways`：步骤按本地查询、递归入口、根区委派、TLD 委派、权威应答和连接目标推进。
+  - `originalChanges`：把图文流程压缩成右侧任务面板和底部五步进度。
+- `source`：AWS Route 53 Developer Guide - How Amazon Route 53 routes traffic for your domain，https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/welcome-dns-service.html
+  - `image`：Route 53 解析请求、递归解析器、TLD 与权威服务之间的流程图。
+  - `role`：supporting
+  - `qualityReason`：权威云厂商文档，能补充真实权威 DNS/托管区的工程语义。
+  - `takeaways`：权威记录来自托管区，递归解析器返回结果后客户端继续建立应用连接。
+  - `originalChanges`：目标服务面板展示 `203.0.113.42` 与后续 TCP/TLS/QUIC 连接，强调 DNS 只决定目标地址。
+- `source`：IBM Think - What is DNS?，https://www.ibm.com/think/topics/dns
+  - `image`：DNS hierarchy / DNS lookup illustration。
+  - `role`：supporting
+  - `qualityReason`：层级表达清楚，便于校准根、TLD、权威服务器的纵向委派结构。
+  - `takeaways`：主画布右侧采用 DNS 层级委派 rail，突出 `. -> .com -> example.com`。
+  - `originalChanges`：用项目统一 SVG 节点与委派箭头替代原图样式。
+- `source`：BlueCat - What is DNS and how does DNS work?，https://bluecatnetworks.com/blog/what-is-dns-and-how-does-dns-work/
+  - `image`：文章中的 recursive DNS query / resolver flow diagram。
+  - `role`：supporting
+  - `qualityReason`：企业网络资料对 resolver cache、recursive query 和 authoritative answer 的关系表达直观。
+  - `takeaways`：缓存命中与 TTL 过期是解析体验和变更生效的重要分支。
+  - `originalChanges`：新增缓存与变更观察面板，展示 Browser cache、Resolver cache、TTL 和后续查询状态。
+
+### Reference Breakdown
+
+- 主体布局：左侧 Browser/Stub，中央 Recursive Resolver，右侧 Root/TLD/Authoritative DNS 层级委派 rail，右下 Target Service，底部缓存与排障面板。
+- 视觉焦点：`example.com A/AAAA?` 从本地缓存 MISS 进入 resolver cache MISS，再按 `. -> .com -> example.com` 查找，最后缓存 `203.0.113.42 TTL=300s` 并连接目标服务。
+- 领域对象：stub resolver、recursive resolver、resolver cache、root hints、root DNS、TLD DNS、authoritative DNS、A/AAAA、CNAME、TTL、target IP、TCP/TLS/QUIC。
+- 容器层级：客户端只发起一次递归查询；递归解析器负责缓存和多段迭代查询；根/TLD 返回下一跳 NS 线索；权威 DNS 返回最终记录；目标服务承接后续连接。
+- 连线方向：Browser/Stub -> Recursive Resolver -> Root DNS -> TLD DNS -> Authoritative DNS -> Resolver cache -> Browser/Target Service；TTL 到期刷新回路从 cache 返回 resolver。
+- 状态表达：五步依次高亮缓存入口、根区委派、TLD 委派、权威应答与 TTL、返回答案并连接；缓存面板随步骤显示 MISS、IP、TTL 和后续 HIT/refresh。
+- 颜色策略：品牌蓝表示客户端查询，青色表示根区委派，橙色表示 TLD 委派，绿色表示权威应答和连接，红色虚线表示 TTL 到期刷新。
+- 文字密度：桌面 SVG 保留短域名、记录值、TTL 和排障信号；移动端切换成五张流程卡与三张事实卡。
+- 交互节奏：检查本地/resolver 缓存 -> 查询根 DNS -> 查询 TLD DNS -> 查询权威 DNS 并写 TTL -> 返回 IP 并建立后续连接。
+- 原创改造点：把 Cloudflare 的四类 DNS 服务器角色图、AWS/IBM 的解析路径和 BlueCat 的缓存视角融合成项目风格的递归解析模拟器，强调慢、错、旧三类排障证据。
+
+### Screenshot Review
+
+- 桌面：captured `.codex-artifacts/visualizations/dns/desktop.png`。
+- 移动端：captured `.codex-artifacts/visualizations/dns/mobile.png`。
+- 截图结论：桌面可识别 Browser/Stub、Recursive Resolver、DNS 层级委派、Root/TLD/Authoritative、Target Service、缓存面板、排障证据、右侧任务/操作/理解重点和 5/5 进度；移动端展示五步流程卡、慢/旧/错三张事实卡、完成态任务面板和历史记录，文字可读。
+- 验收备注：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP 成功打开 `http://127.0.0.1:4186/KnowledgeGraph/`，进入 DNS 详情页与模拟器并推进到 5/5，完成桌面与移动截图。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
@@ -680,7 +736,7 @@
 
 ## Next Candidate
 
-优先选择 MySQL `二级索引/回表`，备选 CDN `缓存失效/回源` 或 Kubernetes `StatefulSet`。二级索引/回表可承接 B+ 树索引实验室，展示二级索引叶子保存主键、聚簇索引二次访问、覆盖索引分支和 rows/key_len/Extra 排障信号。
+优先选择网络 `NAT`，备选 MySQL `二级索引/回表` 或 CDN `缓存失效/回源`。NAT 可承接 IP 路由、Docker 端口映射和桥接网络，展示私网地址、端口复用、SNAT/DNAT、连接跟踪和回包匹配。
 
 ## Docker Resource Limit Visualization
 
@@ -2558,3 +2614,17 @@
 - Verification：新增测试先失败于 generic `Index lookup` 模拟，补专用 builder/stage/source 后 `npm run test:data -- --grep "mysql B\\+ tree"` 通过 1 项；完整 `npm run test:data` 通过 28 项；`npm run build` 通过；`npm run kg:review:validate` 返回 `issueCount=0`；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add b plus tree visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：MySQL `二级索引/回表`，备选 CDN `缓存失效/回源` 或 Kubernetes `StatefulSet`。
+
+### 2026-06-04 13:11 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆为空，`git fetch origin main` 成功，第一次 `git pull --ff-only origin main` 因 `LibreSSL SSL_connect: SSL_ERROR_SYSCALL` 失败，重试后成功；本地 `HEAD` 与 `origin/main` 均为 `659dec1 feat: add b plus tree visualization`，从干净工作区继续。
+- Selected：网络 `DNS`，原因是递归解析器、根区委派、TLD 委派、权威记录、TTL 缓存和后续连接构成清晰步骤链，能承接 TCP/IP 四层模型、路由、TLS、HTTP 缓存与 CDN。
+- Candidate Sources：普通搜索筛选约 12 个候选来源；Chrome DevTools 视觉确认 Cloudflare DNS server types 页面中的 recursive resolver、root、TLD、authoritative 四张图，辅助参考使用 Cloudflare DNS lookup、AWS Route 53、IBM DNS hierarchy 和 BlueCat DNS cache/resolution 图文。
+- Online Image References：见 `Network DNS Visualization` 小节；主参考决定 Browser/Stub、Recursive Resolver、Root、TLD、Authoritative 的整体对象拆分，辅助来源校准 TTL、权威记录和真实后续连接语义。
+- Reference Breakdown：主体布局为左侧 Browser/Stub，中部 Recursive Resolver，右侧 DNS hierarchy rail，右下 Target Service，底部缓存与排障面板；视觉焦点是 `. -> .com -> example.com -> A 203.0.113.42 TTL=300s`。
+- Implementation：新增 `network:dns` 五步递归解析数据模型、DNS SVG 舞台、移动端流程卡、响应式样式和数据测试；既有 `network:dns` 入口升级为专用递归解析模拟器。
+- Browser Review：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP 在本地 preview `http://127.0.0.1:4186/KnowledgeGraph/` 打开 DNS 详情页，进入模拟器并推进到 5/5。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/dns/desktop.png` 和 `.codex-artifacts/visualizations/dns/mobile.png`；桌面可识别 Browser/Stub、Recursive Resolver、DNS hierarchy rail、Root/TLD/Authoritative、Target Service、缓存面板、排障证据和 5/5 进度，移动端流程卡与事实卡可读。
+- Verification：新增测试先失败于旧 `Resolution chain` 四步模型，补五步 builder/stage 后 `npm run test:data -- --grep "network DNS"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 29 项；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add dns visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：网络 `NAT`，备选 MySQL `二级索引/回表` 或 CDN `缓存失效/回源`。

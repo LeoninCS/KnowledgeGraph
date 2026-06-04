@@ -210,6 +210,11 @@
     justify-content: start;
   }
 
+  .dns-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .buffer-pool-stage {
     overflow-x: auto;
     justify-content: start;
@@ -762,6 +767,65 @@
     display: grid;
     gap: 16px;
     padding: 18px;
+  }
+
+  .dns-card {
+    width: 100%;
+  }
+
+  .dns-diagram {
+    display: none;
+  }
+
+  .dns-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
+  .dns-mobile-flow,
+  .dns-mobile-facts {
+    display: grid;
+    gap: 10px;
+  }
+
+  .dns-mobile-hop,
+  .dns-mobile-fact {
+    display: grid;
+    gap: 5px;
+    border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--tertiary) 6%, var(--surface));
+    color: var(--muted);
+    padding: 12px;
+  }
+
+  .dns-mobile-hop span,
+  .dns-mobile-fact span {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 950;
+  }
+
+  .dns-mobile-hop strong,
+  .dns-mobile-fact strong {
+    color: var(--brand-strong);
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+  }
+
+  .dns-mobile-hop.active,
+  .dns-mobile-fact.active {
+    border-color: color-mix(in srgb, var(--tertiary) 48%, var(--border));
+    background: color-mix(in srgb, var(--tertiary) 11%, var(--surface));
+  }
+
+  .dns-caption {
+    position: static;
+    margin: 0 18px 18px;
+    justify-content: space-between;
   }
 
   .tcp-congestion-caption {

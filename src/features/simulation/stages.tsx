@@ -154,6 +154,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "network:dns") {
+    return (
+      <DnsResolutionStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "network:cdn") {
     return (
       <CdnRequestStage
@@ -11965,6 +11976,318 @@ function CdnRequestStage({
           </g>
         </svg>
         <div className="tcp-handshake-caption cdn-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DnsResolutionStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const resolverActive = completedSteps >= 1;
+  const rootActive = completedSteps >= 2;
+  const tldActive = completedSteps >= 3;
+  const authorityActive = completedSteps >= 4;
+  const answerActive = completedSteps >= 5;
+  const hierarchy = [
+    {
+      id: "root",
+      title: label("根 DNS", "Root DNS"),
+      detail: label("返回 .com TLD NS", "returns .com TLD NS"),
+      zone: ".",
+      y: 152,
+      tone: "teal",
+      active: rootActive,
+    },
+    {
+      id: "tld",
+      title: label("TLD DNS", "TLD DNS"),
+      detail: label("返回 example.com NS", "returns example.com NS"),
+      zone: ".com",
+      y: 272,
+      tone: "warning",
+      active: tldActive,
+    },
+    {
+      id: "auth",
+      title: label("权威 DNS", "Authoritative DNS"),
+      detail: label("返回 A / AAAA + TTL", "returns A / AAAA + TTL"),
+      zone: "example.com",
+      y: 392,
+      tone: "success",
+      active: authorityActive,
+    },
+  ];
+  const cacheRows = [
+    {
+      name: label("浏览器缓存", "Browser cache"),
+      value: completedSteps >= 1 ? "MISS" : "--",
+      active: completedSteps >= 1,
+      tone: "brand",
+    },
+    {
+      name: label("Resolver cache", "Resolver cache"),
+      value: authorityActive ? "203.0.113.42" : completedSteps >= 1 ? "MISS" : "--",
+      active: resolverActive,
+      tone: authorityActive ? "success" : "brand",
+    },
+    {
+      name: "TTL",
+      value: authorityActive ? "300s -> 0s" : "--",
+      active: authorityActive,
+      tone: "warning",
+    },
+    {
+      name: label("后续查询", "Later query"),
+      value: answerActive ? "HIT / refresh" : "--",
+      active: answerActive,
+      tone: "success",
+    },
+  ];
+  const paths = [
+    {
+      id: "stub-query",
+      d: "M 212 252 C 288 206, 330 205, 406 250",
+      label: "QNAME example.com",
+      x: 310,
+      y: 208,
+      tone: "brand",
+      active: resolverActive,
+    },
+    {
+      id: "root-query",
+      d: "M 568 224 C 642 158, 682 158, 750 182",
+      label: ". referral",
+      x: 666,
+      y: 146,
+      tone: "teal",
+      active: rootActive,
+    },
+    {
+      id: "tld-query",
+      d: "M 572 282 C 640 286, 694 302, 750 304",
+      label: ".com referral",
+      x: 670,
+      y: 282,
+      tone: "warning",
+      active: tldActive,
+    },
+    {
+      id: "auth-query",
+      d: "M 568 350 C 642 420, 690 420, 750 426",
+      label: "A / AAAA + TTL",
+      x: 670,
+      y: 438,
+      tone: "success",
+      active: authorityActive,
+    },
+    {
+      id: "answer-return",
+      d: "M 420 322 C 338 396, 270 386, 202 318",
+      label: "203.0.113.42",
+      x: 300,
+      y: 386,
+      tone: "success",
+      active: answerActive,
+    },
+    {
+      id: "connect",
+      d: "M 194 332 C 314 500, 676 536, 894 368",
+      label: "TCP / TLS / QUIC",
+      x: 540,
+      y: 540,
+      tone: "brand",
+      active: answerActive,
+    },
+  ];
+  const mobileHops = [
+    [1, label("缓存入口", "Cache entry"), "browser cache -> resolver cache"],
+    [2, label("根区委派", "Root referral"), ". -> .com NS"],
+    [3, label("TLD 委派", "TLD referral"), ".com -> ns.example.com"],
+    [4, label("权威应答", "Authoritative answer"), "A 203.0.113.42 TTL=300"],
+    [5, label("返回并连接", "Return and connect"), "IP -> TCP/TLS/QUIC"],
+  ] as const;
+  const mobileFacts = [
+    [label("慢查询", "Slow lookup"), label("根/TLD/权威链路或 resolver 超时", "root / TLD / authoritative chain or resolver timeout"), completedSteps >= 2],
+    [label("旧记录", "Stale record"), label("TTL 缓存窗口仍在生效", "TTL cache window remains active"), completedSteps >= 4],
+    [label("错误 IP", "Wrong IP"), label("权威区记录、CNAME 或 split-horizon 配置漂移", "authoritative zone, CNAME, or split-horizon drift"), completedSteps >= 5],
+  ] as const;
+
+  return (
+    <div className="visual-stage dns-stage">
+      <div className="tcp-handshake-card dns-card">
+        <svg
+          className="dns-diagram"
+          viewBox="0 0 1120 650"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["brand", "var(--brand)"],
+              ["teal", "var(--tertiary)"],
+              ["warning", "#f59e0b"],
+              ["success", "var(--success)"],
+              ["danger", "var(--danger)"],
+            ].map(([tone, fill]) => (
+              <marker
+                key={tone}
+                id={`dns-arrow-${tone}`}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="dns-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="dns-bg" x="24" y="24" width="1072" height="584" rx="30" />
+          <text className="dns-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="dns-subtitle" x="560" y="99">
+            {label(
+              "Stub -> Recursive Resolver -> Root -> TLD -> Authoritative -> TTL cache",
+              "Stub -> Recursive resolver -> Root -> TLD -> Authoritative -> TTL cache",
+            )}
+          </text>
+
+          <g className={`dns-client ${resolverActive ? "active" : ""}`}>
+            <rect x="70" y="176" width="164" height="178" rx="24" />
+            <text className="dns-node-title" x="152" y="214">{label("浏览器 / Stub", "Browser / Stub")}</text>
+            <text x="152" y="242">example.com</text>
+            <text x="152" y="268">A / AAAA?</text>
+            <g className={`dns-local-cache ${resolverActive ? "active" : ""}`}>
+              <rect x="98" y="294" width="108" height="34" rx="17" />
+              <text x="152" y="316">{label("本地缓存 MISS", "local cache MISS")}</text>
+            </g>
+          </g>
+
+          <g className={`dns-resolver ${resolverActive ? "active" : ""}`}>
+            <rect x="390" y="176" width="210" height="226" rx="28" />
+            <text className="dns-node-title" x="495" y="214">{label("递归解析器", "Recursive resolver")}</text>
+            <text x="495" y="242">1.1.1.1 / ISP / DoH</text>
+            <g className={`dns-cache-drawer ${resolverActive ? "active" : ""}`}>
+              <rect x="424" y="274" width="142" height="44" rx="16" />
+              <text x="495" y="294">resolver cache</text>
+              <text x="495" y="312">{authorityActive ? "203.0.113.42" : "MISS"}</text>
+            </g>
+            <g className={`dns-ttl-gauge ${authorityActive ? "active" : ""}`}>
+              <rect x="424" y="342" width="142" height="14" rx="7" />
+              <rect x="424" y="342" width={authorityActive ? 106 : 18} height="14" rx="7" />
+              <text x="495" y="380">TTL 300s</text>
+            </g>
+          </g>
+
+          <g className="dns-hierarchy-rail">
+            <path d="M 736 138 L 736 506" />
+            <text x="816" y="132">{label("DNS 层级委派", "DNS hierarchy referrals")}</text>
+          </g>
+
+          {hierarchy.map((item) => (
+            <g key={item.id} className={`dns-hierarchy-node ${item.tone} ${item.active ? "active" : ""}`}>
+              <circle cx="736" cy={item.y + 36} r="12" />
+              <rect x="760" y={item.y} width="248" height="72" rx="20" />
+              <text className="dns-node-title" x="884" y={item.y + 25}>{item.title}</text>
+              <text x="884" y={item.y + 49}>{item.detail}</text>
+              <text className="dns-zone-chip" x="982" y={item.y + 25}>{item.zone}</text>
+            </g>
+          ))}
+
+          <g className={`dns-app ${answerActive ? "active" : ""}`}>
+            <rect x="878" y="510" width="158" height="58" rx="20" />
+            <text className="dns-node-title" x="957" y="534">{label("目标服务", "Target service")}</text>
+            <text x="957" y="556">203.0.113.42</text>
+          </g>
+
+          <g className="dns-paths">
+            {paths.map((path) => (
+              <g key={path.id} className={`dns-path ${path.tone} ${path.active ? "active" : ""}`}>
+                <path d={path.d} markerEnd={`url(#dns-arrow-${path.tone})`} />
+                <rect x={path.x - 70} y={path.y - 18} width="140" height="32" rx="16" />
+                <text x={path.x} y={path.y + 3}>{path.label}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="dns-cache-panel">
+            <rect x="70" y="438" width="312" height="128" rx="22" />
+            <text className="dns-panel-title" x="96" y="470">{label("缓存与变更观察", "Cache and change signals")}</text>
+            {cacheRows.map((row, index) => (
+              <g key={row.name} className={`dns-cache-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="96" y={492 + index * 20} width="250" height="17" rx="9" />
+                <text x="112" y={505 + index * 20}>{row.name}</text>
+                <text x="332" y={505 + index * 20}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="dns-debug-panel">
+            <rect x="420" y="438" width="286" height="128" rx="22" />
+            <text className="dns-panel-title" x="446" y="470">{label("排障证据", "Debug evidence")}</text>
+            {[
+              [label("慢", "slow"), "dig +trace / resolver RTT", rootActive],
+              [label("错", "wrong"), "authoritative A / AAAA", authorityActive],
+              [label("旧", "stale"), "TTL / cache flush", answerActive],
+            ].map(([name, value, active], index) => (
+              <g key={String(name)} className={`dns-debug-row ${active ? "active" : ""}`}>
+                <circle cx="454" cy={496 + index * 28} r="8" />
+                <text x="474" y={501 + index * 28}>{name}</text>
+                <text x="690" y={501 + index * 28}>{value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`dns-refresh-loop ${answerActive ? "active" : ""}`}>
+            <path d="M 566 362 C 620 462, 538 510, 468 432" markerEnd="url(#dns-arrow-danger)" />
+            <rect x="514" y="456" width="150" height="34" rx="17" />
+            <text x="589" y="478">{label("TTL 到期后刷新", "refresh after TTL")}</text>
+          </g>
+        </svg>
+
+        <div className="dns-mobile-map">
+          <div className="dns-mobile-flow">
+            {mobileHops.map(([stepNumber, title, value]) => (
+              <div
+                key={title}
+                className={`dns-mobile-hop ${completedSteps >= stepNumber ? "active" : ""}`}
+              >
+                <span>{title}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="dns-mobile-facts">
+            {mobileFacts.map(([title, value, active]) => (
+              <div key={title} className={`dns-mobile-fact ${active ? "active" : ""}`}>
+                <span>{title}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="tcp-handshake-caption dns-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>
