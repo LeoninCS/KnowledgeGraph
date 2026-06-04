@@ -881,7 +881,7 @@ const networkKnowledgePointBase = [
     related: ["tcp-congestion-control", "tcp-retransmission", "latency-bandwidth", "observability"],
     order: 27,
   },
-  /* <!-- KG_REVIEWED: TCP 拥塞控制 | 2026-05-30 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: TCP 拥塞控制 | 2026-06-04 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: TCP 拥塞控制 | 2026-05-23 | source_count=5 --> */
   {
     sourceRefs: [
