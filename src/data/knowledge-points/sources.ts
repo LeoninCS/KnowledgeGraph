@@ -1269,6 +1269,22 @@ export const knowledgeSources = {
     title: "RFC 791: Internet Protocol",
     url: "https://www.rfc-editor.org/rfc/rfc791",
   },
+  "rfc1191-pmtud": {
+    title: "RFC 1191: Path MTU Discovery",
+    url: "https://www.rfc-editor.org/rfc/rfc1191",
+  },
+  "cloudflare-mtu": {
+    title: "Cloudflare Learning Center: What is MTU?",
+    url: "https://www.cloudflare.com/learning/network-layer/what-is-mtu/",
+  },
+  "man7-ip": {
+    title: "ip(7) - Linux IPv4 protocol implementation",
+    url: "https://man7.org/linux/man-pages/man7/ip.7.html",
+  },
+  "man7-ip-route": {
+    title: "ip-route(8) - Linux routing table management",
+    url: "https://man7.org/linux/man-pages/man8/ip-route.8.html",
+  },
   "rfc8200-ipv6": {
     title: "RFC 8200: Internet Protocol, Version 6 (IPv6) Specification",
     url: "https://www.rfc-editor.org/rfc/rfc8200",

@@ -7,14 +7,14 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 4 | 445 |
+| 449 | 5 | 444 |
 
 ## 分类进度
 
 | 分类 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- | --- |
 | go | 45 | 0 | 45 |
-| network | 28 | 2 | 26 |
+| network | 28 | 3 | 25 |
 | os | 34 | 0 | 34 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 0 | 48 |
@@ -81,7 +81,7 @@
 | --- | --- | --- | --- | --- | --- |
 | 已优化 | `network-overview` | 网络基础概览 | Network Overview | 2026-06-05 | 11 |
 | 已优化 | `tcp-ip-model` | TCP/IP 四层模型 | TCP/IP Model | 2026-06-05 | 13 |
-| 未开始 | `ip` | IP 协议 | Internet Protocol | 2026-05-30 | 5 |
+| 已优化 | `ip` | IP 协议 | Internet Protocol | 2026-06-05 | 13 |
 | 未开始 | `subnet` | 子网划分 | Subnetting | 2026-05-30 | 4 |
 | 未开始 | `gateway` | 网关 | Gateway | 2026-05-30 | 4 |
 | 未开始 | `routing` | 路由 | Routing | 2026-06-04 | 10 |
@@ -528,3 +528,4 @@
 | 未开始 | `observability` | 可观测性 | Observability | 2026-05-24 | 7 |
 | 未开始 | `metrics` | 指标 | Metrics | 2026-05-24 | 7 |
 | 未开始 | `cost-control` | 成本控制 | Cost Control | 2026-05-24 | 7 |
+
