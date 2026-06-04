@@ -531,7 +531,7 @@ const networkKnowledgePointBase = [
     related: ["routing", "cidr", "ipv4", "nat", "firewall"],
     order: 16,
   },
-  /* <!-- KG_REVIEWED: 路由 | 2026-05-30 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 路由 | 2026-06-04 | source_count=10 --> */
   /* <!-- KG_EXPLAINED: 路由 | 2026-05-23 | source_count=5 --> */
   {
     sourceRefs: [

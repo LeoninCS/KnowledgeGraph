@@ -470,7 +470,7 @@ const redisKnowledgePointBase = [
     related: ["rdb", "aof", "aof-rewrite", "fork-cow"],
     commonIssues: ["性能和安全性的取舍", "恢复时间过长", "磁盘 I/O 抖动", "备份未演练"],
   },
-  /* <!-- KG_REVIEWED: RDB | 2026-05-30 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: RDB | 2026-06-04 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: RDB | 2026-05-23 | source_count=5 --> */
   {
     sourceRefs: [
@@ -543,7 +543,7 @@ const redisKnowledgePointBase = [
     related: ["aof-rewrite", "rdb", "fork-cow"],
     commonIssues: ["文件膨胀", "刷盘策略影响性能", "磁盘写入抖动", "恢复重放耗时长"],
   },
-  /* <!-- KG_REVIEWED: AOF 重写 | 2026-05-30 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: AOF 重写 | 2026-06-04 | source_count=8 --> */
   /* <!-- KG_EXPLAINED: AOF 重写 | 2026-05-23 | source_count=5 --> */
   {
     sourceRefs: [
@@ -584,7 +584,7 @@ const redisKnowledgePointBase = [
     related: ["fork-cow", "redis-memory", "rdb"],
     commonIssues: ["重写期间 I/O 压力", "后台重写失败", "Copy-on-Write 内存放大", "重写与快照任务互斥"],
   },
-  /* <!-- KG_REVIEWED: fork 与写时复制 | 2026-05-30 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: fork 与写时复制 | 2026-06-04 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: fork 与写时复制 | 2026-05-23 | source_count=5 --> */
   {
     sourceRefs: [
@@ -1919,7 +1919,7 @@ const redisKnowledgePointBase = [
     related: ["hash-slot", "resharding", "moved-ask", "key-tag", "redis-replication"],
     commonIssues: ["跨槽命令限制", "客户端路由复杂", "MOVED/ASK 处理不完整", "槽位迁移带来延迟", "热点 key 或 Big Key 导致分片倾斜"],
   },
-  /* <!-- KG_REVIEWED: 哈希槽 | 2026-05-30 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 哈希槽 | 2026-06-04 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 哈希槽 | 2026-05-23 | source_count=5 --> */
   {
     sourceRefs: [

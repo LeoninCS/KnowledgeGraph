@@ -1349,7 +1349,7 @@ export const dockerKnowledgePoints = [
     related: ["compose-env", "secret", "dockerfile-env", "inspect", "exec", "configuration-management"],
     order: 22,
   },
-  /* <!-- KG_REVIEWED: 端口映射 | 2026-05-31 | source_count=8 --> */
+  /* <!-- KG_REVIEWED: 端口映射 | 2026-06-04 | source_count=10 --> */
   /* <!-- KG_EXPLAINED: 端口映射 | 2026-05-23 | source_count=4 --> */
   {
     sourceRefs: [
@@ -2574,7 +2574,7 @@ export const dockerKnowledgePoints = [
     related: ["multi-arch-image", "registry", "buildkit", "build-cache", "image-digest"],
     order: 42,
   },
-  /* <!-- KG_REVIEWED: 多阶段构建 | 2026-06-01 | source_count=8 --> */
+  /* <!-- KG_REVIEWED: 多阶段构建 | 2026-06-04 | source_count=10 --> */
   /* <!-- KG_EXPLAINED: 多阶段构建 | 2026-05-23 | source_count=4 --> */
   {
     sourceRefs: [
@@ -4687,7 +4687,7 @@ export const dockerKnowledgePoints = [
     related: ["logs", "container-stats", "inspect", "healthcheck", "debugging", "audit"],
     order: 77,
   },
-  /* <!-- KG_REVIEWED: 资源限制 | 2026-06-01 | source_count=6 --> */
+  /* <!-- KG_REVIEWED: 资源限制 | 2026-06-04 | source_count=8 --> */
   /* <!-- KG_EXPLAINED: 资源限制 | 2026-05-23 | source_count=4 --> */
   {
     sourceRefs: [
@@ -4747,7 +4747,7 @@ export const dockerKnowledgePoints = [
     related: ["memory-limit", "cpu-limit", "pids-limit", "oom", "container-stats", "debugging"],
     order: 78,
   },
-  /* <!-- KG_REVIEWED: 内存限制 | 2026-06-01 | source_count=6 --> */
+  /* <!-- KG_REVIEWED: 内存限制 | 2026-06-04 | source_count=9 --> */
   /* <!-- KG_EXPLAINED: 内存限制 | 2026-05-23 | source_count=4 --> */
   {
     sourceRefs: [
