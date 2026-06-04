@@ -3849,6 +3849,18 @@ export const knowledgeSources = {
     title: "小林 coding: MySQL 索引",
     url: "https://xiaolincoding.com/mysql/index/index_interview.html",
   },
+  "mysql-innodb-index-types": {
+    title: "MySQL Reference Manual: Clustered and Secondary Indexes",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-index-types.html",
+  },
+  "solarwinds-mysql-indexes": {
+    title: "SolarWinds: MySQL Indexes Tutorial",
+    url: "https://www.solarwinds.com/blog/mysql-indexes-tutorial",
+  },
+  "planetscale-covering-indexes": {
+    title: "PlanetScale: Covering indexes",
+    url: "https://planetscale.com/learn/courses/mysql-for-developers/indexes/covering-indexes",
+  },
   "mysql-innodb-multi-versioning": {
     title: "MySQL Reference Manual: InnoDB Multi-Versioning",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-multi-versioning.html",

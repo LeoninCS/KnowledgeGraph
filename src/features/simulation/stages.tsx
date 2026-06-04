@@ -231,6 +231,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:secondary-index") {
+    return (
+      <SecondaryIndexStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "mysql:mvcc") {
     return (
       <MvccStage
@@ -2038,6 +2049,255 @@ function BufferPoolStage({
           </g>
         </svg>
         <div className="tcp-handshake-caption buffer-pool-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SecondaryIndexStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const chooseActive = completedSteps >= 1;
+  const leafActive = completedSteps >= 2;
+  const lookupActive = completedSteps >= 3;
+  const coveringActive = completedSteps >= 4;
+  const explainActive = completedSteps >= 5;
+  const leafRows = [
+    { email: "a@shop.test", pk: "8142", covered: "Ada", active: leafActive },
+    { email: "b@shop.test", pk: "8148", covered: "Ben", active: explainActive },
+    { email: "c@shop.test", pk: "8170", covered: "Chen", active: explainActive },
+  ];
+  const clusteredRows = [
+    { id: "8138", name: "Mia", total: "$64", active: false },
+    { id: "8142", name: "Ada", total: "$118", active: lookupActive },
+    { id: "8148", name: "Ben", total: "$42", active: explainActive },
+  ];
+  const planRows = [
+    { keyName: "type", value: chooseActive ? "ref" : "--", active: chooseActive, tone: "brand" },
+    { keyName: "key", value: chooseActive ? "idx_email" : "--", active: chooseActive, tone: "teal" },
+    { keyName: "rows", value: explainActive ? "3" : lookupActive ? "1" : "--", active: lookupActive, tone: "warning" },
+    { keyName: "Extra", value: coveringActive ? "Using index" : lookupActive ? "Using where" : "--", active: lookupActive, tone: coveringActive ? "success" : "danger" },
+  ];
+  const mobileHops = [
+    [1, label("选择二级索引", "Choose secondary index"), "key=idx_email"],
+    [2, label("叶子命中", "Leaf hit"), "email -> id=8142"],
+    [3, label("主键回表", "Primary lookup"), "PRIMARY(id) -> full row"],
+    [4, label("覆盖索引", "Covering index"), "Extra=Using index"],
+    [5, label("EXPLAIN 验收", "EXPLAIN validation"), "type/ref rows=3"],
+  ] as const;
+  const mobileFacts = [
+    [label("叶子结构", "Leaf shape"), "secondary key + primary key", leafActive],
+    [label("成本来源", "Cost source"), "matched rows drive PRIMARY lookups", lookupActive],
+    [label("优化信号", "Optimization signal"), "covering index removes lookup", coveringActive],
+  ] as const;
+
+  return (
+    <div className="visual-stage secondary-index-stage">
+      <div className="tcp-handshake-card secondary-index-card">
+        <svg
+          className="secondary-index-diagram"
+          viewBox="0 0 1120 650"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["secondary-index-arrow-brand", "var(--brand)"],
+              ["secondary-index-arrow-teal", "var(--tertiary)"],
+              ["secondary-index-arrow-warning", "#f59e0b"],
+              ["secondary-index-arrow-success", "var(--success)"],
+              ["secondary-index-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="secondary-index-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="secondary-index-bg" x="24" y="24" width="1072" height="584" rx="30" />
+          <text className="secondary-index-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="secondary-index-subtitle" x="560" y="99">
+            {label(
+              "SQL predicate -> secondary leaf -> PRIMARY lookup -> covering shortcut -> EXPLAIN evidence",
+              "SQL predicate -> secondary leaf -> PRIMARY lookup -> covering shortcut -> EXPLAIN evidence",
+            )}
+          </text>
+
+          <g className={`secondary-index-query ${chooseActive ? "active" : ""}`}>
+            <rect x="64" y="150" width="190" height="170" rx="26" />
+            <text className="secondary-index-panel-title" x="92" y="184">{label("查询", "Query")}</text>
+            <text className="secondary-index-code" x="92" y="218">SELECT name,total</text>
+            <text className="secondary-index-code" x="92" y="244">FROM orders</text>
+            <text className="secondary-index-code" x="92" y="270">WHERE email='a@shop.test'</text>
+            <text className="secondary-index-plan-note" x="92" y="302">{chooseActive ? "possible_keys=idx_email" : "optimizer pending"}</text>
+          </g>
+
+          <g className={`secondary-index-tree ${chooseActive ? "active" : ""}`}>
+            <rect x="326" y="130" width="296" height="276" rx="28" />
+            <text className="secondary-index-panel-title" x="354" y="164">{label("二级索引 idx_email", "Secondary index idx_email")}</text>
+            <text className="secondary-index-panel-subtitle" x="354" y="188">
+              {label("叶子项保存 email + 主键 id", "Leaf entries store email + primary id")}
+            </text>
+            <g className="secondary-index-root">
+              <rect x="422" y="212" width="104" height="48" rx="14" />
+              <text x="474" y="241">root</text>
+            </g>
+            <path className={`secondary-index-tree-link ${chooseActive ? "active" : ""}`} d="M 474 260 L 390 304" />
+            <path className={`secondary-index-tree-link ${chooseActive ? "active" : ""}`} d="M 474 260 L 474 304" />
+            <path className={`secondary-index-tree-link ${chooseActive ? "active" : ""}`} d="M 474 260 L 558 304" />
+            {[
+              ["A-D", 356, leafActive],
+              ["E-M", 440, leafActive],
+              ["N-Z", 524, explainActive],
+            ].map(([range, x, active]) => (
+              <g key={range as string} className={`secondary-index-leaf-page ${active ? "active" : ""}`}>
+                <rect x={x as number} y="304" width="68" height="42" rx="13" />
+                <text x={(x as number) + 34} y="330">{range}</text>
+              </g>
+            ))}
+            <g className="secondary-index-leaf-table">
+              <rect x="354" y="362" width="238" height="92" rx="18" />
+              <text className="secondary-index-table-head" x="374" y="388">email</text>
+              <text className="secondary-index-table-head" x="500" y="388">id</text>
+              <text className="secondary-index-table-head" x="548" y="388">cover</text>
+              {leafRows.map((row, index) => (
+                <g key={row.email} className={`secondary-index-leaf-row ${row.active ? "active" : ""}`}>
+                  <rect x="370" y={400 + index * 24} width="198" height="20" rx="10" />
+                  <text x="382" y={414 + index * 24}>{row.email}</text>
+                  <text x="500" y={414 + index * 24}>{row.pk}</text>
+                  <text x="548" y={414 + index * 24}>{row.covered}</text>
+                </g>
+              ))}
+            </g>
+          </g>
+
+          <g className={`secondary-index-primary ${lookupActive ? "active" : ""}`}>
+            <rect x="710" y="130" width="300" height="276" rx="28" />
+            <text className="secondary-index-panel-title" x="738" y="164">{label("聚簇索引 PRIMARY", "Clustered index PRIMARY")}</text>
+            <text className="secondary-index-panel-subtitle" x="738" y="188">
+              {label("主键叶子页保存整行", "Primary-key leaves store full rows")}
+            </text>
+            <g className="secondary-index-root primary">
+              <rect x="812" y="212" width="104" height="48" rx="14" />
+              <text x="864" y="241">PRIMARY</text>
+            </g>
+            <path className={`secondary-index-tree-link warning ${lookupActive ? "active" : ""}`} d="M 864 260 L 796 304" />
+            <path className={`secondary-index-tree-link warning ${lookupActive ? "active" : ""}`} d="M 864 260 L 864 304" />
+            <path className={`secondary-index-tree-link warning ${explainActive ? "active" : ""}`} d="M 864 260 L 932 304" />
+            {[
+              ["8000-8139", 756, false],
+              ["8140-8159", 832, lookupActive],
+              ["8160-8199", 908, explainActive],
+            ].map(([range, x, active]) => (
+              <g key={range as string} className={`secondary-index-primary-page ${active ? "active" : ""}`}>
+                <rect x={x as number} y="304" width="68" height="42" rx="13" />
+                <text x={(x as number) + 34} y="330">{range}</text>
+              </g>
+            ))}
+            <g className="secondary-index-row-table">
+              <rect x="738" y="362" width="242" height="92" rx="18" />
+              <text className="secondary-index-table-head" x="758" y="388">id</text>
+              <text className="secondary-index-table-head" x="812" y="388">name</text>
+              <text className="secondary-index-table-head" x="890" y="388">total</text>
+              {clusteredRows.map((row, index) => (
+                <g key={row.id} className={`secondary-index-row-record ${row.active ? "active" : ""}`}>
+                  <rect x="754" y={400 + index * 24} width="202" height="20" rx="10" />
+                  <text x="766" y={414 + index * 24}>{row.id}</text>
+                  <text x="812" y={414 + index * 24}>{row.name}</text>
+                  <text x="890" y={414 + index * 24}>{row.total}</text>
+                </g>
+              ))}
+            </g>
+          </g>
+
+          <g className={`secondary-index-path predicate ${chooseActive ? "active" : ""}`}>
+            <path d="M 254 232 C 284 214, 296 208, 326 210" markerEnd="url(#secondary-index-arrow-brand)" />
+            <rect x="250" y="186" width="140" height="34" rx="17" />
+            <text x="320" y="208">key=idx_email</text>
+          </g>
+          <g className={`secondary-index-path leaf ${leafActive ? "active" : ""}`}>
+            <path d="M 592 410 C 638 392, 666 376, 710 352" markerEnd="url(#secondary-index-arrow-teal)" />
+            <rect x="602" y="340" width="148" height="34" rx="17" />
+            <text x="676" y="362">id=8142 pointer</text>
+          </g>
+          <g className={`secondary-index-path lookup ${lookupActive ? "active" : ""}`}>
+            <path d="M 864 454 C 784 548, 458 548, 334 452" markerEnd="url(#secondary-index-arrow-warning)" />
+            <rect x="520" y="528" width="190" height="34" rx="17" />
+            <text x="615" y="550">{label("回表读取整行", "Primary lookup reads row")}</text>
+          </g>
+          <g className={`secondary-index-path covering ${coveringActive ? "active" : ""}`}>
+            <path d="M 474 454 C 520 492, 572 492, 628 456" markerEnd="url(#secondary-index-arrow-success)" />
+            <rect x="486" y="474" width="164" height="34" rx="17" />
+            <text x="568" y="496">Using index</text>
+          </g>
+
+          <g className={`secondary-index-result ${lookupActive ? "active" : ""}`}>
+            <rect x="64" y="374" width="196" height="116" rx="24" />
+            <text className="secondary-index-panel-title" x="92" y="408">{label("返回结果", "Result")}</text>
+            <text className="secondary-index-code" x="92" y="438">{lookupActive ? "name=Ada" : "waiting"}</text>
+            <text className="secondary-index-code" x="92" y="464">{lookupActive ? "total=$118" : "fields pending"}</text>
+          </g>
+
+          <g className={`secondary-index-explain ${chooseActive ? "active" : ""}`}>
+            <rect x="300" y="486" width="738" height="84" rx="24" />
+            <text className="secondary-index-panel-title" x="328" y="520">{label("EXPLAIN 证据", "EXPLAIN evidence")}</text>
+            {planRows.map((row, index) => (
+              <g key={row.keyName} className={`secondary-index-plan-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x={474 + index * 132} y="506" width="106" height="42" rx="14" />
+                <text x={496 + index * 132} y="526">{row.keyName}</text>
+                <text x={562 + index * 132} y="526">{row.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+
+        <div className="secondary-index-mobile-map">
+          <div className="secondary-index-mobile-flow">
+            {mobileHops.map(([stepNumber, title, value]) => (
+              <div key={title} className={`secondary-index-mobile-hop ${completedSteps >= stepNumber ? "active" : ""}`}>
+                <span>{title}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="secondary-index-mobile-facts">
+            {mobileFacts.map(([title, value, active]) => (
+              <div key={title} className={`secondary-index-mobile-fact ${active ? "active" : ""}`}>
+                <span>{title}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="tcp-handshake-caption secondary-index-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

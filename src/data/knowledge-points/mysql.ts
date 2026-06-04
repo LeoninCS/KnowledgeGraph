@@ -320,6 +320,13 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["clustered-index", "range-query"],
   },
   "secondary-index": {
+    sourceRefs: [
+      "mysql-innodb-index-types",
+      "solarwinds-mysql-indexes",
+      "xiaolincoding-mysql-index",
+      "planetscale-covering-indexes",
+      "jeremy-cole-innodb-btree",
+    ],
     prerequisites: ["mysql-index", "clustered-index"],
     related: ["back-to-table", "covering-index"],
   },

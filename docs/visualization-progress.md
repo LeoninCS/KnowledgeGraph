@@ -138,6 +138,7 @@
 | NAT | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | NAT 转换表路径模拟器，覆盖私有子网出站、SNAT/PAT、回包匹配、入口 DNAT、端口池和 conntrack 超时 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | B+ 树 | `data-structure-lab` | completed | SVG/HTML review captured; PNG blocked by platform permissions | MySQL B+ 树索引实验室，覆盖根页分隔键、Buffer Pool 热页、叶子页定位、叶子链表范围扫描、页分裂和父节点分隔键维护 |
+| 二级索引 | `storage-layout` | completed | SVG/HTML review captured; PNG blocked by platform permissions | MySQL 二级索引回表路径模型，覆盖二级索引叶子记录、主键回表、覆盖索引捷径和 EXPLAIN 证据 |
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
 | RDB | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis RDB 快照状态模型，覆盖 save 规则、BGSAVE fork、fork 时刻 keyspace、临时 dump.rdb、COW 页、原子 rename、重启加载和 INFO 持久化指标 |
 | AOF 重写 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis BGREWRITEAOF 状态模型，覆盖 fork 子进程、Copy-on-Write、当前增量 AOF、rewrite buffer、临时基础文件、manifest 原子切换和恢复重放 |
@@ -784,6 +785,64 @@
 - 提交计划：功能代码与进度文档合并进入 `feat: add nat visualization`。
 - 推送计划：提交后执行 `git pull --rebase origin main` 与 `git push origin main`。
 
+## MySQL Secondary Index Visualization
+
+### Online Image References
+
+- `source`：SolarWinds - MySQL Indexes Tutorial，https://www.solarwinds.com/blog/mysql-indexes-tutorial
+  - `image`：文章中的 secondary index B+ tree / primary key lookup 图。
+  - `role`：main
+  - `qualityReason`：图中清楚展示二级索引树叶子命中后继续使用主键定位聚簇数据行，是回表路径最直观的主构图。
+  - `takeaways`：主画布采用 SQL 谓词、二级索引 B+ 树、叶子记录、PRIMARY 聚簇索引和结果行五区结构。
+  - `originalChanges`：改成本项目五步 storage-layout 模型，加入覆盖索引捷径、EXPLAIN 证据、移动端流程卡和项目统一高亮状态。
+- `source`：MySQL 8.4 Reference Manual - Clustered and Secondary Indexes，https://dev.mysql.com/doc/refman/8.4/en/innodb-index-types.html
+  - `image`：官方 clustered index 与 secondary index 定义说明。
+  - `role`：supporting
+  - `qualityReason`：官方校准 InnoDB 聚簇索引叶子保存整行、二级索引记录包含主键列的语义。
+  - `takeaways`：二级索引叶子表保留 `email + id`，PRIMARY 面板保留 `id -> full row`。
+  - `originalChanges`：把官方文字定义转成可高亮的二级叶子、主键指针和聚簇行表。
+- `source`：小林 coding - MySQL 索引，https://xiaolincoding.com/mysql/index/index_interview.html
+  - `image`：页面中的二级索引、主键索引和回表图解。
+  - `role`：supporting
+  - `qualityReason`：中文图解对二级索引查到主键、再用主键查聚簇索引的表达清楚，适合校准中文教学文案。
+  - `takeaways`：画布用 `id=8142 pointer` 表达二级索引叶子里的主键指针。
+  - `originalChanges`：用项目自有订单查询示例、短表格和 EXPLAIN 面板替代原图静态树。
+- `source`：PlanetScale Learn - Covering indexes，https://planetscale.com/learn/courses/mysql-for-developers/indexes/covering-indexes
+  - `image`：课程中的 covering index 教学截图和查询字段说明。
+  - `role`：supporting
+  - `qualityReason`：课程化解释覆盖索引如何直接从二级索引返回字段，适合补足回表优化分支。
+  - `takeaways`：第四步展示 `email,name,id covered` 与 `Extra=Using index`。
+  - `originalChanges`：把 covering index 做成绿色捷径路径，让它与黄色回表路径同屏对照。
+- `source`：Jeremy Cole - B+Tree index structures in InnoDB，https://blog.jcole.us/2013/01/10/btree-index-structures-in-innodb/
+  - `image`：InnoDB B+Tree 页、记录和叶子页结构图。
+  - `role`：supporting
+  - `qualityReason`：经典 InnoDB 页级结构图可补足 B+ 树 root/leaf/page 的领域形态。
+  - `takeaways`：二级索引和 PRIMARY 都使用 root、leaf page 与有序叶子记录表达。
+  - `originalChanges`：弱化页内复杂细节，突出二级索引到聚簇索引的跨树访问成本。
+
+### Reference Breakdown
+
+- 主体布局：左侧 SQL 查询卡，中部 `idx_email` 二级索引 B+ 树，右侧 PRIMARY 聚簇索引 B+ 树，左下结果行，底部 EXPLAIN 证据面板，右侧任务面板与底部步骤由模拟器统一承载。
+- 视觉焦点：`WHERE email='a@shop.test'` 命中二级索引叶子，叶子记录返回 `id=8142`，黄色路径访问 PRIMARY 读取 `name,total`；绿色路径展示覆盖索引直接返回 `Using index`。
+- 领域对象：SQL predicate、optimizer、secondary index root、secondary leaf entry、primary key pointer、clustered index PRIMARY、full row、covering index、EXPLAIN type/key/rows/Extra、Buffer Pool page hit。
+- 容器层级：查询谓词进入二级索引；二级索引叶子保存索引列和主键；聚簇索引用主键定位整行；覆盖索引从二级叶子直接返回；EXPLAIN 面板用于上线前验收。
+- 连线方向：Query -> Secondary Index -> Leaf Entry -> PRIMARY -> Result Row；Covering Index shortcut 从 Secondary Leaf 直接到 Result Row；EXPLAIN 从计划面板回到 Query 调优闭环。
+- 状态表达：五步依次高亮选择二级索引、命中叶子、主键回表、覆盖索引捷径、EXPLAIN 验收；表格行、箭头和证据卡随 completedSteps 激活。
+- 颜色策略：品牌蓝表示优化器选 key，青色表示二级叶子命中，橙色表示主键回表，绿色表示覆盖索引捷径，红色表示 EXPLAIN 风险核对。
+- 文字密度：桌面 SVG 保留短 SQL、页范围、叶子字段、主键、结果字段和 EXPLAIN 关键列；移动端切换为五张流程卡和三张事实卡。
+- 交互节奏：选择二级索引 -> 命中二级索引叶子 -> 按主键回表 -> 覆盖索引捷径 -> 用 EXPLAIN 验收。
+- 原创改造点：把 SolarWinds 的 secondary index tree、MySQL 官方索引定义、小林 coding 回表图和 PlanetScale covering index 课程融合成项目风格的查询成本模型，强调返回列决定回表次数。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/secondary-index/desktop.svg` 与 `.codex-artifacts/visualizations/secondary-index/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/secondary-index/mobile.html`。
+- 截图结论：桌面 SVG 可识别查询、二级索引 `idx_email`、叶子记录、PRIMARY 聚簇索引、主键回表路径、覆盖索引捷径、EXPLAIN 证据和 5/5 进度；移动 HTML 展示五步流程卡和三张事实卡，文字可读。
+- 候选来源数量：普通搜索筛选约 12 个候选入口，最终记录 5 个参考来源。
+- 验收备注：Chrome DevTools MCP profile 被占用；Browser 插件返回 `iab` 不可用；Playwright Chromium 失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied (1100)`；本轮使用项目数据测试、生产构建、SSR SVG/HTML 审查图、关键文本 grep 和 diff 检查完成验收。
+- 提交计划：功能代码与进度文档合并进入 `feat: add secondary index visualization`。
+- 推送计划：提交后执行 `git pull --rebase origin main` 与 `git push origin main`。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
@@ -795,7 +854,7 @@
 
 ## Next Candidate
 
-优先选择 MySQL `二级索引/回表`，备选 CDN `缓存失效/回源` 或 Kubernetes `kube-proxy iptables/IPVS`。二级索引/回表可承接 B+ 树索引实验室，展示二级索引叶子记录、主键回表、覆盖索引、扫描行数和执行计划证据。
+优先选择 CDN `缓存失效/回源`，备选 Kubernetes `kube-proxy iptables/IPVS` 或 MySQL `JOIN 顺序`。CDN 缓存失效/回源能承接 DNS、HTTP 缓存和 NAT，展示边缘节点、TTL、purge、stale 内容、Origin Shield 和回源合并。
 
 ## Docker Resource Limit Visualization
 
@@ -2702,3 +2761,17 @@
 - Commit：功能提交 `e2dded8 feat: add nat visualization` 已创建，本地 `main` 相对 `origin/main` ahead 1。
 - Push Blocker：两次执行 `git pull --rebase origin main` 均失败，原因是 `LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443`；`git push origin main` 尚未进入执行阶段。
 - Resume Point：下一轮先重试 `git pull --rebase origin main`，成功后执行 `git push origin main` 推送 `e2dded8` 及本条 docs-only 阻塞记录；同步成功后继续 MySQL `二级索引/回表`。
+
+### 2026-06-04 15:23 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，发现上一轮 NAT 本地 ahead 2；`git fetch origin main` 成功，`git pull --rebase origin main` 显示当前分支已最新，`git push origin main` 成功把 `e2dded8 feat: add nat visualization` 和 `0a492fa docs: record nat visualization push blocker` 推送到远端；从干净工作区继续。
+- Selected：MySQL `二级索引`，原因是二级索引叶子记录、主键回表、覆盖索引和 EXPLAIN 证据构成高频查询优化路径，并承接已完成的 MySQL `B+ 树`、`Buffer Pool` 和 `EXPLAIN`。
+- Candidate Sources：普通搜索筛选约 12 个候选入口；主参考为 SolarWinds MySQL indexes tutorial 的 secondary index tree / primary key lookup 图；辅助参考为 MySQL 官方 clustered and secondary indexes、小林 coding MySQL 索引、PlanetScale covering indexes 和 Jeremy Cole InnoDB B+Tree；Chrome DevTools MCP profile 被占用，Browser 插件返回 `iab` 不可用，本轮使用搜索结果、可访问页面和本地 SSR 审查完成确认。
+- Online Image References：见 `MySQL Secondary Index Visualization` 小节；主参考决定 SQL -> secondary leaf -> PRIMARY lookup 的整体构图，辅助来源校准官方语义、中文回表表达、覆盖索引和页级结构。
+- Reference Breakdown：主体布局为左侧 SQL 查询卡，中部 `idx_email` 二级索引 B+ 树，右侧 PRIMARY 聚簇索引 B+ 树，左下结果行，底部 EXPLAIN 证据面板；视觉焦点是 `email -> id=8142 -> PRIMARY(id) -> full row` 与 `Extra=Using index` 覆盖索引捷径的同屏对照。
+- Implementation：新增 `mysql:secondary-index` 专用 `storage-layout` 构建器、二级索引 SVG 舞台、移动端流程卡、响应式样式、来源引用和数据测试，并把 `secondary-index` 加入 MySQL 可视化清单。
+- Browser Note：Chrome DevTools MCP profile 被占用；Browser 插件返回 `iab` 不可用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied (1100)`；Vite preview 在 4187 端口被占用后改用 4287 成功启动。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/secondary-index/desktop.svg`、`.codex-artifacts/visualizations/secondary-index/desktop.html` 和 `.codex-artifacts/visualizations/secondary-index/mobile.html`；桌面 SVG 可识别查询、二级索引 `idx_email`、叶子记录、PRIMARY、回表路径、覆盖索引捷径、EXPLAIN 证据和 5/5 进度，移动 HTML 展示五步流程和三张事实卡。
+- Verification：新增测试先失败于 `visualPointIds.mysql` 缺少 `secondary-index`，补专用 builder/stage/source 后 `npm run test:data -- --grep "mysql secondary index"` 通过 1 项；完整 `npm run test:data` 通过 31 项；`npm run build` 通过；`git diff --check` 通过；SSR 审查图关键文本 grep 通过。
+- Commit/Push Plan：提交 `feat: add secondary index visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：CDN `缓存失效/回源`，备选 Kubernetes `kube-proxy iptables/IPVS` 或 MySQL `JOIN 顺序`。

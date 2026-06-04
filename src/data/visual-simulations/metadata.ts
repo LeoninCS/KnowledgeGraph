@@ -293,6 +293,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
     "buffer-pool",
     "mysql-index",
     "b-plus-tree",
+    "secondary-index",
     "transaction",
     "isolation-level",
     "mvcc",

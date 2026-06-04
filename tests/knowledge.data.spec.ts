@@ -108,6 +108,23 @@ test("mysql B+ tree is backed by a dedicated visual simulation", async () => {
   );
 });
 
+test("mysql secondary index is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("mysql");
+  const secondaryIndex = points.find((point) => point.id === "secondary-index");
+
+  expect(visualPointIds.mysql).toContain("secondary-index");
+  expect(secondaryIndex).toBeTruthy();
+
+  const simulation = buildVisualSimulation("mysql", secondaryIndex!);
+
+  expect(simulation.key).toBe("mysql:secondary-index");
+  expect(simulation.pattern.en).toContain("secondary index lookup");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["secondary leaf entries", "primary-key lookups", "covering-index shortcut", "EXPLAIN Extra"]),
+  );
+});
+
 test("kubernetes CrashLoopBackOff is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("kubernetes");
   const crashLoopBackOff = points.find((point) => point.id === "crashloopbackoff");
