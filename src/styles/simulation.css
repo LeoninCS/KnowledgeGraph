@@ -3570,6 +3570,7 @@
 }
 
 .k8s-service-stage,
+.k8s-kube-proxy-stage,
 .k8s-ingress-stage,
 .k8s-hpa-stage,
 .k8s-scheduler-stage,
@@ -3584,6 +3585,7 @@
 }
 
 .k8s-service-card,
+.k8s-kube-proxy-card,
 .k8s-ingress-card,
 .k8s-hpa-card,
 .k8s-scheduler-card,
@@ -3606,6 +3608,7 @@
 }
 
 :root[data-theme="dark"] .k8s-service-card,
+:root[data-theme="dark"] .k8s-kube-proxy-card,
 :root[data-theme="dark"] .k8s-ingress-card,
 :root[data-theme="dark"] .k8s-hpa-card,
 :root[data-theme="dark"] .k8s-scheduler-card,
@@ -3620,6 +3623,7 @@
 }
 
 .k8s-service-diagram,
+.k8s-kube-proxy-diagram,
 .k8s-ingress-diagram,
 .k8s-hpa-diagram,
 .k8s-scheduler-diagram,
@@ -3636,6 +3640,7 @@
 }
 
 .k8s-service-mobile-map,
+.k8s-kube-proxy-mobile-map,
 .k8s-ingress-mobile-map,
 .k8s-hpa-mobile-map,
 .k8s-scheduler-mobile-map,
@@ -7066,6 +7071,262 @@
 }
 
 .k8s-endpointslice-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.k8s-kube-proxy-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 24%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);
+}
+
+.k8s-kube-proxy-title {
+  fill: var(--text);
+  font-size: 25px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.k8s-kube-proxy-subtitle {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.k8s-kube-proxy-api,
+.k8s-kube-proxy-loop,
+.k8s-kube-proxy-iptables,
+.k8s-kube-proxy-ipvs,
+.k8s-kube-proxy-conntrack,
+.k8s-kube-proxy-pods,
+.k8s-kube-proxy-row,
+.k8s-kube-proxy-rule,
+.k8s-kube-proxy-pod,
+.k8s-kube-proxy-signal,
+.k8s-kube-proxy-watch-path,
+.k8s-kube-proxy-sync-path,
+.k8s-kube-proxy-iptables-path,
+.k8s-kube-proxy-ipvs-path,
+.k8s-kube-proxy-packet-path {
+  opacity: 0.32;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.k8s-kube-proxy-api.active,
+.k8s-kube-proxy-loop.active,
+.k8s-kube-proxy-iptables.active,
+.k8s-kube-proxy-ipvs.active,
+.k8s-kube-proxy-conntrack.active,
+.k8s-kube-proxy-row.active,
+.k8s-kube-proxy-rule.active,
+.k8s-kube-proxy-pod.active,
+.k8s-kube-proxy-signal.active,
+.k8s-kube-proxy-watch-path.active,
+.k8s-kube-proxy-sync-path.active,
+.k8s-kube-proxy-iptables-path.active,
+.k8s-kube-proxy-ipvs-path.active,
+.k8s-kube-proxy-packet-path.active {
+  opacity: 1;
+}
+
+.k8s-kube-proxy-pods {
+  opacity: 1;
+}
+
+.k8s-kube-proxy-api > rect,
+.k8s-kube-proxy-loop > rect,
+.k8s-kube-proxy-iptables > rect,
+.k8s-kube-proxy-ipvs > rect,
+.k8s-kube-proxy-conntrack > rect,
+.k8s-kube-proxy-pods > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#k8s-kube-proxy-soft-shadow);
+}
+
+.k8s-kube-proxy-api.active > rect,
+.k8s-kube-proxy-row.brand.active rect,
+.k8s-kube-proxy-rule.brand.active rect,
+.k8s-kube-proxy-pod.brand.active rect,
+.k8s-kube-proxy-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.k8s-kube-proxy-loop.active > rect,
+.k8s-kube-proxy-row.teal.active rect,
+.k8s-kube-proxy-rule.teal.active rect,
+.k8s-kube-proxy-pod.teal.active rect,
+.k8s-kube-proxy-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 42%, var(--border));
+}
+
+.k8s-kube-proxy-iptables.active > rect,
+.k8s-kube-proxy-row.warning.active rect,
+.k8s-kube-proxy-rule.warning.active rect,
+.k8s-kube-proxy-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 11%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 44%, var(--border));
+}
+
+.k8s-kube-proxy-ipvs.active > rect,
+.k8s-kube-proxy-row.success.active rect,
+.k8s-kube-proxy-rule.success.active rect,
+.k8s-kube-proxy-pod.success.active rect,
+.k8s-kube-proxy-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 44%, var(--border));
+}
+
+.k8s-kube-proxy-conntrack.active > rect,
+.k8s-kube-proxy-row.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 42%, var(--border));
+}
+
+.k8s-kube-proxy-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.k8s-kube-proxy-panel-subtitle,
+.k8s-kube-proxy-api text,
+.k8s-kube-proxy-loop text,
+.k8s-kube-proxy-iptables text,
+.k8s-kube-proxy-ipvs text,
+.k8s-kube-proxy-conntrack text,
+.k8s-kube-proxy-pods text,
+.k8s-kube-proxy-watch-path text,
+.k8s-kube-proxy-sync-path text,
+.k8s-kube-proxy-packet-path text,
+.k8s-kube-proxy-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.k8s-kube-proxy-row rect,
+.k8s-kube-proxy-rule rect,
+.k8s-kube-proxy-pod rect,
+.k8s-kube-proxy-watch-path rect,
+.k8s-kube-proxy-sync-path rect,
+.k8s-kube-proxy-packet-path rect,
+.k8s-kube-proxy-signal rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#k8s-kube-proxy-soft-shadow);
+}
+
+.k8s-kube-proxy-row text,
+.k8s-kube-proxy-rule text,
+.k8s-kube-proxy-pod text,
+.k8s-kube-proxy-signal text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 900;
+}
+
+.k8s-kube-proxy-panel-title,
+.k8s-kube-proxy-row text:first-of-type,
+.k8s-kube-proxy-rule text:first-of-type,
+.k8s-kube-proxy-pod text:first-of-type,
+.k8s-kube-proxy-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.k8s-kube-proxy-row text:last-of-type,
+.k8s-kube-proxy-rule text:last-of-type,
+.k8s-kube-proxy-pod text:last-of-type,
+.k8s-kube-proxy-signal text:last-of-type {
+  fill: var(--brand-strong);
+  text-anchor: end;
+}
+
+.k8s-kube-proxy-watch-path path,
+.k8s-kube-proxy-sync-path path,
+.k8s-kube-proxy-iptables-path path,
+.k8s-kube-proxy-ipvs-path path,
+.k8s-kube-proxy-packet-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.k8s-kube-proxy-watch-path path {
+  stroke: var(--brand);
+}
+
+.k8s-kube-proxy-sync-path path {
+  stroke: var(--tertiary);
+}
+
+.k8s-kube-proxy-iptables-path path {
+  stroke: #f59e0b;
+}
+
+.k8s-kube-proxy-ipvs-path path {
+  stroke: var(--success);
+}
+
+.k8s-kube-proxy-packet-path path {
+  stroke: var(--danger);
+}
+
+.k8s-kube-proxy-watch-path text,
+.k8s-kube-proxy-sync-path text,
+.k8s-kube-proxy-packet-path text {
+  text-anchor: middle;
+}
+
+.k8s-kube-proxy-mobile-map {
+  display: none;
+}
+
+.k8s-kube-proxy-mobile-flow,
+.k8s-kube-proxy-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.k8s-kube-proxy-mobile-hop,
+.k8s-kube-proxy-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--tertiary) 6%, var(--surface));
+  padding: 12px;
+}
+
+.k8s-kube-proxy-mobile-hop span,
+.k8s-kube-proxy-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.k8s-kube-proxy-mobile-hop strong,
+.k8s-kube-proxy-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.k8s-kube-proxy-mobile-hop.active,
+.k8s-kube-proxy-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--success) 44%, var(--border));
+  background: color-mix(in srgb, var(--success) 11%, var(--surface));
+}
+
+.k8s-kube-proxy-caption {
   right: 16px;
   bottom: 14px;
 }
@@ -14896,6 +15157,49 @@
   }
 
   .cdn-caption {
+    position: static;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .k8s-kube-proxy-stage {
+    padding: 12px;
+  }
+
+  .k8s-kube-proxy-card {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .k8s-kube-proxy-diagram {
+    display: none;
+  }
+
+  .k8s-kube-proxy-mobile-map {
+    display: grid;
+    gap: 12px;
+  }
+
+  .k8s-kube-proxy-mobile-hop {
+    position: relative;
+  }
+
+  .k8s-kube-proxy-mobile-hop::after {
+    content: "";
+    position: absolute;
+    right: 18px;
+    bottom: -18px;
+    width: 2px;
+    height: 16px;
+    background: color-mix(in srgb, var(--tertiary) 32%, var(--border));
+  }
+
+  .k8s-kube-proxy-mobile-hop:last-child::after {
+    display: none;
+  }
+
+  .k8s-kube-proxy-caption {
     position: static;
     justify-content: space-between;
     width: 100%;

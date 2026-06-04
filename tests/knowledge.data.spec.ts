@@ -278,6 +278,26 @@ test("kubernetes EndpointSlice is backed by a dedicated visual simulation", asyn
   );
 });
 
+test("kubernetes kube-proxy is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("kubernetes");
+  const kubeProxy = points.find((point) => point.id === "kube-proxy");
+
+  expect(visualPointIds.kubernetes).toContain("kube-proxy");
+  expect(kubeProxy).toBeTruthy();
+
+  const simulation = buildVisualSimulation("kubernetes", kubeProxy!);
+
+  expect(simulation.key).toBe("kubernetes:kube-proxy");
+  expect(simulation.pattern.en).toContain("kube-proxy node dataplane model");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.steps.map((step) => step.label.en)).toEqual(
+    expect.arrayContaining(["Service watch", "iptables KUBE-SVC", "IPVS virtual server", "DNAT + conntrack"]),
+  );
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["syncProxyRules", "KUBE-SVC chain", "IPVS virtual server", "conntrack entries"]),
+  );
+});
+
 test("linux epoll is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("os");
   const epoll = points.find((point) => point.id === "epoll");

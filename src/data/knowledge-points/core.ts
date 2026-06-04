@@ -391,6 +391,7 @@ export const coreKnowledgePointIdsByCategory: Record<CategoryId, string[]> = {
     "clusterip",
     "endpoint",
     "endpoint-slice",
+    "kube-proxy",
     "dns",
     "ingress",
     "network-policy",

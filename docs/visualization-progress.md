@@ -147,6 +147,7 @@
 | 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
 | Service | `step-simulation` | completed | desktop/mobile captured | Kubernetes Service 数据面转发模拟器，覆盖 selector、EndpointSlice、ClusterIP/DNS、kube-proxy 规则和 Ready Pod |
 | EndpointSlice | `explorable-architecture` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes EndpointSlice 分片资源模型，覆盖 Service selector、EndpointSlice controller、批量分片、endpoint conditions、topology hints 和 kube-proxy watch fan-out |
+| kube-proxy | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes kube-proxy 节点数据面模型，覆盖 Service/EndpointSlice watch、syncProxyRules、iptables/IPVS、DNAT、conntrack 和 Ready Pod |
 | Ingress | `step-simulation` | completed | desktop/mobile captured | Kubernetes Ingress 七层入口路由模拟器，覆盖公网入口、Ingress Controller、TLS Secret、host/path 规则和 Service 后端 |
 | CrashLoopBackOff | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes CrashLoopBackOff 重启退避状态模型，覆盖 Pod 启动、进程退出、kubelet restartPolicy、BackOff 延迟、Events/logs 证据链和修复恢复 |
 | 镜像层 | `storage-layout` | completed | desktop/mobile captured | Docker 镜像层结构模型，覆盖 Dockerfile 指令、Build Cache、只读层共享、overlay2 和可写层 |
@@ -902,6 +903,64 @@
 - 提交计划：功能代码与进度文档合并进入 `feat: add cdn visualization`。
 - 推送计划：提交后执行 `git pull --rebase origin main` 与 `git push origin main`。
 
+## Kubernetes kube-proxy Visualization
+
+### Online Image References
+
+- `source`：Kubernetes Docs - Virtual IPs and Service Proxies，https://kubernetes.io/docs/reference/networking/virtual-ips/
+  - `image`：页面中的 `Virtual IP mechanism for Services, using iptables mode` SVG，图片 URL：`https://kubernetes.io/images/docs/services-iptables-overview.svg`。
+  - `role`：main
+  - `qualityReason`：官方图直接展示 Client Pod、Service VIP、kube-proxy、iptables 转发规则和后端 Pod，是 kube-proxy iptables 数据面的权威主参考。
+  - `takeaways`：主画布采用左侧 API watch / kube-proxy sync loop，中部节点本地转发状态，右侧 iptables chain 与后端 Pod 的结构。
+  - `originalChanges`：改成本项目五步节点数据面模拟器，加入 `syncProxyRules`、IPVS 对照、conntrack tuple、移动端流程卡和底部信号。
+- `source`：Kubernetes Docs - Virtual IPs and Service Proxies，https://kubernetes.io/docs/reference/networking/virtual-ips/
+  - `image`：页面中的 `Virtual IP mechanism for Services, using IPVS mode` SVG，图片 URL：`https://kubernetes.io/images/docs/services-ipvs-overview.svg`。
+  - `role`：supporting
+  - `qualityReason`：官方图展示 IPVS virtual server 和 real server 选择路径，用于补足大规模 Service 下的 IPVS 数据面语义。
+  - `takeaways`：IPVS 面板保留 VIP、调度算法和 real server 列表。
+  - `originalChanges`：把 IPVS 作为同屏对照分支，强调 kube-proxy 同一 watch 输入可编译到不同节点数据面。
+- `source`：Dustin Specker - iptables: How Kubernetes Services Direct Traffic to Pods，https://dustinspecker.com/posts/iptables-how-kubernetes-services-direct-traffic-to-pods/
+  - `image`：文章中从 ClusterIP 到 iptables DNAT 的规则链路图与命令输出。
+  - `role`：supporting
+  - `qualityReason`：工程化拆解 `KUBE-SERVICES`、`KUBE-SVC`、`KUBE-SEP` 和 DNAT，适合校准规则链标签。
+  - `takeaways`：iptables 模式面板展示 NAT 表规则、概率选择和 endpoint DNAT。
+  - `originalChanges`：压缩为三行规则栈和一条到 conntrack 的首包路径。
+- `source`：Dustin Specker - IPVS: How Kubernetes Services Direct Traffic to Pods，https://dustinspecker.com/posts/ipvs-how-kubernetes-services-direct-traffic-to-pods/
+  - `image`：文章中的 IPVS virtual service、real server 和内核负载均衡说明。
+  - `role`：supporting
+  - `qualityReason`：独立说明 IPVS 如何替代大量 iptables 规则，补充官方图之外的命令级语境。
+  - `takeaways`：IPVS 面板展示 `VIP 10.96.12.34:80 rr` 和 Ready endpoint real servers。
+  - `originalChanges`：把命令输出抽象为短行卡，保留 `rr` 和 real server 权重。
+- `source`：Kubernetes Docs - Service，https://kubernetes.io/docs/concepts/services-networking/service/
+  - `image`：Service、EndpointSlice、ClusterIP 和代理机制说明。
+  - `role`：supporting
+  - `qualityReason`：官方校准 Service VIP、selector、EndpointSlice ready 后端和 kube-proxy 消费关系。
+  - `takeaways`：左侧 API watch cache 使用 Service 与 EndpointSlice 作为输入对象。
+  - `originalChanges`：将控制面对象放到数据面画布入口，避免只画 Linux 规则而缺少 Kubernetes 语义。
+
+### Reference Breakdown
+
+- 主体布局：左上 API watch cache，中上 kube-proxy sync loop，右上 iptables mode，右下 IPVS mode，左下 conntrack table，中下 Ready endpoints，底部四个运行信号，右侧任务面板与底部步骤由模拟器统一承载。
+- 视觉焦点：`Service / EndpointSlice watch -> syncProxyRules -> KUBE-SVC 或 IPVS virtual server -> DNAT + conntrack -> checkout-b` 的节点本地转发链路。
+- 领域对象：Service ClusterIP、EndpointSlice Ready set、kube-proxy informer、syncProxyRules、iptables `KUBE-SERVICES` / `KUBE-SVC` / `KUBE-SEP`、IPVS virtual server、real server、DNAT、conntrack original/reply tuple、Ready Pod。
+- 容器层级：API 对象进入 watch cache；kube-proxy 在每个节点编译本地规则；iptables/IPVS 是两种数据面实现；conntrack 保存首包改写与回包状态；Ready Pod 是业务终点。
+- 连线方向：API watch -> sync loop -> iptables/IPVS 数据面；iptables 和 IPVS 都指向 conntrack；conntrack 再进入 Ready endpoint；底部信号横向展示同步、规则链、虚拟服务和连接跟踪。
+- 状态表达：五步依次高亮 watch 服务变化、同步节点规则、iptables 转发、IPVS 转发、首包与回包；规则行、路径箭头、conntrack 行和信号卡随 completedSteps 激活。
+- 颜色策略：品牌蓝表示 watch 与 Service VIP，青色表示 sync loop/IPVS 对照，橙色表示 iptables 规则链，绿色表示 IPVS real server 和 Ready Pod，红色表示 conntrack 回包与排障风险。
+- 文字密度：桌面 SVG 保留短标签、规则名、VIP、endpoint 和状态值；移动端隐藏复杂 SVG，改成五张流程卡和四张事实卡。
+- 交互节奏：读取 Service/EndpointSlice -> 执行 syncProxyRules -> 命中 KUBE-SVC/KUBE-SEP -> 查询 IPVS virtual server -> DNAT 并用 conntrack 跟踪回包。
+- 原创改造点：把 Kubernetes 官方 iptables/IPVS 两张 SVG、Dustin Specker 规则链拆解和 Service 官方语义融合成项目风格的节点数据面教学模型，突出同一 Kubernetes 输入在不同 Linux 数据面中的落地方式。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/kube-proxy/desktop.svg` 与 `.codex-artifacts/visualizations/kube-proxy/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/kube-proxy/mobile.html` 与 `.codex-artifacts/visualizations/kube-proxy/mobile.html.fragment`。
+- 截图结论：桌面 SVG 可识别 API watch cache、kube-proxy sync loop、iptables mode、IPVS mode、conntrack table、Ready endpoints、DNAT 路径、四个底部信号和 5/5 进度；移动 HTML 展示五步流程卡和四个事实卡，文字可读。
+- 候选来源数量：普通搜索筛选约 12 个候选入口，最终记录 5 个参考来源。
+- 浏览器备注：Chrome DevTools MCP profile 被占用；Browser 插件返回 `iab` 不可用；QuickLook PNG 转换失败于 sandbox 初始化；本轮使用官方 SVG 直连、项目数据测试、生产构建、SSR SVG/HTML 审查图、关键文本 grep 和 diff 检查完成验收。
+- 提交计划：功能代码与进度文档合并进入 `feat: add kube proxy visualization`。
+- 推送计划：提交后执行 `git pull --rebase origin main` 与 `git push origin main`。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
@@ -913,7 +972,7 @@
 
 ## Next Candidate
 
-优先选择 Kubernetes `kube-proxy iptables/IPVS`，备选 MySQL `JOIN 顺序` 或 HTTP/3 `QUIC 连接迁移`。kube-proxy 能承接 Service 与 EndpointSlice，展示 watch、iptables/IPVS 规则、ClusterIP 虚拟地址、Pod 后端和 conntrack 排障链路。
+优先选择 MySQL `JOIN 顺序`，备选 HTTP/3 `QUIC 连接迁移` 或 Docker `Build cache invalidation`。JOIN 顺序能承接 EXPLAIN、索引、二级索引和优化器，展示驱动表选择、访问路径、嵌套循环与扫描行数放大。
 
 ## Docker Resource Limit Visualization
 
@@ -2842,3 +2901,17 @@
 - Working Tree：同步门禁前工作区干净；本条记录写入后仅 `docs/visualization-progress.md` 有阻塞记录改动。
 - Action：本轮停在同步门禁，跳过找图、拆图、编码、截图验收、提交和推送。
 - Resume Point：下一轮先重试 `git fetch origin main` 与 `git pull --ff-only origin main`；同步成功后提交本条 docs-only 阻塞记录，再继续 CDN `缓存失效/回源`，备选 Kubernetes `kube-proxy iptables/IPVS` 或 MySQL `JOIN 顺序`。
+
+### 2026-06-04 18:17 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `58f6fcd feat: add cdn visualization`；从干净工作区继续。
+- Selected：Kubernetes `kube-proxy`，原因是 Service/EndpointSlice watch、syncProxyRules、iptables/IPVS、ClusterIP 虚拟地址、DNAT、conntrack 和 Ready Pod 形成清晰节点数据面模型，并承接已完成的 Service 与 EndpointSlice。
+- Candidate Sources：普通搜索筛选约 12 个候选入口；主参考为 Kubernetes 官方 Virtual IPs 页面 `services-iptables-overview.svg`；辅助参考为官方 `services-ipvs-overview.svg`、Dustin Specker iptables/IPVS walkthrough 和 Kubernetes Service 文档；Chrome DevTools MCP profile 被占用，Browser 插件返回 `iab` 不可用，本轮使用官方 SVG 直连、页面 URL 和本地 SSR 审查完成确认。
+- Online Image References：见 `Kubernetes kube-proxy Visualization` 小节；主参考决定 Client/Service/kube-proxy/iptables/Pod 的主构图，辅助来源校准 IPVS virtual server、real server、KUBE-SVC/KUBE-SEP、DNAT 和 Service/EndpointSlice 输入语义。
+- Reference Breakdown：主体布局为左上 API watch cache，中上 kube-proxy sync loop，右上 iptables mode，右下 IPVS mode，左下 conntrack table，中下 Ready endpoints，底部四个运行信号；视觉焦点是 `Service / EndpointSlice watch -> syncProxyRules -> KUBE-SVC 或 IPVS virtual server -> DNAT + conntrack -> checkout-b`。
+- Implementation：新增 `kubernetes:kube-proxy` 专用 `step-simulation` 构建器、kube-proxy SVG 舞台、移动端流程卡、响应式样式、来源引用和数据测试，并把 `kube-proxy` 加入 Kubernetes core 与可视化清单。
+- Browser Note：Chrome DevTools MCP profile 被占用；Browser 插件返回 `iab` 不可用；QuickLook PNG 转换失败于 sandbox 初始化；SSR 审查时 Vite HMR WebSocket 触发 `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` 渲染完成。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/kube-proxy/desktop.svg`、`.codex-artifacts/visualizations/kube-proxy/desktop.html`、`.codex-artifacts/visualizations/kube-proxy/mobile.html` 与 `.codex-artifacts/visualizations/kube-proxy/mobile.html.fragment`；桌面 SVG 可识别 API watch cache、kube-proxy sync loop、iptables mode、IPVS mode、conntrack table、Ready endpoints、DNAT 路径、四个底部信号和 5/5 进度，移动 HTML 展示五步流程和四个事实卡。
+- Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `kube-proxy`，补 core/visual 清单与专用 builder/stage/source 后 `npm run test:data -- --grep "kubernetes kube-proxy"` 通过 1 项；`npm run build` 通过；继续执行完整 `npm run test:data`、`npm run kg:review:validate` 和 `git diff --check`。
+- Commit/Push Plan：提交 `feat: add kube proxy visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：MySQL `JOIN 顺序`，备选 HTTP/3 `QUIC 连接迁移` 或 Docker `Build cache invalidation`。

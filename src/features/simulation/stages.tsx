@@ -506,6 +506,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "kubernetes:kube-proxy") {
+    return (
+      <KubernetesKubeProxyStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:ingress") {
     return (
       <KubernetesIngressStage
@@ -6803,6 +6814,251 @@ function KubernetesEndpointSliceStage({
           </div>
         </div>
         <div className="tcp-handshake-caption k8s-endpointslice-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KubernetesKubeProxyStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const watchActive = completedSteps >= 1;
+  const syncActive = completedSteps >= 2;
+  const iptablesActive = completedSteps >= 3;
+  const ipvsActive = completedSteps >= 4;
+  const packetActive = completedSteps >= 5;
+  const serviceRows = [
+    { name: "Service", value: "VIP 10.96.12.34", active: watchActive, tone: "brand" },
+    { name: "EndpointSlice", value: watchActive ? "3 endpoints" : "pending", active: watchActive, tone: "teal" },
+    { name: "Ready set", value: packetActive ? "policy allow" : "watching", active: watchActive, tone: "success" },
+  ];
+  const syncRows = [
+    { name: "mode", value: syncActive ? "dual view" : "detecting", active: syncActive, tone: "brand" },
+    { name: "sync", value: syncActive ? "18ms rv=58213" : "idle", active: syncActive, tone: "teal" },
+    { name: "node", value: syncActive ? "node-b local" : "waiting", active: syncActive, tone: "warning" },
+  ];
+  const iptablesRows = [
+    { chain: "KUBE-SERVICES", value: iptablesActive ? "dst 10.96.12.34/80" : "pending", active: iptablesActive, tone: "brand" },
+    { chain: "KUBE-SVC-7B4D", value: iptablesActive ? "probability 0.333" : "pending", active: iptablesActive, tone: "warning" },
+    { chain: "KUBE-SEP-B92A", value: iptablesActive ? "DNAT 10.244.2.9:8080" : "pending", active: iptablesActive, tone: "success" },
+  ];
+  const ipvsRows = [
+    { name: "VIP", value: ipvsActive ? "10.96.12.34:80 rr" : "pending", active: ipvsActive, tone: "brand" },
+    { name: "RS checkout-a", value: ipvsActive ? "10.244.1.7:8080 w=1" : "pending", active: ipvsActive, tone: "teal" },
+    { name: "RS checkout-b", value: ipvsActive ? "10.244.2.9:8080 w=1" : "pending", active: ipvsActive, tone: "success" },
+  ];
+  const conntrackRows = [
+    { name: "original", value: packetActive ? "client -> VIP" : "awaiting", active: packetActive, tone: "brand" },
+    { name: "reply", value: packetActive ? "pod -> client" : "pending", active: packetActive, tone: "success" },
+    { name: "state", value: packetActive ? "ESTABLISHED" : "pending", active: packetActive, tone: "danger" },
+  ];
+  const podRows = [
+    { name: "checkout-a", ip: "10.244.1.7", node: "node-a", active: watchActive, tone: "teal" },
+    { name: "checkout-b", ip: "10.244.2.9", node: "node-b", active: packetActive, tone: "success" },
+    { name: "checkout-c", ip: "10.244.3.11", node: "node-c", active: ipvsActive, tone: "brand" },
+  ];
+  const signals = [
+    { name: "syncProxyRules", value: syncActive ? "18ms OK" : "pending", active: syncActive, tone: "brand" },
+    { name: "KUBE-SVC chain", value: iptablesActive ? "3 endpoints" : "pending", active: iptablesActive, tone: "warning" },
+    { name: "IPVS virtual server", value: ipvsActive ? "rr / 3 RS" : "pending", active: ipvsActive, tone: "teal" },
+    { name: "conntrack entries", value: packetActive ? "ESTABLISHED" : "pending", active: packetActive, tone: "success" },
+  ];
+
+  return (
+    <div className="visual-stage k8s-kube-proxy-stage">
+      <div className="k8s-kube-proxy-card">
+        <svg
+          className="k8s-kube-proxy-diagram"
+          viewBox="0 0 1120 650"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["k8s-kube-proxy-arrow-brand", "var(--brand)"],
+              ["k8s-kube-proxy-arrow-teal", "var(--tertiary)"],
+              ["k8s-kube-proxy-arrow-warning", "#f59e0b"],
+              ["k8s-kube-proxy-arrow-success", "var(--success)"],
+              ["k8s-kube-proxy-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="k8s-kube-proxy-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="k8s-kube-proxy-bg" x="24" y="24" width="1072" height="578" rx="28" />
+          <text className="k8s-kube-proxy-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="k8s-kube-proxy-subtitle" x="560" y="100">
+            Service / EndpointSlice watch {"->"} syncProxyRules {"->"} iptables or IPVS {"->"} DNAT + conntrack
+          </text>
+
+          <g className={`k8s-kube-proxy-api ${watchActive ? "active" : ""}`}>
+            <rect x="58" y="132" width="248" height="172" rx="24" />
+            <text className="k8s-kube-proxy-panel-title" x="86" y="166">API watch cache</text>
+            <text className="k8s-kube-proxy-panel-subtitle" x="86" y="188">Service + EndpointSlice informers</text>
+            {serviceRows.map((row, index) => (
+              <g key={row.name} className={`k8s-kube-proxy-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="86" y={210 + index * 34} width="198" height="26" rx="13" />
+                <text x="100" y={227 + index * 34}>{row.name}</text>
+                <text x="276" y={227 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-kube-proxy-loop ${syncActive ? "active" : ""}`}>
+            <rect x="380" y="132" width="222" height="172" rx="24" />
+            <text className="k8s-kube-proxy-panel-title" x="408" y="166">kube-proxy · node-b</text>
+            <text className="k8s-kube-proxy-panel-subtitle" x="408" y="188">control loop compiles node rules</text>
+            {syncRows.map((row, index) => (
+              <g key={row.name} className={`k8s-kube-proxy-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="408" y={210 + index * 34} width="164" height="26" rx="13" />
+                <text x="422" y={227 + index * 34}>{row.name}</text>
+                <text x="564" y={227 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-kube-proxy-iptables ${iptablesActive ? "active" : ""}`}>
+            <rect x="664" y="124" width="370" height="186" rx="24" />
+            <text className="k8s-kube-proxy-panel-title" x="692" y="158">iptables mode</text>
+            <text className="k8s-kube-proxy-panel-subtitle" x="692" y="180">nat table: KUBE-SERVICES / KUBE-SVC / KUBE-SEP</text>
+            {iptablesRows.map((row, index) => (
+              <g key={row.chain} className={`k8s-kube-proxy-rule ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="692" y={202 + index * 36} width="304" height="28" rx="14" />
+                <text x="708" y={221 + index * 36}>{row.chain}</text>
+                <text x="988" y={221 + index * 36}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-kube-proxy-ipvs ${ipvsActive ? "active" : ""}`}>
+            <rect x="664" y="346" width="370" height="172" rx="24" />
+            <text className="k8s-kube-proxy-panel-title" x="692" y="380">IPVS mode</text>
+            <text className="k8s-kube-proxy-panel-subtitle" x="692" y="402">virtual server + real servers in kernel table</text>
+            {ipvsRows.map((row, index) => (
+              <g key={row.name} className={`k8s-kube-proxy-rule ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="692" y={424 + index * 34} width="304" height="26" rx="13" />
+                <text x="708" y={441 + index * 34}>{row.name}</text>
+                <text x="988" y={441 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-kube-proxy-conntrack ${packetActive ? "active" : ""}`}>
+            <rect x="58" y="352" width="322" height="176" rx="24" />
+            <text className="k8s-kube-proxy-panel-title" x="86" y="386">conntrack table</text>
+            <text className="k8s-kube-proxy-panel-subtitle" x="86" y="408">original tuple + reply tuple after DNAT</text>
+            {conntrackRows.map((row, index) => (
+              <g key={row.name} className={`k8s-kube-proxy-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="86" y={430 + index * 34} width="228" height="26" rx="13" />
+                <text x="100" y={447 + index * 34}>{row.name}</text>
+                <text x="306" y={447 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="k8s-kube-proxy-pods">
+            <rect x="428" y="352" width="186" height="176" rx="24" />
+            <text className="k8s-kube-proxy-panel-title" x="456" y="386">Ready endpoints</text>
+            {podRows.map((pod, index) => (
+              <g key={pod.name} className={`k8s-kube-proxy-pod ${pod.tone} ${pod.active ? "active" : ""}`}>
+                <rect x="456" y={410 + index * 34} width="124" height="26" rx="13" />
+                <text x="468" y={427 + index * 34}>{pod.name}</text>
+                <text x="578" y={427 + index * 34}>{pod.ip}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-kube-proxy-watch-path ${watchActive ? "active" : ""}`}>
+            <path d="M 306 218 C 338 218, 354 218, 380 218" markerEnd="url(#k8s-kube-proxy-arrow-brand)" />
+            <rect x="284" y="112" width="166" height="34" rx="16" />
+            <text x="367" y="134">watch event rv=58213</text>
+          </g>
+
+          <g className={`k8s-kube-proxy-sync-path ${syncActive ? "active" : ""}`}>
+            <path d="M 602 216 C 628 204, 644 196, 664 196" markerEnd="url(#k8s-kube-proxy-arrow-teal)" />
+            <path d="M 584 304 C 628 352, 640 386, 664 424" markerEnd="url(#k8s-kube-proxy-arrow-teal)" />
+            <rect x="514" y="316" width="162" height="34" rx="16" />
+            <text x="595" y="338">compile dataplane</text>
+          </g>
+
+          <g className={`k8s-kube-proxy-iptables-path ${iptablesActive ? "active" : ""}`}>
+            <path d="M 800 310 C 724 354, 528 350, 380 428" markerEnd="url(#k8s-kube-proxy-arrow-warning)" />
+          </g>
+
+          <g className={`k8s-kube-proxy-ipvs-path ${ipvsActive ? "active" : ""}`}>
+            <path d="M 664 466 C 642 462, 628 458, 614 450" markerEnd="url(#k8s-kube-proxy-arrow-success)" />
+          </g>
+
+          <g className={`k8s-kube-proxy-packet-path ${packetActive ? "active" : ""}`}>
+            <path d="M 380 464 C 398 464, 414 464, 428 464" markerEnd="url(#k8s-kube-proxy-arrow-danger)" />
+            <rect x="392" y="542" width="282" height="34" rx="16" />
+            <text x="533" y="564">DNAT 10.96.12.34:80 {"->"} 10.244.2.9:8080</text>
+          </g>
+
+          <g className="k8s-kube-proxy-signals">
+            {signals.map((signal, index) => (
+              <g key={signal.name} className={`k8s-kube-proxy-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={58 + index * 260} y="612" width="224" height="30" rx="14" />
+                <text x={76 + index * 260} y="631">{signal.name}</text>
+                <text x={264 + index * 260} y="631">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="k8s-kube-proxy-mobile-map">
+          <div className="k8s-kube-proxy-mobile-flow" aria-hidden="true">
+            {[
+              { name: "Watch", value: watchActive ? "Service + EndpointSlice cached" : "waiting", active: watchActive },
+              { name: "syncProxyRules", value: syncActive ? "node-b rules compiled" : "pending", active: syncActive },
+              { name: "iptables", value: iptablesActive ? "KUBE-SVC -> KUBE-SEP" : "pending", active: iptablesActive },
+              { name: "IPVS", value: ipvsActive ? "VIP rr + 3 real servers" : "pending", active: ipvsActive },
+              { name: "conntrack", value: packetActive ? "DNAT tuple established" : "pending", active: packetActive },
+            ].map((item) => (
+              <div key={item.name} className={`k8s-kube-proxy-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="k8s-kube-proxy-mobile-facts">
+            {signals.map((signal) => (
+              <div key={signal.name} className={`k8s-kube-proxy-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption k8s-kube-proxy-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

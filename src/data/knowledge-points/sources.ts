@@ -3069,6 +3069,14 @@ export const knowledgeSources = {
     title: "Kubernetes Docs: Virtual IPs and Service Proxies",
     url: "https://kubernetes.io/docs/reference/networking/virtual-ips/",
   },
+  "dustinspecker-k8s-iptables": {
+    title: "Dustin Specker: iptables - How Kubernetes Services Direct Traffic to Pods",
+    url: "https://dustinspecker.com/posts/iptables-how-kubernetes-services-direct-traffic-to-pods/",
+  },
+  "dustinspecker-k8s-ipvs": {
+    title: "Dustin Specker: IPVS - How Kubernetes Services Direct Traffic to Pods",
+    url: "https://dustinspecker.com/posts/ipvs-how-kubernetes-services-direct-traffic-to-pods/",
+  },
   "kubernetes-endpoint-slices": {
     title: "Kubernetes Docs: EndpointSlices",
     url: "https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/",
