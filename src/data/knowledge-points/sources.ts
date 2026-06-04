@@ -1225,6 +1225,10 @@ export const knowledgeSources = {
     title: "Microsoft Learn: Introduction to TCP/IP networking",
     url: "https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/tcpip-addressing-and-subnetting",
   },
+  "microsoft-port-exhaustion": {
+    title: "Microsoft Learn: Troubleshoot port exhaustion issues",
+    url: "https://learn.microsoft.com/en-us/troubleshoot/windows-client/networking/tcp-ip-port-exhaustion-troubleshooting",
+  },
   "oracle-packet-encapsulation": {
     title: "Oracle Solaris: Data Encapsulation and the TCP/IP Protocol Stack",
     url: "https://docs.oracle.com/pls/topic/lookup?ctx=E23823&id=SYSADV3ipov-32",
@@ -1265,6 +1269,10 @@ export const knowledgeSources = {
     title: "Cloudflare Learning Center: What is the Internet Protocol?",
     url: "https://www.cloudflare.com/learning/network-layer/internet-protocol/",
   },
+  "cloudflare-computer-port": {
+    title: "Cloudflare Learning Center: What is a computer port?",
+    url: "https://www.cloudflare.com/learning/network-layer/what-is-a-computer-port/",
+  },
   "rfc791-ip": {
     title: "RFC 791: Internet Protocol",
     url: "https://www.rfc-editor.org/rfc/rfc791",
@@ -1280,6 +1288,14 @@ export const knowledgeSources = {
   "man7-ip": {
     title: "ip(7) - Linux IPv4 protocol implementation",
     url: "https://man7.org/linux/man-pages/man7/ip.7.html",
+  },
+  "man7-socket": {
+    title: "socket(7) - Linux socket interface",
+    url: "https://man7.org/linux/man-pages/man7/socket.7.html",
+  },
+  "linux-ip-sysctl": {
+    title: "Linux kernel documentation: IP sysctl",
+    url: "https://docs.kernel.org/networking/ip-sysctl.html",
   },
   "man7-ip-route": {
     title: "ip-route(8) - Linux routing table management",
@@ -1417,9 +1433,17 @@ export const knowledgeSources = {
     title: "IANA: Service Name and Transport Protocol Port Number Registry",
     url: "https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml",
   },
+  "rfc6335-port-registry-procedures": {
+    title: "RFC 6335: Internet Assigned Numbers Authority (IANA) Procedures for the Management of the Service Name and Transport Protocol Port Number Registry",
+    url: "https://www.rfc-editor.org/rfc/rfc6335",
+  },
   "rfc9293-tcp": {
     title: "RFC 9293: Transmission Control Protocol (TCP)",
     url: "https://www.rfc-editor.org/rfc/rfc9293",
+  },
+  "rfc6056-port-randomization": {
+    title: "RFC 6056: Recommendations for Transport-Protocol Port Randomization",
+    url: "https://www.rfc-editor.org/rfc/rfc6056",
   },
   "rfc6298-tcp-rto": {
     title: "RFC 6298: Computing TCP's Retransmission Timer",
