@@ -13362,6 +13362,260 @@
   bottom: 14px;
 }
 
+.http3-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.http3-card {
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  overflow: visible;
+}
+
+.http3-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.http3-mobile-map {
+  display: none;
+}
+
+.http3-bg {
+  fill: color-mix(in srgb, var(--tertiary) 16%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.http3-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.http3-subtitle {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.http3-browser > rect,
+.http3-quic > rect,
+.http3-server > rect,
+.http3-streams > rect,
+.http3-path-panel > rect,
+.http3-cid-panel > rect,
+.http3-metrics > rect,
+.http3-packet rect,
+.http3-challenge-pill rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#http3-soft-shadow);
+}
+
+.http3-quic > rect {
+  fill: url(#http3-quic-gradient);
+}
+
+.http3-browser.active > rect,
+.http3-quic.active > rect,
+.http3-server.active > rect,
+.http3-streams.active > rect,
+.http3-challenge-pill.active rect {
+  stroke: color-mix(in srgb, var(--brand) 44%, var(--border));
+}
+
+.http3-panel-title,
+.http3-node-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.http3-node-title {
+  text-anchor: middle;
+}
+
+.http3-browser text,
+.http3-quic text,
+.http3-server text,
+.http3-path-panel text,
+.http3-cid-panel text,
+.http3-streams text,
+.http3-packets text,
+.http3-metrics text,
+.http3-challenge-pill text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.http3-browser text,
+.http3-server text,
+.http3-path-panel text {
+  text-anchor: start;
+}
+
+.http3-quic text,
+.http3-packets text,
+.http3-challenge-pill text {
+  text-anchor: middle;
+}
+
+.http3-browser,
+.http3-quic,
+.http3-server,
+.http3-streams,
+.http3-path,
+.http3-path-chip,
+.http3-cid-row,
+.http3-validation,
+.http3-packet,
+.http3-metric,
+.http3-challenge-pill,
+.http3-stream-row {
+  opacity: 0.25;
+  transition: opacity 180ms ease;
+}
+
+.http3-browser.active,
+.http3-quic.active,
+.http3-server.active,
+.http3-streams.active,
+.http3-path.active,
+.http3-path-chip.active,
+.http3-cid-row.active,
+.http3-validation.active,
+.http3-packet.active,
+.http3-metric.active,
+.http3-challenge-pill.active,
+.http3-stream-row.active {
+  opacity: 1;
+}
+
+.http3-path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.http3-path.teal {
+  stroke: var(--tertiary);
+}
+
+.http3-path.success {
+  stroke: var(--success);
+}
+
+.http3-path.warning {
+  stroke: #f59e0b;
+}
+
+.http3-path.danger {
+  stroke: var(--danger);
+}
+
+.http3-stream-row text:first-of-type,
+.http3-cid-row text:first-of-type,
+.http3-metric text:first-of-type {
+  fill: var(--text);
+  text-anchor: start;
+}
+
+.http3-stream-row text:last-of-type,
+.http3-cid-row text:last-of-type {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.http3-metric text:last-of-type {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.http3-stream-row rect:first-of-type {
+  fill: color-mix(in srgb, var(--muted) 18%, transparent);
+}
+
+.http3-stream-row rect:nth-of-type(2) {
+  fill: var(--brand);
+}
+
+.http3-stream-row.warning rect:nth-of-type(2) {
+  fill: #f59e0b;
+}
+
+.http3-stream-row.success rect:nth-of-type(2) {
+  fill: var(--success);
+}
+
+.http3-path-chip rect,
+.http3-cid-row rect,
+.http3-validation rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+}
+
+.http3-path-chip.success.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.http3-path-chip.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 14%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.http3-cid-row.active rect,
+.http3-validation.active rect,
+.http3-challenge-pill.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.http3-validation text,
+.http3-challenge-pill text {
+  fill: var(--brand-strong);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.http3-packet.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.http3-packet text:first-of-type {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.http3-packet text:last-of-type {
+  font-size: 9.5px;
+}
+
+.http3-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .array-bg {
   fill: color-mix(in srgb, var(--brand-soft) 30%, var(--surface));
   stroke: color-mix(in srgb, var(--brand) 18%, transparent);
@@ -15500,6 +15754,87 @@
   }
 
   .cdn-caption {
+    position: static;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .http3-stage {
+    padding: 12px;
+  }
+
+  .http3-card {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .http3-diagram {
+    display: none;
+  }
+
+  .http3-mobile-map {
+    display: grid;
+    gap: 12px;
+  }
+
+  .http3-mobile-flow,
+  .http3-mobile-facts {
+    display: grid;
+    gap: 10px;
+  }
+
+  .http3-mobile-hop,
+  .http3-mobile-fact {
+    display: grid;
+    gap: 5px;
+    border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+    padding: 12px;
+  }
+
+  .http3-mobile-hop {
+    position: relative;
+  }
+
+  .http3-mobile-hop::after {
+    content: "";
+    position: absolute;
+    right: 18px;
+    bottom: -18px;
+    width: 2px;
+    height: 16px;
+    background: color-mix(in srgb, var(--brand) 32%, var(--border));
+  }
+
+  .http3-mobile-hop:last-child::after {
+    display: none;
+  }
+
+  .http3-mobile-hop span,
+  .http3-mobile-fact span {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 950;
+  }
+
+  .http3-mobile-hop strong,
+  .http3-mobile-fact strong {
+    color: var(--brand-strong);
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+  }
+
+  .http3-mobile-hop.active,
+  .http3-mobile-fact.active {
+    border-color: color-mix(in srgb, var(--success) 44%, var(--border));
+    background: color-mix(in srgb, var(--success) 11%, var(--surface));
+  }
+
+  .http3-caption {
     position: static;
     justify-content: space-between;
     width: 100%;

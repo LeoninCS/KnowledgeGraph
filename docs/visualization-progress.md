@@ -137,6 +137,7 @@
 | DNS | `step-simulation` | completed | desktop/mobile captured | DNS 递归解析路径模拟器，覆盖本地缓存、递归解析器、根区委派、TLD 委派、权威 A/AAAA 应答、TTL 缓存和后续连接 |
 | NAT | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | NAT 转换表路径模拟器，覆盖私有子网出站、SNAT/PAT、回包匹配、入口 DNAT、端口池和 conntrack 超时 |
 | CDN | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | CDN 请求路由与缓存层级模拟器，覆盖 DNS/Anycast、边缘缓存、HIT/Age、过期再验证、Origin Shield 分层回源、purge 和命中率观测 |
+| HTTP/3 | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | HTTP/3 / QUIC 连接迁移模型，覆盖 Alt-Svc 发现、QUIC+TLS 握手、独立 stream、PATH_CHALLENGE/PATH_RESPONSE、新 CID 切换和 HTTP/2 回退观测 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | B+ 树 | `data-structure-lab` | completed | SVG/HTML review captured; PNG blocked by platform permissions | MySQL B+ 树索引实验室，覆盖根页分隔键、Buffer Pool 热页、叶子页定位、叶子链表范围扫描、页分裂和父节点分隔键维护 |
 | 二级索引 | `storage-layout` | completed | SVG/HTML review captured; PNG blocked by platform permissions | MySQL 二级索引回表路径模型，覆盖二级索引叶子记录、主键回表、覆盖索引捷径和 EXPLAIN 证据 |
@@ -2944,3 +2945,30 @@
 - Verification：新增测试先失败于 `visualPointIds.mysql` 缺少 `join-order`，补 core/visual 清单与专用 builder 后 `npm run test:data -- --grep "JOIN order"` 通过 1 项；完整 `npm run test:data` 通过 34 项；`npm run build` 通过；继续执行 `npm run kg:review:validate`、`git diff --check` 和最终同步推送。
 - Commit/Push Plan：提交 `feat: add join order visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：HTTP/3 `QUIC 连接迁移`，备选 Docker `Build cache invalidation` 或 Redis `缓存击穿/穿透/雪崩`。
+
+### 2026-06-04 20:20 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `d36ffe9 feat: add join order visualization`；从干净工作区继续。
+- Selected：网络 `HTTP/3`，原因是 QUIC 连接 ID、UDP 443、TLS 1.3 集成、多 stream、网络切换、PATH_CHALLENGE/PATH_RESPONSE、0-RTT replay guard 和 HTTP/2 回退构成清晰移动网络机制模型，并承接已完成的 DNS、CDN、TCP/IP 和 TCP 拥塞控制。
+- Candidate Sources：普通搜索筛选约 12 个候选入口；主参考为 quic-go connection migration 文档；辅助参考为 RFC 9000、RFC 9114、http.dev HTTP/3、qvis/http3-explained 与 Cloudflare/DebugBear 候选资料；Chrome DevTools MCP profile 被占用，Browser 插件返回 `iab` 不可用，本轮使用搜索结果、可访问页面、官方资料和本地 SSR 审查完成确认。
+- Online Image References：
+  - `source`：quic-go docs - Connection Migration，https://quic-go.net/docs/quic/connection-migration/；`image`：页面连接迁移说明与路径验证流程；`role`：main；`qualityReason`：直接解释 QUIC 连接 ID 让连接在 IP/端口变化后继续存在，并把迁移行为聚焦到新路径验证；`takeaways`：主画布采用 Browser、QUIC session、Wi-Fi/5G path、server validation 和 CID status 五区结构；`originalChanges`：改成本项目六步交互模型，加入 Alt-Svc、stream lane、PATH_CHALLENGE/PATH_RESPONSE、HTTP/2 fallback 和移动端事实卡。
+  - `source`：RFC Editor - RFC 9000: QUIC，https://www.rfc-editor.org/rfc/rfc9000；`image`：官方 QUIC connection migration、path validation、connection ID、packet protection 章节；`role`：supporting；`qualityReason`：权威定义连接迁移、路径验证和 CID 语义；`takeaways`：第四、五、六步分别展示新路径 challenge、response 和 CID 切换；`originalChanges`：将规范文字转成可高亮的路径与状态面板。
+  - `source`：RFC Editor - RFC 9114: HTTP/3，https://www.rfc-editor.org/rfc/rfc9114；`image`：HTTP/3 over QUIC 语义映射和 stream 说明；`role`：supporting；`qualityReason`：官方校准 HTTP/3 请求如何映射到 QUIC streams；`takeaways`：中部保留 stream 0/4/8 lane 和 loss isolated 语义；`originalChanges`：把流映射简化成三个资源请求，突出弱网并发收益。
+  - `source`：http.dev - HTTP/3，https://http.dev/3；`image`：HTTP/3 教学页面中 HTTP/3、QUIC、UDP、TLS 和性能收益图解；`role`：supporting；`qualityReason`：教学表达清楚，适合补充 Alt-Svc、UDP 443、HTTP/2 fallback 和用户侧排查语境；`takeaways`：右下指标面板保留 UDP reachability、0-RTT、CID pool 和 fallback ratio；`originalChanges`：采用项目统一 SVG 舞台、中文标签和右侧模拟器任务面板。
+  - `source`：qvis / http3-explained 候选资料，https://http3-explained.haxx.se/zh；`image`：HTTP/3 与 QUIC 多流、连接和包级可视化说明；`role`：supporting；`qualityReason`：可视化语境强，补充 stream 与连接层的教学节奏；`takeaways`：底部 packet chips 使用 Initial、Handshake、1-RTT 三类短标签；`originalChanges`：仅吸收信息层级，本项目重绘为连接迁移实验室。
+- Reference Breakdown：主体布局为左上 Browser / Alt-Svc，中上 QUIC session，右上 Edge/Origin，中央 HTTP/3 streams，左下 Wi-Fi/5G path，右下 CID/migration state，底部 packets 与运行指标；视觉焦点是 `Alt-Svc -> QUIC Initial/TLS -> stream 0/4/8 -> PATH_CHALLENGE -> PATH_RESPONSE -> CID switch`。
+- 领域对象：Alt-Svc、DNS HTTPS/SVCB、UDP 443、QUIC Initial、TLS 1.3、ALPN=h3、transport params、0-RTT replay guard、QUIC stream、packet loss isolation、network path、connection ID、PATH_CHALLENGE、PATH_RESPONSE、HTTP/2 fallback。
+- 容器层级：Browser 负责发现 h3 与发起资源请求；QUIC session 持有连接 ID、密钥和拥塞状态；Streams 展示资源级并发；Network paths 展示 Wi-Fi 到 5G 的四元组变化；Server 验证新路径；CID panel 做迁移验收。
+- 连线方向：Browser -> QUIC session -> Edge/Origin 完成握手；Browser -> Streams 展示资源请求；Network path -> QUIC session 发起新路径验证；Server -> Path 返回响应；QUIC session -> Browser 延续响应或回退。
+- 状态表达：六步依次高亮 h3 发现、QUIC+TLS 握手、独立 stream、网络路径变化、新路径验证、CID 切换与回退观测；SVG 元素、路径、packet chips、CID rows 和移动卡随 completedSteps 激活。
+- 颜色策略：品牌蓝表示 Alt-Svc 与 CID 迁移，青色表示 QUIC/TLS 握手，绿色表示多流交付和成功延续，橙色表示路径变化和 PATH_CHALLENGE，红色保留给未来失败/回退分支。
+- 文字密度：桌面 SVG 保留短标签、协议字段、CID 值和指标；移动端隐藏 SVG，改成六张流程卡和四张事实卡。
+- 交互节奏：发现 h3 -> 合并 QUIC/TLS 握手 -> 打开独立 streams -> Wi-Fi 切到蜂窝 -> PATH_RESPONSE 验证新路径 -> CID 切换并观察 h2 fallback。
+- 原创改造点：把 quic-go 连接迁移说明、RFC 9000/9114 规范语义和 HTTP/3 教学资料融合成本项目 QUIC 迁移实验室，突出移动网络切换时连接身份、路径验证、stream 独立性和上线观测指标。
+- Implementation：新增 `network:http3` 专用 `step-simulation` 构建器、HTTP/3 QUIC SVG 舞台、移动端流程卡、响应式样式、核心知识点入口和数据测试；既有 HTTP/3 从通用 Application request 升级为专用迁移模型。
+- Browser Note：Chrome DevTools MCP profile 被占用；Browser 插件返回 `iab` 不可用；本地 Vite dev server 在 `http://127.0.0.1:4308/KnowledgeGraph/` 启动成功；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied (1100)`；本轮使用真实 React `SimulationStage` SSR 生成审查 HTML/SVG。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/http3/desktop.svg`、`.codex-artifacts/visualizations/http3/desktop.html`、`.codex-artifacts/visualizations/http3/mobile.html` 与 `.codex-artifacts/visualizations/http3/mobile.html.fragment`；桌面 SVG 可识别 Browser、QUIC session、HTTP/3 streams、Wi-Fi/5G path、CID state、PATH_CHALLENGE、PATH_RESPONSE、packet chips、指标面板和 6/6 进度，移动 HTML 展示六步流程和四个事实卡。
+- Verification：新增测试先失败于 `visualPointIds.network` 缺少 `http3`，补 core/visual 清单与专用 builder/stage 后 `npm run test:data -- --grep "HTTP/3"` 通过 1 项；完整 `npm run test:data` 通过 35 项；`npm run build` 通过；`git diff --check` 通过；SSR 审查图关键文本 grep 通过。
+- Commit/Push Plan：提交 `feat: add http3 visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Docker `Build cache invalidation`，备选 Redis `缓存击穿/穿透/雪崩` 或 Kubernetes `StatefulSet`。

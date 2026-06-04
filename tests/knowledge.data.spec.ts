@@ -549,6 +549,32 @@ test("network CDN is backed by a cache hierarchy visual simulation", async () =>
   );
 });
 
+test("network HTTP/3 is backed by a QUIC migration visual simulation", async () => {
+  const points = await loadKnowledgePoints("network");
+  const http3 = points.find((point) => point.id === "http3");
+
+  expect(visualPointIds.network).toContain("http3");
+  expect(http3).toBeTruthy();
+
+  const simulation = buildVisualSimulation("network", http3!);
+
+  expect(simulation.key).toBe("network:http3");
+  expect(simulation.pattern.en).toContain("QUIC connection migration");
+  expect(simulation.steps).toHaveLength(6);
+  expect(simulation.steps.map((step) => step.label.en)).toEqual(
+    expect.arrayContaining(["Alt-Svc h3", "1-RTT QUIC handshake", "PATH_CHALLENGE", "PATH_RESPONSE", "CID switch"]),
+  );
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining([
+      "UDP 443 reachability",
+      "connection ID pool",
+      "PATH_CHALLENGE / RESPONSE",
+      "0-RTT replay guard",
+      "HTTP/2 fallback ratio",
+    ]),
+  );
+});
+
 test("redis AOF rewrite is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("redis");
   const aofRewrite = points.find((point) => point.id === "aof-rewrite");

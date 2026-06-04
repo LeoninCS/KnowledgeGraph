@@ -71,6 +71,7 @@ export const coreKnowledgePointIdsByCategory: Record<CategoryId, string[]> = {
     "dns",
     "http",
     "http-cache",
+    "http3",
     "tls",
     "https",
     "latency-bandwidth",

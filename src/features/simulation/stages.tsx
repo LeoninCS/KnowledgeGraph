@@ -187,6 +187,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "network:http3") {
+    return (
+      <Http3QuicStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "network:tcp-four-way-wave") {
     return (
       <TcpWaveStage
@@ -12811,6 +12822,241 @@ function CdnRequestStage({
           </div>
         </div>
         <div className="tcp-handshake-caption cdn-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Http3QuicStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const altSvcActive = completedSteps >= 1;
+  const handshakeActive = completedSteps >= 2;
+  const streamsActive = completedSteps >= 3;
+  const challengeActive = completedSteps >= 4;
+  const responseActive = completedSteps >= 5;
+  const cidActive = completedSteps >= 6;
+  const streamRows = [
+    { name: "stream 0", value: "HTML", x: 438, y: 322, width: 176, tone: "brand", active: streamsActive },
+    { name: "stream 4", value: streamsActive ? "img loss isolated" : "image", x: 438, y: 358, width: 138, tone: "warning", active: streamsActive },
+    { name: "stream 8", value: "CSS / JS", x: 438, y: 394, width: 202, tone: "success", active: streamsActive },
+  ];
+  const packetRows = [
+    { name: "Initial", value: "CRYPTO + TP", active: handshakeActive },
+    { name: "Handshake", value: "TLS 1.3 keys", active: handshakeActive },
+    { name: "1-RTT", value: streamsActive ? "HTTP/3 frames" : "pending", active: streamsActive },
+  ];
+  const cidRows = [
+    { name: "dcid", value: cidActive ? "8b7a -> 21f0" : "8b7a", active: handshakeActive },
+    { name: "scid", value: cidActive ? "74ce -> 9f11" : "74ce", active: handshakeActive },
+    { name: "path", value: responseActive ? "cellular validated" : "Wi-Fi active", active: responseActive },
+  ];
+  const metricRows = [
+    { name: "UDP 443", value: handshakeActive ? "reachable" : "--", active: handshakeActive, tone: "success" },
+    { name: "0-RTT", value: handshakeActive ? "replay guard" : "--", active: handshakeActive, tone: "warning" },
+    { name: "CID pool", value: cidActive ? "3 spare CIDs" : "--", active: cidActive, tone: "brand" },
+    { name: "h2 fallback", value: cidActive ? "7%" : "--", active: cidActive, tone: "teal" },
+  ];
+  const mobileHops = [
+    [label("发现 h3", "Discover h3"), "Alt-Svc: h3=\":443\"", altSvcActive],
+    [label("QUIC 握手", "QUIC handshake"), "Initial + TLS 1.3 + ALPN", handshakeActive],
+    [label("多流传输", "Stream transfer"), "stream 0/4/8 independent", streamsActive],
+    [label("路径变化", "Path change"), "Wi-Fi -> cellular", challengeActive],
+    [label("路径验证", "Path validation"), "PATH_CHALLENGE -> RESPONSE", responseActive],
+    [label("CID 迁移", "CID migration"), "new CID / h2 fallback watch", cidActive],
+  ] as const;
+  const mobileFacts = [
+    ["UDP 443", handshakeActive ? "reachable" : "--", handshakeActive],
+    ["PATH", responseActive ? "validated" : "--", responseActive],
+    ["CID", cidActive ? "8b7a -> 21f0" : "--", cidActive],
+    ["Fallback", cidActive ? "h2 7%" : "--", cidActive],
+  ] as const;
+
+  return (
+    <div className="visual-stage http3-stage">
+      <div className="tcp-handshake-card http3-card">
+        <svg
+          className="http3-diagram"
+          viewBox="0 0 1120 650"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["http3-arrow-brand", "var(--brand)"],
+              ["http3-arrow-teal", "var(--tertiary)"],
+              ["http3-arrow-success", "var(--success)"],
+              ["http3-arrow-warning", "#f59e0b"],
+              ["http3-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="http3-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.14" />
+            </filter>
+            <linearGradient id="http3-quic-gradient" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.14" />
+              <stop offset="52%" stopColor="var(--tertiary)" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="var(--success)" stopOpacity="0.13" />
+            </linearGradient>
+          </defs>
+
+          <rect className="http3-bg" x="24" y="24" width="1072" height="582" rx="30" />
+          <text className="http3-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="http3-subtitle" x="560" y="99">
+            {label(
+              "Alt-Svc -> QUIC/TLS -> streams -> PATH_CHALLENGE -> CID 迁移",
+              "Alt-Svc -> QUIC/TLS -> streams -> PATH_CHALLENGE -> CID migration",
+            )}
+          </text>
+
+          <g className={`http3-browser ${altSvcActive ? "active" : ""}`}>
+            <rect x="72" y="132" width="216" height="150" rx="26" />
+            <text className="http3-panel-title" x="98" y="168">{label("浏览器", "Browser")}</text>
+            <text x="98" y="198">GET /index.html</text>
+            <text x="98" y="224">{altSvcActive ? "Alt-Svc: h3=\":443\"" : "awaiting h3 signal"}</text>
+            <text x="98" y="250">{cidActive ? "h3 active / h2 fallback watched" : "HTTPS origin policy"}</text>
+          </g>
+
+          <g className={`http3-quic ${handshakeActive ? "active" : ""}`}>
+            <rect x="392" y="126" width="288" height="158" rx="28" />
+            <text className="http3-node-title" x="536" y="164">QUIC session</text>
+            <text x="536" y="192">UDP 443 + TLS 1.3</text>
+            <text x="536" y="216">{handshakeActive ? "ALPN=h3 / transport params" : "Initial pending"}</text>
+            <text x="536" y="240">{handshakeActive ? "0-RTT guarded by method policy" : "0-RTT disabled"}</text>
+          </g>
+
+          <g className={`http3-server ${handshakeActive ? "active" : ""}`}>
+            <rect x="832" y="132" width="218" height="150" rx="26" />
+            <text className="http3-panel-title" x="858" y="168">{label("边缘 / 源站", "Edge / origin")}</text>
+            <text x="858" y="198">{handshakeActive ? "ServerHello + transport params" : "awaiting Initial"}</text>
+            <text x="858" y="224">{responseActive ? "PATH_RESPONSE echoed" : "1-RTT keys pending"}</text>
+            <text x="858" y="250">{cidActive ? "responses continue" : "h3 endpoint ready"}</text>
+          </g>
+
+          <g className={`http3-streams ${streamsActive ? "active" : ""}`}>
+            <rect x="374" y="304" width="326" height="130" rx="24" />
+            <text className="http3-panel-title" x="404" y="334">{label("HTTP/3 多流", "HTTP/3 streams")}</text>
+            {streamRows.map((row) => (
+              <g key={row.name} className={`http3-stream-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <text x={row.x} y={row.y + 5}>{row.name}</text>
+                <rect x="526" y={row.y - 10} width="126" height="14" rx="7" />
+                <rect x="526" y={row.y - 10} width={row.width - 76} height="14" rx="7" />
+                <text x="674" y={row.y + 5}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="http3-path-panel">
+            <rect x="72" y="332" width="234" height="186" rx="24" />
+            <text className="http3-panel-title" x="98" y="366">{label("网络路径", "Network paths")}</text>
+            <g className={`http3-path-chip success ${!challengeActive ? "active" : ""}`}>
+              <rect x="98" y="392" width="172" height="34" rx="17" />
+              <text x="184" y="414">Wi-Fi 10.0.0.8:51422</text>
+            </g>
+            <g className={`http3-path-chip warning ${challengeActive ? "active" : ""}`}>
+              <rect x="98" y="440" width="172" height="34" rx="17" />
+              <text x="184" y="462">5G 100.64.2.9:38814</text>
+            </g>
+            <text x="98" y="502">{challengeActive ? "4-tuple changed" : "stable path"}</text>
+          </g>
+
+          <g className="http3-cid-panel">
+            <rect x="762" y="326" width="288" height="192" rx="24" />
+            <text className="http3-panel-title" x="790" y="360">{label("迁移状态", "Migration state")}</text>
+            {cidRows.map((row, index) => (
+              <g key={row.name} className={`http3-cid-row ${row.active ? "active" : ""}`}>
+                <rect x="790" y={384 + index * 42} width="226" height="30" rx="15" />
+                <text x="812" y={404 + index * 42}>{row.name}</text>
+                <text x="998" y={404 + index * 42}>{row.value}</text>
+              </g>
+            ))}
+            <g className={`http3-validation ${responseActive ? "active" : ""}`}>
+              <rect x="790" y="508" width="226" height="34" rx="17" />
+              <text x="903" y="530">{responseActive ? "PATH_RESPONSE accepted" : "path validation pending"}</text>
+            </g>
+          </g>
+
+          <g className="http3-packets">
+            {packetRows.map((row, index) => (
+              <g key={row.name} className={`http3-packet ${row.active ? "active" : ""}`}>
+                <rect x={362 + index * 130} y="464" width="112" height="44" rx="16" />
+                <text x={418 + index * 130} y="482">{row.name}</text>
+                <text x={418 + index * 130} y="500">{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="http3-metrics">
+            <rect x="352" y="534" width="416" height="48" rx="20" />
+            {metricRows.map((metric, index) => (
+              <g key={metric.name} className={`http3-metric ${metric.tone} ${metric.active ? "active" : ""}`}>
+                <text x={388 + index * 96} y="555">{metric.name}</text>
+                <text x={388 + index * 96} y="572">{metric.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="http3-paths">
+            <path className={`http3-path brand ${altSvcActive ? "active" : ""}`} d="M 288 202 C 324 174, 356 166, 392 174" markerEnd="url(#http3-arrow-brand)" />
+            <path className={`http3-path teal ${handshakeActive ? "active" : ""}`} d="M 680 194 C 728 170, 780 166, 832 180" markerEnd="url(#http3-arrow-teal)" />
+            <path className={`http3-path success ${streamsActive ? "active" : ""}`} d="M 288 252 C 342 318, 348 356, 374 370" markerEnd="url(#http3-arrow-success)" />
+            <path className={`http3-path warning ${challengeActive ? "active" : ""}`} d="M 306 462 C 358 474, 428 472, 492 508" markerEnd="url(#http3-arrow-warning)" />
+            <path className={`http3-path warning ${challengeActive ? "active" : ""}`} d="M 592 506 C 640 468, 708 424, 762 410" markerEnd="url(#http3-arrow-warning)" />
+            <path className={`http3-path brand ${responseActive ? "active" : ""}`} d="M 832 232 C 786 274, 732 312, 680 346" markerEnd="url(#http3-arrow-brand)" />
+            <path className={`http3-path success ${cidActive ? "active" : ""}`} d="M 762 462 C 696 500, 422 514, 288 246" markerEnd="url(#http3-arrow-success)" />
+          </g>
+
+          <g className={`http3-challenge-pill ${challengeActive ? "active" : ""}`}>
+            <rect x="454" y="518" width="206" height="34" rx="17" />
+            <text x="557" y="540">PATH_CHALLENGE</text>
+          </g>
+        </svg>
+        <div className="http3-mobile-map">
+          <div className="http3-mobile-flow">
+            {mobileHops.map(([title, value, active]) => (
+              <div key={title} className={`http3-mobile-hop ${active ? "active" : ""}`}>
+                <span>{title}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="http3-mobile-facts">
+            {mobileFacts.map(([title, value, active]) => (
+              <div key={title} className={`http3-mobile-fact ${active ? "active" : ""}`}>
+                <span>{title}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption http3-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>
