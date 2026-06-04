@@ -7917,6 +7917,272 @@
   bottom: 14px;
 }
 
+.k8s-statefulset-bg {
+  fill: color-mix(in srgb, var(--tertiary) 18%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 22%, transparent);
+}
+
+.k8s-statefulset-title {
+  fill: var(--text);
+  font-size: 25px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.k8s-statefulset-subtitle {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.k8s-statefulset-controller,
+.k8s-statefulset-pods,
+.k8s-statefulset-service,
+.k8s-statefulset-storage,
+.k8s-statefulset-rollout,
+.k8s-statefulset-update,
+.k8s-statefulset-chip,
+.k8s-statefulset-pod,
+.k8s-statefulset-row,
+.k8s-statefulset-signal,
+.k8s-statefulset-ordinal-chain,
+.k8s-statefulset-identity-path,
+.k8s-statefulset-dns-path,
+.k8s-statefulset-pvc-path,
+.k8s-statefulset-rollout-path,
+.k8s-statefulset-recovery-path {
+  opacity: 0.32;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.k8s-statefulset-controller.active,
+.k8s-statefulset-pods.active,
+.k8s-statefulset-service.active,
+.k8s-statefulset-storage.active,
+.k8s-statefulset-rollout.active,
+.k8s-statefulset-update.active,
+.k8s-statefulset-chip.active,
+.k8s-statefulset-pod.active,
+.k8s-statefulset-row.active,
+.k8s-statefulset-signal.active,
+.k8s-statefulset-ordinal-chain.active,
+.k8s-statefulset-identity-path.active,
+.k8s-statefulset-dns-path.active,
+.k8s-statefulset-pvc-path.active,
+.k8s-statefulset-rollout-path.active,
+.k8s-statefulset-recovery-path.active {
+  opacity: 1;
+}
+
+.k8s-statefulset-controller > rect,
+.k8s-statefulset-pods > rect,
+.k8s-statefulset-service > rect,
+.k8s-statefulset-storage > rect,
+.k8s-statefulset-rollout > rect,
+.k8s-statefulset-update > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#k8s-statefulset-soft-shadow);
+}
+
+.k8s-statefulset-controller.active > rect,
+.k8s-statefulset-chip.brand.active rect,
+.k8s-statefulset-pod.brand.active rect,
+.k8s-statefulset-row.brand.active rect,
+.k8s-statefulset-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.k8s-statefulset-service.active > rect,
+.k8s-statefulset-chip.teal.active rect,
+.k8s-statefulset-pod.teal.active rect,
+.k8s-statefulset-row.teal.active rect,
+.k8s-statefulset-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 42%, var(--border));
+}
+
+.k8s-statefulset-storage.active > rect,
+.k8s-statefulset-pod.success.active rect,
+.k8s-statefulset-row.success.active rect {
+  fill: color-mix(in srgb, var(--success) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 44%, var(--border));
+}
+
+.k8s-statefulset-rollout.active > rect,
+.k8s-statefulset-row.warning.active rect,
+.k8s-statefulset-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 11%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 44%, var(--border));
+}
+
+.k8s-statefulset-update.active > rect,
+.k8s-statefulset-row.danger.active rect,
+.k8s-statefulset-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 42%, var(--border));
+}
+
+.k8s-statefulset-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.k8s-statefulset-panel-subtitle,
+.k8s-statefulset-controller text,
+.k8s-statefulset-pods text,
+.k8s-statefulset-service text,
+.k8s-statefulset-storage text,
+.k8s-statefulset-rollout text,
+.k8s-statefulset-update text,
+.k8s-statefulset-identity-path text,
+.k8s-statefulset-dns-path text,
+.k8s-statefulset-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.k8s-statefulset-chip rect,
+.k8s-statefulset-pod rect,
+.k8s-statefulset-row rect,
+.k8s-statefulset-identity-path rect,
+.k8s-statefulset-dns-path rect,
+.k8s-statefulset-signal rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#k8s-statefulset-soft-shadow);
+}
+
+.k8s-statefulset-chip text,
+.k8s-statefulset-pod text,
+.k8s-statefulset-row text,
+.k8s-statefulset-signal text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 900;
+}
+
+.k8s-statefulset-panel-title,
+.k8s-statefulset-chip text,
+.k8s-statefulset-pod text:first-of-type,
+.k8s-statefulset-row text:first-of-type,
+.k8s-statefulset-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.k8s-statefulset-pod text:last-of-type,
+.k8s-statefulset-row text:last-of-type,
+.k8s-statefulset-signal text:last-of-type {
+  fill: var(--brand-strong);
+  text-anchor: end;
+}
+
+.k8s-statefulset-ordinal-chain circle {
+  fill: color-mix(in srgb, #f59e0b 14%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 54%, var(--border));
+  stroke-width: 1.4;
+}
+
+.k8s-statefulset-ordinal-chain text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.k8s-statefulset-identity-path path,
+.k8s-statefulset-dns-path path,
+.k8s-statefulset-pvc-path path,
+.k8s-statefulset-rollout-path path,
+.k8s-statefulset-recovery-path path,
+.k8s-statefulset-ordinal-chain path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.k8s-statefulset-identity-path path {
+  stroke: var(--brand);
+}
+
+.k8s-statefulset-dns-path path {
+  stroke: var(--tertiary);
+}
+
+.k8s-statefulset-pvc-path path {
+  stroke: var(--success);
+}
+
+.k8s-statefulset-rollout-path path,
+.k8s-statefulset-ordinal-chain path {
+  stroke: #f59e0b;
+}
+
+.k8s-statefulset-recovery-path path {
+  stroke: var(--danger);
+  stroke-dasharray: 8 8;
+}
+
+.k8s-statefulset-identity-path text,
+.k8s-statefulset-dns-path text {
+  text-anchor: middle;
+}
+
+.k8s-statefulset-mobile-map {
+  display: none;
+}
+
+.k8s-statefulset-mobile-flow,
+.k8s-statefulset-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.k8s-statefulset-mobile-hop,
+.k8s-statefulset-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--tertiary) 6%, var(--surface));
+  padding: 12px;
+}
+
+.k8s-statefulset-mobile-hop span,
+.k8s-statefulset-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.k8s-statefulset-mobile-hop strong,
+.k8s-statefulset-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.k8s-statefulset-mobile-hop.active,
+.k8s-statefulset-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--success) 44%, var(--border));
+  background: color-mix(in srgb, var(--success) 11%, var(--surface));
+}
+
+.k8s-statefulset-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .docker-layer-bg {
   fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
   stroke: color-mix(in srgb, var(--tertiary) 20%, transparent);
@@ -16475,6 +16741,49 @@
   }
 
   .k8s-kube-proxy-caption {
+    position: static;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .k8s-statefulset-stage {
+    padding: 12px;
+  }
+
+  .k8s-statefulset-card {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .k8s-statefulset-diagram {
+    display: none;
+  }
+
+  .k8s-statefulset-mobile-map {
+    display: grid;
+    gap: 12px;
+  }
+
+  .k8s-statefulset-mobile-hop {
+    position: relative;
+  }
+
+  .k8s-statefulset-mobile-hop::after {
+    content: "";
+    position: absolute;
+    right: 18px;
+    bottom: -18px;
+    width: 2px;
+    height: 16px;
+    background: color-mix(in srgb, var(--tertiary) 32%, var(--border));
+  }
+
+  .k8s-statefulset-mobile-hop:last-child::after {
+    display: none;
+  }
+
+  .k8s-statefulset-caption {
     position: static;
     justify-content: space-between;
     width: 100%;

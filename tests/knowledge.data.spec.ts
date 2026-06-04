@@ -318,6 +318,26 @@ test("kubernetes kube-proxy is backed by a dedicated visual simulation", async (
   );
 });
 
+test("kubernetes StatefulSet is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("kubernetes");
+  const statefulSet = points.find((point) => point.id === "statefulset");
+
+  expect(visualPointIds.kubernetes).toContain("statefulset");
+  expect(statefulSet).toBeTruthy();
+
+  const simulation = buildVisualSimulation("kubernetes", statefulSet!);
+
+  expect(simulation.key).toBe("kubernetes:statefulset");
+  expect(simulation.pattern.en).toContain("StatefulSet identity and storage model");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.steps.map((step) => step.label.en)).toEqual(
+    expect.arrayContaining(["ordinal identity", "headless DNS", "volumeClaimTemplates", "OrderedReady rollout"]),
+  );
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["stable DNS identity", "PVC per ordinal", "OrderedReady rollout", "partitioned update"]),
+  );
+});
+
 test("linux epoll is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("os");
   const epoll = points.find((point) => point.id === "epoll");

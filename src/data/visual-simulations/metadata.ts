@@ -401,6 +401,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
     "probe",
     "deployment",
     "rolling-update",
+    "statefulset",
     "service",
     "endpoint-slice",
     "kube-proxy",

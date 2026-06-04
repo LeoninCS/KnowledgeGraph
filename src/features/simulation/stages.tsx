@@ -649,6 +649,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "kubernetes:statefulset") {
+    return (
+      <KubernetesStatefulSetStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "kubernetes:crashloopbackoff") {
     return (
       <KubernetesCrashLoopBackOffStage
@@ -9852,6 +9863,245 @@ function KubernetesPreemptionStage({
           </div>
         </div>
         <div className="tcp-handshake-caption k8s-preemption-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KubernetesStatefulSetStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const identityActive = completedSteps >= 1;
+  const dnsActive = completedSteps >= 2;
+  const pvcActive = completedSteps >= 3;
+  const rolloutActive = completedSteps >= 4;
+  const recoveryActive = completedSteps >= 5;
+  const podRows = [
+    { name: "web-0", dns: "web-0.web", pvc: "data-web-0", status: rolloutActive ? "Ready" : identityActive ? "Running" : "pending", active: identityActive, tone: "brand" },
+    { name: "web-1", dns: "web-1.web", pvc: "data-web-1", status: recoveryActive ? "Recreated" : rolloutActive ? "Ready" : "waiting", active: rolloutActive || recoveryActive, tone: "teal" },
+    { name: "web-2", dns: "web-2.web", pvc: "data-web-2", status: recoveryActive ? "rev-b" : rolloutActive ? "Ready" : "waiting", active: rolloutActive || recoveryActive, tone: "success" },
+  ];
+  const serviceRows = [
+    { name: "serviceName", value: dnsActive ? "web" : "pending", active: dnsActive, tone: "brand" },
+    { name: "clusterIP", value: dnsActive ? "None" : "pending", active: dnsActive, tone: "teal" },
+    { name: "DNS", value: dnsActive ? "*.web.default.svc" : "pending", active: dnsActive, tone: "success" },
+  ];
+  const pvcRows = [
+    { name: "data-web-0", value: pvcActive ? "Bound pv-a" : "pending", active: pvcActive, tone: "brand" },
+    { name: "data-web-1", value: recoveryActive ? "reattached" : pvcActive ? "Bound pv-b" : "pending", active: pvcActive || recoveryActive, tone: "teal" },
+    { name: "data-web-2", value: pvcActive ? "Bound pv-c" : "pending", active: pvcActive, tone: "success" },
+  ];
+  const rolloutRows = [
+    { name: "podManagementPolicy", value: rolloutActive ? "OrderedReady" : "pending", active: rolloutActive, tone: "warning" },
+    { name: "updateStrategy", value: recoveryActive ? "RollingUpdate" : rolloutActive ? "rev-a -> rev-b" : "pending", active: rolloutActive || recoveryActive, tone: "brand" },
+    { name: "partition", value: recoveryActive ? "2 / update web-2" : "pending", active: recoveryActive, tone: "danger" },
+  ];
+  const signals = [
+    { name: "stable DNS identity", value: dnsActive ? "3 records" : "pending", active: dnsActive, tone: "brand" },
+    { name: "PVC per ordinal", value: pvcActive ? "3 Bound" : "pending", active: pvcActive, tone: "teal" },
+    { name: "OrderedReady rollout", value: rolloutActive ? "0 -> 1 -> 2" : "pending", active: rolloutActive, tone: "warning" },
+    { name: "partitioned update", value: recoveryActive ? ">=2 only" : "pending", active: recoveryActive, tone: "danger" },
+  ];
+
+  return (
+    <div className="visual-stage k8s-statefulset-stage">
+      <div className="k8s-statefulset-card">
+        <svg
+          className="k8s-statefulset-diagram"
+          viewBox="0 0 1120 650"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["k8s-statefulset-arrow-brand", "var(--brand)"],
+              ["k8s-statefulset-arrow-teal", "var(--tertiary)"],
+              ["k8s-statefulset-arrow-success", "var(--success)"],
+              ["k8s-statefulset-arrow-warning", "#f59e0b"],
+              ["k8s-statefulset-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="k8s-statefulset-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="k8s-statefulset-bg" x="24" y="24" width="1072" height="578" rx="28" />
+          <text className="k8s-statefulset-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="k8s-statefulset-subtitle" x="560" y="100">
+            StatefulSet controller {"->"} ordinal Pods {"->"} Headless Service DNS {"->"} PVC per ordinal {"->"} OrderedReady rollout
+          </text>
+
+          <g className={`k8s-statefulset-controller ${identityActive ? "active" : ""}`}>
+            <rect x="62" y="136" width="246" height="166" rx="24" />
+            <text className="k8s-statefulset-panel-title" x="90" y="170">StatefulSet Controller</text>
+            <text className="k8s-statefulset-panel-subtitle" x="90" y="192">apps/v1 · replicas=3 · serviceName=web</text>
+            <g className={`k8s-statefulset-chip brand ${identityActive ? "active" : ""}`}>
+              <rect x="90" y="214" width="176" height="28" rx="14" />
+              <text x="104" y="233">next ordinal: web-0</text>
+            </g>
+            <g className={`k8s-statefulset-chip teal ${rolloutActive ? "active" : ""}`}>
+              <rect x="90" y="252" width="176" height="28" rx="14" />
+              <text x="104" y="271">podManagementPolicy</text>
+            </g>
+          </g>
+
+          <g className={`k8s-statefulset-pods ${identityActive ? "active" : ""}`}>
+            <rect x="386" y="122" width="350" height="250" rx="26" />
+            <text className="k8s-statefulset-panel-title" x="414" y="158">Ordinal Pod identities</text>
+            <text className="k8s-statefulset-panel-subtitle" x="414" y="180">name · DNS hostname · persistent claim</text>
+            {podRows.map((pod, index) => (
+              <g key={pod.name} className={`k8s-statefulset-pod ${pod.tone} ${pod.active ? "active" : ""}`}>
+                <rect x="414" y={206 + index * 50} width="276" height="38" rx="17" />
+                <text x="430" y={222 + index * 50}>{pod.name}</text>
+                <text x="430" y={237 + index * 50}>{pod.dns} · {pod.pvc}</text>
+                <text x="680" y={229 + index * 50}>{pod.status}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-statefulset-service ${dnsActive ? "active" : ""}`}>
+            <rect x="816" y="132" width="234" height="172" rx="24" />
+            <text className="k8s-statefulset-panel-title" x="844" y="166">Headless Service</text>
+            <text className="k8s-statefulset-panel-subtitle" x="844" y="188">stable network identity</text>
+            {serviceRows.map((row, index) => (
+              <g key={row.name} className={`k8s-statefulset-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="844" y={210 + index * 34} width="166" height="26" rx="13" />
+                <text x="858" y={227 + index * 34}>{row.name}</text>
+                <text x="1002" y={227 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-statefulset-storage ${pvcActive ? "active" : ""}`}>
+            <rect x="88" y="386" width="292" height="168" rx="24" />
+            <text className="k8s-statefulset-panel-title" x="116" y="420">volumeClaimTemplates</text>
+            <text className="k8s-statefulset-panel-subtitle" x="116" y="442">data {"->"} one PVC per ordinal</text>
+            {pvcRows.map((row, index) => (
+              <g key={row.name} className={`k8s-statefulset-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="116" y={462 + index * 32} width="212" height="24" rx="12" />
+                <text x="130" y={479 + index * 32}>{row.name}</text>
+                <text x="320" y={479 + index * 32}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-statefulset-rollout ${rolloutActive ? "active" : ""}`}>
+            <rect x="440" y="410" width="250" height="144" rx="24" />
+            <text className="k8s-statefulset-panel-title" x="468" y="444">OrderedReady rollout</text>
+            <text className="k8s-statefulset-panel-subtitle" x="468" y="466">create / terminate / update by ordinal</text>
+            <g className={`k8s-statefulset-ordinal-chain ${rolloutActive ? "active" : ""}`}>
+              <circle cx="496" cy="502" r="18" />
+              <circle cx="566" cy="502" r="18" />
+              <circle cx="636" cy="502" r="18" />
+              <path d="M 514 502 L 548 502" markerEnd="url(#k8s-statefulset-arrow-warning)" />
+              <path d="M 584 502 L 618 502" markerEnd="url(#k8s-statefulset-arrow-warning)" />
+              <text x="496" y="507">0</text>
+              <text x="566" y="507">1</text>
+              <text x="636" y="507">2</text>
+            </g>
+          </g>
+
+          <g className={`k8s-statefulset-update ${recoveryActive ? "active" : ""}`}>
+            <rect x="758" y="382" width="292" height="172" rx="24" />
+            <text className="k8s-statefulset-panel-title" x="786" y="416">Partitioned update + recovery</text>
+            <text className="k8s-statefulset-panel-subtitle" x="786" y="438">partition=2 · recreate keeps identity</text>
+            {rolloutRows.map((row, index) => (
+              <g key={row.name} className={`k8s-statefulset-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="786" y={460 + index * 32} width="218" height="24" rx="12" />
+                <text x="800" y={477 + index * 32}>{row.name}</text>
+                <text x="996" y={477 + index * 32}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`k8s-statefulset-identity-path ${identityActive ? "active" : ""}`}>
+            <path d="M 308 224 C 342 220, 362 212, 386 212" markerEnd="url(#k8s-statefulset-arrow-brand)" />
+            <rect x="294" y="318" width="190" height="34" rx="16" />
+            <text x="389" y="340">ordinal creates stable Pod names</text>
+          </g>
+
+          <g className={`k8s-statefulset-dns-path ${dnsActive ? "active" : ""}`}>
+            <path d="M 736 214 C 770 214, 788 214, 816 214" markerEnd="url(#k8s-statefulset-arrow-teal)" />
+            <rect x="726" y="318" width="214" height="34" rx="16" />
+            <text x="833" y="340">web-0.web.default.svc</text>
+          </g>
+
+          <g className={`k8s-statefulset-pvc-path ${pvcActive ? "active" : ""}`}>
+            <path d="M 410 330 C 340 358, 286 368, 234 386" markerEnd="url(#k8s-statefulset-arrow-success)" />
+            <path d="M 512 372 C 472 394, 416 430, 380 462" markerEnd="url(#k8s-statefulset-arrow-success)" />
+          </g>
+
+          <g className={`k8s-statefulset-rollout-path ${rolloutActive ? "active" : ""}`}>
+            <path d="M 560 372 C 560 386, 560 396, 560 410" markerEnd="url(#k8s-statefulset-arrow-warning)" />
+          </g>
+
+          <g className={`k8s-statefulset-recovery-path ${recoveryActive ? "active" : ""}`}>
+            <path d="M 690 500 C 718 496, 736 492, 758 492" markerEnd="url(#k8s-statefulset-arrow-danger)" />
+            <path d="M 906 382 C 870 344, 814 324, 690 304" markerEnd="url(#k8s-statefulset-arrow-danger)" />
+          </g>
+
+          <g className="k8s-statefulset-signals">
+            {signals.map((signal, index) => (
+              <g key={signal.name} className={`k8s-statefulset-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={58 + index * 260} y="612" width="224" height="30" rx="14" />
+                <text x={76 + index * 260} y="631">{signal.name}</text>
+                <text x={264 + index * 260} y="631">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="k8s-statefulset-mobile-map">
+          <div className="k8s-statefulset-mobile-flow" aria-hidden="true">
+            {[
+              { name: "Ordinal", value: identityActive ? "web-0 identity created" : "waiting", active: identityActive },
+              { name: "DNS", value: dnsActive ? "web-0.web stable record" : "pending", active: dnsActive },
+              { name: "PVC", value: pvcActive ? "data-web-0/1/2 bound" : "pending", active: pvcActive },
+              { name: "OrderedReady", value: rolloutActive ? "0 -> 1 -> 2 Ready" : "pending", active: rolloutActive },
+              { name: "Partition", value: recoveryActive ? "partition=2 and PVC reattach" : "pending", active: recoveryActive },
+            ].map((item) => (
+              <div key={item.name} className={`k8s-statefulset-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="k8s-statefulset-mobile-facts">
+            {signals.map((signal) => (
+              <div key={signal.name} className={`k8s-statefulset-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption k8s-statefulset-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

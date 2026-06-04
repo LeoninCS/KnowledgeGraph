@@ -3053,6 +3053,22 @@ export const knowledgeSources = {
     title: "Kubernetes Docs: Cluster Architecture",
     url: "https://kubernetes.io/docs/concepts/architecture/",
   },
+  "kubernetes-statefulset": {
+    title: "Kubernetes Docs: StatefulSets",
+    url: "https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/",
+  },
+  "kubernetes-statefulset-basic": {
+    title: "Kubernetes Tutorial: Basic StatefulSet",
+    url: "https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/",
+  },
+  "k8s-guide-statefulsets": {
+    title: "K8s Guide: StatefulSets",
+    url: "https://www.k8s.guide/statefulsets/",
+  },
+  "diagrams-k8s-statefulset-database": {
+    title: "Diagrams.so: Kubernetes StatefulSet Database",
+    url: "https://diagrams.so/d/k8s-statefulset-database",
+  },
   "kubernetes-service": {
     title: "Kubernetes Docs: Service",
     url: "https://kubernetes.io/docs/concepts/services-networking/service/",

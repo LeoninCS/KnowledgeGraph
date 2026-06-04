@@ -153,6 +153,7 @@
 | kube-proxy | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes kube-proxy 节点数据面模型，覆盖 Service/EndpointSlice watch、syncProxyRules、iptables/IPVS、DNAT、conntrack 和 Ready Pod |
 | Ingress | `step-simulation` | completed | desktop/mobile captured | Kubernetes Ingress 七层入口路由模拟器，覆盖公网入口、Ingress Controller、TLS Secret、host/path 规则和 Service 后端 |
 | CrashLoopBackOff | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes CrashLoopBackOff 重启退避状态模型，覆盖 Pod 启动、进程退出、kubelet restartPolicy、BackOff 延迟、Events/logs 证据链和修复恢复 |
+| StatefulSet | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes StatefulSet 身份与存储模型，覆盖 ordinal Pod identity、Headless Service DNS、volumeClaimTemplates、OrderedReady rollout、partitioned update 和故障恢复 |
 | 镜像层 | `storage-layout` | completed | desktop/mobile captured | Docker 镜像层结构模型，覆盖 Dockerfile 指令、Build Cache、只读层共享、overlay2 和可写层 |
 | 构建缓存 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Docker Build Cache 失效模型，覆盖 cache key、context digest、HIT/MISS 链、级联失效、cache mount 和远程缓存导入导出 |
 | 桥接网络 | `step-simulation` | completed | desktop/mobile captured | Docker Bridge packet path 模拟器，覆盖 network namespace、veth pair、Linux bridge、内置 DNS、端口发布、DNAT 和 MASQUERADE |
@@ -976,7 +977,65 @@
 
 ## Next Candidate
 
-优先选择 Kubernetes `StatefulSet`，备选 Docker `BuildKit` 或 Redis `Sentinel`。StatefulSet 能展示稳定网络标识、PVC 绑定、按序滚动更新、PodManagementPolicy 和故障恢复。
+优先选择 Redis `Sentinel`，备选 Kubernetes `PVC/PV` 或 Docker `BuildKit`。Sentinel 能展示主观下线、客观下线、quorum、leader election、failover、client discovery 和 split-brain 风险；PVC/PV 可承接本轮 StatefulSet 的存储绑定线索。
+
+## Kubernetes StatefulSet Visualization
+
+### Online Image References
+
+- `source`：K8s Guide - StatefulSets，https://www.k8s.guide/statefulsets/
+  - `image`：页面中的 StatefulSet 架构图，图片路径 `/images/sts-light.png` 与 `/images/sts-dark.png`。
+  - `role`：main
+  - `qualityReason`：图中把 StatefulSet、Pod 序号、Headless Service、PVC 和 PV 关系放在同一张清晰架构图中，适合作为主构图参考。
+  - `takeaways`：主画布采用 Controller -> ordinal Pods -> Headless Service DNS -> PVC/PV 的结构骨架，并保留有状态副本与独立存储的视觉绑定。
+  - `originalChanges`：改成本项目五步状态模型，加入 OrderedReady rollout、partitioned update/recovery、底部信号和移动端流程卡。
+- `source`：Kubernetes Docs - StatefulSets，https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
+  - `image`：官方 StatefulSet 文档中的 stable network ID、stable storage、ordered deployment/scaling 和 rolling update 语义说明。
+  - `role`：supporting
+  - `qualityReason`：官方定义稳定网络标识、稳定持久化存储、按序部署伸缩和按序滚动更新，是状态与指标命名的权威来源。
+  - `takeaways`：步骤覆盖 ordinal identity、Headless Service DNS、每序号 PVC、OrderedReady 和 partitioned update。
+  - `originalChanges`：把规范文字转成可高亮的 SVG 区域、短状态行和右侧任务面板。
+- `source`：Kubernetes Tutorial - Basic StatefulSet，https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/
+  - `image`：教程中的 `web-0`、`web-1`、Headless Service、稳定 DNS 和稳定存储示例。
+  - `role`：supporting
+  - `qualityReason`：官方示例直接提供 `web-0.web`、`serviceName=web` 和有序副本的教学语境。
+  - `takeaways`：Pod 行使用 `web-0`、`web-1`、`web-2`，DNS 行使用 `*.web.default.svc`，rollout 链路使用 `0 -> 1 -> 2`。
+  - `originalChanges`：把命令式教程抽象成可探索结构模型，突出排障时要核对低序号 Ready、事件和 PVC 挂载。
+- `source`：Diagrams.so - Kubernetes StatefulSet Database，https://diagrams.so/d/k8s-statefulset-database
+  - `image`：页面中的客户端、Headless Service、StatefulSet Pods、PVC 和数据库磁盘架构模板。
+  - `role`：supporting
+  - `qualityReason`：模板强调 StatefulSet 对数据库类工作负载的适配方式，能补充客户端访问、存储盘和副本角色的工程语境。
+  - `takeaways`：画布保留数据库副本、固定 DNS 和每 Pod 独立存储的组合表达。
+  - `originalChanges`：使用项目统一配色和中文标签，删除模板工具装饰，加入分区更新和故障恢复状态。
+- `source`：Kubernetes Docs - Service，https://kubernetes.io/docs/concepts/services-networking/service/
+  - `image`：Service、Headless Service、DNS 和 EndpointSlice 语义说明。
+  - `role`：supporting
+  - `qualityReason`：官方 Service 文档用于校准 `clusterIP=None`、Headless Service 和 DNS 发现语义。
+  - `takeaways`：Headless Service 面板展示 `serviceName=web`、`clusterIP=None` 和 `*.web.default.svc`。
+  - `originalChanges`：把 Service 作为身份发布层放在 StatefulSet 画布中部，与 Pod ordinal 和 PVC 层形成三段结构。
+
+### Reference Breakdown
+
+- 主体布局：左上 StatefulSet Controller，左中 ordinal Pod identities，中上 Headless Service，中下 volumeClaimTemplates，右上 OrderedReady rollout，右下 partitioned update + recovery，底部四个运行信号。
+- 视觉焦点：`web-0 / web-1 / web-2` 的固定 ordinal、`web-0.web` DNS、`data-web-0` PVC 和 `partition=2` 更新范围同屏可见。
+- 领域对象：StatefulSet Controller、replicas、serviceName、Pod ordinal、hostname、Headless Service、DNS A/AAAA、volumeClaimTemplates、PVC、PV、OrderedReady、RollingUpdate partition、PodDisruptionBudget、storage health。
+- 容器层级：控制器负责副本与序号；Pod 行承载身份；Headless Service 发布稳定 DNS；PVC 模板生成每序号存储；rollout 面板控制创建、终止、更新和恢复顺序。
+- 连线方向：Controller -> Pod ordinal -> Headless Service DNS -> PVC/PV；rollout 面板从低序号 Ready 推进到高序号，partition 分支回到 Controller 控制更新范围。
+- 状态表达：五步依次高亮创建序号身份、发布稳定 DNS、展开 PVC 模板、执行 OrderedReady、分区更新与恢复；Pod 行、Service 行、PVC 行、rollout 行和信号卡随 completedSteps 激活。
+- 颜色策略：品牌蓝表示控制器和身份，青色表示 DNS，绿色表示 PVC 绑定，橙色表示 OrderedReady，红色表示 partition 与故障恢复。
+- 文字密度：桌面 SVG 保留对象名、短字段和运行信号；移动端隐藏复杂 SVG，改成五张流程卡和四张事实卡。
+- 交互节奏：创建 web-0 -> 发布 `web-0.web` -> 绑定 `data-web-0` -> 等待 `0 -> 1 -> 2` Ready -> 用 `partition=2` 控制更新并重建 web-1。
+- 原创改造点：把 K8s Guide 架构图、Kubernetes 官方 StatefulSet 语义、Basic StatefulSet 教程和数据库模板融合成本项目有状态工作负载模型，突出身份、存储、发布顺序和恢复策略。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/statefulset/desktop.svg` 与 `.codex-artifacts/visualizations/statefulset/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/statefulset/mobile.html` 与 `.codex-artifacts/visualizations/statefulset/mobile.html.fragment`。
+- 截图结论：桌面 SVG 可识别 StatefulSet Controller、ordinal Pod identities、Headless Service、volumeClaimTemplates、OrderedReady rollout、partitioned update + recovery、四个底部信号和 5/5 进度；移动 HTML 展示五步流程和四个事实卡，文字可读。
+- 候选来源数量：普通搜索筛选约 12 个候选入口，最终记录 5 个参考来源。
+- 浏览器备注：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied (1100)`；本轮使用资料 URL、项目数据测试、生产构建、HTML/SVG review artifact、关键文本 grep 和 diff 检查完成验收。
+- 提交计划：功能代码与进度文档合并进入 `feat: add statefulset visualization`。
+- 推送计划：提交后执行 `git pull --rebase origin main` 与 `git push origin main`。
 
 ## Redis Cache Avalanche Visualization
 
@@ -3104,3 +3163,17 @@
 - Verification：新增测试先失败于 generic `Image build` 模拟，补专用 builder/stage 后 `npm run test:data -- --grep "docker build cache"` 通过 1 项；完整 `npm run test:data` 通过 36 项；`npm run build` 通过；`npm run kg:review:validate` 返回 `issueCount=0`；`git diff --check` 通过；SSR 审查图关键文本 grep 通过。
 - Commit/Push Plan：提交 `feat: add build cache visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Redis `缓存击穿/穿透/雪崩`，备选 Kubernetes `StatefulSet` 或 Docker `BuildKit`。
+
+### 2026-06-04 23:42 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `1db4742 feat: add cache avalanche visualization`；从干净工作区继续。
+- Selected：Kubernetes `StatefulSet`，原因是有状态工作负载的稳定网络标识、每序号 PVC、Headless Service、OrderedReady 发布和分区更新能形成一张机制清楚、工程价值高的状态模型。
+- Candidate Sources：普通搜索筛选约 12 个候选入口；主参考为 K8s Guide StatefulSets 架构图；辅助参考为 Kubernetes 官方 StatefulSets、Basic StatefulSet、Service 文档和 Diagrams.so Kubernetes StatefulSet Database 模板；Chrome DevTools MCP profile 被占用，Browser 插件返回 `iab` 不可用，本轮使用可访问 URL、官方资料和本地 SVG/HTML artifact 完成确认。
+- Online Image References：见 `Kubernetes StatefulSet Visualization` 小节；主参考决定 Controller、ordinal Pods、Headless Service、PVC/PV 的主构图，辅助来源校准 stable network ID、stable storage、OrderedReady、partitioned update 和数据库工作负载表达。
+- Reference Breakdown：主体布局为左上 StatefulSet Controller，左中 ordinal Pod identities，中上 Headless Service，中下 volumeClaimTemplates，右上 OrderedReady rollout，右下 partitioned update + recovery，底部四个运行信号；视觉焦点是 `web-0.web`、`data-web-0`、`0 -> 1 -> 2` 和 `partition=2`。
+- Implementation：新增 `kubernetes:statefulset` 专用 `state-model` 构建器、StatefulSet SVG 舞台、移动端流程卡、响应式样式、来源引用和数据测试，并把 `statefulset` 加入 Kubernetes 可视化清单。
+- Browser Note：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied (1100)`；Vite SSR artifact 生成时 HMR WebSocket 触发 `listen EPERM 0.0.0.0:24678`，真实 React `SimulationStage` 仍生成非空 SVG、desktop HTML 和 mobile HTML。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/statefulset/desktop.svg`、`.codex-artifacts/visualizations/statefulset/desktop.html`、`.codex-artifacts/visualizations/statefulset/mobile.html` 与 `.codex-artifacts/visualizations/statefulset/mobile.html.fragment`；关键文本 grep 覆盖 StatefulSet、Headless Service、volumeClaimTemplates、OrderedReady、partitioned update、stable DNS identity、PVC per ordinal、`web-0.web` 和 `5/5`。
+- Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `statefulset`，补可视化清单与专用 builder/stage/source 后 `npm run test:data -- --grep "kubernetes StatefulSet"` 通过 1 项；完整 `npm run test:data` 通过 38 项；`npm run build` 通过并保留既有 chunk size warning；`npm run kg:review:validate` 返回 `issueCount=0`；`git diff --check` 通过。
+- Commit/Push Plan：提交 `feat: add statefulset visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Redis `Sentinel`，备选 Kubernetes `PVC/PV` 或 Docker `BuildKit`。

@@ -6688,6 +6688,139 @@ function k8sPreemption(point: GraphKnowledgePoint) {
   );
 }
 
+function k8sStatefulSet(point: GraphKnowledgePoint) {
+  const actors = [
+    actor("controller", "StatefulSet Controller", "StatefulSet controller", "按序号创建、更新和恢复 Pod", "Creates, updates, and restores Pods by ordinal", "cluster"),
+    actor("identity", "Ordinal Pod Identity", "Ordinal Pod identity", "web-0、web-1、web-2 与固定 hostname", "web-0, web-1, web-2, and fixed hostnames", "container"),
+    actor("service", "Headless Service", "Headless Service", "提供稳定 DNS A/AAAA 记录", "Provides stable DNS A/AAAA records", "network"),
+    actor("storage", "volumeClaimTemplates", "volumeClaimTemplates", "为每个序号生成独立 PVC", "Creates one PVC per ordinal", "storage"),
+    actor("rollout", "OrderedReady Rollout", "OrderedReady rollout", "按序创建、终止和分区更新", "Orders creation, termination, and partitioned updates", "data"),
+  ];
+
+  return makeSimulation(
+    "kubernetes",
+    point,
+    tx("StatefulSet 身份与存储模型", "StatefulSet identity and storage model"),
+    tx(
+      "把 StatefulSet Controller、Pod 序号、Headless Service DNS、volumeClaimTemplates、OrderedReady 发布和分区更新放在同一张有状态工作负载画布中。",
+      "Place the StatefulSet controller, Pod ordinals, Headless Service DNS, volumeClaimTemplates, OrderedReady rollout, and partitioned update on one stateful workload canvas.",
+    ),
+    actors,
+    {
+      controller: tx("replicas=3 serviceName=web", "replicas=3 serviceName=web"),
+      identity: tx("等待 web-0 创建", "awaiting web-0"),
+      service: tx("clusterIP=None / DNS 待发布", "clusterIP=None / DNS pending"),
+      storage: tx("PVC 模板 data-web 待展开", "PVC template data-web pending"),
+      rollout: tx("OrderedReady 等待首个副本", "OrderedReady awaiting first replica"),
+    },
+    [
+      step(
+        "建立序号身份",
+        "Create ordinal identity",
+        "StatefulSet Controller 创建 web-0",
+        "StatefulSet controller creates web-0",
+        "controller",
+        "identity",
+        "ordinal identity",
+        "ordinal identity",
+        "控制器从序号 0 开始创建 Pod，Pod 名称、hostname 和启动顺序都绑定到固定 ordinal。",
+        "The controller starts at ordinal 0; Pod name, hostname, and startup order are all bound to a fixed ordinal.",
+        "StatefulSet 的核心输入是 `serviceName`、replicas、selector、template 和 ordinal。",
+        "The core inputs are serviceName, replicas, selector, template, and ordinal.",
+        {
+          controller: tx("next ordinal=0", "next ordinal=0"),
+          identity: tx("web-0 Pending -> Running", "web-0 Pending -> Running"),
+          rollout: tx("等待 web-0 Ready", "waiting for web-0 Ready"),
+        },
+      ),
+      step(
+        "发布稳定 DNS",
+        "Publish stable DNS",
+        "Headless Service 绑定 Pod 主机名",
+        "Headless Service binds Pod hostnames",
+        "identity",
+        "service",
+        "headless DNS",
+        "headless DNS",
+        "Headless Service 让每个 Pod 获得稳定 DNS，例如 `web-0.web.default.svc.cluster.local`，业务可直接访问固定副本。",
+        "The Headless Service gives each Pod stable DNS, such as web-0.web.default.svc.cluster.local, so clients can address a fixed replica.",
+        "稳定网络标识适合主从、分片和选主协议读取成员身份。",
+        "Stable network identity supports primary-replica, sharding, and leader-election protocols.",
+        {
+          identity: tx("hostname=web-0", "hostname=web-0"),
+          service: tx("A records web-0, web-1, web-2", "A records web-0, web-1, web-2"),
+        },
+        "teal",
+      ),
+      step(
+        "展开 PVC 模板",
+        "Expand PVC template",
+        "为每个序号绑定独立存储",
+        "Bind one volume per ordinal",
+        "controller",
+        "storage",
+        "volumeClaimTemplates",
+        "volumeClaimTemplates",
+        "`volumeClaimTemplates` 会生成 `data-web-0`、`data-web-1`、`data-web-2` 等 PVC，Pod 重建后仍回到自己的卷。",
+        "volumeClaimTemplates create PVCs such as data-web-0, data-web-1, and data-web-2; recreated Pods return to their own volumes.",
+        "数据安全来自 ordinal 与 PVC 的稳定映射，扩缩容时要核对 PVC 保留策略。",
+        "Data safety comes from the stable mapping between ordinal and PVC; scale operations require checking PVC retention policy.",
+        {
+          controller: tx("claim template expanded", "claim template expanded"),
+          storage: tx("PVC data-web-0/1/2 Bound", "PVC data-web-0/1/2 Bound"),
+        },
+        "success",
+      ),
+      step(
+        "执行按序发布",
+        "Run ordered rollout",
+        "等待低序号 Ready 再推进",
+        "Wait for lower ordinal Ready",
+        "identity",
+        "rollout",
+        "OrderedReady rollout",
+        "OrderedReady rollout",
+        "默认 `podManagementPolicy=OrderedReady` 时，web-0 Ready 后创建 web-1，web-1 Ready 后创建 web-2；终止和滚动更新也遵循序号约束。",
+        "With the default podManagementPolicy=OrderedReady, web-1 follows web-0 Ready, web-2 follows web-1 Ready, and termination plus rolling updates follow ordinal constraints.",
+        "排查卡住的发布要看低序号 Pod Ready、探针、事件和 PVC 挂载状态。",
+        "Stalled rollout triage reads lower-ordinal Ready state, probes, events, and PVC mounts.",
+        {
+          identity: tx("web-0 Ready -> web-1 Ready -> web-2", "web-0 Ready -> web-1 Ready -> web-2"),
+          rollout: tx("currentRevision=rev-a updateRevision=rev-b", "currentRevision=rev-a updateRevision=rev-b"),
+        },
+        "warning",
+      ),
+      step(
+        "分区更新与恢复",
+        "Partitioned update and recovery",
+        "用 partition 控制更新范围",
+        "Use partition to control update scope",
+        "rollout",
+        "controller",
+        "partition=2 recovery",
+        "partitioned update",
+        "滚动更新可以设置 `partition`，只更新序号大于等于分区值的 Pod；节点故障后重建的 web-1 继续使用原 DNS 和 PVC。",
+        "A rolling update can set partition to update only Pods whose ordinal is greater than or equal to the partition; after a node failure, recreated web-1 keeps its DNS and PVC.",
+        "生产 StatefulSet 发布要把 partition、PodDisruptionBudget、备份和存储健康检查作为同一套保护。",
+        "Production StatefulSet rollout should govern partition, PodDisruptionBudget, backups, and storage health checks together.",
+        {
+          controller: tx("web-1 recreated with data-web-1", "web-1 recreated with data-web-1"),
+          storage: tx("PVC retained and reattached", "PVC retained and reattached"),
+          rollout: tx("partition=2 updates web-2 first", "partition=2 updates web-2 first"),
+        },
+        "danger",
+      ),
+    ],
+    [
+      tx("稳定 DNS 身份", "stable DNS identity"),
+      tx("每序号独立 PVC", "PVC per ordinal"),
+      tx("OrderedReady 发布", "OrderedReady rollout"),
+      tx("分区更新", "partitioned update"),
+      tx("PVC retention", "PVC retention"),
+    ],
+  );
+}
+
 function k8sHpa(point: GraphKnowledgePoint) {
   const actors = [
     actor("workload", "Deployment checkout", "Deployment checkout", "承载业务 Pod 与副本数", "Holds business Pods and replica count", "cluster"),
@@ -8866,6 +8999,7 @@ const customBuilders: Record<string, Builder> = {
   "kubernetes:pod-affinity": k8sPodAffinity,
   "kubernetes:topology-spread": k8sTopologySpread,
   "kubernetes:preemption": k8sPreemption,
+  "kubernetes:statefulset": k8sStatefulSet,
   "kubernetes:service": k8sService,
   "kubernetes:endpoint-slice": k8sEndpointSlice,
   "kubernetes:kube-proxy": k8sKubeProxy,
