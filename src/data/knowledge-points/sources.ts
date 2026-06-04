@@ -1201,6 +1201,14 @@ export const knowledgeSources = {
     title: "小林 coding：TCP 重传、滑动窗口、流量控制、拥塞控制",
     url: "https://xiaolincoding.com/network/3_tcp/tcp_feature.html",
   },
+  "xiaolincoding-tcp-interview": {
+    title: "小林 coding：TCP 三次握手与四次挥手面试题",
+    url: "https://xiaolincoding.com/network/3_tcp/tcp_interview.html",
+  },
+  "xiaolincoding-tcp-optimize": {
+    title: "小林 coding：如何优化 TCP",
+    url: "https://xiaolincoding.com/network/3_tcp/tcp_optimize.html",
+  },
   "rfc1122-internet-layers": {
     title: "RFC 1122 Requirements for Internet Hosts: Communication Layers",
     url: "https://www.rfc-editor.org/rfc/rfc1122#page-8",
@@ -1304,6 +1312,10 @@ export const knowledgeSources = {
   "man7-tcp": {
     title: "tcp(7) - Linux TCP protocol implementation",
     url: "https://man7.org/linux/man-pages/man7/tcp.7.html",
+  },
+  "man7-listen": {
+    title: "listen(2) - Linux manual page",
+    url: "https://man7.org/linux/man-pages/man2/listen.2.html",
   },
   "linux-ip-sysctl": {
     title: "Linux kernel documentation: IP sysctl",
@@ -1457,9 +1469,17 @@ export const knowledgeSources = {
     title: "Cloudflare Learning Center: What is TCP/IP?",
     url: "https://www.cloudflare.com/learning/ddos/glossary/tcp-ip/",
   },
+  "cloudflare-syn-flood": {
+    title: "Cloudflare Learning Center: SYN Flood Attack",
+    url: "https://www.cloudflare.com/learning/ddos/syn-flood-ddos-attack/",
+  },
   "rfc6056-port-randomization": {
     title: "RFC 6056: Recommendations for Transport-Protocol Port Randomization",
     url: "https://www.rfc-editor.org/rfc/rfc6056",
+  },
+  "rfc6528-tcp-isn": {
+    title: "RFC 6528: Defending against Sequence Number Attacks",
+    url: "https://www.rfc-editor.org/rfc/rfc6528",
   },
   "rfc6298-tcp-rto": {
     title: "RFC 6298: Computing TCP's Retransmission Timer",
@@ -1484,6 +1504,14 @@ export const knowledgeSources = {
   "rfc7323-tcp-high-performance": {
     title: "RFC 7323: TCP Extensions for High Performance",
     url: "https://www.rfc-editor.org/rfc/rfc7323",
+  },
+  "rfc7413-tcp-fast-open": {
+    title: "RFC 7413: TCP Fast Open",
+    url: "https://www.rfc-editor.org/rfc/rfc7413",
+  },
+  "rfc4987-syn-flood": {
+    title: "RFC 4987: TCP SYN Flooding Attacks and Common Mitigations",
+    url: "https://www.rfc-editor.org/rfc/rfc4987",
   },
   "rfc1034-dns": {
     title: "RFC 1034: Domain Names - Concepts and Facilities",
