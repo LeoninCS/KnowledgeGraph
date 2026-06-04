@@ -1305,6 +1305,10 @@ export const knowledgeSources = {
     title: "RFC 4632: Classless Inter-domain Routing (CIDR)",
     url: "https://www.rfc-editor.org/rfc/rfc4632",
   },
+  "rfc3021-31-bit-prefixes": {
+    title: "RFC 3021: Using 31-Bit Prefixes on IPv4 Point-to-Point Links",
+    url: "https://www.rfc-editor.org/rfc/rfc3021",
+  },
   "rfc1918-private-address": {
     title: "RFC 1918: Address Allocation for Private Internets",
     url: "https://www.rfc-editor.org/rfc/rfc1918",
@@ -1321,6 +1325,10 @@ export const knowledgeSources = {
     title: "AWS VPC: Subnet route tables",
     url: "https://docs.aws.amazon.com/vpc/latest/userguide/subnet-route-tables.html",
   },
+  "aws-vpc-subnet-sizing": {
+    title: "AWS VPC: Subnet sizing",
+    url: "https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html",
+  },
   "aws-vpc-route-priority": {
     title: "AWS VPC: How route priority works",
     url: "https://docs.aws.amazon.com/vpc/latest/userguide/route-tables-priority.html",
@@ -1332,6 +1340,14 @@ export const knowledgeSources = {
   "aws-vpc-nat-gateway": {
     title: "AWS VPC: NAT gateways",
     url: "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html",
+  },
+  "aliyun-vpc-network-planning": {
+    title: "Alibaba Cloud VPC: Network planning",
+    url: "https://www.alibabacloud.com/help/en/vpc/user-guide/network-planning",
+  },
+  "cisco-ipv4-addressing": {
+    title: "Cisco IOS XE: IP Addressing Services Configuration Guide",
+    url: "https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/ipaddr/configuration/xe-3s/iad-xe-3s-book.html",
   },
   "rfc768-udp": {
     title: "RFC 768: User Datagram Protocol",
@@ -3112,6 +3128,14 @@ export const knowledgeSources = {
   "kubernetes-service": {
     title: "Kubernetes Docs: Service",
     url: "https://kubernetes.io/docs/concepts/services-networking/service/",
+  },
+  "kubernetes-service-cidr": {
+    title: "Kubernetes Docs: Service IP addresses",
+    url: "https://kubernetes.io/docs/concepts/services-networking/service/#service-ip-addresses",
+  },
+  "kubernetes-controller-manager": {
+    title: "Kubernetes Docs: kube-controller-manager",
+    url: "https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/",
   },
   "kubernetes-ingress": {
     title: "Kubernetes Docs: Ingress",
