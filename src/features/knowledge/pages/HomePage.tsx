@@ -31,7 +31,7 @@ const canvasResetAnimationMs = 120;
 const desktopSidebarWidth = 264;
 const desktopTopbarHeight = 68;
 const mobileTopbarHeight = 64;
-const fallbackStageRect = { width: 960, height: 620 };
+const fallbackStageFrame = { width: 960, height: 620, centerX: 480, centerY: 310 };
 const graphContentPadding = 72;
 const graphFitPadding = 24;
 
@@ -44,7 +44,10 @@ const transformExcludedTargets = [
 ];
 const panningExcludedTargets = [...transformExcludedTargets, "sphere-node"];
 
-type CanvasStageRect = Pick<DOMRect, "width" | "height">;
+type CanvasStageFrame = Pick<DOMRect, "width" | "height"> & {
+  centerX: number;
+  centerY: number;
+};
 type GraphContentBounds = {
   left: number;
   top: number;
@@ -52,9 +55,9 @@ type GraphContentBounds = {
   height: number;
 };
 
-function getViewportStageRect(): CanvasStageRect {
+function getViewportStageFrame(): CanvasStageFrame {
   if (typeof window === "undefined") {
-    return fallbackStageRect;
+    return fallbackStageFrame;
   }
 
   const viewportWidth = window.innerWidth;
@@ -75,16 +78,18 @@ function getViewportStageRect(): CanvasStageRect {
   return {
     width: Math.max(320, canvasWidth - stageInset.left - stageInset.right),
     height: Math.max(320, canvasHeight - stageInset.top - stageInset.bottom),
+    centerX: canvasWidth / 2 - stageInset.left,
+    centerY: canvasHeight / 2 - stageInset.top,
   };
 }
 
 function getDefaultCanvasView(
-  rect: CanvasStageRect | undefined | null,
+  frame: CanvasStageFrame | undefined | null,
   graph: Pick<SphereGraph, "width" | "height" | "nodes">,
   focusPointId?: string,
   centerFocusNode = false,
 ): CanvasView {
-  const stageRect = rect ?? fallbackStageRect;
+  const stageFrame = frame ?? fallbackStageFrame;
   const bounds = getGraphContentBounds(graph);
   const focusedNode = centerFocusNode
     ? graph.nodes.find((node) => node.id === focusPointId && node.kind === "knowledge")
@@ -95,17 +100,18 @@ function getDefaultCanvasView(
     const zoom = defaultCanvasZoom;
 
     return {
-      x: stageRect.width / 2 - (box.left + box.width / 2) * zoom,
-      y: stageRect.height / 2 - (box.top + box.height / 2) * zoom,
+      x: stageFrame.centerX - (box.left + box.width / 2) * zoom,
+      y: stageFrame.centerY - (box.top + box.height / 2) * zoom,
       zoom,
     };
   }
 
-  const zoom = getGraphCenteredZoom(stageRect, bounds);
+  const zoom = getGraphCenteredZoom(stageFrame, bounds);
+  const center = getGraphContentCenter(graph);
 
   return {
-    x: stageRect.width / 2 - (bounds.left + bounds.width / 2) * zoom,
-    y: stageRect.height / 2 - (bounds.top + bounds.height / 2) * zoom,
+    x: stageFrame.centerX - center.x * zoom,
+    y: stageFrame.centerY - center.y * zoom,
     zoom,
   };
 }
@@ -161,9 +167,29 @@ function getGraphContentBounds(
   };
 }
 
-function getGraphCenteredZoom(rect: CanvasStageRect, bounds: GraphContentBounds) {
-  const availableWidth = Math.max(1, rect.width - graphFitPadding * 2);
-  const availableHeight = Math.max(1, rect.height - graphFitPadding * 2);
+function getGraphContentCenter(graph: Pick<SphereGraph, "width" | "height" | "nodes">) {
+  if (graph.nodes.length === 0) {
+    return {
+      x: Math.max(1, graph.width) / 2,
+      y: Math.max(1, graph.height) / 2,
+    };
+  }
+
+  const boxes = graph.nodes.map(getGraphNodeBox);
+  const left = Math.min(...boxes.map((box) => box.left));
+  const top = Math.min(...boxes.map((box) => box.top));
+  const right = Math.max(...boxes.map((box) => box.left + box.width));
+  const bottom = Math.max(...boxes.map((box) => box.top + box.height));
+
+  return {
+    x: (left + right) / 2,
+    y: (top + bottom) / 2,
+  };
+}
+
+function getGraphCenteredZoom(frame: CanvasStageFrame, bounds: GraphContentBounds) {
+  const availableWidth = Math.max(1, frame.width - graphFitPadding * 2);
+  const availableHeight = Math.max(1, frame.height - graphFitPadding * 2);
   const fitZoom = Math.min(availableWidth / bounds.width, availableHeight / bounds.height);
 
   return Math.min(maxCanvasZoom, Math.max(minCanvasZoom, Math.min(defaultCanvasZoom, fitZoom)));
@@ -299,6 +325,7 @@ export function HomePage({
   const [focusedKnowledgeId, setFocusedKnowledgeId] = useState(selectedKnowledgeId);
   const [canvasView, setCanvasView] = useState<CanvasView>(defaultCanvasView);
   const [isCanvasGestureActive, setIsCanvasGestureActive] = useState(false);
+  const canvasRef = useRef<HTMLElement | null>(null);
   const transformRef = useRef<ReactZoomPanPinchContentRef | null>(null);
   const latestCanvasViewRef = useRef<CanvasView>(defaultCanvasView);
   const hasSearch = normalizeSearch(searchQuery).length > 0;
@@ -362,7 +389,7 @@ export function HomePage({
   const graphFocusIdRef = useRef(graphFocusId);
   const shouldCenterSelectedNode = hasSearch;
   const initialCanvasView = useMemo(
-    () => getDefaultCanvasView(getViewportStageRect(), baseGraph, selectedKnowledgeId, shouldCenterSelectedNode),
+    () => getDefaultCanvasView(getViewportStageFrame(), baseGraph, selectedKnowledgeId, shouldCenterSelectedNode),
     [baseGraph, selectedKnowledgeId, shouldCenterSelectedNode],
   );
   const hasResults = graph.nodes.some(
@@ -405,11 +432,34 @@ export function HomePage({
 
   function getDefaultTransform(ref: ReactZoomPanPinchContentRef | null) {
     return getDefaultCanvasView(
-      ref?.instance.wrapperComponent?.getBoundingClientRect(),
+      getCanvasStageFrame(ref),
       graph,
       selectedKnowledgeId,
       shouldCenterSelectedNode,
     );
+  }
+
+  function getCanvasStageFrame(ref: ReactZoomPanPinchContentRef | null): CanvasStageFrame {
+    const wrapperRect = ref?.instance.wrapperComponent?.getBoundingClientRect();
+    const canvasRect = canvasRef.current?.getBoundingClientRect();
+
+    if (!wrapperRect || !canvasRect) {
+      return wrapperRect
+        ? {
+            width: wrapperRect.width,
+            height: wrapperRect.height,
+            centerX: wrapperRect.width / 2,
+            centerY: wrapperRect.height / 2,
+          }
+        : fallbackStageFrame;
+    }
+
+    return {
+      width: wrapperRect.width,
+      height: wrapperRect.height,
+      centerX: canvasRect.left + canvasRect.width / 2 - wrapperRect.left,
+      centerY: canvasRect.top + canvasRect.height / 2 - wrapperRect.top,
+    };
   }
 
   function getFocusedTransform(
@@ -417,21 +467,21 @@ export function HomePage({
     focusPointId: string,
   ) {
     const currentView = getCurrentCanvasView(ref, latestCanvasViewRef.current);
-    const wrapperRect = ref?.instance.wrapperComponent?.getBoundingClientRect();
+    const canvasRect = canvasRef.current?.getBoundingClientRect();
     const focusedElement = ref?.instance.contentComponent?.querySelector<HTMLElement>(
       `.sphere-node[data-node-id="${CSS.escape(focusPointId)}"]`,
     );
 
-    if (focusedElement && wrapperRect) {
+    if (focusedElement && canvasRect) {
       const nodeRect = focusedElement.getBoundingClientRect();
       const nodeCenterX = nodeRect.left + nodeRect.width / 2;
       const nodeCenterY = nodeRect.top + nodeRect.height / 2;
-      const wrapperCenterX = wrapperRect.left + wrapperRect.width / 2;
-      const wrapperCenterY = wrapperRect.top + wrapperRect.height / 2;
+      const canvasCenterX = canvasRect.left + canvasRect.width / 2;
+      const canvasCenterY = canvasRect.top + canvasRect.height / 2;
 
       return {
-        x: currentView.x + wrapperCenterX - nodeCenterX,
-        y: currentView.y + wrapperCenterY - nodeCenterY,
+        x: currentView.x + canvasCenterX - nodeCenterX,
+        y: currentView.y + canvasCenterY - nodeCenterY,
         zoom: clampCanvasZoom(currentView.zoom),
       };
     }
@@ -443,13 +493,14 @@ export function HomePage({
       return undefined;
     }
 
-    const stageRect = ref?.instance.wrapperComponent?.getBoundingClientRect() ?? fallbackStageRect;
+    const stageFrame = getCanvasStageFrame(ref);
     const box = getGraphNodeBox(focusedNode);
+    const zoom = clampCanvasZoom(currentZoom);
 
     return {
-      x: stageRect.width / 2 - (box.left + box.width / 2) * currentZoom,
-      y: stageRect.height / 2 - (box.top + box.height / 2) * currentZoom,
-      zoom: currentZoom,
+      x: stageFrame.centerX - (box.left + box.width / 2) * zoom,
+      y: stageFrame.centerY - (box.top + box.height / 2) * zoom,
+      zoom,
     };
   }
 
@@ -477,6 +528,15 @@ export function HomePage({
   function handleFocusKnowledge(pointId: string) {
     syncCurrentCanvasView();
     setFocusedKnowledgeId(pointId);
+
+    window.requestAnimationFrame(() => {
+      const ref = transformRef.current;
+      const view = getFocusedTransform(ref, pointId);
+
+      if (view) {
+        applyCanvasView(ref, view, canvasControlAnimationMs);
+      }
+    });
   }
 
   function handleTransformInit(ref: ReactZoomPanPinchContentRef) {
@@ -494,6 +554,30 @@ export function HomePage({
     setIsCanvasGestureActive(false);
   }
 
+  function zoomCanvasBy(delta: number) {
+    const ref = transformRef.current;
+    const currentView = getCurrentCanvasView(ref, latestCanvasViewRef.current);
+    const nextZoom = clampCanvasZoom(currentView.zoom + delta);
+
+    if (Math.abs(nextZoom - currentView.zoom) < 0.001) {
+      return;
+    }
+
+    const stageFrame = getCanvasStageFrame(ref);
+    const centerGraphX = (stageFrame.centerX - currentView.x) / currentView.zoom;
+    const centerGraphY = (stageFrame.centerY - currentView.y) / currentView.zoom;
+
+    applyCanvasView(
+      ref,
+      {
+        x: stageFrame.centerX - centerGraphX * nextZoom,
+        y: stageFrame.centerY - centerGraphY * nextZoom,
+        zoom: nextZoom,
+      },
+      canvasControlAnimationMs,
+    );
+  }
+
   return (
     <main className="home-layout page-with-topbar">
       <LearningSidebar
@@ -507,6 +591,7 @@ export function HomePage({
         </section>
       ) : (
         <section
+          ref={canvasRef}
           className={`graph-canvas ${isCanvasInteracting ? "is-panning" : ""}`}
           aria-label={t.navGraph}
         >
@@ -587,7 +672,7 @@ export function HomePage({
               }}
               panning={{
                 excluded: panningExcludedTargets,
-                velocityDisabled: false,
+                velocityDisabled: true,
               }}
               pinch={{
                 step: 6,
@@ -631,7 +716,7 @@ export function HomePage({
               onPinchStart={() => setIsCanvasGestureActive(true)}
               onPinchStop={() => setIsCanvasGestureActive(false)}
             >
-              {({ zoomIn, zoomOut }) => (
+              {() => (
                 <>
                   <TransformComponent
                     wrapperClass="sphere-graph-stage"
@@ -663,7 +748,7 @@ export function HomePage({
                   <div className="graph-canvas-controls" aria-label={t.canvasControls}>
                     <button
                       type="button"
-                      onClick={() => zoomOut(canvasZoomStep, canvasControlAnimationMs, "easeOut")}
+                      onClick={() => zoomCanvasBy(-canvasZoomStep)}
                       title={t.zoomOut}
                       aria-label={t.zoomOut}
                       disabled={!canZoomOut}
@@ -675,7 +760,7 @@ export function HomePage({
                     </output>
                     <button
                       type="button"
-                      onClick={() => zoomIn(canvasZoomStep, canvasControlAnimationMs, "easeOut")}
+                      onClick={() => zoomCanvasBy(canvasZoomStep)}
                       title={t.zoomIn}
                       aria-label={t.zoomIn}
                       disabled={!canZoomIn}

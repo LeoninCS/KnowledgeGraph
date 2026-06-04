@@ -157,6 +157,8 @@
 }
 
 .react-transform-wrapper.sphere-graph-stage {
+  position: absolute;
+  inset: 58px 360px 106px 34px;
   width: auto;
   height: auto;
 }
@@ -404,8 +406,9 @@
 }
 
 @media (width <= 1180px) {
-  .sphere-graph-stage {
-    inset-right: 320px;
+  .sphere-graph-stage,
+  .react-transform-wrapper.sphere-graph-stage {
+    right: 320px;
   }
 
   .graph-relation-panel {

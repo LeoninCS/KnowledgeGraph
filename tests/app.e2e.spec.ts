@@ -1,9 +1,47 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 function getScaleFromTransform(transform: string) {
   const matrix = transform.match(/^matrix\(([^,]+)/);
 
   return matrix ? Number(matrix[1]) : 1;
+}
+
+async function getGraphContentCenterDelta(page: Page) {
+  return page.locator(".graph-canvas").evaluate((canvasElement) => {
+    const canvasBox = canvasElement.getBoundingClientRect();
+    const nodeBoxes = Array.from(
+      document.querySelectorAll<HTMLElement>(".sphere-node[data-node-id]"),
+    ).map((node) => node.getBoundingClientRect());
+    const left = Math.min(...nodeBoxes.map((box) => box.left));
+    const top = Math.min(...nodeBoxes.map((box) => box.top));
+    const right = Math.max(...nodeBoxes.map((box) => box.right));
+    const bottom = Math.max(...nodeBoxes.map((box) => box.bottom));
+
+    return {
+      x: (left + right) / 2 - (canvasBox.left + canvasBox.width / 2),
+      y: (top + bottom) / 2 - (canvasBox.top + canvasBox.height / 2),
+    };
+  });
+}
+
+async function getNodeCenterDelta(
+  page: Page,
+  selector: string,
+) {
+  return page.locator(".graph-canvas").evaluate((canvasElement, nodeSelector) => {
+    const canvasBox = canvasElement.getBoundingClientRect();
+    const node = document.querySelector<HTMLElement>(nodeSelector);
+    const nodeBox = node?.getBoundingClientRect();
+
+    if (!nodeBox) {
+      throw new Error(`Missing node: ${nodeSelector}`);
+    }
+
+    return {
+      x: nodeBox.left + nodeBox.width / 2 - (canvasBox.left + canvasBox.width / 2),
+      y: nodeBox.top + nodeBox.height / 2 - (canvasBox.top + canvasBox.height / 2),
+    };
+  }, selector);
 }
 
 test("home graph supports search and opens detail", async ({ page }) => {
@@ -26,7 +64,7 @@ test("home graph follows a focused knowledge point and keeps zoom", async ({ pag
 
   await expect(page.getByRole("button", { name: "Go Module", exact: true })).toBeVisible();
 
-  const graphStage = page.locator(".sphere-graph-stage");
+  const graphCanvas = page.locator(".graph-canvas");
   const graphWorld = page.locator(".sphere-graph-world");
   const functionNode = page.locator(".sphere-node[title='函数']");
   const methodNode = page.locator(".sphere-node[title='方法']");
@@ -71,7 +109,7 @@ test("home graph follows a focused knowledge point and keeps zoom", async ({ pag
   expect(Math.abs(focusedScale - zoomedScale)).toBeLessThan(0.04);
 
   await page.waitForTimeout(260);
-  const stageBox = await graphStage.boundingBox();
+  const stageBox = await graphCanvas.boundingBox();
   const nodeBox = await methodNode.boundingBox();
 
   expect(stageBox).not.toBeNull();
@@ -86,10 +124,63 @@ test("home graph follows a focused knowledge point and keeps zoom", async ({ pag
   expect(Math.abs(nodeCenterY - visibleCanvasCenterY)).toBeLessThan(150);
 });
 
+test("home graph starts centered and clicks focus nodes predictably", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.getByRole("button", { name: "Go Module", exact: true })).toBeVisible();
+
+  await expect.poll(async () => {
+    const delta = await getGraphContentCenterDelta(page);
+
+    return Math.hypot(delta.x, delta.y);
+  }).toBeLessThan(36);
+
+  const graphWorld = page.locator(".sphere-graph-world");
+  const methodNodeSelector = ".sphere-node[title='方法']";
+  const functionNodeSelector = ".sphere-node[title='函数']";
+  const methodNode = page.locator(methodNodeSelector);
+  const functionNode = page.locator(functionNodeSelector);
+  const zoomIn = page.getByRole("button", { name: "放大" });
+
+  await zoomIn.click();
+  await page.waitForTimeout(220);
+  const zoomedTransform = await graphWorld.evaluate((element) =>
+    getComputedStyle(element).transform,
+  );
+  const zoomedScale = getScaleFromTransform(zoomedTransform);
+
+  await methodNode.click();
+  await expect(methodNode).toHaveClass(/relation-focused/);
+  await expect.poll(async () => {
+    const delta = await getNodeCenterDelta(page, methodNodeSelector);
+
+    return Math.hypot(delta.x, delta.y);
+  }).toBeLessThan(42);
+
+  await functionNode.click();
+  await expect(functionNode).toHaveClass(/relation-focused/);
+  await expect.poll(async () => {
+    const delta = await getNodeCenterDelta(page, functionNodeSelector);
+
+    return Math.hypot(delta.x, delta.y);
+  }).toBeLessThan(42);
+
+  const focusedTransform = await graphWorld.evaluate((element) =>
+    getComputedStyle(element).transform,
+  );
+  const focusedScale = getScaleFromTransform(focusedTransform);
+
+  expect(Math.abs(focusedScale - zoomedScale)).toBeLessThan(0.04);
+});
+
 test("detail page can open a simulation and step through it", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByRole("button", { name: "Go Module", exact: true }).dblclick();
+  await page.getByPlaceholder("搜索知识点，比如 TCP、进程、索引").fill("Go Module");
+  const goModuleNode = page.getByRole("button", { name: /Go Module 当前聚焦/ });
+
+  await expect(goModuleNode).toBeVisible();
+  await goModuleNode.dblclick();
   await page.getByRole("button", { name: /进入模拟/ }).first().click();
 
   await expect(page.getByRole("heading", { name: /Go Module 可视化模拟/ })).toBeVisible();

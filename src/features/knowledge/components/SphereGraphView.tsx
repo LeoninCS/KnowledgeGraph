@@ -385,7 +385,12 @@ export function SphereGraphView({
                   }
                 }}
                 onDoubleClick={() => canOpen && onOpenDetail(node.categoryId, node.id)}
-                onFocus={() => canOpen && onFocusKnowledge(node.id)}
+                onFocus={(event) => {
+                  if (canOpen && event.currentTarget.matches(":focus-visible")) {
+                    onFocusKnowledge(node.id);
+                  }
+                }}
+                onPointerDown={(event) => event.stopPropagation()}
               >
                 {node.visualizable && (
                   <span className="visual-node-badge">

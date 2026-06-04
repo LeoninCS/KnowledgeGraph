@@ -129,7 +129,8 @@
     min-height: 680px;
   }
 
-  .sphere-graph-stage {
+  .sphere-graph-stage,
+  .react-transform-wrapper.sphere-graph-stage {
     inset: 118px -30px 106px;
   }
 
