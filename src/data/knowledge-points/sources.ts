@@ -1245,6 +1245,14 @@ export const knowledgeSources = {
     title: "AWS: What is the OSI Model?",
     url: "https://aws.amazon.com/what-is/osi-model/",
   },
+  "wireshark-display-filters": {
+    title: "Wireshark User's Guide: Building Display Filter Expressions",
+    url: "https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html",
+  },
+  "man7-tcpdump": {
+    title: "tcpdump(8) - Linux manual page",
+    url: "https://man7.org/linux/man-pages/man8/tcpdump.8.html",
+  },
   "cloudflare-network-layer": {
     title: "Cloudflare Learning Center: What is the network layer?",
     url: "https://www.cloudflare.com/learning/network-layer/what-is-the-network-layer/",
