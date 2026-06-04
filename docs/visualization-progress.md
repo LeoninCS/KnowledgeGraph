@@ -147,6 +147,7 @@
 | AOF 重写 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis BGREWRITEAOF 状态模型，覆盖 fork 子进程、Copy-on-Write、当前增量 AOF、rewrite buffer、临时基础文件、manifest 原子切换和恢复重放 |
 | fork 与写时复制 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis fork/COW 内存状态模型，覆盖后台任务、页表复制、共享物理页、写保护缺页、COW 页复制、RSS 回落和 fork/latency 指标 |
 | 缓存雪崩 | `comparison-lab` | completed | HTML review captured; PNG blocked by platform permissions | Redis 缓存故障对比实验室，覆盖缓存击穿、缓存穿透、缓存雪崩、布隆过滤器、空值缓存、互斥重建、逻辑过期、TTL 抖动、限流和降级 |
+| 哨兵 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis Sentinel 故障转移状态模型，覆盖 monitor、SDOWN、ODOWN quorum、leader election、副本提升、switch-master 和客户端发现 |
 | 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
 | Service | `step-simulation` | completed | desktop/mobile captured | Kubernetes Service 数据面转发模拟器，覆盖 selector、EndpointSlice、ClusterIP/DNS、kube-proxy 规则和 Ready Pod |
 | EndpointSlice | `explorable-architecture` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes EndpointSlice 分片资源模型，覆盖 Service selector、EndpointSlice controller、批量分片、endpoint conditions、topology hints 和 kube-proxy watch fan-out |
@@ -977,7 +978,65 @@
 
 ## Next Candidate
 
-优先选择 Redis `Sentinel`，备选 Kubernetes `PVC/PV` 或 Docker `BuildKit`。Sentinel 能展示主观下线、客观下线、quorum、leader election、failover、client discovery 和 split-brain 风险；PVC/PV 可承接本轮 StatefulSet 的存储绑定线索。
+优先选择 Kubernetes `PVC/PV`，备选 Docker `BuildKit` 或 Redis `Cluster resharding`。PVC/PV 可承接 StatefulSet 的存储绑定线索，展示 PVC Pending、StorageClass 动态供应、PV 绑定、CSI attach/mount 和回收策略；BuildKit 可展开 DAG solver、frontend、LLB 和 cache export/import。
+
+## Redis Sentinel Visualization
+
+### Online Image References
+
+- `source`：Redis Learn - High Availability，https://redis.io/learn/operate/redis-at-scale/high-availability
+  - `image`：课程页中的 3 个 Sentinel、1 个 primary、2 个 replica、quorum 和监控箭头架构图。
+  - `role`：main
+  - `qualityReason`：Redis 官方学习材料把 Sentinel 节点、Redis 主从、quorum 和高可用拓扑放在一张图里，适合作为主构图骨架。
+  - `takeaways`：主画布采用上方 Sentinel quorum、中部 Redis replication set、左侧 client discovery、右侧 failover control 的结构。
+  - `originalChanges`：改成本项目六步状态模型，加入 SDOWN、ODOWN、leader epoch、副本 offset、switch-master 事件和移动端流程卡。
+- `source`：Redis Docs - High availability with Redis Sentinel，https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/
+  - `image`：官方 Sentinel 文档中的 monitor、subjectively down、objectively down、quorum、leader election 和 failover 语义说明。
+  - `role`：supporting
+  - `qualityReason`：官方定义 SDOWN、ODOWN、quorum、majority authorization、failover state 和事件名称，是步骤命名的权威来源。
+  - `takeaways`：步骤按 monitor -> SDOWN -> ODOWN quorum -> leader election -> promote replica 推进。
+  - `originalChanges`：把规范文字转成可高亮的 Sentinel 节点、故障路径和底部状态信号。
+- `source`：Redis Docs - Sentinel client spec，https://redis.io/docs/latest/develop/reference/sentinel-clients/
+  - `image`：客户端通过 Sentinel 查询主节点、重试多个 Sentinel、刷新 master 地址的流程说明。
+  - `role`：supporting
+  - `qualityReason`：官方客户端规范校准 `get-master-addr-by-name`、客户端主节点缓存和故障转移后的刷新流程。
+  - `takeaways`：左侧 client discovery 面板展示 `mymaster` 地址从 `10.0.0.10` 刷新到 `10.0.0.11`。
+  - `originalChanges`：把客户端发现作为第六步验收，和 `switch-master` 事件同屏展示。
+- `source`：Redis Docs - Replication，https://redis.io/docs/latest/operate/oss_and_stack/management/replication/
+  - `image`：主从复制、异步复制、replica offset 和高可用数据窗口说明。
+  - `role`：supporting
+  - `qualityReason`：官方复制文档用于校准副本提升、复制偏移量和异步复制数据窗口。
+  - `takeaways`：Redis replication set 面板保留 M1、R1、R2、offset 和 `REPLICAOF` 重配状态。
+  - `originalChanges`：将复制偏移量压缩成候选选择信号，突出 R1 by offset 的提升原因。
+- `source`：Severalnines - Redis High Availability Architecture with Sentinel，https://severalnines.com/database-blog/redis-high-availability-architecture-sentinel/
+  - `image`：文章中的 Redis Sentinel 高可用部署架构和 failover 图解。
+  - `role`：supporting
+  - `qualityReason`：工程部署视角补充 Sentinel 数量、节点分布、主从切换和客户端连接语境。
+  - `takeaways`：保留 3 个 Sentinel、1 主 2 从和客户端发现的生产拓扑表达。
+  - `originalChanges`：使用项目统一 SVG 舞台、中文标签和步骤驱动状态，聚焦机制教学和排障信号。
+
+### Reference Breakdown
+
+- 主体布局：左侧客户端发现，中上 Sentinel quorum，中下 Redis replication set，右侧 Failover control，底部五个运行信号，右侧任务面板与底部步骤由模拟器统一承载。
+- 视觉焦点：`S1/S2/S3 monitor mymaster 2`、`+sdown`、`+odown quorum=2/3`、`epoch=18`、`R1 promoted master` 和 `+switch-master 10.0.0.10 -> 10.0.0.11` 同屏可见。
+- 领域对象：Sentinel、quorum、SDOWN、ODOWN、majority authorization、config epoch、failover leader、primary、replica、replication offset、`REPLICAOF`、`switch-master`、client discovery。
+- 容器层级：Sentinel 集群负责监控、投票和 leader 授权；Redis replication set 承载主从与候选副本；Failover control 表达 quorum、majority、candidate 和 switch；Client 面板表达主节点地址缓存刷新。
+- 连线方向：Client -> Sentinel 查询当前主；Sentinel -> primary/replica 监控；SDOWN/ODOWN 信号进入 Failover control；leader 从 Failover control 指向 R1 提升；switch-master 事件回到 Client。
+- 状态表达：六步依次高亮监控、主观下线、客观下线、leader 选举、副本提升、客户端发现；Sentinel 节点、Redis 行、failover 行、路径箭头和信号卡随 completedSteps 激活。
+- 颜色策略：品牌蓝表示监控与客户端发现，橙色表示 SDOWN，红色表示 ODOWN 与主节点不可达，绿色表示 leader 授权和副本提升，青色表示复制与客户端刷新。
+- 文字密度：桌面 SVG 保留短事件名、节点地址、offset、epoch 和状态值；移动端隐藏复杂 SVG，改成六张流程卡和五张事实卡。
+- 交互节奏：监控主从 -> 单个 Sentinel 标记 SDOWN -> quorum 达成 ODOWN -> 选举 leader -> R1 提升且 R2 重配 -> 客户端刷新 mymaster。
+- 原创改造点：把 Redis 官方 Learn 架构图、Sentinel 官方文档、客户端规范、复制文档和 Severalnines 部署图融合成本项目 Sentinel 故障转移状态模型，突出 quorum 与 majority 的职责、复制 offset 对副本选择的影响和客户端发现验收。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/redis-sentinel/desktop.svg` 与 `.codex-artifacts/visualizations/redis-sentinel/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/redis-sentinel/mobile.html` 与 `.codex-artifacts/visualizations/redis-sentinel/mobile.html.fragment`。
+- 截图结论：桌面 SVG 可识别 Sentinel quorum、Client discovery、Redis replication set、Failover control、SDOWN、ODOWN、leader epoch、R1 promoted master、switch-master、五个底部信号和 6/6 进度；移动 HTML 展示六步流程和五张事实卡，文字可读。
+- 候选来源数量：普通搜索筛选约 12 个候选入口，最终记录 5 个参考来源。
+- 浏览器备注：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied (1100)`；本轮使用资料 URL、项目数据测试、生产构建、HTML/SVG review artifact、关键文本 grep 和 diff 检查完成验收。
+- 提交计划：功能代码与进度文档合并进入 `feat: add redis sentinel visualization`。
+- 推送计划：提交后执行 `git pull --rebase origin main` 与 `git push origin main`。
 
 ## Kubernetes StatefulSet Visualization
 
@@ -3177,3 +3236,17 @@
 - Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `statefulset`，补可视化清单与专用 builder/stage/source 后 `npm run test:data -- --grep "kubernetes StatefulSet"` 通过 1 项；完整 `npm run test:data` 通过 38 项；`npm run build` 通过并保留既有 chunk size warning；`npm run kg:review:validate` 返回 `issueCount=0`；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add statefulset visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Redis `Sentinel`，备选 Kubernetes `PVC/PV` 或 Docker `BuildKit`。
+
+### 2026-06-05 00:18 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `77f4c80 feat: add statefulset visualization`；从干净工作区继续。
+- Selected：Redis `Sentinel`，原因是主从监控、主观下线、客观下线、quorum、leader election、副本提升、switch-master 和客户端发现形成完整高可用状态链，并承接 Redis replication、replication lag、cache avalanche 和 Redis Cluster。
+- Candidate Sources：普通搜索筛选约 12 个候选入口；主参考为 Redis Learn High Availability 中 Sentinel 拓扑图；辅助参考为 Redis 官方 Sentinel 文档、Sentinel client spec、Redis replication 文档和 Severalnines Redis Sentinel 架构文章；Chrome DevTools MCP profile 被占用，Browser 插件返回 `iab` 不可用，本轮使用可访问 URL、官方资料和本地 SVG/HTML artifact 完成确认。
+- Online Image References：见 `Redis Sentinel Visualization` 小节；主参考决定 Sentinel quorum、Redis primary/replica 和 client discovery 的主构图，辅助来源校准 SDOWN、ODOWN、quorum、majority authorization、failover leader、replication offset 和客户端刷新。
+- Reference Breakdown：主体布局为左侧客户端发现，中上 Sentinel quorum，中下 Redis replication set，右侧 Failover control，底部五个运行信号；视觉焦点是 `+sdown`、`+odown quorum=2/3`、`epoch=18`、`R1 promoted master` 和 `+switch-master 10.0.0.10 -> 10.0.0.11`。
+- Implementation：新增 `redis:redis-sentinel` 专用 `state-model` 构建器、Redis Sentinel SVG 舞台、移动端流程卡、响应式样式、来源引用和数据测试，并给 Redis Sentinel 知识点补充 `ai-visualized:2026-06-05` 与 visual-source 标签。
+- Browser Note：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied (1100)`；本轮使用真实 React `SimulationStage` SSR 生成非空 SVG、desktop HTML 和 mobile HTML。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/redis-sentinel/desktop.svg`、`.codex-artifacts/visualizations/redis-sentinel/desktop.html`、`.codex-artifacts/visualizations/redis-sentinel/mobile.html` 与 `.codex-artifacts/visualizations/redis-sentinel/mobile.html.fragment`；关键文本 grep 覆盖 Sentinel quorum、SDOWN、ODOWN、leader epoch、promoted master、switch-master、client discovery、`10.0.0.11` 和 `6/6`。
+- Verification：新增测试先失败于 generic `High availability and cluster` 模拟，补专用 builder/stage/source 后 `npm run test:data -- --grep "redis sentinel"` 通过 1 项；完整 `npm run test:data` 通过 39 项；`npm run kg:review:validate` 返回 `issueCount=0`；`git diff --check` 通过；`npm run build` 通过并保留既有 chunk size warning。
+- Commit/Push Plan：提交 `feat: add redis sentinel visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Kubernetes `PVC/PV`，备选 Docker `BuildKit` 或 Redis `Cluster resharding`。

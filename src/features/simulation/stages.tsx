@@ -407,6 +407,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "redis:redis-sentinel") {
+    return (
+      <RedisSentinelStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "redis:rdb") {
     return (
       <RedisRdbStage
@@ -3101,6 +3112,223 @@ function RedisCacheFailureStage({
           </div>
         </div>
         <div className="tcp-handshake-caption redis-cache-failure-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RedisSentinelStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const monitorActive = completedSteps >= 1;
+  const sdownActive = completedSteps >= 2;
+  const odownActive = completedSteps >= 3;
+  const leaderActive = completedSteps >= 4;
+  const promoteActive = completedSteps >= 5;
+  const discoveryActive = completedSteps >= 6;
+  const sentinelRows = [
+    { name: "S1", value: sdownActive ? "+sdown" : "PING ok", active: monitorActive, tone: sdownActive ? "warning" : "brand" },
+    { name: "S2", value: odownActive ? "+odown vote" : "monitor", active: monitorActive || odownActive, tone: odownActive ? "danger" : "teal" },
+    { name: "S3", value: leaderActive ? "leader epoch=18" : "hello sync", active: monitorActive || leaderActive, tone: leaderActive ? "success" : "brand" },
+  ];
+  const redisRows = [
+    { name: "M1 10.0.0.10", value: sdownActive ? "PING timeout" : "master offset=12840", active: monitorActive || sdownActive, tone: sdownActive ? "danger" : "brand" },
+    { name: "R1 10.0.0.11", value: promoteActive ? "promoted master" : "replica offset=12820", active: monitorActive || promoteActive, tone: promoteActive ? "success" : "teal" },
+    { name: "R2 10.0.0.12", value: promoteActive ? "REPLICAOF 10.0.0.11" : "replica offset=12620", active: monitorActive || promoteActive, tone: promoteActive ? "success" : "teal" },
+  ];
+  const failoverRows = [
+    { name: "quorum", value: odownActive ? "2/3 reached" : "pending", active: odownActive, tone: "danger" },
+    { name: "majority", value: leaderActive ? "S2 authorized" : "waiting", active: leaderActive, tone: "success" },
+    { name: "candidate", value: promoteActive ? "R1 by offset" : "rank replicas", active: leaderActive || promoteActive, tone: promoteActive ? "success" : "teal" },
+    { name: "switch", value: discoveryActive ? "10.0.0.10 -> 10.0.0.11" : "pending", active: discoveryActive, tone: "brand" },
+  ];
+  const signals = [
+    { name: "SDOWN", value: sdownActive ? "S1" : "--", active: sdownActive, tone: "warning" },
+    { name: "ODOWN", value: odownActive ? "quorum=2" : "--", active: odownActive, tone: "danger" },
+    { name: "epoch", value: leaderActive ? "18" : "17", active: leaderActive, tone: "success" },
+    { name: "offset", value: promoteActive ? "R1 12820" : "M1 12840", active: monitorActive || promoteActive, tone: promoteActive ? "success" : "brand" },
+    { name: "client", value: discoveryActive ? "refreshed" : "cached", active: discoveryActive, tone: "teal" },
+  ];
+  const mobileFlow = [
+    { name: "Monitor", value: monitorActive ? "S1/S2/S3 ping primary and replicas" : "waiting", active: monitorActive },
+    { name: "SDOWN", value: sdownActive ? "S1 marks M1 subjectively down" : "waiting", active: sdownActive },
+    { name: "ODOWN", value: odownActive ? "quorum=2/3 confirms objective down" : "waiting", active: odownActive },
+    { name: "Leader", value: leaderActive ? "S2 wins epoch 18 authorization" : "waiting", active: leaderActive },
+    { name: "Promote", value: promoteActive ? "R1 promoted, R2 follows R1" : "waiting", active: promoteActive },
+    { name: "Discover", value: discoveryActive ? "client refreshes mymaster to 10.0.0.11" : "waiting", active: discoveryActive },
+  ];
+
+  return (
+    <div className="visual-stage redis-sentinel-stage">
+      <div className="redis-sentinel-card">
+        <svg
+          className="redis-sentinel-diagram"
+          viewBox="0 0 1120 660"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["redis-sentinel-arrow-brand", "var(--brand)"],
+              ["redis-sentinel-arrow-teal", "var(--tertiary)"],
+              ["redis-sentinel-arrow-warning", "#f59e0b"],
+              ["redis-sentinel-arrow-danger", "var(--danger)"],
+              ["redis-sentinel-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="redis-sentinel-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="redis-sentinel-bg" x="24" y="24" width="1072" height="604" rx="28" />
+          <text className="redis-sentinel-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="redis-sentinel-subtitle" x="560" y="100">
+            {label(
+              "monitor -> SDOWN -> ODOWN quorum -> leader -> promote replica -> client discovery",
+              "monitor -> SDOWN -> ODOWN quorum -> leader -> promote replica -> client discovery",
+            )}
+          </text>
+
+          <g className={`redis-sentinel-client ${monitorActive || discoveryActive ? "active" : ""}`}>
+            <rect x="72" y="176" width="210" height="144" rx="24" />
+            <text className="redis-sentinel-panel-title" x="104" y="216">{label("客户端", "Client")}</text>
+            <text className="redis-sentinel-panel-subtitle" x="104" y="238">get-master-addr-by-name</text>
+            <g className={`redis-sentinel-pill brand ${monitorActive ? "active" : ""}`}>
+              <rect x="104" y="260" width="146" height="30" rx="15" />
+              <text x="177" y="280">{discoveryActive ? "10.0.0.11:6379" : "10.0.0.10:6379"}</text>
+            </g>
+          </g>
+
+          <g className={`redis-sentinel-sentinels ${monitorActive ? "active" : ""}`}>
+            <rect x="382" y="136" width="358" height="186" rx="26" />
+            <text className="redis-sentinel-panel-title" x="420" y="176">Sentinel quorum</text>
+            <text className="redis-sentinel-panel-subtitle" x="420" y="198">monitor mymaster 10.0.0.10 6379 2</text>
+            {sentinelRows.map((row, index) => (
+              <g key={row.name} className={`redis-sentinel-node ${row.tone} ${row.active ? "active" : ""}`}>
+                <circle cx={448 + index * 104} cy="258" r="34" />
+                <text x={448 + index * 104} y="252">{row.name}</text>
+                <text x={448 + index * 104} y="274">{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-sentinel-redis ${monitorActive || promoteActive ? "active" : ""}`}>
+            <rect x="76" y="384" width="594" height="150" rx="26" />
+            <text className="redis-sentinel-panel-title" x="112" y="426">Redis replication set</text>
+            <text className="redis-sentinel-panel-subtitle" x="112" y="448">{label("异步复制、offset、候选副本", "async replication, offset, candidate replica")}</text>
+            {redisRows.map((row, index) => (
+              <g key={row.name} className={`redis-sentinel-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x={112 + index * 184} y="468" width="158" height="42" rx="18" />
+                <text x={128 + index * 184} y="485">{row.name}</text>
+                <text x={128 + index * 184} y="502">{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-sentinel-failover ${odownActive || leaderActive || promoteActive || discoveryActive ? "active" : ""}`}>
+            <rect x="784" y="356" width="258" height="190" rx="26" />
+            <text className="redis-sentinel-panel-title" x="814" y="396">Failover control</text>
+            <text className="redis-sentinel-panel-subtitle" x="814" y="418">quorum, epoch, promotion</text>
+            {failoverRows.map((row, index) => (
+              <g key={row.name} className={`redis-sentinel-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="814" y={442 + index * 34} width="184" height="26" rx="13" />
+                <text x="828" y={460 + index * 34}>{row.name}</text>
+                <text x="988" y={460 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-sentinel-monitor-path ${monitorActive ? "active" : ""}`}>
+            <path d="M 282 226 C 320 208, 346 206, 382 212" markerEnd="url(#redis-sentinel-arrow-brand)" />
+            <path d="M 560 322 C 510 362, 454 376, 376 384" markerEnd="url(#redis-sentinel-arrow-teal)" />
+            <rect x="304" y="174" width="120" height="30" rx="15" />
+            <text x="364" y="194">PING / INFO</text>
+          </g>
+          <g className={`redis-sentinel-sdown-path ${sdownActive ? "active" : ""}`}>
+            <path d="M 474 288 C 444 326, 418 352, 360 388" markerEnd="url(#redis-sentinel-arrow-warning)" />
+            <rect x="314" y="330" width="116" height="30" rx="15" />
+            <text x="372" y="350">+sdown</text>
+          </g>
+          <g className={`redis-sentinel-odown-path ${odownActive ? "active" : ""}`}>
+            <path d="M 636 290 C 706 326, 762 354, 814 386" markerEnd="url(#redis-sentinel-arrow-danger)" />
+            <rect x="700" y="306" width="122" height="30" rx="15" />
+            <text x="761" y="326">quorum=2/3</text>
+          </g>
+          <g className={`redis-sentinel-leader-path ${leaderActive ? "active" : ""}`}>
+            <path d="M 650 238 C 728 248, 812 296, 904 356" markerEnd="url(#redis-sentinel-arrow-success)" />
+            <rect x="746" y="250" width="116" height="30" rx="15" />
+            <text x="804" y="270">epoch=18</text>
+          </g>
+          <g className={`redis-sentinel-promote-path ${promoteActive ? "active" : ""}`}>
+            <path d="M 814 500 C 720 508, 654 500, 480 500" markerEnd="url(#redis-sentinel-arrow-success)" />
+            <path d="M 482 482 C 536 456, 614 454, 670 456" markerEnd="url(#redis-sentinel-arrow-teal)" />
+            <rect x="596" y="514" width="136" height="30" rx="15" />
+            <text x="664" y="534">REPLICAOF R1</text>
+          </g>
+          <g className={`redis-sentinel-discovery-path ${discoveryActive ? "active" : ""}`}>
+            <path d="M 884 356 C 760 264, 614 220, 740 182" markerEnd="url(#redis-sentinel-arrow-brand)" />
+            <path d="M 784 438 C 686 344, 450 278, 282 272" markerEnd="url(#redis-sentinel-arrow-teal)" />
+            <rect x="724" y="150" width="150" height="30" rx="15" />
+            <text x="799" y="170">+switch-master</text>
+          </g>
+
+          <g className="redis-sentinel-signals">
+            {signals.map((signal, index) => (
+              <g key={signal.name} className={`redis-sentinel-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={72 + index * 204} y="586" width="166" height="34" rx="16" />
+                <text x={88 + index * 204} y="600">{signal.name}</text>
+                <text x={224 + index * 204} y="616">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="redis-sentinel-mobile-map">
+          <div className="redis-sentinel-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`redis-sentinel-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="redis-sentinel-mobile-facts">
+            {signals.map((signal) => (
+              <div key={signal.name} className={`redis-sentinel-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption redis-sentinel-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

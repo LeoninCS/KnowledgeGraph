@@ -8183,6 +8183,289 @@
   bottom: 14px;
 }
 
+.redis-sentinel-stage {
+  min-height: 520px;
+}
+
+.redis-sentinel-card {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 22%, var(--border));
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 20% 18%, color-mix(in srgb, var(--brand) 14%, transparent), transparent 30%),
+    radial-gradient(circle at 82% 22%, color-mix(in srgb, var(--success) 12%, transparent), transparent 26%),
+    color-mix(in srgb, var(--surface) 94%, var(--tertiary) 6%);
+  box-shadow: var(--shadow-soft);
+  padding: 18px;
+}
+
+.redis-sentinel-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.redis-sentinel-bg {
+  fill: color-mix(in srgb, var(--tertiary) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);
+}
+
+.redis-sentinel-title {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.redis-sentinel-subtitle {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.redis-sentinel-client,
+.redis-sentinel-sentinels,
+.redis-sentinel-redis,
+.redis-sentinel-failover,
+.redis-sentinel-node,
+.redis-sentinel-row,
+.redis-sentinel-pill,
+.redis-sentinel-signal,
+.redis-sentinel-monitor-path,
+.redis-sentinel-sdown-path,
+.redis-sentinel-odown-path,
+.redis-sentinel-leader-path,
+.redis-sentinel-promote-path,
+.redis-sentinel-discovery-path {
+  opacity: 0.34;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.redis-sentinel-client.active,
+.redis-sentinel-sentinels.active,
+.redis-sentinel-redis.active,
+.redis-sentinel-failover.active,
+.redis-sentinel-node.active,
+.redis-sentinel-row.active,
+.redis-sentinel-pill.active,
+.redis-sentinel-signal.active,
+.redis-sentinel-monitor-path.active,
+.redis-sentinel-sdown-path.active,
+.redis-sentinel-odown-path.active,
+.redis-sentinel-leader-path.active,
+.redis-sentinel-promote-path.active,
+.redis-sentinel-discovery-path.active {
+  opacity: 1;
+}
+
+.redis-sentinel-client > rect,
+.redis-sentinel-sentinels > rect,
+.redis-sentinel-redis > rect,
+.redis-sentinel-failover > rect {
+  fill: color-mix(in srgb, var(--surface) 90%, white 10%);
+  stroke: color-mix(in srgb, var(--tertiary) 22%, var(--border));
+  stroke-width: 2;
+  filter: url(#redis-sentinel-soft-shadow);
+}
+
+.redis-sentinel-sentinels.active > rect {
+  stroke: color-mix(in srgb, var(--brand) 54%, var(--border));
+}
+
+.redis-sentinel-redis.active > rect {
+  stroke: color-mix(in srgb, var(--tertiary) 52%, var(--border));
+}
+
+.redis-sentinel-failover.active > rect {
+  stroke: color-mix(in srgb, var(--success) 48%, var(--border));
+}
+
+.redis-sentinel-panel-title {
+  fill: var(--text);
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.redis-sentinel-panel-subtitle,
+.redis-sentinel-client text,
+.redis-sentinel-sentinels text,
+.redis-sentinel-redis text,
+.redis-sentinel-failover text,
+.redis-sentinel-signal text,
+.redis-sentinel-monitor-path text,
+.redis-sentinel-sdown-path text,
+.redis-sentinel-odown-path text,
+.redis-sentinel-leader-path text,
+.redis-sentinel-promote-path text,
+.redis-sentinel-discovery-path text {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.redis-sentinel-node circle,
+.redis-sentinel-row rect,
+.redis-sentinel-pill rect,
+.redis-sentinel-signal rect,
+.redis-sentinel-monitor-path rect,
+.redis-sentinel-sdown-path rect,
+.redis-sentinel-odown-path rect,
+.redis-sentinel-leader-path rect,
+.redis-sentinel-promote-path rect,
+.redis-sentinel-discovery-path rect {
+  fill: color-mix(in srgb, var(--surface) 92%, white 8%);
+  stroke: color-mix(in srgb, var(--tertiary) 22%, var(--border));
+  stroke-width: 1.5;
+  filter: url(#redis-sentinel-soft-shadow);
+}
+
+.redis-sentinel-node text,
+.redis-sentinel-pill text,
+.redis-sentinel-signal text {
+  text-anchor: middle;
+}
+
+.redis-sentinel-node text:first-of-type,
+.redis-sentinel-row text:first-of-type,
+.redis-sentinel-pill text,
+.redis-sentinel-signal text:first-of-type {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.redis-sentinel-node text:last-of-type,
+.redis-sentinel-row text:last-of-type,
+.redis-sentinel-signal text:last-of-type {
+  fill: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.redis-sentinel-row.brand rect,
+.redis-sentinel-pill.brand rect,
+.redis-sentinel-signal.brand rect,
+.redis-sentinel-node.brand circle {
+  stroke: color-mix(in srgb, var(--brand) 45%, var(--border));
+}
+
+.redis-sentinel-row.teal rect,
+.redis-sentinel-pill.teal rect,
+.redis-sentinel-signal.teal rect,
+.redis-sentinel-node.teal circle {
+  stroke: color-mix(in srgb, var(--tertiary) 50%, var(--border));
+}
+
+.redis-sentinel-row.warning rect,
+.redis-sentinel-signal.warning rect,
+.redis-sentinel-node.warning circle {
+  stroke: color-mix(in srgb, #f59e0b 58%, var(--border));
+}
+
+.redis-sentinel-row.danger rect,
+.redis-sentinel-signal.danger rect,
+.redis-sentinel-node.danger circle {
+  stroke: color-mix(in srgb, var(--danger) 58%, var(--border));
+}
+
+.redis-sentinel-row.success rect,
+.redis-sentinel-pill.success rect,
+.redis-sentinel-signal.success rect,
+.redis-sentinel-node.success circle {
+  stroke: color-mix(in srgb, var(--success) 58%, var(--border));
+}
+
+.redis-sentinel-monitor-path path,
+.redis-sentinel-sdown-path path,
+.redis-sentinel-odown-path path,
+.redis-sentinel-leader-path path,
+.redis-sentinel-promote-path path,
+.redis-sentinel-discovery-path path {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 7 7;
+}
+
+.redis-sentinel-monitor-path path {
+  stroke: var(--brand);
+}
+
+.redis-sentinel-sdown-path path {
+  stroke: #f59e0b;
+}
+
+.redis-sentinel-odown-path path {
+  stroke: var(--danger);
+}
+
+.redis-sentinel-leader-path path,
+.redis-sentinel-promote-path path {
+  stroke: var(--success);
+}
+
+.redis-sentinel-discovery-path path {
+  stroke: var(--tertiary);
+}
+
+.redis-sentinel-monitor-path text,
+.redis-sentinel-sdown-path text,
+.redis-sentinel-odown-path text,
+.redis-sentinel-leader-path text,
+.redis-sentinel-promote-path text,
+.redis-sentinel-discovery-path text {
+  text-anchor: middle;
+}
+
+.redis-sentinel-mobile-map {
+  display: none;
+}
+
+.redis-sentinel-mobile-flow,
+.redis-sentinel-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.redis-sentinel-mobile-hop,
+.redis-sentinel-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--tertiary) 6%, var(--surface));
+  padding: 12px;
+}
+
+.redis-sentinel-mobile-hop span,
+.redis-sentinel-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.redis-sentinel-mobile-hop strong,
+.redis-sentinel-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.redis-sentinel-mobile-hop.active,
+.redis-sentinel-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--success) 44%, var(--border));
+  background: color-mix(in srgb, var(--success) 11%, var(--surface));
+}
+
+.redis-sentinel-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .docker-layer-bg {
   fill: color-mix(in srgb, var(--tertiary) 13%, var(--surface));
   stroke: color-mix(in srgb, var(--tertiary) 20%, transparent);
@@ -16784,6 +17067,49 @@
   }
 
   .k8s-statefulset-caption {
+    position: static;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .redis-sentinel-stage {
+    padding: 12px;
+  }
+
+  .redis-sentinel-card {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .redis-sentinel-diagram {
+    display: none;
+  }
+
+  .redis-sentinel-mobile-map {
+    display: grid;
+    gap: 12px;
+  }
+
+  .redis-sentinel-mobile-hop {
+    position: relative;
+  }
+
+  .redis-sentinel-mobile-hop::after {
+    content: "";
+    position: absolute;
+    right: 18px;
+    bottom: -18px;
+    width: 2px;
+    height: 16px;
+    background: color-mix(in srgb, var(--tertiary) 32%, var(--border));
+  }
+
+  .redis-sentinel-mobile-hop:last-child::after {
+    display: none;
+  }
+
+  .redis-sentinel-caption {
     position: static;
     justify-content: space-between;
     width: 100%;

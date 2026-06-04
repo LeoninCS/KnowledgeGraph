@@ -718,6 +718,39 @@ test("redis cache avalanche is backed by a dedicated failure comparison simulati
   );
 });
 
+test("redis sentinel is backed by a dedicated failover simulation", async () => {
+  const points = await loadKnowledgePoints("redis");
+  const sentinel = points.find((point) => point.id === "redis-sentinel");
+
+  expect(visualPointIds.redis).toContain("redis-sentinel");
+  expect(sentinel).toBeTruthy();
+
+  const simulation = buildVisualSimulation("redis", sentinel!);
+
+  expect(simulation.key).toBe("redis:redis-sentinel");
+  expect(simulation.pattern.en).toContain("Sentinel failover state model");
+  expect(simulation.steps).toHaveLength(6);
+  expect(simulation.steps.map((step) => step.label.en)).toEqual(
+    expect.arrayContaining([
+      "sentinel monitor",
+      "SDOWN",
+      "ODOWN quorum",
+      "leader election",
+      "promote replica",
+      "client discovery",
+    ]),
+  );
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining([
+      "subjective down",
+      "objective down quorum",
+      "leader epoch",
+      "replication offset",
+      "switch-master event",
+    ]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");

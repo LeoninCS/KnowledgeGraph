@@ -1787,6 +1787,13 @@ const redisKnowledgePointBase = [
       "xiaolin-redis",
       "javaguide",
     ],
+    internalTags: [
+      "ai-visualized:2026-06-05",
+      "visual-source:redis-sentinel-learn",
+      "visual-source:redis-sentinel-docs",
+      "visual-source:redis-sentinel-client-spec",
+      "visual-source:redis-replication-docs",
+    ],
     id: "redis-sentinel",
     zh: "哨兵",
     en: "Redis Sentinel",
