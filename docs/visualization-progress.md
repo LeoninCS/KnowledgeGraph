@@ -154,6 +154,7 @@
 | Redo Log | `state-model` | completed | desktop/mobile captured | MySQL Redo Log WAL 与恢复状态模型，覆盖 redo record、log buffer、write/fsync、checkpoint 和 crash recovery |
 | Binlog | `step-simulation` | completed | desktop/mobile captured | MySQL Binlog 提交与复制通道模拟器，覆盖 GTID、Rows Event、Group Commit、Relay Log 和副本应用延迟 |
 | 两阶段提交 | `state-model` | completed | desktop/mobile captured | MySQL Two Phase Commit 提交一致性状态模型，覆盖 redo prepare、Binlog Xid、redo commit 和崩溃恢复判定 |
+| 崩溃恢复 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | MySQL Crash Recovery 恢复状态模型，覆盖崩溃现场、checkpoint LSN、redo apply、undo rollback、prepared transaction decision 和 Binlog Xid 判定 |
 | 死锁 | `state-model` | completed | desktop/mobile captured | MySQL Deadlock 锁等待状态模型，覆盖交叉持锁、wait-for graph 闭环、检测器、victim rollback 和重试分支 |
 | EXPLAIN | `state-model` | completed | desktop/mobile captured | MySQL EXPLAIN 执行计划诊断台，覆盖 Visual Explain、type/key/rows/Extra、谓词改写、复合索引和实测校验 |
 | 主从复制 | `step-simulation` | completed | SVG review captured; PNG blocked by platform permissions | MySQL Replication 链路模拟器，覆盖 Source commit、Binlog Dump Thread、I/O Receiver、Relay Log、SQL Applier、GTID 差距和复制延迟 |
@@ -551,16 +552,78 @@
 - 截图结论：桌面 SVG 可识别 Snapshot trigger、Redis parent、RDB child、fork 时刻 keyspace、`dump.rdb`、restart load、COW pages 和底部五个信号；移动 HTML 展示 Trigger/Fork/Write/COW/Load 五步流程和 save/fork/status/restore 事实卡。
 - 验收备注：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；SSR 审查时 Vite HMR WebSocket 触发 `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` 渲染完成；本轮使用参考页面 HTTP HEAD、项目数据测试、生产构建和 SSR SVG/HTML 审查图完成验收。
 
+## MySQL Crash Recovery Visualization
+
+### Online Image References
+
+- `source`：MySQL 8.4 Reference Manual - InnoDB Architecture，https://dev.mysql.com/doc/refman/8.4/en/innodb-architecture.html
+  - `image`：官方 `innodb-architecture-8-0.png`，直接图片 URL `https://dev.mysql.com/doc/refman/8.4/en/images/innodb-architecture-8-0.png`。
+  - `role`：main
+  - `qualityReason`：官方图清晰展示 InnoDB 内存结构、Buffer Pool、Redo Log、Undo Tablespaces、Doublewrite Buffer 和表空间边界，适合作为恢复控制台的结构骨架；图片 HEAD 返回 `200 image/png`。
+  - `takeaways`：主画布采用 crash point、checkpoint、redo scan、data pages、undo/prepared transaction 和信号面板的分区布局。
+  - `originalChanges`：把官方静态架构图改造成五步恢复状态模型，突出异常重启后的 checkpoint LSN、redo apply、undo rollback 和 Binlog Xid 判定。
+- `source`：MySQL 8.4 Reference Manual - InnoDB Recovery，https://dev.mysql.com/doc/refman/8.4/en/innodb-recovery.html
+  - `image`：官方 recovery 阶段说明，覆盖 tablespace discovery、redo log application 和 rollback。
+  - `role`：supporting
+  - `qualityReason`：官方恢复流程校准 redo 重做和事务回滚的顺序，是步骤语义的权威来源。
+  - `takeaways`：步骤按捕获崩溃现场、定位 checkpoint、重放 redo、回滚未提交事务推进。
+  - `originalChanges`：把文字阶段压缩成画布里的恢复窗口、LSN 扫描和 undo 回滚链。
+- `source`：MySQL 8.4 Reference Manual - The InnoDB Redo Log，https://dev.mysql.com/doc/refman/8.4/en/innodb-redo-log.html
+  - `image`：官方 redo log 与崩溃恢复说明。
+  - `role`：supporting
+  - `qualityReason`：校准 redo 是页级物理修改、异常重启后从 checkpoint 后扫描的语义。
+  - `takeaways`：Redo Log Scan 面板展示 `LSN 8200 -> 8678` 和 MLOG 记录。
+  - `originalChanges`：把 redo 重放路径连接到 Data Pages 面板，强调 redo apply 与数据页收敛。
+- `source`：MySQL 8.4 Reference Manual - Undo Logs，https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-logs.html
+  - `image`：官方 undo log 与回滚段说明。
+  - `role`：supporting
+  - `qualityReason`：校准未提交事务回滚依赖 undo log 与事务表。
+  - `takeaways`：Undo Log 面板展示 `T31 -> before` 回滚链。
+  - `originalChanges`：将 undo 语义放在 redo 重放之后，突出 redo 会把 open transaction 的页修改带回，再由 undo 撤销。
+- `source`：Percona - MySQL with diagrams: the writing process，https://www.percona.com/blog/mysql-with-diagrams-part-three-the-life-story-of-the-writing-process/
+  - `image`：文章中的写入流程、Buffer Pool、redo/undo 和磁盘刷写图解。
+  - `role`：supporting
+  - `qualityReason`：高质量图解把写事务、dirty page、redo/undo 和持久化路径放在同一视野，适合补充崩溃前现场。
+  - `takeaways`：Crash point 面板保留 dirty pages、trx table 和 flushed LSN 三项证据。
+  - `originalChanges`：不复用原图版式，改成本项目恢复控制台与底部进度线。
+- `source`：小林 coding - MySQL 日志，https://xiaolincoding.com/mysql/log/how_update.html
+  - `image`：中文 Redo/Binlog 两阶段提交和异常恢复图解。
+  - `role`：supporting
+  - `qualityReason`：中文资料对 prepare、Binlog、redo commit 和异常点判定表达清楚，便于校准右侧判定表。
+  - `takeaways`：Prepared transaction decision 面板展示 `prepare + Xid => commit` 与 `prepare + missing Xid => rollback`。
+  - `originalChanges`：把中文异常点表融入全局恢复流程，和 checkpoint/redo/undo 放在同一模型里。
+
+### Reference Breakdown
+
+- 主体布局：左上崩溃现场，中上 Checkpoint，右上 Redo Log Scan，左下 Data Page Replay，中下 Undo Log，右下 Prepared Transaction Decision，底部五步 timeline，中心横排四个恢复信号。
+- 视觉焦点：`checkpoint_lsn=8200` 到 `flushed_lsn=8678` 的恢复窗口，redo apply 先把 P42/P77/P91 带回，再用 undo rollback 撤销 T31，最后用 Binlog Xid 判定 prepare 事务。
+- 领域对象：mysqld crash、dirty pages、transaction table、checkpoint LSN、redo MLOG record、data page replay、undo log chain、prepared transaction、Binlog Xid/GTID、recovery time。
+- 容器层级：Crash point 保存异常证据；Checkpoint 定位扫描窗口；Redo Log Scan 产生重放输入；Data Pages 接收页修改；Undo Log 回滚 open transaction；Prepared Decision 横跨 InnoDB 与 Server 层提交证据。
+- 连线方向：Crash point -> Checkpoint -> Redo Log Scan -> Data Pages -> Undo Log -> Prepared Decision；底部 timeline 同步展示恢复阶段进度。
+- 状态表达：五步依次高亮崩溃现场、checkpoint 定位、redo apply、undo rollback、prepared transaction decision；信号卡展示 checkpoint_lsn、scan_lsn、undo_queue 和 prepare_rule。
+- 颜色策略：红色表示崩溃现场和缺失 Xid 风险，青色表示 checkpoint，橙色表示 redo apply，品牌蓝表示 undo rollback，绿色表示完成判定。
+- 文字密度：桌面 SVG 保留短对象名、LSN、事务号和判定表达；移动端切换为五张流程卡和四张事实卡。
+- 交互节奏：重启捕获崩溃现场 -> 读取 checkpoint LSN -> 从恢复窗口扫描 redo -> 沿 undo 回滚 open transaction -> 核对 Binlog Xid/GTID 判定 prepare 事务。
+- 原创改造点：把官方 InnoDB Architecture、InnoDB Recovery、Redo/Undo 文档和中文异常点判定图融合成一个恢复控制台，强调恢复阶段的证据链和排障指标。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受工具限制；保存 `.codex-artifacts/visualizations/crash-recovery/desktop.svg` 与 `.codex-artifacts/visualizations/crash-recovery/desktop.html`。
+- 移动端：PNG 捕获受工具限制；保存 `.codex-artifacts/visualizations/crash-recovery/mobile.html` 与 `.codex-artifacts/visualizations/crash-recovery/mobile.html.fragment`。
+- 截图结论：桌面 SVG 可识别崩溃现场、Checkpoint、Redo Log Scan、数据页重做、Undo Log、Prepare 事务判定、四个恢复信号和 5/5 timeline；移动 HTML 展示 Crash point、Checkpoint、Redo apply、Undo rollback、Prepared decision 五步流程和 checkpoint_lsn/scan_lsn/undo_queue/prepare_rule 事实卡。
+- 验收备注：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；Playwright e2e 启动 preview 失败于 `listen EPERM 127.0.0.1:4174`；SSR 审查时 Vite HMR WebSocket 触发 `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` 渲染完成；`sips` 无法将当前 SVG 转 PNG，输出 `Cannot extract image from file`。本轮使用官方图片 HEAD、数据测试、生产构建、完整数据测试、diff 检查和 SSR SVG/HTML 审查图完成验收。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
 |---|---|---|
 | RedisGate AOF 页面 | HTTP 自动跳转到 HTTPS 后返回 404 | 仅在页面恢复可访问或找到稳定镜像时复查 |
 | SoByte Redis RDB/AOF 页面 | 候选 URL 返回 HTTP 404 | 找到稳定新地址或镜像后再加入来源 |
+| MySQL BestHub crash recovery 文章 | 候选 URL 重定向到站点首页，具体文章页不可稳定访问 | 找到稳定原文 URL 后再作为辅助参考 |
 
 ## Next Candidate
 
-优先选择 MySQL `Crash Recovery`，备选网络 `TCP 拥塞控制` 或 Kubernetes `拓扑分布约束`。Crash Recovery 可承接 Redo Log、Undo Log、Binlog 和两阶段提交，展示崩溃点、redo roll-forward、undo rollback 和一致性判定。
+优先选择 Kubernetes `拓扑分布约束`，备选 MySQL `Purge` 或 CDN `缓存失效/回源`。拓扑分布约束可承接 Scheduler、节点亲和性和 Pod 亲和性，展示 maxSkew、topologyKey、whenUnsatisfiable、eligible domains 和 FailedScheduling 事件。
 
 ## Docker Resource Limit Visualization
 
@@ -2401,3 +2464,17 @@
 - Verification：继承红测试先失败于 generic `Transport control` 模拟，补专用 builder/stage/source 后 `npm run test:data -- --grep "network TCP congestion control"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 26 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add tcp congestion control visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：MySQL `Crash Recovery`，备选 Kubernetes `拓扑分布约束` 或 MySQL `Purge`。
+
+### 2026-06-04 11:25 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `0224510 fix(data): update tcp congestion review count`；工作区存在上一轮讲解复核工具链改动 `docs/workflows/kg-explain-all-knowledge-points.md`、`package.json`、`scripts/kg-review-queue.mjs` 与 `scripts/__tests__/kg-review-queue.test.mjs`，本轮保留该独立现场，提交时只纳入可视化相关文件。
+- Selected：MySQL `Crash Recovery`，原因是崩溃现场、checkpoint LSN、redo apply、undo rollback、prepared transaction decision、Binlog Xid/GTID 和恢复时间形成完整恢复证据链，并承接已完成的 Redo Log、Undo Log、Binlog 与两阶段提交。
+- Candidate Sources：普通搜索筛选约 14 个候选来源；主参考为 MySQL 官方 InnoDB Architecture 图，辅助参考为 MySQL 官方 InnoDB Recovery、Redo Log、Undo Logs、Binary Log/replication 语义、Percona writing process 和小林 coding MySQL 日志；BestHub 候选页重定向到首页，暂缓记录；Browser 插件返回 `iab` 不可用，Chrome DevTools MCP profile 被占用。
+- Online Image References：见 `MySQL Crash Recovery Visualization` 小节；主参考决定 InnoDB 内存/日志/表空间的结构骨架，辅助来源校准 recovery 阶段、redo/undo 语义和 prepare 事务跨层判定。
+- Reference Breakdown：主体布局为左上崩溃现场，中上 Checkpoint，右上 Redo Log Scan，左下 Data Page Replay，中下 Undo Log，右下 Prepared Transaction Decision，底部五步 timeline，中心横排四个恢复信号；视觉焦点是 `checkpoint_lsn=8200 -> flushed_lsn=8678` 的恢复窗口。
+- Implementation：新增 `mysql:crash-recovery` 专用 `state-model` 构建器、Crash Recovery SVG 舞台、移动端流程卡、响应式样式、来源引用和数据/e2e 测试，并把 `crash-recovery` 加入 MySQL 可视化清单；同步 `KG_REVIEWED` 标记 source_count 为 8。
+- Browser Note：Playwright e2e 启动 preview 失败于 `listen EPERM 127.0.0.1:4174`；SSR 审查时 Vite HMR WebSocket 触发 `listen EPERM 0.0.0.0:24678`，但真实 React `SimulationStage` 渲染完成；`sips` 无法将当前 SVG 转 PNG，输出 `Cannot extract image from file`。
+- Screenshot Review：PNG 捕获受平台/工具限制；保存 `.codex-artifacts/visualizations/crash-recovery/desktop.svg`、`.codex-artifacts/visualizations/crash-recovery/desktop.html`、`.codex-artifacts/visualizations/crash-recovery/mobile.html` 与 `.codex-artifacts/visualizations/crash-recovery/mobile.html.fragment`；桌面 SVG 可识别崩溃现场、Checkpoint、Redo Log Scan、数据页重做、Undo Log、Prepare 事务判定、四个恢复信号和 5/5 timeline，移动 HTML 展示五步流程和四个事实卡。
+- Verification：新增测试先失败于 `visualPointIds.mysql` 缺少 `crash-recovery`，补可视化清单与专用 builder 后 `npm run test:data -- --grep "mysql crash recovery"` 通过 1 项；完整 `npm run test:data` 通过 27 项；`npm run build` 通过；`npm run kg:review:validate` 返回 `issueCount=0`；`git diff --check` 通过；e2e preview 权限阻塞已记录。
+- Commit/Push Plan：提交 `feat: add crash recovery visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Kubernetes `拓扑分布约束`，备选 MySQL `Purge` 或 CDN `缓存失效/回源`。

@@ -265,6 +265,11 @@
     justify-content: start;
   }
 
+  .crash-recovery-stage {
+    overflow-x: auto;
+    justify-content: start;
+  }
+
   .explain-stage {
     overflow-x: auto;
     justify-content: start;
@@ -904,6 +909,20 @@
     padding: 18px;
   }
 
+  .crash-recovery-card {
+    width: 100%;
+  }
+
+  .crash-recovery-diagram {
+    display: none;
+  }
+
+  .crash-recovery-mobile-map {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+  }
+
   .explain-card {
     width: 100%;
   }
@@ -1060,6 +1079,8 @@
   .gtid-mobile-facts,
   .two-phase-mobile-flow,
   .two-phase-mobile-facts,
+  .crash-recovery-mobile-flow,
+  .crash-recovery-mobile-facts,
   .explain-mobile-flow,
   .explain-mobile-facts,
   .deadlock-mobile-flow,
@@ -1121,6 +1142,8 @@
   .gtid-mobile-fact,
   .two-phase-mobile-hop,
   .two-phase-mobile-fact,
+  .crash-recovery-mobile-hop,
+  .crash-recovery-mobile-fact,
   .explain-mobile-hop,
   .explain-mobile-fact,
   .deadlock-mobile-hop,
@@ -1184,6 +1207,8 @@
   .gtid-mobile-fact.active,
   .two-phase-mobile-hop.active,
   .two-phase-mobile-fact.active,
+  .crash-recovery-mobile-hop.active,
+  .crash-recovery-mobile-fact.active,
   .explain-mobile-hop.active,
   .explain-mobile-fact.active,
   .deadlock-mobile-hop.active,
@@ -1243,6 +1268,8 @@
   .gtid-mobile-fact span,
   .two-phase-mobile-hop span,
   .two-phase-mobile-fact span,
+  .crash-recovery-mobile-hop span,
+  .crash-recovery-mobile-fact span,
   .explain-mobile-hop span,
   .explain-mobile-fact span,
   .deadlock-mobile-hop span,
@@ -1303,6 +1330,8 @@
   .gtid-mobile-fact strong,
   .two-phase-mobile-hop strong,
   .two-phase-mobile-fact strong,
+  .crash-recovery-mobile-hop strong,
+  .crash-recovery-mobile-fact strong,
   .explain-mobile-hop strong,
   .explain-mobile-fact strong,
   .deadlock-mobile-hop strong,

@@ -74,6 +74,23 @@ test("mysql GTID is backed by a dedicated visual simulation", async () => {
   );
 });
 
+test("mysql crash recovery is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("mysql");
+  const crashRecovery = points.find((point) => point.id === "crash-recovery");
+
+  expect(visualPointIds.mysql).toContain("crash-recovery");
+  expect(crashRecovery).toBeTruthy();
+
+  const simulation = buildVisualSimulation("mysql", crashRecovery!);
+
+  expect(simulation?.key).toBe("mysql:crash-recovery");
+  expect(simulation?.pattern.en).toContain("crash recovery state model");
+  expect(simulation?.steps).toHaveLength(5);
+  expect(simulation?.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["checkpoint LSN", "redo apply", "undo rollback", "prepared transaction decision"]),
+  );
+});
+
 test("kubernetes CrashLoopBackOff is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("kubernetes");
   const crashLoopBackOff = points.find((point) => point.id === "crashloopbackoff");

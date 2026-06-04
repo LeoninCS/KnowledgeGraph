@@ -102,3 +102,22 @@ test("detail page can open a simulation and step through it", async ({ page }) =
   await expect(page.getByText(firstActionLabel)).toBeVisible();
   await expect(page.getByRole("button", { name: /上一步/ })).toBeEnabled();
 });
+
+test("mysql crash recovery simulation can be opened and completed", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByPlaceholder("搜索知识点，比如 TCP、进程、索引").fill("崩溃恢复");
+  await expect(page.getByRole("button", { name: /崩溃恢复 当前聚焦/ })).toBeVisible();
+  await page.getByRole("button", { name: /^崩溃恢复 当前聚焦$/ }).dblclick();
+  await page.getByRole("button", { name: /进入模拟/ }).click();
+
+  await expect(page.getByRole("heading", { name: /崩溃恢复 可视化模拟/ })).toBeVisible();
+  await expect(page.locator(".crash-recovery-stage")).toBeVisible();
+
+  for (let step = 0; step < 5; step += 1) {
+    await page.locator(".sim-action.enabled").click();
+  }
+
+  await expect(page.getByText("5/5")).toBeVisible();
+  await expect(page.getByText("prepare + Xid => commit")).toBeVisible();
+});

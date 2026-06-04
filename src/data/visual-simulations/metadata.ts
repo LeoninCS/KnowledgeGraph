@@ -301,6 +301,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
     "undo-log",
     "binlog",
     "two-phase-commit",
+    "crash-recovery",
     "lock",
     "deadlock",
     "replication",

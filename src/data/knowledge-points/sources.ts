@@ -3825,6 +3825,10 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: InnoDB Storage Engine",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-storage-engine.html",
   },
+  "mysql-innodb-architecture": {
+    title: "MySQL Reference Manual: InnoDB Architecture",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-architecture.html",
+  },
   "mysql-innodb-multi-versioning": {
     title: "MySQL Reference Manual: InnoDB Multi-Versioning",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-multi-versioning.html",
@@ -3860,6 +3864,10 @@ export const knowledgeSources = {
   "oracle-mysql-dynamic-redo-log": {
     title: "Oracle MySQL Blog: Dynamic redo log sizing",
     url: "https://blogs.oracle.com/mysql/post/dynamic-innodb-redo-log-in-mysql-80",
+  },
+  "percona-mysql-writing-process": {
+    title: "Percona: MySQL with diagrams, the writing process",
+    url: "https://www.percona.com/blog/mysql-with-diagrams-part-three-the-life-story-of-the-writing-process/",
   },
   "xiaolincoding-mysql-log": {
     title: "小林 coding: MySQL 日志",

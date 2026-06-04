@@ -880,6 +880,382 @@
   display: none;
 }
 
+.crash-recovery-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.crash-recovery-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--danger) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .crash-recovery-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.crash-recovery-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.crash-recovery-mobile-map {
+  display: none;
+}
+
+.crash-recovery-bg {
+  fill: color-mix(in srgb, var(--brand-soft) 24%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 16%, var(--border));
+}
+
+.crash-recovery-title {
+  fill: var(--text);
+  font-size: 24px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.crash-recovery-subtitle {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.crash-recovery-crash-panel,
+.crash-recovery-checkpoint-panel,
+.crash-recovery-redo-panel,
+.crash-recovery-pages-panel,
+.crash-recovery-undo-panel,
+.crash-recovery-decision-panel {
+  opacity: 0.58;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.crash-recovery-crash-panel.active,
+.crash-recovery-checkpoint-panel.active,
+.crash-recovery-redo-panel.active,
+.crash-recovery-pages-panel.active,
+.crash-recovery-undo-panel.active,
+.crash-recovery-decision-panel.active {
+  opacity: 1;
+}
+
+.crash-recovery-crash-panel > rect,
+.crash-recovery-checkpoint-panel > rect,
+.crash-recovery-redo-panel > rect,
+.crash-recovery-pages-panel > rect,
+.crash-recovery-undo-panel > rect,
+.crash-recovery-decision-panel > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--border) 86%, var(--line));
+  filter: url(#crash-recovery-soft-shadow);
+}
+
+.crash-recovery-crash-panel.active > rect,
+.crash-recovery-row.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 42%, var(--border));
+}
+
+.crash-recovery-checkpoint-panel.active > rect,
+.crash-recovery-checkpoint-pin.active circle,
+.crash-recovery-signal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 44%, var(--border));
+}
+
+.crash-recovery-redo-panel.active > rect,
+.crash-recovery-log-row.warning.active rect,
+.crash-recovery-page-row.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 10%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 46%, var(--border));
+}
+
+.crash-recovery-pages-panel.active > rect,
+.crash-recovery-undo-panel.active > rect,
+.crash-recovery-page-row.brand.active rect,
+.crash-recovery-undo-chain.active rect,
+.crash-recovery-decision-row.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 42%, var(--border));
+}
+
+.crash-recovery-decision-panel.active > rect,
+.crash-recovery-decision-row.success.active rect {
+  fill: color-mix(in srgb, var(--success) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 42%, var(--border));
+}
+
+.crash-recovery-decision-row.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.crash-recovery-row rect,
+.crash-recovery-log-row rect,
+.crash-recovery-page-row rect,
+.crash-recovery-decision-row rect,
+.crash-recovery-undo-chain rect,
+.crash-recovery-crash-path rect,
+.crash-recovery-scan-path rect,
+.crash-recovery-apply-path rect,
+.crash-recovery-undo-path rect,
+.crash-recovery-decision-path rect,
+.crash-recovery-signal rect {
+  fill: color-mix(in srgb, var(--surface) 88%, transparent);
+  stroke: color-mix(in srgb, var(--border) 82%, var(--line));
+  filter: url(#crash-recovery-soft-shadow);
+}
+
+.crash-recovery-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.crash-recovery-panel-subtitle,
+.crash-recovery-row text,
+.crash-recovery-log-row text,
+.crash-recovery-page-row text,
+.crash-recovery-decision-row text,
+.crash-recovery-crash-path text,
+.crash-recovery-scan-path text,
+.crash-recovery-apply-path text,
+.crash-recovery-undo-path text,
+.crash-recovery-decision-path text,
+.crash-recovery-signal text {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 820;
+}
+
+.crash-recovery-row text:first-of-type,
+.crash-recovery-log-row text:first-of-type,
+.crash-recovery-page-row text:first-of-type,
+.crash-recovery-decision-row text:first-of-type,
+.crash-recovery-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.crash-recovery-row text:last-of-type,
+.crash-recovery-log-row text:last-of-type,
+.crash-recovery-page-row text:last-of-type,
+.crash-recovery-decision-row text:last-of-type,
+.crash-recovery-signal text:last-of-type,
+.crash-recovery-undo-chain text,
+.crash-recovery-checkpoint-pin text {
+  fill: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 900;
+  text-anchor: end;
+}
+
+.crash-recovery-log-row text:first-of-type {
+  text-anchor: start;
+}
+
+.crash-recovery-undo-chain text {
+  fill: var(--text);
+  font-size: 11px;
+  text-anchor: middle;
+}
+
+.crash-recovery-checkpoint-line,
+.crash-recovery-timeline-axis {
+  stroke: color-mix(in srgb, var(--border) 86%, var(--line));
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.crash-recovery-checkpoint-pin path,
+.crash-recovery-checkpoint-pin.current path {
+  stroke: var(--tertiary);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.crash-recovery-checkpoint-pin.current path {
+  stroke: #f59e0b;
+}
+
+.crash-recovery-checkpoint-pin circle,
+.crash-recovery-timeline-node circle {
+  fill: var(--surface);
+  stroke: color-mix(in srgb, var(--border) 90%, var(--line));
+  stroke-width: 3;
+}
+
+.crash-recovery-checkpoint-pin.current.active circle,
+.crash-recovery-timeline-node.warning.active circle {
+  fill: color-mix(in srgb, #f59e0b 18%, var(--surface));
+  stroke: #f59e0b;
+}
+
+.crash-recovery-crash-path,
+.crash-recovery-scan-path,
+.crash-recovery-apply-path,
+.crash-recovery-undo-path,
+.crash-recovery-decision-path {
+  opacity: 0.24;
+}
+
+.crash-recovery-crash-path.active,
+.crash-recovery-scan-path.active,
+.crash-recovery-apply-path.active,
+.crash-recovery-undo-path.active,
+.crash-recovery-decision-path.active {
+  opacity: 1;
+}
+
+.crash-recovery-crash-path path,
+.crash-recovery-scan-path path,
+.crash-recovery-apply-path path,
+.crash-recovery-undo-path path,
+.crash-recovery-decision-path path,
+.crash-recovery-undo-chain path {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+
+.crash-recovery-crash-path path {
+  stroke: var(--danger);
+}
+
+.crash-recovery-scan-path path {
+  stroke: var(--tertiary);
+}
+
+.crash-recovery-apply-path path {
+  stroke: #f59e0b;
+}
+
+.crash-recovery-undo-path path,
+.crash-recovery-undo-chain path {
+  stroke: var(--brand);
+}
+
+.crash-recovery-decision-path path {
+  stroke: var(--success);
+}
+
+.crash-recovery-crash-path text,
+.crash-recovery-scan-path text,
+.crash-recovery-apply-path text,
+.crash-recovery-undo-path text,
+.crash-recovery-decision-path text {
+  fill: var(--text);
+  font-weight: 900;
+  text-anchor: middle;
+}
+
+.crash-recovery-timeline-node {
+  opacity: 0.5;
+}
+
+.crash-recovery-timeline-node.active {
+  opacity: 1;
+}
+
+.crash-recovery-timeline-node.danger.active circle {
+  fill: color-mix(in srgb, var(--danger) 17%, var(--surface));
+  stroke: var(--danger);
+}
+
+.crash-recovery-timeline-node.teal.active circle {
+  fill: color-mix(in srgb, var(--tertiary) 17%, var(--surface));
+  stroke: var(--tertiary);
+}
+
+.crash-recovery-timeline-node.brand.active circle {
+  fill: color-mix(in srgb, var(--brand) 16%, var(--surface));
+  stroke: var(--brand);
+}
+
+.crash-recovery-timeline-node.success.active circle {
+  fill: color-mix(in srgb, var(--success) 16%, var(--surface));
+  stroke: var(--success);
+}
+
+.crash-recovery-timeline-node text:first-of-type {
+  fill: var(--text);
+  font-size: 10px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.crash-recovery-timeline-node text:nth-of-type(2),
+.crash-recovery-timeline-node text:nth-of-type(3) {
+  fill: var(--muted);
+  font-size: 9px;
+  font-weight: 850;
+}
+
+.crash-recovery-timeline-node text:nth-of-type(3) {
+  fill: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.crash-recovery-mobile-flow,
+.crash-recovery-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.crash-recovery-mobile-hop,
+.crash-recovery-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--danger) 18%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--danger) 5%, var(--surface));
+  padding: 12px;
+}
+
+.crash-recovery-mobile-hop span,
+.crash-recovery-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.crash-recovery-mobile-hop strong,
+.crash-recovery-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.crash-recovery-mobile-hop.active,
+.crash-recovery-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--danger) 44%, var(--border));
+  background: color-mix(in srgb, var(--danger) 9%, var(--surface));
+}
+
+.crash-recovery-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .deadlock-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;

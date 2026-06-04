@@ -286,6 +286,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:crash-recovery") {
+    return (
+      <CrashRecoveryStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "mysql:explain") {
     return (
       <ExplainPlanStage
@@ -4812,6 +4823,284 @@ function TwoPhaseCommitStage({
           </div>
         </div>
         <div className="tcp-handshake-caption two-phase-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CrashRecoveryStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const crashActive = completedSteps >= 1;
+  const checkpointActive = completedSteps >= 2;
+  const redoActive = completedSteps >= 3;
+  const undoActive = completedSteps >= 4;
+  const preparedActive = completedSteps >= 5;
+  const timelineRows = [
+    { name: "1", label: label("崩溃现场", "crash point"), value: crashActive ? "dirty pages + trx table" : "standby", active: crashActive, tone: "danger" },
+    { name: "2", label: "checkpoint LSN", value: checkpointActive ? "8200" : "pending", active: checkpointActive, tone: "teal" },
+    { name: "3", label: "redo apply", value: redoActive ? "P42/P77 replayed" : "pending", active: redoActive, tone: "warning" },
+    { name: "4", label: "undo rollback", value: undoActive ? "T31 rollback" : "pending", active: undoActive, tone: "brand" },
+    { name: "5", label: "prepared trx", value: preparedActive ? "T42 commit" : "pending", active: preparedActive, tone: "success" },
+  ];
+  const decisionRows = [
+    {
+      name: "T31",
+      value: undoActive ? label("open + undo => rollback", "open + undo => rollback") : label("等待事务表", "awaiting trx table"),
+      active: undoActive,
+      tone: "brand",
+    },
+    {
+      name: "T42",
+      value: preparedActive ? label("prepare + Xid => commit", "prepare + Xid => commit") : label("等待 Binlog", "awaiting binary log"),
+      active: preparedActive,
+      tone: "success",
+    },
+    {
+      name: "T58",
+      value: preparedActive ? label("prepare + missing Xid => rollback", "prepare + missing Xid => rollback") : label("等待判定", "awaiting decision"),
+      active: preparedActive,
+      tone: "danger",
+    },
+  ];
+  const pageRows = [
+    { name: "P42", value: redoActive ? "amount=140" : "stale", active: redoActive, tone: "warning" },
+    { name: "P77", value: redoActive ? "status=paid" : "stale", active: redoActive, tone: "warning" },
+    { name: "P91", value: undoActive ? "rolled back" : "open trx", active: undoActive, tone: "brand" },
+  ];
+  const signalRows = [
+    { name: "checkpoint_lsn", value: checkpointActive ? "8200" : "pending", active: checkpointActive },
+    { name: "scan_lsn", value: redoActive ? "8200-8678" : "pending", active: redoActive },
+    { name: "undo_queue", value: undoActive ? "T31" : "pending", active: undoActive },
+    { name: "prepare_rule", value: preparedActive ? "Xid decides" : "pending", active: preparedActive },
+  ];
+  const mobileFlow = [
+    { name: "Crash point", value: crashActive ? "dirty pages + trx table" : "standby", active: crashActive },
+    { name: "Checkpoint", value: checkpointActive ? "scan from LSN 8200" : "pending", active: checkpointActive },
+    { name: "Redo apply", value: redoActive ? "P42/P77 replayed" : "pending", active: redoActive },
+    { name: "Undo rollback", value: undoActive ? "T31 rollback" : "pending", active: undoActive },
+    { name: "Prepared decision", value: preparedActive ? "T42 commit, T58 rollback" : "pending", active: preparedActive },
+  ];
+
+  return (
+    <div className="visual-stage crash-recovery-stage">
+      <div className="crash-recovery-card">
+        <svg
+          className="crash-recovery-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["crash-recovery-arrow-danger", "var(--danger)"],
+              ["crash-recovery-arrow-teal", "var(--tertiary)"],
+              ["crash-recovery-arrow-warning", "#f59e0b"],
+              ["crash-recovery-arrow-brand", "var(--brand)"],
+              ["crash-recovery-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="crash-recovery-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="crash-recovery-bg" x="24" y="24" width="1072" height="568" rx="28" />
+          <text className="crash-recovery-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="crash-recovery-subtitle" x="560" y="100">
+            {label(
+              "crash point -> checkpoint -> redo apply -> undo rollback -> prepared transaction decision",
+              "crash point -> checkpoint -> redo apply -> undo rollback -> prepared transaction decision",
+            )}
+          </text>
+
+          <g className={`crash-recovery-crash-panel ${crashActive ? "active" : ""}`}>
+            <rect x="62" y="138" width="242" height="158" rx="24" />
+            <text className="crash-recovery-panel-title" x="90" y="176">{label("崩溃现场", "Crash point")}</text>
+            <text className="crash-recovery-panel-subtitle" x="90" y="200">mysqld restart</text>
+            {[
+              ["dirty pages", "P42 P77 P91"],
+              ["trx table", "T31 open, T42 prepare"],
+              ["flushed LSN", "8678"],
+            ].map(([name, value], index) => (
+              <g key={name} className={`crash-recovery-row danger ${crashActive ? "active" : ""}`}>
+                <rect x="90" y={222 + index * 32} width="178" height="24" rx="12" />
+                <text x="106" y={239 + index * 32}>{name}</text>
+                <text x="256" y={239 + index * 32}>{value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`crash-recovery-checkpoint-panel ${checkpointActive ? "active" : ""}`}>
+            <rect x="354" y="128" width="256" height="146" rx="24" />
+            <text className="crash-recovery-panel-title" x="382" y="166">Checkpoint</text>
+            <text className="crash-recovery-panel-subtitle" x="382" y="190">{label("恢复扫描窗口", "Recovery scan window")}</text>
+            <line className="crash-recovery-checkpoint-line" x1="386" y1="226" x2="570" y2="226" />
+            <g className={`crash-recovery-checkpoint-pin ${checkpointActive ? "active" : ""}`}>
+              <path d="M 426 204 L 426 250" />
+              <circle cx="426" cy="226" r="8" />
+              <text x="404" y="267">8200</text>
+            </g>
+            <g className={`crash-recovery-checkpoint-pin current ${redoActive ? "active" : ""}`}>
+              <path d="M 548 204 L 548 250" />
+              <circle cx="548" cy="226" r="8" />
+              <text x="522" y="267">8678</text>
+            </g>
+          </g>
+
+          <g className={`crash-recovery-redo-panel ${redoActive ? "active" : ""}`}>
+            <rect x="690" y="122" width="366" height="184" rx="28" />
+            <text className="crash-recovery-panel-title" x="718" y="160">Redo Log Scan</text>
+            <text className="crash-recovery-panel-subtitle" x="718" y="184">{"LSN 8200 -> 8678"}</text>
+            {[
+              ["8208", "MLOG_UPDATE P42"],
+              ["8416", "MLOG_WRITE P77"],
+              ["8612", "TRX PREPARE T42"],
+            ].map(([lsn, record], index) => (
+              <g key={lsn} className={`crash-recovery-log-row warning ${redoActive ? "active" : ""}`}>
+                <rect x="718" y={210 + index * 34} width="292" height="26" rx="13" />
+                <text x="734" y={228 + index * 34}>LSN {lsn}</text>
+                <text x="994" y={228 + index * 34}>{record}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`crash-recovery-crash-path ${crashActive ? "active" : ""}`}>
+            <path d="M 304 214 C 324 214, 334 214, 354 214" markerEnd="url(#crash-recovery-arrow-danger)" />
+            <rect x="250" y="314" width="150" height="32" rx="16" />
+            <text x="325" y="335">{label("重启进入恢复", "restart enters recovery")}</text>
+          </g>
+
+          <g className={`crash-recovery-scan-path ${checkpointActive ? "active" : ""}`}>
+            <path d="M 610 222 C 642 220, 658 220, 690 220" markerEnd="url(#crash-recovery-arrow-teal)" />
+            <rect x="560" y="320" width="170" height="32" rx="16" />
+            <text x="645" y="341">{label("从 checkpoint 扫描", "scan from checkpoint")}</text>
+          </g>
+
+          <g className={`crash-recovery-pages-panel ${redoActive ? "active" : ""}`}>
+            <rect x="90" y="398" width="320" height="144" rx="26" />
+            <text className="crash-recovery-panel-title" x="118" y="436">{label("数据页重做", "Data page replay")}</text>
+            {pageRows.map((row, index) => (
+              <g key={row.name} className={`crash-recovery-page-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="118" y={462 + index * 34} width="242" height="26" rx="13" />
+                <text x="134" y={480 + index * 34}>{row.name}</text>
+                <text x="342" y={480 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`crash-recovery-apply-path ${redoActive ? "active" : ""}`}>
+            <path d="M 796 306 C 704 398, 558 452, 410 470" markerEnd="url(#crash-recovery-arrow-warning)" />
+            <rect x="526" y="408" width="142" height="32" rx="16" />
+            <text x="597" y="429">redo apply</text>
+          </g>
+
+          <g className={`crash-recovery-undo-panel ${undoActive ? "active" : ""}`}>
+            <rect x="452" y="398" width="250" height="146" rx="26" />
+            <text className="crash-recovery-panel-title" x="480" y="436">Undo Log</text>
+            <text className="crash-recovery-panel-subtitle" x="480" y="460">{label("撤销未提交页修改", "Rollback open changes")}</text>
+            <g className={`crash-recovery-undo-chain ${undoActive ? "active" : ""}`}>
+              <rect x="480" y="486" width="70" height="28" rx="14" />
+              <text x="515" y="505">T31</text>
+              <path d="M 550 500 L 582 500" markerEnd="url(#crash-recovery-arrow-brand)" />
+              <rect x="582" y="486" width="78" height="28" rx="14" />
+              <text x="621" y="505">before</text>
+            </g>
+          </g>
+
+          <g className={`crash-recovery-undo-path ${undoActive ? "active" : ""}`}>
+            <path d="M 410 500 C 424 500, 438 500, 452 500" markerEnd="url(#crash-recovery-arrow-brand)" />
+            <rect x="366" y="552" width="150" height="32" rx="16" />
+            <text x="441" y="573">undo rollback</text>
+          </g>
+
+          <g className={`crash-recovery-decision-panel ${preparedActive ? "active" : ""}`}>
+            <rect x="748" y="382" width="314" height="176" rx="28" />
+            <text className="crash-recovery-panel-title" x="776" y="420">{label("Prepare 事务判定", "Prepared transaction decision")}</text>
+            <text className="crash-recovery-panel-subtitle" x="776" y="444">Binlog Xid / GTID</text>
+            {decisionRows.map((row, index) => (
+              <g key={row.name} className={`crash-recovery-decision-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="776" y={468 + index * 34} width="246" height="26" rx="13" />
+                <text x="792" y={486 + index * 34}>{row.name}</text>
+                <text x="1004" y={486 + index * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`crash-recovery-decision-path ${preparedActive ? "active" : ""}`}>
+            <path d="M 702 500 C 722 498, 732 498, 748 498" markerEnd="url(#crash-recovery-arrow-success)" />
+            <rect x="662" y="552" width="160" height="32" rx="16" />
+            <text x="742" y="573">{label("核对 Binlog", "check binary log")}</text>
+          </g>
+
+          <g className="crash-recovery-timeline">
+            <line className="crash-recovery-timeline-axis" x1="118" y1="602" x2="1014" y2="602" />
+            {timelineRows.map((row, index) => (
+              <g key={row.label} className={`crash-recovery-timeline-node ${row.tone} ${row.active ? "active" : ""}`}>
+                <circle cx={138 + index * 216} cy="602" r="15" />
+                <text x={138 + index * 216} y="607">{row.name}</text>
+                <text x={90 + index * 216} y="624">{row.label}</text>
+                <text x={90 + index * 216} y="640">{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className="crash-recovery-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`crash-recovery-signal ${signal.active ? "active" : ""}`}>
+                <rect x={64 + index * 258} y="338" width="212" height="34" rx="16" />
+                <text x={84 + index * 258} y="352">{signal.name}</text>
+                <text x={256 + index * 258} y="364">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="crash-recovery-mobile-map">
+          <div className="crash-recovery-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`crash-recovery-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="crash-recovery-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`crash-recovery-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption crash-recovery-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>
