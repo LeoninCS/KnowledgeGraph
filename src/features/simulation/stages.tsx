@@ -12092,6 +12092,20 @@ function CdnRequestStage({
     { id: "miss", d: "M 818 312 C 884 280, 928 250, 974 204", marker: "teal", active: completedSteps >= 5 },
     { id: "fill", d: "M 974 244 C 914 402, 728 422, 580 356", marker: "success", active: completedSteps >= 5 },
   ];
+  const mobileHops = [
+    [label("用户调度", "User routing"), "DNS / Anycast -> Tokyo PoP", completedSteps >= 1],
+    [label("缓存键", "Cache key"), "host + path + vary", completedSteps >= 2],
+    [label("边缘命中", "Edge hit"), "CF-Cache-Status: HIT", completedSteps >= 3],
+    [label("过期再验证", "Stale revalidation"), "If-None-Match -> 304", completedSteps >= 4],
+    [label("分层回源", "Tiered fetch"), "Shield -> origin -> fill", completedSteps >= 5],
+    [label("观测刷新", "Observe and purge"), "hit ratio 91% / purge v43", completedSteps >= 6],
+  ] as const;
+  const mobileFacts = [
+    [label("状态头", "Status header"), completedSteps >= 3 ? "HIT / Age 184s" : "--", completedSteps >= 3],
+    [label("Shield", "Shield"), completedSteps >= 5 ? "coalesced MISS" : "--", completedSteps >= 5],
+    [label("回源", "Origin"), completedSteps >= 5 ? "-68%" : "--", completedSteps >= 5],
+    [label("刷新", "Purge"), completedSteps >= 6 ? "v42 -> v43" : "--", completedSteps >= 6],
+  ] as const;
 
   return (
     <div className="visual-stage cdn-stage">
@@ -12246,6 +12260,24 @@ function CdnRequestStage({
             <text x="965" y="124">{label("Purge / versioned URL", "Purge / versioned URL")}</text>
           </g>
         </svg>
+        <div className="cdn-mobile-map">
+          <div className="cdn-mobile-flow">
+            {mobileHops.map(([title, value, active]) => (
+              <div key={title} className={`cdn-mobile-hop ${active ? "active" : ""}`}>
+                <span>{title}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="cdn-mobile-facts">
+            {mobileFacts.map(([title, value, active]) => (
+              <div key={title} className={`cdn-mobile-fact ${active ? "active" : ""}`}>
+                <span>{title}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
         <div className="tcp-handshake-caption cdn-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>

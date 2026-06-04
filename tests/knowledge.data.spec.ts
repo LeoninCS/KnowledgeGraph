@@ -483,6 +483,32 @@ test("network NAT is backed by a translation table visual simulation", async () 
   );
 });
 
+test("network CDN is backed by a cache hierarchy visual simulation", async () => {
+  const points = await loadKnowledgePoints("network");
+  const cdn = points.find((point) => point.id === "cdn");
+
+  expect(visualPointIds.network).toContain("cdn");
+  expect(cdn).toBeTruthy();
+
+  const simulation = buildVisualSimulation("network", cdn!);
+
+  expect(simulation.key).toBe("network:cdn");
+  expect(simulation.pattern.en).toContain("CDN request routing and cache hierarchy");
+  expect(simulation.steps).toHaveLength(6);
+  expect(simulation.steps.map((step) => step.label.en)).toEqual(
+    expect.arrayContaining(["HIT + Age", "ETag / 304", "MISS + origin fetch", "purge / logs / metrics"]),
+  );
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining([
+      "Edge TTFB",
+      "CF-Cache-Status",
+      "Origin Shield hits",
+      "origin request reduction",
+      "purge propagation",
+    ]),
+  );
+});
+
 test("redis AOF rewrite is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("redis");
   const aofRewrite = points.find((point) => point.id === "aof-rewrite");

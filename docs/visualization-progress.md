@@ -136,6 +136,7 @@
 | TCP/IP 四层模型 | `step-simulation` | completed | desktop/mobile captured | TCP/IP 四层封装与解封装模拟器，覆盖应用数据、TCP/UDP 头、IP 包、以太网/Wi-Fi 帧、OSI 对照和排障观察点 |
 | DNS | `step-simulation` | completed | desktop/mobile captured | DNS 递归解析路径模拟器，覆盖本地缓存、递归解析器、根区委派、TLD 委派、权威 A/AAAA 应答、TTL 缓存和后续连接 |
 | NAT | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | NAT 转换表路径模拟器，覆盖私有子网出站、SNAT/PAT、回包匹配、入口 DNAT、端口池和 conntrack 超时 |
+| CDN | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | CDN 请求路由与缓存层级模拟器，覆盖 DNS/Anycast、边缘缓存、HIT/Age、过期再验证、Origin Shield 分层回源、purge 和命中率观测 |
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | B+ 树 | `data-structure-lab` | completed | SVG/HTML review captured; PNG blocked by platform permissions | MySQL B+ 树索引实验室，覆盖根页分隔键、Buffer Pool 热页、叶子页定位、叶子链表范围扫描、页分裂和父节点分隔键维护 |
 | 二级索引 | `storage-layout` | completed | SVG/HTML review captured; PNG blocked by platform permissions | MySQL 二级索引回表路径模型，覆盖二级索引叶子记录、主键回表、覆盖索引捷径和 EXPLAIN 证据 |
@@ -843,6 +844,64 @@
 - 提交计划：功能代码与进度文档合并进入 `feat: add secondary index visualization`。
 - 推送计划：提交后执行 `git pull --rebase origin main` 与 `git push origin main`。
 
+## Network CDN Visualization
+
+### Online Image References
+
+- `source`：Cloudflare Reference Architecture - Content Delivery Network (CDN) Reference Architecture，https://developers.cloudflare.com/reference-architecture/architectures/cdn/
+  - `image`：页面中的 Cloudflare CDN / global anycast network 架构图。
+  - `role`：main
+  - `qualityReason`：官方架构图直接展示用户、Cloudflare Anycast Edge Network、边缘缓存和源站之间的主链路，适合作为 CDN 请求路由与边缘缓存的主构图。
+  - `takeaways`：主画布采用用户地域、DNS/Anycast 调度、边缘 PoP、区域缓存 / Origin Shield 和源站的横向层级。
+  - `originalChanges`：改成本项目六步 CDN cache hierarchy 模拟器，加入 cache key、CF-Cache-Status、ETag/304、purge、命中率与回源下降指标。
+- `source`：Amazon CloudFront Developer Guide - How CloudFront delivers content，https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/HowCloudFrontWorks.html
+  - `image`：页面中的 viewer、edge location、regional edge cache 和 origin request/response path 图。
+  - `role`：supporting
+  - `qualityReason`：官方图清楚表达边缘节点与 regional edge cache 如何承接用户请求和回源路径，适合补充分层缓存语义。
+  - `takeaways`：Edge cache 与 Regional cache 应分成两个层级，并保留返回填充路径。
+  - `originalChanges`：用边缘 PoP、区域缓存和 fill-back 箭头表达 `MISS -> Shield -> origin -> fill`。
+- `source`：Amazon CloudFront Developer Guide - Use Amazon CloudFront Origin Shield，https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/origin-shield.html
+  - `image`：页面中的 Without / With Origin Shield 对比图，展示重复回源合并。
+  - `role`：supporting
+  - `qualityReason`：官方图突出 Origin Shield 减少重复 origin fetch、提升命中率和保护源站，是回源合并的权威参考。
+  - `takeaways`：在源站前增加 Shield 节点，MISS 先进入 Shield，源站只看到合并后的请求。
+  - `originalChanges`：画布把 Shield 作为中间缓存层，指标卡显示 `Origin Shield hits` 与 `origin request reduction`。
+- `source`：Cloudflare Cache docs - Purge everything，https://developers.cloudflare.com/cache/how-to/purge-cache/purge-everything/
+  - `image`：页面中的 cache purge 行为说明与控制台语境。
+  - `role`：supporting
+  - `qualityReason`：官方文档校准 purge/invalidation 生效范围和单 URL purge 的运维建议，适合补足发布刷新分支。
+  - `takeaways`：发布新版本时应观察 purge 范围、版本化 URL 和各边缘节点状态。
+  - `originalChanges`：第六步展示 `Purge / versioned URL` 与 `purge propagation` 指标。
+- `source`：MDN Web Docs - HTTP caching，https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching
+  - `image`：页面中的缓存验证、Vary 和 Cache-Control 说明图文。
+  - `role`：supporting
+  - `qualityReason`：MDN 对 ETag、If-None-Match、304、Vary 和缓存键语义解释稳定，适合校准 stale revalidation。
+  - `takeaways`：边缘节点过期后携带 ETag 条件请求，304 保留缓存体并刷新元信息。
+  - `originalChanges`：第四步用 `ETag / 304` 路径表达过期再验证，把长解释放入右侧理解重点。
+
+### Reference Breakdown
+
+- 主体布局：左侧用户地域和资源卡，中上 DNS/Anycast 调度，中部边缘缓存 PoP，右中区域缓存 / Origin Shield，右上源站，底部缓存状态、缓存控制和观测指标，右侧任务面板与底部步骤由模拟器统一承载。
+- 视觉焦点：`/assets/app.js v42` 从用户进入最近边缘，先计算 cache key，再走 `HIT + Age` 快速返回；过期后用 `ETag / 304` 再验证；MISS 经 Origin Shield 合并回源并回填缓存层。
+- 领域对象：global users、DNS/CNAME/Anycast、edge PoP、cache key、TTL、CF-Cache-Status、Age、ETag、304、regional cache、Origin Shield、origin、purge、versioned URL、hit ratio、origin request reduction。
+- 容器层级：用户层选择地域和资源；调度层选择低 RTT 边缘；边缘层负责 cache key 和 HIT/EXPIRED/MISS/BYPASS 分支；Shield 层负责条件请求和合并回源；源站提供权威版本。
+- 连线方向：用户 -> DNS/Anycast -> Edge cache；HIT 从 Edge 直接返回用户；EXPIRED 从 Edge 进入 Shield 做条件请求；MISS 从 Shield 到 Origin，再从 Origin 回填 Shield 和 Edge；purge 从发布控制面影响边缘缓存。
+- 状态表达：六步依次高亮就近接入、缓存键、HIT 返回、过期再验证、分层回源填充、观测与 purge；状态块、进度条、路径箭头和指标值随 completedSteps 激活。
+- 颜色策略：品牌蓝表示用户入口与调度，青色表示 cache key 与回源路径，绿色表示 HIT、填充和命中率，橙色表示 EXPIRED/304，红色表示 BYPASS 和错误缓存刷新风险。
+- 文字密度：桌面 SVG 保留状态头、TTL、短指标和对象标签；移动端隐藏复杂 SVG，改成六张流程卡和四张事实卡，长字段使用自动换行。
+- 交互节奏：DNS/Anycast 选边缘 -> 计算 cache key -> HIT/Age 返回 -> stale revalidation -> Origin Shield 合并 MISS -> purge 和指标观测。
+- 原创改造点：把 Cloudflare Anycast CDN 架构、CloudFront regional edge cache、Origin Shield 对比图、Cloudflare purge 文档和 MDN revalidation 语义融合成项目风格的 CDN 请求路由与缓存层级模拟器。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/cdn/desktop.svg` 与 `.codex-artifacts/visualizations/cdn/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/cdn/mobile.html` 与 `.codex-artifacts/visualizations/cdn/mobile.html.fragment`。
+- 截图结论：桌面 SVG 可识别用户地域、DNS/Anycast、边缘缓存 PoP、区域缓存 / Origin Shield、源站、缓存状态分支、缓存控制、观测指标、Purge band 和 6/6 进度；移动 HTML 展示六步流程卡和四张事实卡，文字可读。
+- 候选来源数量：普通搜索筛选约 14 个候选入口，最终记录 5 个参考来源。
+- 验收备注：Vite preview 已在 `http://127.0.0.1:4291/KnowledgeGraph/` 启动；Chrome DevTools MCP profile 被占用；Browser 插件返回 `iab` 不可用；本轮使用官方/权威页面筛选、Web 搜索摘录、项目数据测试、生产构建、SSR SVG/HTML 审查图、关键文本 grep 和 diff 检查完成验收。
+- 提交计划：功能代码与进度文档合并进入 `feat: add cdn visualization`。
+- 推送计划：提交后执行 `git pull --rebase origin main` 与 `git push origin main`。
+
 ## Deferred
 
 | 知识点 | 原因 | 复查条件 |
@@ -854,7 +913,7 @@
 
 ## Next Candidate
 
-优先选择 CDN `缓存失效/回源`，备选 Kubernetes `kube-proxy iptables/IPVS` 或 MySQL `JOIN 顺序`。CDN 缓存失效/回源能承接 DNS、HTTP 缓存和 NAT，展示边缘节点、TTL、purge、stale 内容、Origin Shield 和回源合并。
+优先选择 Kubernetes `kube-proxy iptables/IPVS`，备选 MySQL `JOIN 顺序` 或 HTTP/3 `QUIC 连接迁移`。kube-proxy 能承接 Service 与 EndpointSlice，展示 watch、iptables/IPVS 规则、ClusterIP 虚拟地址、Pod 后端和 conntrack 排障链路。
 
 ## Docker Resource Limit Visualization
 

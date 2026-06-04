@@ -1307,9 +1307,10 @@ function cdn(point: GraphKnowledgePoint) {
     ],
     [
       tx("边缘 TTFB", "Edge TTFB"),
-      tx("缓存状态", "Cache status"),
-      tx("命中率", "Hit ratio"),
-      tx("回源请求", "Origin requests"),
+      tx("CF-Cache-Status", "CF-Cache-Status"),
+      tx("Origin Shield 命中", "Origin Shield hits"),
+      tx("回源请求下降", "origin request reduction"),
+      tx("Purge 传播", "purge propagation"),
       tx("TTL/新鲜度", "TTL / freshness"),
     ],
   );
