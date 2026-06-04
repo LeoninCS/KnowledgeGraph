@@ -153,6 +153,7 @@
 | Ingress | `step-simulation` | completed | desktop/mobile captured | Kubernetes Ingress 七层入口路由模拟器，覆盖公网入口、Ingress Controller、TLS Secret、host/path 规则和 Service 后端 |
 | CrashLoopBackOff | `state-model` | completed | SVG review captured; PNG blocked by platform permissions | Kubernetes CrashLoopBackOff 重启退避状态模型，覆盖 Pod 启动、进程退出、kubelet restartPolicy、BackOff 延迟、Events/logs 证据链和修复恢复 |
 | 镜像层 | `storage-layout` | completed | desktop/mobile captured | Docker 镜像层结构模型，覆盖 Dockerfile 指令、Build Cache、只读层共享、overlay2 和可写层 |
+| 构建缓存 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Docker Build Cache 失效模型，覆盖 cache key、context digest、HIT/MISS 链、级联失效、cache mount 和远程缓存导入导出 |
 | 桥接网络 | `step-simulation` | completed | desktop/mobile captured | Docker Bridge packet path 模拟器，覆盖 network namespace、veth pair、Linux bridge、内置 DNS、端口发布、DNAT 和 MASQUERADE |
 | 端口映射 | `step-simulation` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Docker published port path 模拟器，覆盖 HostIp/HostPort、DNAT、DOCKER-USER、容器监听地址和 EXPOSE 排障 |
 | 资源限制 | `state-model` | completed | desktop/mobile captured | Docker cgroup 资源治理状态模型，覆盖 HostConfig、cgroup v2 控制文件、CPU throttle、OOMKilled、docker stats 和运行中调整 |
@@ -974,7 +975,65 @@
 
 ## Next Candidate
 
-优先选择 HTTP/3 `QUIC 连接迁移`，备选 Docker `Build cache invalidation` 或 Redis `缓存击穿/穿透/雪崩`。QUIC 连接迁移能承接 TCP/TLS/HTTP/3，展示 Connection ID、路径验证、NAT rebinding、0-RTT/1-RTT 和移动网络切换。
+优先选择 Redis `缓存击穿/穿透/雪崩`，备选 Kubernetes `StatefulSet` 或 Docker `BuildKit`。Redis 缓存故障三件套能展示热点 key、空值穿透、TTL 同时过期、互斥重建和限流降级。
+
+## Docker Build Cache Visualization
+
+### Online Image References
+
+- `source`：Docker Docs - Build cache，https://docs.docker.com/build/cache/
+  - `image`：页面中的 Dockerfile 与缓存匹配说明、layer cache 语义和 `CACHED` 输出示例。
+  - `role`：main
+  - `qualityReason`：官方资料直接定义 Build cache 按 Dockerfile 指令顺序、父层与输入判断命中，是缓存键与 HIT/MISS 链的权威主参考。
+  - `takeaways`：主画布采用 Dockerfile instruction stream、BuildKit solver、cache record table 三栏结构，先展示 cache key lookup，再展示 base/deps HIT。
+  - `originalChanges`：改成本项目五步状态模型，加入 context digest、级联失效、cache mount、外部缓存后端和底部信号卡。
+- `source`：Docker Docs - Build cache invalidation，https://docs.docker.com/build/cache/invalidation/
+  - `image`：页面中的缓存失效规则说明，覆盖 ADD/COPY checksum、RUN 命令字符串、secret/cache bust 和后续指令重建。
+  - `role`：supporting
+  - `qualityReason`：官方校准 COPY/ADD 如何纳入文件内容与元数据，以及第一条 miss 如何影响后续层。
+  - `takeaways`：第三步用 `src digest sha256:9c2 -> sha256:77f` 表达源码变化，cache records 展示 `src MISS, build MISS`。
+  - `originalChanges`：把文字规则转成右侧记录表和橙色级联路径，强调排查第一条非 CACHED 步骤。
+- `source`：Docker Docs - Optimize cache usage in builds，https://docs.docker.com/build/cache/optimize/
+  - `image`：页面中的 cache optimization、精确 COPY、cache mounts 和 bind mounts 说明。
+  - `role`：supporting
+  - `qualityReason`：官方给出依赖层前置、`.dockerignore`、cache mount 等工程优化策略，适合补足右侧教学重点。
+  - `takeaways`：构建上下文面板展示 `.dockerignore`、`package-lock.json`、`src/index.ts` 和 `/root/.npm` cache mount。
+  - `originalChanges`：把优化建议转成完成态事实卡，让移动端也能看到稳定依赖、源码 miss 和包管理器缓存复用。
+- `source`：Docker Docs - Cache storage backends，https://docs.docker.com/build/cache/backends/
+  - `image`：页面中的 cache backend 类型与 `--cache-to` / `--cache-from` 示例。
+  - `role`：supporting
+  - `qualityReason`：官方覆盖 registry、local、gha、s3 等外部缓存后端，适合表达 CI 临时 builder 的冷启动问题。
+  - `takeaways`：右下 External cache backend 面板保留 registry/local/gha/s3，并展示 `--cache-from`、`--cache-to`、next CI。
+  - `originalChanges`：把后端列表压缩为三张短卡，突出导入、导出和下一次 CI warm cache。
+- `source`：Docker Docs - Dockerfile reference，https://docs.docker.com/reference/dockerfile/
+  - `image`：页面中的 `RUN --mount=type=cache` 与 BuildKit mount 语义。
+  - `role`：supporting
+  - `qualityReason`：官方校准 cache mount 只优化重新执行成本，层缓存 HIT/MISS 仍按指令和输入摘要判断。
+  - `takeaways`：第四步单独展示 `RUN --mount=type=cache` 和 `/root/.npm reused`，避免把 cache mount 误画成普通镜像层缓存。
+  - `originalChanges`：将 cache mount 作为青色虚线路径接入 solver，和层缓存记录表分开表达。
+
+### Reference Breakdown
+
+- 主体布局：左侧 Dockerfile 指令流，中上 BuildKit solver，右上缓存记录表，左下构建上下文与 cache mount，右下外部缓存后端，底部五个信号，右侧任务面板与底部步骤由模拟器统一承载。
+- 视觉焦点：`FROM/COPY lock/RUN deps HIT` 与 `COPY src MISS -> RUN build MISS` 的对照链路，突出第一条 miss 之后父层 digest 改变。
+- 领域对象：Dockerfile instruction、cache key、parent digest、context digest、`.dockerignore`、COPY/ADD checksum、BuildKit solver、cache record、HIT/MISS、cache mount、registry/local/gha/s3 backend、`--cache-from`、`--cache-to`。
+- 容器层级：Dockerfile 行进入 solver；solver 用指令、父层和输入摘要查缓存记录；构建上下文影响 COPY 层；cache mount 作为 RUN 期间复用目录；外部缓存后端承接 CI 导入导出。
+- 连线方向：Dockerfile -> solver -> cache records；context digest -> cache records 表示级联失效；cache mount -> solver 表示重新执行成本优化；cache records -> remote backend -> solver 表示下一次 CI warm cache。
+- 状态表达：五步依次高亮计算 cache key、命中稳定依赖、源码变化级联失效、cache mount 复用、远程缓存导入导出；记录表、路径、上下文行和底部信号随 completedSteps 激活。
+- 颜色策略：品牌蓝表示 cache key 和导入路径，绿色表示 HIT 与稳定依赖复用，橙色表示源码 miss 与级联失效，青色表示 cache mount，红色表示远程缓存导出和冷启动风险。
+- 文字密度：桌面 SVG 保留短指令、digest、HIT/MISS 和命令开关；移动端隐藏复杂 SVG，改成五张流程卡和五张事实卡。
+- 交互节奏：计算缓存键 -> 命中稳定依赖 -> 源码变化导致级联 miss -> 用 cache mount 降低重新执行成本 -> 导入导出远程缓存支撑 CI。
+- 原创改造点：把 Docker 官方 cache、invalidation、optimize、backend 和 Dockerfile reference 资料融合成本项目 BuildKit 缓存失效状态模型，强调缓存正确性、构建速度和 CI 复用之间的工程边界。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/build-cache/desktop.svg` 与 `.codex-artifacts/visualizations/build-cache/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/build-cache/mobile.html` 与 `.codex-artifacts/visualizations/build-cache/mobile.html.fragment`。
+- 截图结论：桌面 SVG 可识别 Dockerfile、BuildKit solver、缓存记录表、构建上下文、cache mount、外部缓存后端、五个底部信号和 5/5 进度；移动 HTML 展示五步流程卡和五张事实卡，文字可读。
+- 候选来源数量：普通搜索筛选约 12 个候选入口，最终记录 5 个官方参考来源。
+- 浏览器备注：Chrome DevTools MCP profile 被占用；Browser 插件返回 `iab` 不可用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied (1100)`；本轮使用官方文档资料、项目数据测试、生产构建、真实 React `SimulationStage` SSR SVG/HTML 审查图、关键文本 grep 和 diff 检查完成验收。
+- 提交计划：功能代码与进度文档合并进入 `feat: add build cache visualization`。
+- 推送计划：提交后执行 `git pull --rebase origin main` 与 `git push origin main`。
 
 ## Docker Resource Limit Visualization
 
@@ -2972,3 +3031,17 @@
 - Verification：新增测试先失败于 `visualPointIds.network` 缺少 `http3`，补 core/visual 清单与专用 builder/stage 后 `npm run test:data -- --grep "HTTP/3"` 通过 1 项；完整 `npm run test:data` 通过 35 项；`npm run build` 通过；`git diff --check` 通过；SSR 审查图关键文本 grep 通过。
 - Commit/Push Plan：提交 `feat: add http3 visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：Docker `Build cache invalidation`，备选 Redis `缓存击穿/穿透/雪崩` 或 Kubernetes `StatefulSet`。
+
+### 2026-06-04 21:22 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `63b8782 feat: add http3 visualization`；从干净工作区继续。
+- Selected：Docker `构建缓存`，原因是 cache key、parent digest、context digest、HIT/MISS 链、COPY/ADD 失效规则、cache mount 和远程缓存后端构成高价值构建优化状态模型，并承接已完成的 Docker `镜像层` 与 `多阶段构建`。
+- Candidate Sources：普通搜索筛选约 12 个候选入口；主参考为 Docker 官方 Build cache；辅助参考为 Docker Build cache invalidation、Optimize cache usage、Cache storage backends 和 Dockerfile reference；Chrome DevTools MCP profile 被占用，Browser 插件返回 `iab` 不可用，本轮使用官方资料、可访问 URL 和本地 SSR 审查完成确认。
+- Online Image References：见 `Docker Build Cache Visualization` 小节；主参考决定 Dockerfile instruction stream -> BuildKit solver -> Cache records 的构图，辅助来源校准 COPY/ADD checksum、cache mount 和 `--cache-from` / `--cache-to`。
+- Reference Breakdown：主体布局为左侧 Dockerfile 指令流，中上 BuildKit solver，右上缓存记录表，左下构建上下文与 cache mount，右下外部缓存后端，底部五个信号；视觉焦点是 `FROM/COPY lock/RUN deps HIT` 与 `COPY src MISS -> RUN build MISS` 的级联对照。
+- Implementation：新增 `docker:build-cache` 专用 `state-model` 构建器、Build Cache SVG 舞台、移动端流程卡、响应式样式和数据测试；既有 Build Cache 从通用 Docker build 流程升级为专用缓存失效模型。
+- Browser Note：Chrome DevTools MCP profile 被占用；Browser 插件返回 `iab` 不可用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied (1100)`；本轮使用真实 React `SimulationStage` SSR 生成审查 HTML/SVG。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/build-cache/desktop.svg`、`.codex-artifacts/visualizations/build-cache/desktop.html`、`.codex-artifacts/visualizations/build-cache/mobile.html` 与 `.codex-artifacts/visualizations/build-cache/mobile.html.fragment`；桌面 SVG 可识别 Dockerfile、BuildKit solver、缓存记录表、构建上下文、cache mount、外部缓存后端、五个底部信号和 5/5 进度，移动 HTML 展示五步流程和五张事实卡。
+- Verification：新增测试先失败于 generic `Image build` 模拟，补专用 builder/stage 后 `npm run test:data -- --grep "docker build cache"` 通过 1 项；完整 `npm run test:data` 通过 36 项；`npm run build` 通过；`npm run kg:review:validate` 返回 `issueCount=0`；`git diff --check` 通过；SSR 审查图关键文本 grep 通过。
+- Commit/Push Plan：提交 `feat: add build cache visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：Redis `缓存击穿/穿透/雪崩`，备选 Kubernetes `StatefulSet` 或 Docker `BuildKit`。

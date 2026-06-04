@@ -454,6 +454,26 @@ test("docker multi-stage build is backed by a dedicated visual simulation", asyn
   );
 });
 
+test("docker build cache is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("docker");
+  const buildCache = points.find((point) => point.id === "build-cache");
+
+  expect(visualPointIds.docker).toContain("build-cache");
+  expect(buildCache).toBeTruthy();
+
+  const simulation = buildVisualSimulation("docker", buildCache!);
+
+  expect(simulation.key).toBe("docker:build-cache");
+  expect(simulation.pattern.en).toContain("build cache invalidation");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.steps.map((step) => step.label.en)).toEqual(
+    expect.arrayContaining(["cache key", "cascade miss", "context digest", "cache mount", "cache export"]),
+  );
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["cache key digest", "HIT / MISS chain", "context digest", "cache mount reuse"]),
+  );
+});
+
 test("network TCP/IP model is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("network");
   const tcpIpModel = points.find((point) => point.id === "tcp-ip-model");

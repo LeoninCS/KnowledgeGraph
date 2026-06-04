@@ -7833,6 +7833,279 @@
   bottom: 14px;
 }
 
+.docker-build-cache-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.docker-build-cache-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 22%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .docker-build-cache-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.docker-build-cache-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.docker-build-cache-mobile-map {
+  display: none;
+}
+
+.docker-bc-bg {
+  fill: color-mix(in srgb, var(--tertiary) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 20%, transparent);
+}
+
+.docker-bc-title {
+  fill: var(--text);
+  font-size: 27px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.docker-bc-subtitle {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.docker-bc-dockerfile,
+.docker-bc-solver,
+.docker-bc-records,
+.docker-bc-context,
+.docker-bc-remote,
+.docker-bc-key-path,
+.docker-bc-hit-path,
+.docker-bc-miss-path,
+.docker-bc-mount-path,
+.docker-bc-export-path,
+.docker-bc-code-row,
+.docker-bc-solver-row,
+.docker-bc-record-row,
+.docker-bc-context-row,
+.docker-bc-remote-row,
+.docker-bc-signal {
+  opacity: 0.28;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.docker-bc-dockerfile.active,
+.docker-bc-solver.active,
+.docker-bc-records.active,
+.docker-bc-context.active,
+.docker-bc-remote.active,
+.docker-bc-key-path.active,
+.docker-bc-hit-path.active,
+.docker-bc-miss-path.active,
+.docker-bc-mount-path.active,
+.docker-bc-export-path.active,
+.docker-bc-code-row.active,
+.docker-bc-solver-row.active,
+.docker-bc-record-row.active,
+.docker-bc-context-row.active,
+.docker-bc-remote-row.active,
+.docker-bc-signal.active {
+  opacity: 1;
+}
+
+.docker-bc-dockerfile > rect,
+.docker-bc-solver > rect,
+.docker-bc-records > rect,
+.docker-bc-context > rect,
+.docker-bc-remote > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url(#docker-bc-soft-shadow);
+}
+
+.docker-bc-dockerfile.active > rect,
+.docker-bc-solver.active > rect,
+.docker-bc-code-row.brand.active rect,
+.docker-bc-solver-row.brand.active rect,
+.docker-bc-context-row.brand.active rect,
+.docker-bc-signal.brand.active rect,
+.docker-bc-key-path.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 40%, var(--border));
+}
+
+.docker-bc-records.active > rect,
+.docker-bc-code-row.success.active rect,
+.docker-bc-solver-row.success.active rect,
+.docker-bc-record-row.success.active rect,
+.docker-bc-context-row.success.active rect,
+.docker-bc-remote-row.success.active rect,
+.docker-bc-signal.success.active rect,
+.docker-bc-hit-path.active rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.docker-bc-context.active > rect,
+.docker-bc-code-row.warning.active rect,
+.docker-bc-record-row.warning.active rect,
+.docker-bc-context-row.warning.active rect,
+.docker-bc-signal.warning.active rect,
+.docker-bc-miss-path.active rect {
+  fill: color-mix(in srgb, #f59e0b 11%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.docker-bc-code-row.danger.active rect,
+.docker-bc-record-row.danger.active rect,
+.docker-bc-remote.active > rect,
+.docker-bc-remote-row.danger.active rect,
+.docker-bc-signal.danger.active rect,
+.docker-bc-export-path.active rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.docker-bc-solver-row.teal.active rect,
+.docker-bc-context-row.teal.active rect,
+.docker-bc-signal.teal.active rect,
+.docker-bc-mount-path.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 42%, var(--border));
+}
+
+.docker-bc-panel-title {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.docker-bc-panel-subtitle,
+.docker-bc-dockerfile text,
+.docker-bc-solver text,
+.docker-bc-records text,
+.docker-bc-context text,
+.docker-bc-remote text,
+.docker-bc-key-path text,
+.docker-bc-hit-path text,
+.docker-bc-miss-path text,
+.docker-bc-mount-path text,
+.docker-bc-export-path text,
+.docker-bc-signal text {
+  fill: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.docker-bc-code-row rect,
+.docker-bc-solver-row rect,
+.docker-bc-record-row rect,
+.docker-bc-context-row rect,
+.docker-bc-remote-row rect,
+.docker-bc-key-path rect,
+.docker-bc-hit-path rect,
+.docker-bc-miss-path rect,
+.docker-bc-mount-path rect,
+.docker-bc-export-path rect,
+.docker-bc-signal rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url(#docker-bc-soft-shadow);
+}
+
+.docker-bc-code-row text:first-of-type,
+.docker-bc-solver-row text:first-of-type,
+.docker-bc-record-row text:first-of-type,
+.docker-bc-context-row text:first-of-type,
+.docker-bc-remote-row text:first-of-type,
+.docker-bc-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+}
+
+.docker-bc-code-row text:last-of-type,
+.docker-bc-solver-row text:last-of-type,
+.docker-bc-record-row text:last-of-type,
+.docker-bc-context-row text:last-of-type,
+.docker-bc-remote-row text:last-of-type,
+.docker-bc-signal text:last-of-type {
+  fill: var(--brand-strong);
+  font-weight: 950;
+  text-anchor: end;
+}
+
+.docker-bc-record-row text:nth-of-type(2) {
+  fill: var(--muted);
+  text-anchor: start;
+}
+
+.docker-bc-remote-row text {
+  text-anchor: middle;
+}
+
+.docker-bc-key-path text,
+.docker-bc-hit-path text,
+.docker-bc-miss-path text,
+.docker-bc-mount-path text,
+.docker-bc-export-path text {
+  fill: var(--text);
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.docker-bc-key-path path,
+.docker-bc-hit-path path,
+.docker-bc-miss-path path,
+.docker-bc-mount-path path,
+.docker-bc-export-path path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.docker-bc-hit-path path {
+  stroke: var(--success);
+}
+
+.docker-bc-miss-path path {
+  stroke: #f59e0b;
+}
+
+.docker-bc-mount-path path {
+  stroke: var(--tertiary);
+  stroke-dasharray: 8 7;
+}
+
+.docker-bc-export-path path {
+  stroke: var(--danger);
+}
+
+.docker-build-cache-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .bplus-bg {
   fill: color-mix(in srgb, var(--brand-soft) 24%, var(--surface));
   stroke: color-mix(in srgb, var(--tertiary) 18%, transparent);
@@ -15878,6 +16151,87 @@
   }
 
   .k8s-kube-proxy-caption {
+    position: static;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .docker-build-cache-stage {
+    padding: 12px;
+  }
+
+  .docker-build-cache-card {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .docker-build-cache-diagram {
+    display: none;
+  }
+
+  .docker-build-cache-mobile-map {
+    display: grid;
+    gap: 12px;
+  }
+
+  .docker-build-cache-mobile-flow,
+  .docker-build-cache-mobile-facts {
+    display: grid;
+    gap: 10px;
+  }
+
+  .docker-build-cache-mobile-hop,
+  .docker-build-cache-mobile-fact {
+    display: grid;
+    gap: 5px;
+    border: 1px solid color-mix(in srgb, var(--tertiary) 18%, var(--border));
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--tertiary) 6%, var(--surface));
+    padding: 12px;
+  }
+
+  .docker-build-cache-mobile-hop {
+    position: relative;
+  }
+
+  .docker-build-cache-mobile-hop::after {
+    content: "";
+    position: absolute;
+    right: 18px;
+    bottom: -18px;
+    width: 2px;
+    height: 16px;
+    background: color-mix(in srgb, var(--tertiary) 32%, var(--border));
+  }
+
+  .docker-build-cache-mobile-hop:last-child::after {
+    display: none;
+  }
+
+  .docker-build-cache-mobile-hop span,
+  .docker-build-cache-mobile-fact span {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 950;
+  }
+
+  .docker-build-cache-mobile-hop strong,
+  .docker-build-cache-mobile-fact strong {
+    color: var(--brand-strong);
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+  }
+
+  .docker-build-cache-mobile-hop.active,
+  .docker-build-cache-mobile-fact.active {
+    border-color: color-mix(in srgb, var(--success) 44%, var(--border));
+    background: color-mix(in srgb, var(--success) 11%, var(--surface));
+  }
+
+  .docker-build-cache-caption {
     position: static;
     justify-content: space-between;
     width: 100%;

@@ -440,6 +440,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "docker:build-cache") {
+    return (
+      <DockerBuildCacheStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "docker:multi-stage-build") {
     return (
       <DockerMultiStageBuildStage
@@ -9806,6 +9817,245 @@ function DockerImageLayerStage({
           </div>
         </div>
         <div className="tcp-handshake-caption docker-layer-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DockerBuildCacheStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const keyActive = completedSteps >= 1;
+  const hitActive = completedSteps >= 2;
+  const missActive = completedSteps >= 3;
+  const mountActive = completedSteps >= 4;
+  const exportActive = completedSteps >= 5;
+  const dockerfileRows = [
+    { line: "FROM node:22-alpine", status: hitActive ? "HIT" : "pending", tone: "success", active: keyActive || hitActive },
+    { line: "COPY package*.json ./", status: hitActive ? "HIT" : "key pending", tone: "success", active: keyActive || hitActive },
+    { line: "RUN npm ci", status: hitActive ? "CACHED" : "waiting", tone: "success", active: hitActive },
+    { line: "COPY src ./src", status: missActive ? "MISS" : "watch", tone: "warning", active: missActive },
+    { line: "RUN npm run build", status: missActive ? "MISS" : "after src", tone: "danger", active: missActive },
+  ];
+  const recordRows = [
+    { name: "base", key: "sha256:base", value: hitActive ? "HIT" : "--", tone: "success", active: hitActive },
+    { name: "deps", key: "sha256:dep-a1", value: hitActive ? "HIT" : "--", tone: "success", active: hitActive },
+    { name: "src", key: missActive ? "sha256:77f" : "sha256:9c2", value: missActive ? "MISS" : "--", tone: "warning", active: missActive },
+    { name: "build", key: missActive ? "parent=src-77f" : "parent=src-9c2", value: missActive ? "MISS" : "--", tone: "danger", active: missActive },
+  ];
+  const contextRows = [
+    { name: ".dockerignore", value: keyActive ? "pruned" : "pending", active: keyActive, tone: "brand" },
+    { name: "package-lock", value: hitActive ? "same" : "digest", active: keyActive || hitActive, tone: "success" },
+    { name: "src/index.ts", value: missActive ? "changed" : "watch", active: missActive, tone: "warning" },
+    { name: "cache mount", value: mountActive ? ".npm HIT" : "idle", active: mountActive, tone: "teal" },
+  ];
+  const remoteRows = [
+    { name: "--cache-from", value: exportActive ? "registry import" : "waiting", active: exportActive, tone: "brand" },
+    { name: "--cache-to", value: exportActive ? "mode=max export" : "waiting", active: exportActive, tone: "danger" },
+    { name: "next CI", value: exportActive ? "warm cache" : "cold start", active: exportActive, tone: "success" },
+  ];
+  const signalRows = [
+    { name: "cache key", value: keyActive ? "instruction + parent + input" : "--", active: keyActive, tone: "brand" },
+    { name: "HIT chain", value: hitActive ? "base/deps reused" : "--", active: hitActive, tone: "success" },
+    { name: "cascade", value: missActive ? "src -> build MISS" : "--", active: missActive, tone: "warning" },
+    { name: "cache mount", value: mountActive ? "downloads reused" : "--", active: mountActive, tone: "teal" },
+    { name: "remote", value: exportActive ? "registry cache" : "--", active: exportActive, tone: "danger" },
+  ];
+  const mobileFlow = [
+    { name: "Cache key", value: keyActive ? "instruction + parent digest + input" : "pending", active: keyActive },
+    { name: "Stable deps", value: hitActive ? "FROM/COPY lock/RUN deps HIT" : "waiting", active: hitActive },
+    { name: "Source change", value: missActive ? "COPY src MISS, RUN build MISS" : "watching", active: missActive },
+    { name: "Cache mount", value: mountActive ? "/root/.npm reused during rerun" : "idle", active: mountActive },
+    { name: "Remote cache", value: exportActive ? "--cache-to registry, next CI warm" : "pending", active: exportActive },
+  ];
+
+  return (
+    <div className="visual-stage docker-build-cache-stage">
+      <div className="docker-build-cache-card">
+        <svg
+          className="docker-build-cache-diagram"
+          viewBox="0 0 1120 640"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["docker-bc-arrow-brand", "var(--brand)"],
+              ["docker-bc-arrow-teal", "var(--tertiary)"],
+              ["docker-bc-arrow-success", "var(--success)"],
+              ["docker-bc-arrow-warning", "#f59e0b"],
+              ["docker-bc-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="docker-bc-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="docker-bc-bg" x="24" y="24" width="1072" height="580" rx="28" />
+          <text className="docker-bc-title" x="560" y="70">{readLocalizedText(simulation.title, locale)}</text>
+          <text className="docker-bc-subtitle" x="560" y="100">
+            {label(
+              "Dockerfile order -> cache key lookup -> cascade miss -> cache mount -> remote cache",
+              "Dockerfile order -> cache key lookup -> cascade miss -> cache mount -> remote cache",
+            )}
+          </text>
+
+          <g className={`docker-bc-dockerfile ${keyActive ? "active" : ""}`}>
+            <rect x="60" y="132" width="278" height="292" rx="24" />
+            <text className="docker-bc-panel-title" x="90" y="168">Dockerfile</text>
+            <text className="docker-bc-panel-subtitle" x="90" y="190">{label("顺序决定父链 digest", "Order controls parent digest chain")}</text>
+            {dockerfileRows.map((row, index) => (
+              <g key={row.line} className={`docker-bc-code-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="90" y={214 + index * 38} width="214" height="28" rx="13" />
+                <text x="106" y={232 + index * 38}>{row.line}</text>
+                <text x="294" y={232 + index * 38}>{row.status}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-bc-solver ${keyActive ? "active" : ""}`}>
+            <rect x="404" y="132" width="286" height="180" rx="26" />
+            <text className="docker-bc-panel-title" x="434" y="170">BuildKit solver</text>
+            <text className="docker-bc-panel-subtitle" x="434" y="192">{label("比较指令、父层和输入摘要", "Compares instruction, parent, input")}</text>
+            {[
+              { name: "instruction", value: keyActive ? "RUN npm ci" : "--", active: keyActive, tone: "brand" },
+              { name: "parent", value: hitActive ? "sha256:lock-a1" : "pending", active: hitActive, tone: "success" },
+              { name: "platform / ARG", value: keyActive ? "linux/amd64 + NODE_ENV" : "--", active: keyActive, tone: "brand" },
+            ].map((row, index) => (
+              <g key={row.name} className={`docker-bc-solver-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="434" y={216 + index * 30} width="220" height="24" rx="12" />
+                <text x="450" y={232 + index * 30}>{row.name}</text>
+                <text x="642" y={232 + index * 30}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-bc-records ${hitActive || missActive ? "active" : ""}`}>
+            <rect x="748" y="132" width="312" height="250" rx="26" />
+            <text className="docker-bc-panel-title" x="778" y="170">{label("缓存记录表", "Cache records")}</text>
+            <text className="docker-bc-panel-subtitle" x="778" y="192">{label("第一条 MISS 之后父链改变", "Parent chain changes after first MISS")}</text>
+            {recordRows.map((row, index) => (
+              <g key={row.name} className={`docker-bc-record-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="778" y={216 + index * 38} width="244" height="28" rx="13" />
+                <text x="794" y={234 + index * 38}>{row.name}</text>
+                <text x="888" y={234 + index * 38}>{row.key}</text>
+                <text x="1010" y={234 + index * 38}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-bc-context ${missActive || mountActive ? "active" : ""}`}>
+            <rect x="60" y="456" width="368" height="112" rx="24" />
+            <text className="docker-bc-panel-title" x="90" y="492">{label("构建上下文与缓存挂载", "Build context and cache mount")}</text>
+            {contextRows.map((row, index) => (
+              <g key={row.name} className={`docker-bc-context-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x={90 + (index % 2) * 166} y={510 + Math.floor(index / 2) * 32} width="142" height="24" rx="12" />
+                <text x={104 + (index % 2) * 166} y={526 + Math.floor(index / 2) * 32}>{row.name}</text>
+                <text x={224 + (index % 2) * 166} y={526 + Math.floor(index / 2) * 32}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-bc-remote ${exportActive ? "active" : ""}`}>
+            <rect x="484" y="442" width="576" height="126" rx="26" />
+            <text className="docker-bc-panel-title" x="514" y="480">{label("外部缓存后端", "External cache backend")}</text>
+            <text className="docker-bc-panel-subtitle" x="514" y="502">registry · local · gha · s3</text>
+            {remoteRows.map((row, index) => (
+              <g key={row.name} className={`docker-bc-remote-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x={704 + index * 108} y="476" width="92" height="52" rx="16" />
+                <text x={750 + index * 108} y="498">{row.name}</text>
+                <text x={750 + index * 108} y="518">{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`docker-bc-key-path ${keyActive ? "active" : ""}`}>
+            <path d="M 338 254 C 366 246, 380 236, 404 226" markerEnd="url(#docker-bc-arrow-brand)" />
+            <rect x="326" y="206" width="112" height="30" rx="15" />
+            <text x="382" y="226">cache key</text>
+          </g>
+
+          <g className={`docker-bc-hit-path ${hitActive ? "active" : ""}`}>
+            <path d="M 690 230 C 712 230, 728 230, 748 230" markerEnd="url(#docker-bc-arrow-success)" />
+            <rect x="670" y="188" width="98" height="30" rx="15" />
+            <text x="719" y="208">HIT</text>
+          </g>
+
+          <g className={`docker-bc-miss-path ${missActive ? "active" : ""}`}>
+            <path d="M 226 424 C 246 448, 268 456, 302 456" markerEnd="url(#docker-bc-arrow-warning)" />
+            <path d="M 426 504 C 552 448, 692 356, 778 312" markerEnd="url(#docker-bc-arrow-warning)" />
+            <rect x="292" y="426" width="126" height="32" rx="16" />
+            <text x="355" y="448">context digest</text>
+          </g>
+
+          <g className={`docker-bc-mount-path ${mountActive ? "active" : ""}`}>
+            <path d="M 340 510 C 380 468, 410 402, 442 312" markerEnd="url(#docker-bc-arrow-teal)" />
+            <rect x="342" y="382" width="122" height="32" rx="16" />
+            <text x="403" y="404">cache mount</text>
+          </g>
+
+          <g className={`docker-bc-export-path ${exportActive ? "active" : ""}`}>
+            <path d="M 904 382 C 918 410, 916 424, 902 442" markerEnd="url(#docker-bc-arrow-danger)" />
+            <path d="M 662 442 C 640 394, 622 344, 618 312" markerEnd="url(#docker-bc-arrow-brand)" />
+            <rect x="760" y="400" width="118" height="32" rx="16" />
+            <text x="819" y="422">cache export</text>
+          </g>
+
+          <g className="docker-bc-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`docker-bc-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={62 + index * 208} y="586" width="178" height="34" rx="16" />
+                <text x={82 + index * 208} y="600">{signal.name}</text>
+                <text x={226 + index * 208} y="612">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="docker-build-cache-mobile-map">
+          <div className="docker-build-cache-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`docker-build-cache-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="docker-build-cache-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`docker-build-cache-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption docker-build-cache-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>
