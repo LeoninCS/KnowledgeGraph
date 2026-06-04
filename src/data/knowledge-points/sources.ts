@@ -1401,6 +1401,10 @@ export const knowledgeSources = {
     title: "Martin Fowler: Immutable Server",
     url: "https://martinfowler.com/bliki/ImmutableServer.html",
   },
+  "martin-fowler-blue-green-deployment": {
+    title: "Martin Fowler: Blue Green Deployment",
+    url: "https://martinfowler.com/bliki/BlueGreenDeployment.html",
+  },
   "cncf-cloud-native-definition": {
     title: "CNCF: Cloud Native Definition",
     url: "https://github.com/cncf/toc/blob/main/DEFINITION.md",
@@ -1844,6 +1848,10 @@ export const knowledgeSources = {
   "nginx-reverse-proxy": {
     title: "NGINX Documentation: Reverse Proxy",
     url: "https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/",
+  },
+  "nginx-control-docs": {
+    title: "NGINX Documentation: Controlling nginx",
+    url: "https://nginx.org/en/docs/control.html",
   },
   "owasp-api-security-top-10": {
     title: "OWASP API Security Top 10",
@@ -3044,6 +3052,10 @@ export const knowledgeSources = {
   "devinterview-docker": {
     title: "Devinterview Docker Interview Questions",
     url: "https://github.com/Devinterview-io/docker-interview-questions",
+  },
+  "tencent-tsf-blue-green-release": {
+    title: "腾讯云文档：微服务平台 TSF 蓝绿发布",
+    url: "https://cloud.tencent.com/document/product/649/116499",
   },
   "devinterview-kubernetes": {
     title: "Devinterview Kubernetes Interview Questions",
