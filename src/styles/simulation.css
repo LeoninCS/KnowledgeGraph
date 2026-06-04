@@ -6596,6 +6596,330 @@
   bottom: 14px;
 }
 
+.redis-cache-failure-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.redis-cache-failure-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 20%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .redis-cache-failure-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.redis-cache-failure-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.redis-cache-failure-mobile-map {
+  display: none;
+}
+
+.redis-cf-bg {
+  fill: color-mix(in srgb, var(--tertiary) 11%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 22%, transparent);
+}
+
+.redis-cf-title {
+  fill: var(--text);
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.redis-cf-subtitle {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.redis-cf-app,
+.redis-cf-redis,
+.redis-cf-db,
+.redis-cf-filter,
+.redis-cf-rebuild,
+.redis-cf-guard,
+.redis-cf-row,
+.redis-cf-pill,
+.redis-cf-signal,
+.redis-cf-main-path,
+.redis-cf-db-path,
+.redis-cf-filter-path,
+.redis-cf-rebuild-path,
+.redis-cf-guard-path,
+.redis-cf-ttl {
+  opacity: 0.28;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.redis-cf-app.active,
+.redis-cf-redis.active,
+.redis-cf-db.active,
+.redis-cf-filter.active,
+.redis-cf-rebuild.active,
+.redis-cf-guard.active,
+.redis-cf-row.active,
+.redis-cf-pill.active,
+.redis-cf-signal.active,
+.redis-cf-main-path.active,
+.redis-cf-db-path.active,
+.redis-cf-filter-path.active,
+.redis-cf-rebuild-path.active,
+.redis-cf-guard-path.active,
+.redis-cf-ttl.active {
+  opacity: 1;
+}
+
+.redis-cf-app > rect,
+.redis-cf-redis > rect,
+.redis-cf-db > rect,
+.redis-cf-filter > rect,
+.redis-cf-rebuild > rect,
+.redis-cf-guard > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, transparent);
+  stroke: color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  stroke-width: 1.2;
+  filter: url("#redis-cf-soft-shadow");
+}
+
+.redis-cf-app.active > rect,
+.redis-cf-row.brand.active rect,
+.redis-cf-pill.brand.active rect,
+.redis-cf-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 40%, var(--border));
+}
+
+.redis-cf-redis.active > rect,
+.redis-cf-filter.active > rect,
+.redis-cf-row.teal.active rect,
+.redis-cf-pill.teal.active rect,
+.redis-cf-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 42%, var(--border));
+}
+
+.redis-cf-row.warning.active rect,
+.redis-cf-pill.warning.active rect,
+.redis-cf-signal.warning.active rect {
+  fill: color-mix(in srgb, #f59e0b 11%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 42%, var(--border));
+}
+
+.redis-cf-db.active > rect,
+.redis-cf-row.danger.active rect,
+.redis-cf-pill.danger.active rect,
+.redis-cf-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 38%, var(--border));
+}
+
+.redis-cf-guard.active > rect,
+.redis-cf-rebuild.active > rect,
+.redis-cf-row.success.active rect,
+.redis-cf-pill.success.active rect,
+.redis-cf-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 40%, var(--border));
+}
+
+.redis-cf-row rect,
+.redis-cf-pill rect,
+.redis-cf-signal rect {
+  fill: color-mix(in srgb, var(--surface) 90%, transparent);
+  stroke: color-mix(in srgb, var(--muted) 18%, var(--border));
+  filter: url("#redis-cf-soft-shadow");
+}
+
+.redis-cf-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.redis-cf-panel-subtitle,
+.redis-cf-app text,
+.redis-cf-redis text,
+.redis-cf-db text,
+.redis-cf-filter text,
+.redis-cf-rebuild text,
+.redis-cf-guard text,
+.redis-cf-main-path text,
+.redis-cf-db-path text,
+.redis-cf-signal text {
+  fill: var(--muted);
+  font-size: 10.5px;
+  font-weight: 850;
+}
+
+.redis-cf-row text,
+.redis-cf-pill text,
+.redis-cf-signal text,
+.redis-cf-main-path text,
+.redis-cf-db-path text {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9.8px;
+  font-weight: 900;
+}
+
+.redis-cf-row text:first-of-type,
+.redis-cf-signal text:first-of-type {
+  fill: var(--text);
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.redis-cf-row text:last-of-type,
+.redis-cf-signal text:last-of-type {
+  fill: var(--brand-strong);
+  text-anchor: end;
+}
+
+.redis-cf-pill text,
+.redis-cf-main-path text,
+.redis-cf-db-path text {
+  fill: var(--text);
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.redis-cf-main-path path,
+.redis-cf-db-path path,
+.redis-cf-filter-path path,
+.redis-cf-rebuild-path path,
+.redis-cf-guard-path path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.redis-cf-main-path path {
+  stroke: var(--brand);
+}
+
+.redis-cf-db-path path {
+  stroke: var(--danger);
+}
+
+.redis-cf-filter-path path {
+  stroke: var(--tertiary);
+  stroke-dasharray: 8 7;
+}
+
+.redis-cf-rebuild-path path {
+  stroke: var(--success);
+}
+
+.redis-cf-guard-path path {
+  stroke: #f59e0b;
+}
+
+.redis-cf-ttl line {
+  stroke: color-mix(in srgb, var(--muted) 28%, transparent);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.redis-cf-ttl rect {
+  fill: color-mix(in srgb, #f59e0b 50%, var(--surface));
+  stroke: color-mix(in srgb, #f59e0b 56%, var(--border));
+}
+
+.redis-cf-ttl.success rect {
+  fill: color-mix(in srgb, var(--success) 42%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 52%, var(--border));
+}
+
+.redis-cf-ttl text {
+  fill: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.redis-cache-failure-mobile-flow,
+.redis-cache-failure-mobile-facts {
+  display: grid;
+  gap: 10px;
+}
+
+.redis-cache-failure-mobile-hop,
+.redis-cache-failure-mobile-fact {
+  display: grid;
+  gap: 5px;
+  border: 1px solid color-mix(in srgb, var(--tertiary) 18%, var(--border));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--tertiary) 5%, var(--surface));
+  padding: 12px;
+}
+
+.redis-cache-failure-mobile-hop {
+  position: relative;
+}
+
+.redis-cache-failure-mobile-hop::after {
+  content: "";
+  position: absolute;
+  right: 18px;
+  bottom: -18px;
+  width: 2px;
+  height: 16px;
+  background: color-mix(in srgb, var(--tertiary) 32%, var(--border));
+}
+
+.redis-cache-failure-mobile-hop:last-child::after {
+  display: none;
+}
+
+.redis-cache-failure-mobile-hop span,
+.redis-cache-failure-mobile-fact span {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.redis-cache-failure-mobile-hop strong,
+.redis-cache-failure-mobile-fact strong {
+  color: var(--brand-strong);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.redis-cache-failure-mobile-hop.active,
+.redis-cache-failure-mobile-fact.active {
+  border-color: color-mix(in srgb, var(--success) 42%, var(--border));
+  background: color-mix(in srgb, var(--success) 9%, var(--surface));
+}
+
+.redis-cache-failure-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
 .ip-route-bg {
   fill: color-mix(in srgb, var(--brand-soft) 30%, var(--surface));
   stroke: color-mix(in srgb, var(--brand) 18%, transparent);
@@ -16232,6 +16556,31 @@
   }
 
   .docker-build-cache-caption {
+    position: static;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .redis-cache-failure-stage {
+    padding: 12px;
+  }
+
+  .redis-cache-failure-card {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .redis-cache-failure-diagram {
+    display: none;
+  }
+
+  .redis-cache-failure-mobile-map {
+    display: grid;
+    gap: 12px;
+  }
+
+  .redis-cache-failure-caption {
     position: static;
     justify-content: space-between;
     width: 100%;

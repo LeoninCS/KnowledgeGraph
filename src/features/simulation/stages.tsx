@@ -396,6 +396,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "redis:cache-avalanche") {
+    return (
+      <RedisCacheFailureStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "redis:rdb") {
     return (
       <RedisRdbStage
@@ -2817,6 +2828,268 @@ function RedisHashSlotStage({
           </g>
         </svg>
         <div className="tcp-handshake-caption redis-hash-slot-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RedisCacheFailureStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const breakdownActive = completedSteps >= 1;
+  const penetrationActive = completedSteps >= 2;
+  const avalancheActive = completedSteps >= 3;
+  const bloomActive = completedSteps >= 4;
+  const mutexActive = completedSteps >= 5;
+  const guardActive = completedSteps >= 6;
+  const flowRows = [
+    { name: "breakdown", value: breakdownActive ? "product:42 MISS" : "hot key healthy", tone: "danger", active: breakdownActive },
+    { name: "penetration", value: penetrationActive ? "random IDs empty" : "normal IDs", tone: "warning", active: penetrationActive },
+    { name: "avalanche", value: avalancheActive ? "18k TTL same window" : "TTL distributed", tone: "danger", active: avalancheActive },
+  ];
+  const redisRows = [
+    { name: "product:42", value: breakdownActive ? "TTL=0 MISS" : "TTL=184s HIT", active: breakdownActive, tone: "danger" },
+    { name: "__NULL__:id", value: bloomActive ? "60s sentinel" : "absent", active: penetrationActive || bloomActive, tone: bloomActive ? "teal" : "warning" },
+    { name: "batch:*", value: guardActive ? "jittered" : avalancheActive ? "expires now" : "spread", active: avalancheActive || guardActive, tone: guardActive ? "success" : "danger" },
+  ];
+  const dbRows = [
+    { name: "QPS", value: guardActive ? "1.6k" : avalancheActive ? "9.8k" : breakdownActive ? "4.7k" : "1.2k", active: breakdownActive || avalancheActive || guardActive, tone: guardActive ? "success" : "danger" },
+    { name: "empty result", value: bloomActive ? "-74%" : penetrationActive ? "+62%" : "stable", active: penetrationActive || bloomActive, tone: bloomActive ? "success" : "warning" },
+    { name: "pool wait", value: guardActive ? "18 ms" : avalancheActive ? "360 ms" : "22 ms", active: avalancheActive || guardActive, tone: guardActive ? "success" : "danger" },
+  ];
+  const guardRows = [
+    { name: "Bloom", value: bloomActive ? "reject 68%" : "standby", active: bloomActive, tone: "teal" },
+    { name: "mutex", value: mutexActive ? "SET NX PX" : "standby", active: mutexActive, tone: "success" },
+    { name: "logic TTL", value: mutexActive ? "serve stale" : "standby", active: mutexActive, tone: "brand" },
+    { name: "jitter", value: guardActive ? "0-900s" : "pending", active: guardActive, tone: "success" },
+    { name: "fallback", value: guardActive ? "18% used" : "ready", active: guardActive, tone: "warning" },
+  ];
+  const signalRows = [
+    { name: "keyspace_misses", value: guardActive ? "down 71%" : avalancheActive ? "spike" : breakdownActive ? "hot miss" : "base", active: breakdownActive || avalancheActive || guardActive, tone: guardActive ? "success" : "danger" },
+    { name: "DB QPS", value: guardActive ? "1.6k" : avalancheActive ? "9.8k" : "1.2k", active: avalancheActive || guardActive, tone: guardActive ? "success" : "danger" },
+    { name: "BF reject", value: bloomActive ? "68%" : "--", active: bloomActive, tone: "teal" },
+    { name: "lock", value: mutexActive ? "one flight" : "--", active: mutexActive, tone: "success" },
+    { name: "jitter", value: guardActive ? "0-900s" : "--", active: guardActive, tone: "brand" },
+    { name: "fallback", value: guardActive ? "budget ok" : "--", active: guardActive, tone: "warning" },
+  ];
+  const mobileFlow = [
+    { name: "Breakdown", value: breakdownActive ? "hot key expired, requests fan in" : "waiting", active: breakdownActive },
+    { name: "Penetration", value: penetrationActive ? "random missing IDs hit DB" : "waiting", active: penetrationActive },
+    { name: "Avalanche", value: avalancheActive ? "batch TTL expiry raises DB QPS" : "waiting", active: avalancheActive },
+    { name: "Filter", value: bloomActive ? "Bloom reject + null cache sentinel" : "waiting", active: bloomActive },
+    { name: "Rebuild", value: mutexActive ? "SET NX PX, one request rebuilds" : "waiting", active: mutexActive },
+    { name: "Guard", value: guardActive ? "TTL jitter + rate limit + fallback" : "waiting", active: guardActive },
+  ];
+
+  return (
+    <div className="visual-stage redis-cache-failure-stage">
+      <div className="redis-cache-failure-card">
+        <svg
+          className="redis-cache-failure-diagram"
+          viewBox="0 0 1120 660"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["redis-cf-arrow-brand", "var(--brand)"],
+              ["redis-cf-arrow-teal", "var(--tertiary)"],
+              ["redis-cf-arrow-warning", "#f59e0b"],
+              ["redis-cf-arrow-danger", "var(--danger)"],
+              ["redis-cf-arrow-success", "var(--success)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="redis-cf-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="redis-cf-bg" x="24" y="24" width="1072" height="604" rx="28" />
+          <text className="redis-cf-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="redis-cf-subtitle" x="560" y="100">
+            {label(
+              "breakdown / penetration / avalanche -> filter -> mutex rebuild -> jitter + fallback",
+              "breakdown / penetration / avalanche -> filter -> mutex rebuild -> jitter + fallback",
+            )}
+          </text>
+
+          <g className={`redis-cf-app ${breakdownActive || penetrationActive || avalancheActive ? "active" : ""}`}>
+            <rect x="62" y="142" width="230" height="202" rx="24" />
+            <text className="redis-cf-panel-title" x="92" y="180">{label("业务入口", "Application edge")}</text>
+            <text className="redis-cf-panel-subtitle" x="92" y="202">GET /product/:id</text>
+            {flowRows.map((row, index) => (
+              <g key={row.name} className={`redis-cf-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="92" y={224 + index * 42} width="168" height="30" rx="15" />
+                <text x="108" y={244 + index * 42}>{row.name}</text>
+                <text x="248" y={244 + index * 42}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-cf-redis ${breakdownActive || penetrationActive || avalancheActive || bloomActive || guardActive ? "active" : ""}`}>
+            <rect x="384" y="134" width="278" height="248" rx="26" />
+            <text className="redis-cf-panel-title" x="414" y="172">Redis cache</text>
+            <text className="redis-cf-panel-subtitle" x="414" y="194">{label("物理 TTL、空值哨兵、命中率", "physical TTL, null sentinel, hit ratio")}</text>
+            {redisRows.map((row, index) => (
+              <g key={row.name} className={`redis-cf-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="414" y={218 + index * 44} width="210" height="32" rx="16" />
+                <text x="430" y={239 + index * 44}>{row.name}</text>
+                <text x="610" y={239 + index * 44}>{row.value}</text>
+              </g>
+            ))}
+            <g className={`redis-cf-ttl ${guardActive ? "active success" : avalancheActive ? "active warning" : ""}`}>
+              <line x1="424" y1="348" x2="624" y2="348" />
+              {[0, 1, 2, 3, 4, 5].map((index) => {
+                const height = guardActive ? 20 + ((index * 11) % 24) : index < 4 ? 46 : 22;
+                return (
+                  <rect
+                    key={index}
+                    x={434 + index * 30}
+                    y={348 - height}
+                    width="18"
+                    height={height}
+                    rx="6"
+                  />
+                );
+              })}
+              <text x="522" y="370">{guardActive ? "TTL jittered" : "same TTL window"}</text>
+            </g>
+          </g>
+
+          <g className={`redis-cf-db ${breakdownActive || penetrationActive || avalancheActive || guardActive ? "active" : ""}`}>
+            <rect x="760" y="142" width="262" height="202" rx="24" />
+            <text className="redis-cf-panel-title" x="790" y="180">{label("数据库 / 下游", "Database / downstream")}</text>
+            <text className="redis-cf-panel-subtitle" x="790" y="202">{label("权威数据源和连接池", "authoritative source and pool")}</text>
+            {dbRows.map((row, index) => (
+              <g key={row.name} className={`redis-cf-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x="790" y={224 + index * 42} width="184" height="30" rx="15" />
+                <text x="806" y={244 + index * 42}>{row.name}</text>
+                <text x="960" y={244 + index * 42}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-cf-main-path ${breakdownActive || penetrationActive || avalancheActive ? "active" : ""}`}>
+            <path d="M 292 240 C 320 232, 348 232, 384 240" markerEnd="url(#redis-cf-arrow-brand)" />
+            <rect x="300" y="198" width="116" height="30" rx="15" />
+            <text x="358" y="218">Cache Aside</text>
+          </g>
+          <g className={`redis-cf-db-path ${breakdownActive || penetrationActive || avalancheActive ? "active" : ""}`}>
+            <path d="M 662 246 C 694 236, 720 236, 760 246" markerEnd="url(#redis-cf-arrow-danger)" />
+            <rect x="664" y="198" width="126" height="30" rx="15" />
+            <text x="727" y="218">{guardActive ? "guarded miss" : "MISS fan-out"}</text>
+          </g>
+
+          <g className={`redis-cf-filter ${bloomActive ? "active" : ""}`}>
+            <rect x="58" y="410" width="288" height="142" rx="24" />
+            <text className="redis-cf-panel-title" x="88" y="448">{label("布隆过滤器 / 空值缓存", "Bloom filter / null cache")}</text>
+            <text className="redis-cf-panel-subtitle" x="88" y="470">BF.RESERVE error=0.01 capacity=1M</text>
+            <g className={`redis-cf-pill teal ${bloomActive ? "active" : ""}`}>
+              <rect x="88" y="492" width="108" height="30" rx="15" />
+              <text x="142" y="512">BF.EXISTS=0</text>
+            </g>
+            <g className={`redis-cf-pill success ${bloomActive ? "active" : ""}`}>
+              <rect x="210" y="492" width="108" height="30" rx="15" />
+              <text x="264" y="512">__NULL__ 60s</text>
+            </g>
+          </g>
+
+          <g className={`redis-cf-rebuild ${mutexActive ? "active" : ""}`}>
+            <rect x="392" y="414" width="300" height="142" rx="24" />
+            <text className="redis-cf-panel-title" x="422" y="452">{label("互斥重建 / 逻辑过期", "Mutex rebuild / logical expiration")}</text>
+            <text className="redis-cf-panel-subtitle" x="422" y="474">SET lock NX PX 3000 + stale value</text>
+            <g className={`redis-cf-pill success ${mutexActive ? "active" : ""}`}>
+              <rect x="422" y="496" width="116" height="30" rx="15" />
+              <text x="480" y="516">one flight</text>
+            </g>
+            <g className={`redis-cf-pill brand ${mutexActive ? "active" : ""}`}>
+              <rect x="552" y="496" width="116" height="30" rx="15" />
+              <text x="610" y="516">serve stale</text>
+            </g>
+          </g>
+
+          <g className={`redis-cf-guard ${guardActive ? "active" : ""}`}>
+            <rect x="738" y="396" width="292" height="166" rx="24" />
+            <text className="redis-cf-panel-title" x="768" y="434">{label("抖动、限流与降级", "Jitter, rate limit, fallback")}</text>
+            <text className="redis-cf-panel-subtitle" x="768" y="456">{label("把恢复窗口留给数据库", "reserve recovery window for DB")}</text>
+            {guardRows.map((row, index) => (
+              <g key={row.name} className={`redis-cf-row ${row.tone} ${row.active ? "active" : ""}`}>
+                <rect x={768 + (index % 2) * 114} y={478 + Math.floor(index / 2) * 34} width="96" height="26" rx="13" />
+                <text x={782 + (index % 2) * 114} y={496 + Math.floor(index / 2) * 34}>{row.name}</text>
+                <text x={856 + (index % 2) * 114} y={496 + Math.floor(index / 2) * 34}>{row.value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`redis-cf-filter-path ${bloomActive ? "active" : ""}`}>
+            <path d="M 202 410 C 228 360, 272 326, 384 290" markerEnd="url(#redis-cf-arrow-teal)" />
+            <path d="M 346 482 C 374 434, 392 392, 430 382" markerEnd="url(#redis-cf-arrow-success)" />
+          </g>
+          <g className={`redis-cf-rebuild-path ${mutexActive ? "active" : ""}`}>
+            <path d="M 542 414 C 556 384, 556 376, 556 350" markerEnd="url(#redis-cf-arrow-success)" />
+            <path d="M 692 494 C 728 458, 746 426, 804 344" markerEnd="url(#redis-cf-arrow-brand)" />
+          </g>
+          <g className={`redis-cf-guard-path ${guardActive ? "active" : ""}`}>
+            <path d="M 884 396 C 870 352, 852 340, 822 324" markerEnd="url(#redis-cf-arrow-success)" />
+            <path d="M 738 486 C 682 430, 646 392, 620 358" markerEnd="url(#redis-cf-arrow-warning)" />
+          </g>
+
+          <g className="redis-cf-signals">
+            {signalRows.map((signal, index) => (
+              <g key={signal.name} className={`redis-cf-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={62 + index * 176} y="590" width="146" height="32" rx="15" />
+                <text x={78 + index * 176} y="604">{signal.name}</text>
+                <text x={194 + index * 176} y="616">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+        <div className="redis-cache-failure-mobile-map">
+          <div className="redis-cache-failure-mobile-flow" aria-hidden="true">
+            {mobileFlow.map((item) => (
+              <div key={item.name} className={`redis-cache-failure-mobile-hop ${item.active ? "active" : ""}`}>
+                <span>{item.name}</span>
+                <strong>{item.value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="redis-cache-failure-mobile-facts">
+            {signalRows.map((signal) => (
+              <div key={signal.name} className={`redis-cache-failure-mobile-fact ${signal.active ? "active" : ""}`}>
+                <span>{signal.name}</span>
+                <strong>{signal.value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="tcp-handshake-caption redis-cache-failure-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

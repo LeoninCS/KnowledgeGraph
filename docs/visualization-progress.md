@@ -146,6 +146,7 @@
 | RDB | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis RDB 快照状态模型，覆盖 save 规则、BGSAVE fork、fork 时刻 keyspace、临时 dump.rdb、COW 页、原子 rename、重启加载和 INFO 持久化指标 |
 | AOF 重写 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis BGREWRITEAOF 状态模型，覆盖 fork 子进程、Copy-on-Write、当前增量 AOF、rewrite buffer、临时基础文件、manifest 原子切换和恢复重放 |
 | fork 与写时复制 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis fork/COW 内存状态模型，覆盖后台任务、页表复制、共享物理页、写保护缺页、COW 页复制、RSS 回落和 fork/latency 指标 |
+| 缓存雪崩 | `comparison-lab` | completed | HTML review captured; PNG blocked by platform permissions | Redis 缓存故障对比实验室，覆盖缓存击穿、缓存穿透、缓存雪崩、布隆过滤器、空值缓存、互斥重建、逻辑过期、TTL 抖动、限流和降级 |
 | 路由 | `step-simulation` | completed | desktop/mobile captured | 网络层 IP 路由逐跳模拟器，覆盖最长前缀匹配、TTL、二层重写和回程路径 |
 | Service | `step-simulation` | completed | desktop/mobile captured | Kubernetes Service 数据面转发模拟器，覆盖 selector、EndpointSlice、ClusterIP/DNS、kube-proxy 规则和 Ready Pod |
 | EndpointSlice | `explorable-architecture` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Kubernetes EndpointSlice 分片资源模型，覆盖 Service selector、EndpointSlice controller、批量分片、endpoint conditions、topology hints 和 kube-proxy watch fan-out |
@@ -975,7 +976,65 @@
 
 ## Next Candidate
 
-优先选择 Redis `缓存击穿/穿透/雪崩`，备选 Kubernetes `StatefulSet` 或 Docker `BuildKit`。Redis 缓存故障三件套能展示热点 key、空值穿透、TTL 同时过期、互斥重建和限流降级。
+优先选择 Kubernetes `StatefulSet`，备选 Docker `BuildKit` 或 Redis `Sentinel`。StatefulSet 能展示稳定网络标识、PVC 绑定、按序滚动更新、PodManagementPolicy 和故障恢复。
+
+## Redis Cache Avalanche Visualization
+
+### Online Image References
+
+- `source`：小林 coding - 缓存雪崩、击穿、穿透，https://xiaolincoding.com/redis/cluster/cache_problem.html
+  - `image`：页面中的缓存雪崩、缓存击穿、缓存穿透、布隆过滤器和三类问题对比图。
+  - `role`：main
+  - `qualityReason`：中文资料把三类缓存故障拆成独立图和对比表，适合作为同屏 comparison-lab 的主信息架构。
+  - `takeaways`：主画布保留业务入口、Redis、数据库三段链路，并用三条故障 lane 区分热点 key、随机不存在 ID 和批量 TTL 到期。
+  - `originalChanges`：改成本项目六步缓存故障对比实验室，加入完成态治理面板、底部指标、移动端流程卡和项目统一配色。
+- `source`：AWS Whitepaper - Database Caching Strategies Using Redis，https://d1.awsstatic.com/whitepapers/Database/database-caching-strategies-using-redis.73adbc8708febc9f3e5efc88382ab86f092bda82.pdf
+  - `image`：白皮书中的 distributed cache architecture、cache-aside 和 cache hits/misses 示意图。
+  - `role`：supporting
+  - `qualityReason`：权威资料清楚表达应用、缓存层和数据库之间的命中 / 未命中链路，适合校准主路径。
+  - `takeaways`：应用入口 -> Redis cache -> database/downstream 作为主横向链路，miss fan-out 用红色回源路径表达。
+  - `originalChanges`：把静态 cache-aside 图扩展成击穿、穿透、雪崩三种 miss 放大机制和治理后的回源下降。
+- `source`：Redis Docs - Cache-aside，https://redis.io/docs/latest/develop/use-cases/cache-aside/
+  - `image`：页面中的缓存未命中后查询数据库并回填缓存流程。
+  - `role`：supporting
+  - `qualityReason`：官方资料定义 Cache Aside 读路径和 miss 后回填，是三类缓存故障共同链路的稳定语义来源。
+  - `takeaways`：把 `GET -> miss -> database -> SET` 作为背景路径，故障点围绕 miss 后回源压力展开。
+  - `originalChanges`：右侧数据库面板加入 QPS、empty result 和 pool wait，展示回源压力变化。
+- `source`：Redis Docs - Bloom filter，https://redis.io/docs/latest/develop/data-types/probabilistic/bloom-filter/
+  - `image`：页面中的 Bloom filter / RedisBloom 命令说明与概念图文。
+  - `role`：supporting
+  - `qualityReason`：官方说明布隆过滤器容量、误判率和 BF 命令，适合校准缓存穿透治理。
+  - `takeaways`：穿透治理面板展示 `BF.RESERVE error=0.01 capacity=1M`、`BF.EXISTS=0` 和空值缓存哨兵。
+  - `originalChanges`：将布隆过滤器和短 TTL 空值缓存放在一个青色治理面板中，强调过滤层拦截率。
+- `source`：Redis Docs - Distributed locks with Redis，https://redis.io/docs/latest/develop/clients/patterns/distributed-locks/
+  - `image`：页面中的 SET NX PX、唯一值和锁释放语义说明。
+  - `role`：supporting
+  - `qualityReason`：官方锁语义适合校准缓存击穿中的互斥重建路径。
+  - `takeaways`：击穿治理面板展示 `SET lock NX PX 3000`、single-flight 回源和 serve stale。
+  - `originalChanges`：把锁与逻辑过期组合成同一治理面板，并把等待队列、旧值返回和数据库单路回源放进步骤状态。
+
+### Reference Breakdown
+
+- 主体布局：左侧业务入口，中部 Redis 缓存层，右侧数据库 / 下游；下方三块治理面板分别表示布隆过滤器 / 空值缓存、互斥重建 / 逻辑过期、TTL 抖动 / 限流 / 降级；底部六个运行信号。
+- 视觉焦点：`Cache Aside miss fan-out` 从业务入口进入 Redis，再放大到数据库；三种故障 lane 分别标注 `product:42 TTL=0`、`random IDs empty`、`18k TTL same window`。
+- 领域对象：业务入口、Cache Aside、Redis key、物理 TTL、空值哨兵、数据库连接池、布隆过滤器、互斥重建锁、逻辑过期旧值、TTL jitter、rate limit、fallback budget。
+- 容器层级：业务入口产生读流量；Redis 承载缓存命中、TTL 和空值哨兵；数据库是权威回源；过滤层在入口和缓存之间拦截穿透；重建层控制热点回源；保护层分散雪崩峰值。
+- 连线方向：业务入口 -> Redis -> 数据库是主路径；过滤路径从 Bloom/null cache 回到 Redis；重建路径从 mutex/logical-expire 控制数据库回源；guard 路径回压数据库并影响 Redis TTL 分布。
+- 状态表达：六步依次高亮击穿、穿透、雪崩、穿透治理、击穿治理、雪崩治理；面板行、路径箭头、TTL 柱状分布和底部信号随 completedSteps 激活。
+- 颜色策略：红色表示击穿和雪崩回源风险，橙色表示穿透空查询，青色表示过滤层，绿色表示治理恢复，品牌蓝表示 Cache Aside 与逻辑过期。
+- 文字密度：桌面 SVG 保留短 key、TTL、QPS、锁命令和指标；移动端隐藏复杂 SVG，改成六张流程卡和六张事实卡。
+- 交互节奏：热点 key 到期 -> 随机不存在 ID -> 批量 TTL 到期 -> Bloom/null cache 拦截 -> mutex/logical-expire 控制重建 -> jitter/rate-limit/fallback 验收恢复。
+- 原创改造点：把小林 coding 的三类问题图解、AWS cache-aside 架构、Redis 官方 Cache Aside、Bloom filter 和 distributed locks 资料融合成项目风格的同屏对比实验室，强调故障放大机制和治理闭环。
+
+### Screenshot Review
+
+- 桌面：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/cache-avalanche/desktop.html`。
+- 移动端：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/cache-avalanche/mobile.html` 与 `.codex-artifacts/visualizations/cache-avalanche/mobile.html.fragment`。
+- 截图结论：HTML review artifact 可识别缓存故障对比实验室、击穿/穿透/雪崩三类故障、Bloom/null cache、mutex rebuild、jitter/fallback 和 6/6 完成态；移动 artifact 展示六步流程卡，文字可读。
+- 候选来源数量：普通搜索筛选约 12 个候选入口，最终记录 5 个参考来源。
+- 浏览器备注：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；Playwright Chromium 截图失败于 macOS Mach port 权限 `bootstrap_check_in ... Permission denied (1100)`；本轮使用资料 URL、项目数据测试、生产构建、HTML review artifact、关键文本 grep 和 diff 检查完成验收。
+- 提交计划：功能代码与进度文档合并进入 `feat: add cache avalanche visualization`。
+- 推送计划：提交后执行 `git pull --rebase origin main` 与 `git push origin main`。
 
 ## Docker Build Cache Visualization
 

@@ -664,6 +664,40 @@ test("redis RDB is backed by a dedicated visual simulation", async () => {
   );
 });
 
+test("redis cache avalanche is backed by a dedicated failure comparison simulation", async () => {
+  const points = await loadKnowledgePoints("redis");
+  const cacheAvalanche = points.find((point) => point.id === "cache-avalanche");
+
+  expect(visualPointIds.redis).toContain("cache-avalanche");
+  expect(cacheAvalanche).toBeTruthy();
+
+  const simulation = buildVisualSimulation("redis", cacheAvalanche!);
+
+  expect(simulation.key).toBe("redis:cache-avalanche");
+  expect(simulation.pattern.en).toContain("cache failure comparison lab");
+  expect(simulation.steps).toHaveLength(6);
+  expect(simulation.steps.map((step) => step.label.en)).toEqual(
+    expect.arrayContaining([
+      "hot key expired",
+      "random missing IDs",
+      "TTL batch expiry",
+      "Bloom / null cache",
+      "mutex rebuild",
+      "jitter + fallback",
+    ]),
+  );
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining([
+      "keyspace_misses",
+      "database QPS",
+      "Bloom filter reject ratio",
+      "mutex rebuild lock",
+      "TTL jitter window",
+      "fallback budget",
+    ]),
+  );
+});
+
 test("search scoring and category lookup find expected topics", async () => {
   const networkPoints = await loadKnowledgePoints("network");
   const tcp = networkPoints.find((point) => point.id === "tcp");
