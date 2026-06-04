@@ -2687,3 +2687,18 @@
 - Verification：新增测试先失败于旧 `Resolution chain` 四步模型，补五步 builder/stage 后 `npm run test:data -- --grep "network DNS"` 通过 1 项；`npm run build` 通过；完整 `npm run test:data` 通过 29 项；`git diff --check` 通过。
 - Commit/Push Plan：提交 `feat: add dns visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：网络 `NAT`，备选 MySQL `二级索引/回表` 或 CDN `缓存失效/回源`。
+
+### 2026-06-04 14:23 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 成功，`git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `1d94917 feat: add dns visualization`；从干净工作区继续。
+- Selected：网络 `NAT`，原因是私有地址出站、SNAT/PAT、转换表、回包匹配、入口 DNAT、端口池和 conntrack 超时构成清晰工程路径，并承接 IP 路由、Docker 桥接网络和端口映射。
+- Candidate Sources：普通搜索筛选约 12 个候选入口；主参考为 AWS VPC NAT gateway use cases；辅助参考为 RFC 3022、Docker packet filtering/firewalls、iximiuz Docker port publishing 和小林 coding IP 图解。
+- Online Image References：见 `Network NAT Visualization` 小节；主参考决定私有子网、NAT 网关、公网服务和回包路径，辅助来源校准 NAPT 表字段、DNAT/MASQUERADE、监听地址与中文教学表达。
+- Reference Breakdown：主体布局为左侧私有子网，中部 NAT 网关，右侧公网服务与外部入口客户端，底部转换表、PAT 端口池和运行指标；视觉焦点是 `10.0.1.23:51524 -> 198.51.100.9:40017` 与 `198.51.100.9:8080 -> 10.0.2.8:80`。
+- Implementation：新增 `network:nat` 五步 NAT 转换表路径构建器、专用 SVG 舞台、移动端流程卡、响应式样式、进度文档记录和数据测试；既有 NAT 从通用 Layer-3 routing 升级为专用 step-simulation。
+- Browser Note：Browser 插件返回 `iab` 不可用；Chrome DevTools MCP profile 被占用；本轮使用官方/权威页面筛选、生产构建和本地 SSR 审查图完成确认。
+- Screenshot Review：PNG 捕获受平台权限限制；保存 `.codex-artifacts/visualizations/nat/desktop.svg`、`.codex-artifacts/visualizations/nat/desktop.html` 和 `.codex-artifacts/visualizations/nat/mobile.html`；桌面 SVG 可识别私有子网、NAT 网关、公网服务、外部入口客户端、内网服务、转换表、PAT 端口池、指标面板和 5/5 进度，移动 HTML 展示五步流程和三张事实卡。
+- Verification：新增测试先失败于 generic `Layer-3 routing` 模拟，补专用 builder/stage 后 `npm run test:data -- --grep "network NAT"` 通过 1 项；完整 `npm run test:data` 通过 30 项；`npm run build` 通过；`git diff --check` 通过；SSR 审查图关键文本 grep 通过。
+- Commit：功能提交 `e2dded8 feat: add nat visualization` 已创建，本地 `main` 相对 `origin/main` ahead 1。
+- Push Blocker：两次执行 `git pull --rebase origin main` 均失败，原因是 `LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443`；`git push origin main` 尚未进入执行阶段。
+- Resume Point：下一轮先重试 `git pull --rebase origin main`，成功后执行 `git push origin main` 推送 `e2dded8` 及本条 docs-only 阻塞记录；同步成功后继续 MySQL `二级索引/回表`。
