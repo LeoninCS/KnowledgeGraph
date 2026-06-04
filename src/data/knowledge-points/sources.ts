@@ -1365,6 +1365,34 @@ export const knowledgeSources = {
     title: "AWS VPC: NAT gateways",
     url: "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html",
   },
+  "aws-vpc-nat-gateway-metrics": {
+    title: "AWS VPC: NAT gateway metrics and dimensions",
+    url: "https://docs.aws.amazon.com/vpc/latest/userguide/metrics-dimensions-nat-gateway.html",
+  },
+  "aws-vpc-nat-gateway-troubleshooting": {
+    title: "AWS VPC: Troubleshoot NAT gateways",
+    url: "https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateway-troubleshooting.html",
+  },
+  "rfc4787-nat-udp": {
+    title: "RFC 4787: NAT Behavioral Requirements for Unicast UDP",
+    url: "https://www.rfc-editor.org/rfc/rfc4787",
+  },
+  "rfc6888-cgn": {
+    title: "RFC 6888: Common Requirements for Carrier-Grade NATs",
+    url: "https://www.rfc-editor.org/rfc/rfc6888",
+  },
+  "netfilter-nat-howto": {
+    title: "Netfilter NAT HOWTO",
+    url: "https://www.netfilter.org/documentation/HOWTO/NAT-HOWTO.html",
+  },
+  "kubernetes-source-ip": {
+    title: "Kubernetes: Using Source IP",
+    url: "https://kubernetes.io/docs/tutorials/services/source-ip/",
+  },
+  "linuxstory-nat-tracing": {
+    title: "LinuxStory: 网络地址转换（NAT）之报文跟踪",
+    url: "https://linuxstory.org/network-address-translation-nat-message-tracking/",
+  },
   "aws-vpc-internet-gateway": {
     title: "AWS VPC: Internet gateways",
     url: "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html",
