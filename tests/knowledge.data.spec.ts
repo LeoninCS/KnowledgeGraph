@@ -125,6 +125,26 @@ test("mysql secondary index is backed by a dedicated visual simulation", async (
   );
 });
 
+test("mysql JOIN order is backed by a dedicated visual simulation", async () => {
+  const points = await loadKnowledgePoints("mysql");
+  const joinOrder = points.find((point) => point.id === "join-order");
+
+  expect(visualPointIds.mysql).toContain("join-order");
+  expect(joinOrder).toBeTruthy();
+
+  const simulation = buildVisualSimulation("mysql", joinOrder!);
+
+  expect(simulation.key).toBe("mysql:join-order");
+  expect(simulation.pattern.en).toContain("JOIN order comparison lab");
+  expect(simulation.steps).toHaveLength(5);
+  expect(simulation.steps.map((step) => step.label.en)).toEqual(
+    expect.arrayContaining(["cardinality stats", "chosen order", "nested loop", "EXPLAIN evidence"]),
+  );
+  expect(simulation.metrics.map((metric) => metric.en)).toEqual(
+    expect.arrayContaining(["driving table rows", "fan-out estimate", "join buffer risk", "rows examined"]),
+  );
+});
+
 test("kubernetes CrashLoopBackOff is backed by a dedicated visual simulation", async () => {
   const points = await loadKnowledgePoints("kubernetes");
   const crashLoopBackOff = points.find((point) => point.id === "crashloopbackoff");

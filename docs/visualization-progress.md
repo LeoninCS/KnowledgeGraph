@@ -140,6 +140,7 @@
 | Buffer Pool | `storage-layout` | completed | desktop/mobile captured | MySQL Buffer Pool 专用存储布局模拟器，覆盖 LRU 分区、缺页装入、脏页和后台刷盘 |
 | B+ 树 | `data-structure-lab` | completed | SVG/HTML review captured; PNG blocked by platform permissions | MySQL B+ 树索引实验室，覆盖根页分隔键、Buffer Pool 热页、叶子页定位、叶子链表范围扫描、页分裂和父节点分隔键维护 |
 | 二级索引 | `storage-layout` | completed | SVG/HTML review captured; PNG blocked by platform permissions | MySQL 二级索引回表路径模型，覆盖二级索引叶子记录、主键回表、覆盖索引捷径和 EXPLAIN 证据 |
+| JOIN 顺序 | `comparison-lab` | completed | desktop/mobile captured | MySQL JOIN 顺序对比实验室，覆盖连接图、统计信息、驱动表选择、嵌套循环 fan-out、坏顺序放大和 EXPLAIN 验收 |
 | 哈希槽 | `step-simulation` | completed | desktop/mobile captured | Redis Cluster 槽位路由模拟器，覆盖 CRC16、Key Tag、槽位归属、ASK 和 MOVED |
 | RDB | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis RDB 快照状态模型，覆盖 save 规则、BGSAVE fork、fork 时刻 keyspace、临时 dump.rdb、COW 页、原子 rename、重启加载和 INFO 持久化指标 |
 | AOF 重写 | `state-model` | completed | SVG/HTML review captured; PNG blocked by platform permissions | Redis BGREWRITEAOF 状态模型，覆盖 fork 子进程、Copy-on-Write、当前增量 AOF、rewrite buffer、临时基础文件、manifest 原子切换和恢复重放 |
@@ -972,7 +973,7 @@
 
 ## Next Candidate
 
-优先选择 MySQL `JOIN 顺序`，备选 HTTP/3 `QUIC 连接迁移` 或 Docker `Build cache invalidation`。JOIN 顺序能承接 EXPLAIN、索引、二级索引和优化器，展示驱动表选择、访问路径、嵌套循环与扫描行数放大。
+优先选择 HTTP/3 `QUIC 连接迁移`，备选 Docker `Build cache invalidation` 或 Redis `缓存击穿/穿透/雪崩`。QUIC 连接迁移能承接 TCP/TLS/HTTP/3，展示 Connection ID、路径验证、NAT rebinding、0-RTT/1-RTT 和移动网络切换。
 
 ## Docker Resource Limit Visualization
 
@@ -2915,3 +2916,31 @@
 - Verification：新增测试先失败于 `visualPointIds.kubernetes` 缺少 `kube-proxy`，补 core/visual 清单与专用 builder/stage/source 后 `npm run test:data -- --grep "kubernetes kube-proxy"` 通过 1 项；`npm run build` 通过；继续执行完整 `npm run test:data`、`npm run kg:review:validate` 和 `git diff --check`。
 - Commit/Push Plan：提交 `feat: add kube proxy visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
 - Next Candidate：MySQL `JOIN 顺序`，备选 HTTP/3 `QUIC 连接迁移` 或 Docker `Build cache invalidation`。
+
+### 2026-06-04 19:18 CST
+
+- Branch/Pull：当前分支 `main`；先读取自动化记忆，`git fetch origin main` 与 `git pull --ff-only origin main` 成功，本地 `HEAD` 与 `origin/main` 均为 `b9dab95 feat: add kube proxy visualization`；从干净工作区继续。
+- Selected：MySQL `JOIN 顺序`，原因是驱动表选择、统计信息、访问路径、嵌套循环 fan-out、JOIN buffer 风险和 EXPLAIN 验收构成高价值慢 SQL 优化模型，并承接已完成的 MySQL `EXPLAIN`、`B+ 树`、`二级索引` 和 `Buffer Pool`。
+- Candidate Sources：普通搜索筛选约 12 个候选入口；Chrome DevTools 视觉确认 MySQL Workbench Visual Explain 官方多表计划图、Hash Join 图和 DBT-3 调优教程截图；辅助参考使用 MySQL EXPLAIN Output Format、Nested-Loop Join Algorithms、Hash Join Optimization、Percona pt-visual-explain 候选页和 Visual Explain 文章；Percona 页面在浏览器中超时，保留为低优先候选。
+- Online Image References：
+  - `source`：MySQL Workbench Manual - Visual Explain Plan，https://dev.mysql.com/doc/workbench/en/wb-performance-explain.html?ff=nopfpls；`image`：页面 `Figure 7.7 A Visual Explain Example`，图片 URL `https://dev.mysql.com/doc/workbench/en/images/wb-visual-explain-example-sakila.png`，本地参考截图 `.codex-artifacts/visualizations/join-order/references/mysql-workbench-visual-explain.png`；`role`：main；`qualityReason`：官方 Visual Explain 多表 JOIN 图，直接表达表节点、JOIN diamond、执行顺序、rows 和 cost 约定；`takeaways`：主画布采用 bottom-to-top / left-to-right 的执行计划、table boxes、join diamonds、行数与 cost 徽标；`originalChanges`：改为本项目三表订单查询样例，加入统计信息面板、坏顺序对照、底部运行信号和右侧交互任务。
+  - `source`：MySQL Workbench Manual - Visual Explain Plan Hash Join，https://dev.mysql.com/doc/workbench/en/wb-performance-explain.html?ff=nopfpls；`image`：页面 `Figure 7.8 A Visual Explain Example with a Hash Join`，图片 URL `https://dev.mysql.com/doc/workbench/en/images/wb-visual-explain-hash-join-sakila.png`，本地参考截图 `.codex-artifacts/visualizations/join-order/references/mysql-workbench-hash-join.png`；`role`：supporting；`qualityReason`：官方图说明 join diamond 可表达 nested loop 或 hash join，并给出 join 产出行数和成本位置；`takeaways`：JOIN 操作节点保留 diamond 形态和 rows produced 标注；`originalChanges`：本轮聚焦 MySQL 常见嵌套循环路径，把 hash join 记录为可扩展语义。
+  - `source`：MySQL Workbench Manual - Tutorial: Using Explain to Improve Query Performance，https://dev.mysql.com/doc/workbench/en/wb-tutorial-visual-explain-dbt3.html；`image`：页面 `Figure 7.16 Visual Explain with Multiple-Column Index Range Scan`，本地参考截图 `.codex-artifacts/visualizations/join-order/references/mysql-workbench-best-range-plan.png`；`role`：supporting；`qualityReason`：官方调优教程把 access type、possible keys、chosen key、rows scanned、duration 和 rows returned 连接成验收闭环；`takeaways`：底部信号采用 rows examined、chosen key 和 EXPLAIN rows/cost；`originalChanges`：将单表索引调优节奏扩展为三表 JOIN 顺序对比。
+  - `source`：MySQL 8.4 Reference Manual - EXPLAIN Output Format，https://dev.mysql.com/doc/refman/8.4/en/explain-output.html；`image`：页面中的 EXPLAIN 输出列、join type、rows、filtered 和 Extra 说明；`role`：supporting；`qualityReason`：官方定义 `type`、`key`、`rows`、`filtered`、`Extra` 等列语义，适合校准验收面板；`takeaways`：EXPLAIN 表格保留 table/type/key/rows/Extra 核对项；`originalChanges`：使用短行卡展示三张表的计划证据。
+  - `source`：MySQL 8.4 Reference Manual - Nested-Loop Join Algorithms，https://dev.mysql.com/doc/refman/8.4/en/nested-loop-joins.html；`image`：页面中的 nested-loop join 算法伪代码和 join buffer 说明；`role`：supporting；`qualityReason`：官方校准外层行驱动内层查找、fan-out 和 join buffer 风险；`takeaways`：第四步按 `42 -> 310 -> 296` 展开 fan-out；`originalChanges`：把算法伪代码转成可视化步骤和坏顺序对照。
+- Reference Breakdown：主体布局为左上多表 SQL，左中统计信息，中下 Visual Explain 选择顺序，右上坏顺序对照，右下 EXPLAIN 验收，底部四个运行信号，右侧任务面板与底部步骤由模拟器统一承载。
+- 视觉焦点：`customers(region='CN') -> orders(customer_id) -> payments(order_id)` 的低 fan-out 路径和 `orders -> payments -> customers` 坏顺序行数放大对照。
+- 领域对象：join graph、predicate placement、cardinality stats、histogram/selectivity、optimizer enumeration、driving table、nested-loop join、fan-out、join buffer risk、EXPLAIN type/key/rows/Extra、rows examined。
+- 容器层级：SQL 进入连接图；统计信息估算每个候选驱动表；优化器选择顺序；执行器按外层结果逐层探测内层索引；EXPLAIN 面板做上线前验收。
+- 连线方向：SQL -> statistics -> chosen plan；chosen plan 由 customers 表节点自底向上进入 nested-loop diamond，再进入 orders/payments；完成后流向 EXPLAIN 验收；坏顺序在右侧独立对照。
+- 状态表达：五步依次高亮识别查询形状、估算基数、选择驱动表、执行嵌套循环、验收执行计划；表节点、diamond、路径、坏顺序行和底部信号随 completedSteps 激活。
+- 颜色策略：品牌蓝表示 SQL 与计划选择，青色表示统计信息和 fan-out，绿色表示低成本驱动表，橙色表示嵌套循环展开，红色表示坏顺序和 join buffer 风险。
+- 文字密度：桌面 SVG 保留短 SQL、统计行、表节点、cost/rows、EXPLAIN 短表和信号值；移动端隐藏 SVG，改成五张流程卡和四张事实卡。
+- 交互节奏：解析三表 JOIN -> 读取统计信息 -> 比较候选顺序 -> 逐层展开 fan-out -> 核对 EXPLAIN。
+- 原创改造点：把 MySQL Workbench 官方 Visual Explain 图、EXPLAIN 调优教程和 nested-loop join 官方算法融合成本项目 JOIN 顺序对比实验室，突出驱动表行数、fan-out 和坏顺序行数放大。
+- Implementation：新增 `mysql:join-order` 专用 `comparison-lab` 构建器、JOIN Order SVG 舞台、移动端流程卡、响应式样式、核心知识点/可视化清单入口和数据测试。
+- Browser Review：Chrome DevTools MCP 打开 MySQL 官方参考页并保存 3 张参考截图；本地 Vite dev server 使用 `http://localhost:4307/KnowledgeGraph/`，通过搜索 `JOIN 顺序` 进入详情页，确认可视化模式和指标，再进入模拟器推进到 5/5。
+- Screenshot Review：保存 `.codex-artifacts/visualizations/join-order/desktop.png`（2880x1622）与 `.codex-artifacts/visualizations/join-order/mobile.png`（1000x4834）；桌面可识别多表 SQL、统计信息、Visual Explain 选择顺序、nested-loop diamond、坏顺序对照、EXPLAIN 验收和 5/5 进度；移动端展示五步流程卡、四张事实卡、右侧面板和底部进度，文字可读。
+- Verification：新增测试先失败于 `visualPointIds.mysql` 缺少 `join-order`，补 core/visual 清单与专用 builder 后 `npm run test:data -- --grep "JOIN order"` 通过 1 项；完整 `npm run test:data` 通过 34 项；`npm run build` 通过；继续执行 `npm run kg:review:validate`、`git diff --check` 和最终同步推送。
+- Commit/Push Plan：提交 `feat: add join order visualization`，再执行 `git pull --rebase origin main` 与 `git push origin main`。
+- Next Candidate：HTTP/3 `QUIC 连接迁移`，备选 Docker `Build cache invalidation` 或 Redis `缓存击穿/穿透/雪崩`。

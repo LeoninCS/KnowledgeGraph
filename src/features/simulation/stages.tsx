@@ -242,6 +242,17 @@ export function SimulationStage({
     );
   }
 
+  if (simulation.key === "mysql:join-order") {
+    return (
+      <JoinOrderStage
+        simulation={simulation}
+        locale={locale}
+        completedSteps={completedSteps}
+        activeStepIndex={activeStepIndex}
+      />
+    );
+  }
+
   if (simulation.key === "mysql:mvcc") {
     return (
       <MvccStage
@@ -2309,6 +2320,271 @@ function SecondaryIndexStage({
         </div>
 
         <div className="tcp-handshake-caption secondary-index-caption">
+          <strong>{readLocalizedText(activeStep.title, locale)}</strong>
+          <span>{completedSteps}/{simulation.steps.length}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function JoinOrderStage({
+  simulation,
+  locale,
+  completedSteps,
+  activeStepIndex,
+}: {
+  simulation: VisualSimulation;
+  locale: Locale;
+  completedSteps: number;
+  activeStepIndex: number;
+}) {
+  const activeStep = simulation.steps[activeStepIndex];
+  const label = (zh: string, en: string) => (locale === "zh" ? zh : en);
+  const shapeActive = completedSteps >= 1;
+  const statsActive = completedSteps >= 2;
+  const planActive = completedSteps >= 3;
+  const loopActive = completedSteps >= 4;
+  const explainActive = completedSteps >= 5;
+  const planNodes = [
+    {
+      id: "customers",
+      name: "customers",
+      access: "range idx_region",
+      rows: statsActive ? "42" : "--",
+      cost: statsActive ? "0.8" : "--",
+      x: 226,
+      y: 430,
+      active: planActive,
+      tone: "success",
+    },
+    {
+      id: "orders",
+      name: "orders",
+      access: "ref idx_customer",
+      rows: loopActive ? "310" : statsActive ? "7.4x" : "--",
+      cost: loopActive ? "4.7" : "--",
+      x: 468,
+      y: 350,
+      active: loopActive,
+      tone: "teal",
+    },
+    {
+      id: "payments",
+      name: "payments",
+      access: "ref idx_order",
+      rows: loopActive ? "296" : statsActive ? "0.95x" : "--",
+      cost: loopActive ? "5.1" : "--",
+      x: 708,
+      y: 274,
+      active: loopActive,
+      tone: "brand",
+    },
+  ];
+  const badRows = [
+    { name: "orders first", rows: "180k", cost: "high", active: statsActive },
+    { name: "payments next", rows: "171k", cost: "join buffer", active: loopActive },
+    { name: "customers last", rows: "42", cost: "late filter", active: explainActive },
+  ];
+  const explainRows = [
+    { table: "customers", type: "range", keyName: "idx_region", rows: "42", extra: "Using where", active: explainActive },
+    { table: "orders", type: "ref", keyName: "idx_customer", rows: "310", extra: "Using index", active: explainActive },
+    { table: "payments", type: "ref", keyName: "idx_order", rows: "296", extra: "Using where", active: explainActive },
+  ];
+  const mobileHops = [
+    [1, label("连接图", "Join graph"), "customers - orders - payments"],
+    [2, label("基数估算", "Cardinality"), "42 rows drive the plan"],
+    [3, label("选择顺序", "Chosen order"), "customers -> orders -> payments"],
+    [4, label("嵌套循环", "Nested loop"), "42 -> 310 -> 296"],
+    [5, label("EXPLAIN", "EXPLAIN"), "rows examined 648"],
+  ] as const;
+  const mobileFacts = [
+    [label("驱动表", "Driving table"), "customers / 42 rows", planActive],
+    [label("fan-out", "fan-out"), "7.4x then 0.95x", loopActive],
+    [label("坏顺序", "Bad order"), "orders first -> join buffer", statsActive],
+    [label("验收信号", "Validation"), "type/key/rows/Extra", explainActive],
+  ] as const;
+
+  return (
+    <div className="visual-stage join-order-stage">
+      <div className="tcp-handshake-card join-order-card">
+        <svg
+          className="join-order-diagram"
+          viewBox="0 0 1120 650"
+          role="img"
+          aria-label={readLocalizedText(simulation.title, locale)}
+        >
+          <defs>
+            {[
+              ["join-order-arrow-brand", "var(--brand)"],
+              ["join-order-arrow-teal", "var(--tertiary)"],
+              ["join-order-arrow-warning", "#f59e0b"],
+              ["join-order-arrow-success", "var(--success)"],
+              ["join-order-arrow-danger", "var(--danger)"],
+            ].map(([id, fill]) => (
+              <marker
+                key={id}
+                id={id}
+                viewBox="0 0 10 10"
+                refX="8.5"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={fill} />
+              </marker>
+            ))}
+            <filter id="join-order-soft-shadow" x="-20%" y="-30%" width="140%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#172033" floodOpacity="0.13" />
+            </filter>
+          </defs>
+
+          <rect className="join-order-bg" x="24" y="24" width="1072" height="584" rx="30" />
+          <text className="join-order-title" x="560" y="70">
+            {readLocalizedText(simulation.title, locale)}
+          </text>
+          <text className="join-order-subtitle" x="560" y="99">
+            {label(
+              "SQL shape -> cardinality stats -> chosen order -> nested loop -> EXPLAIN evidence",
+              "SQL shape -> cardinality stats -> chosen order -> nested loop -> EXPLAIN evidence",
+            )}
+          </text>
+
+          <g className={`join-order-query ${shapeActive ? "active" : ""}`}>
+            <rect x="62" y="142" width="256" height="160" rx="24" />
+            <text className="join-order-panel-title" x="88" y="176">{label("多表 SQL", "Multi-table SQL")}</text>
+            <text className="join-order-code" x="88" y="208">SELECT o.id, p.amount</text>
+            <text className="join-order-code" x="88" y="232">FROM customers c</text>
+            <text className="join-order-code" x="88" y="256">JOIN orders o ON o.customer_id=c.id</text>
+            <text className="join-order-code" x="88" y="280">JOIN payments p ON p.order_id=o.id</text>
+          </g>
+
+          <g className={`join-order-stats ${statsActive ? "active" : ""}`}>
+            <rect x="348" y="142" width="236" height="160" rx="24" />
+            <text className="join-order-panel-title" x="374" y="176">{label("统计信息", "Statistics")}</text>
+            {[
+              ["customers.region='CN'", statsActive ? "42 / 1.2M" : "--"],
+              ["orders.customer_id", statsActive ? "7.4 avg" : "--"],
+              ["payments.order_id", statsActive ? "0.95 avg" : "--"],
+            ].map(([name, value], index) => (
+              <g key={name} className={`join-order-stat-row ${statsActive ? "active" : ""}`}>
+                <rect x="374" y={198 + index * 34} width="178" height="24" rx="12" />
+                <text x="388" y={214 + index * 34}>{name}</text>
+                <text x="540" y={214 + index * 34}>{value}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`join-order-plan ${planActive ? "active" : ""}`}>
+            <rect x="74" y="340" width="700" height="190" rx="28" />
+            <text className="join-order-panel-title" x="102" y="374">{label("选择的 Visual Explain 顺序", "Chosen Visual Explain order")}</text>
+            <text className="join-order-panel-subtitle" x="102" y="398">
+              {label("执行方向：bottom -> top, left -> right", "Execution direction: bottom -> top, left -> right")}
+            </text>
+            <path className={`join-order-plan-link success ${planActive ? "active" : ""}`} d="M 302 430 C 348 420, 388 392, 428 370" markerEnd="url(#join-order-arrow-success)" />
+            <path className={`join-order-plan-link teal ${loopActive ? "active" : ""}`} d="M 544 350 C 590 342, 628 314, 668 294" markerEnd="url(#join-order-arrow-teal)" />
+            <g className={`join-order-diamond ${loopActive ? "active" : ""}`}>
+              <path d="M 596 354 L 632 390 L 596 426 L 560 390 Z" />
+              <text x="596" y="386">NLJ</text>
+              <text x="596" y="404">648 rows</text>
+            </g>
+            <g className={`join-order-diamond upper ${loopActive ? "active" : ""}`}>
+              <path d="M 834 276 L 870 312 L 834 348 L 798 312 Z" />
+              <text x="834" y="308">fan-out</text>
+              <text x="834" y="326">0.95x</text>
+            </g>
+            {planNodes.map((node) => (
+              <g key={node.id} className={`join-order-table-node ${node.tone} ${node.active ? "active" : ""}`}>
+                <rect x={node.x - 76} y={node.y - 38} width="152" height="76" rx="18" />
+                <text x={node.x - 56} y={node.y - 12}>{node.name}</text>
+                <text x={node.x - 56} y={node.y + 12}>{node.access}</text>
+                <text x={node.x + 54} y={node.y - 14}>{node.cost}</text>
+                <text x={node.x + 54} y={node.y + 12}>{node.rows}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`join-order-bad-plan ${statsActive ? "active" : ""}`}>
+            <rect x="810" y="142" width="238" height="214" rx="24" />
+            <text className="join-order-panel-title" x="836" y="176">{label("坏顺序对照", "Bad-order comparison")}</text>
+            <text className="join-order-panel-subtitle" x="836" y="198">{"orders -> payments -> customers"}</text>
+            {badRows.map((row, index) => (
+              <g key={row.name} className={`join-order-bad-row ${row.active ? "active" : ""}`}>
+                <rect x="836" y={220 + index * 44} width="178" height="32" rx="14" />
+                <text x="852" y={240 + index * 44}>{row.name}</text>
+                <text x="1000" y={240 + index * 44}>{row.rows}</text>
+                <text className="join-order-bad-note" x="852" y={256 + index * 44}>{row.cost}</text>
+              </g>
+            ))}
+          </g>
+
+          <g className={`join-order-explain ${explainActive ? "active" : ""}`}>
+            <rect x="804" y="390" width="250" height="140" rx="24" />
+            <text className="join-order-panel-title" x="830" y="422">EXPLAIN</text>
+            {explainRows.map((row, index) => (
+              <g key={row.table} className={`join-order-explain-row ${row.active ? "active" : ""}`}>
+                <rect x="830" y={442 + index * 28} width="198" height="22" rx="11" />
+                <text x="842" y={457 + index * 28}>{row.table}</text>
+                <text x="928" y={457 + index * 28}>{row.type}</text>
+                <text x="982" y={457 + index * 28}>{row.rows}</text>
+              </g>
+            ))}
+            <text className="join-order-panel-subtitle" x="830" y="528">key / rows / Extra verified</text>
+          </g>
+
+          <g className={`join-order-path query-to-stats ${shapeActive ? "active" : ""}`}>
+            <path d="M 318 220 C 330 220, 336 220, 348 220" markerEnd="url(#join-order-arrow-brand)" />
+            <rect x="280" y="184" width="100" height="28" rx="14" />
+            <text x="330" y="203">join graph</text>
+          </g>
+          <g className={`join-order-path stats-to-plan ${statsActive ? "active" : ""}`}>
+            <path d="M 466 302 C 466 320, 466 326, 466 340" markerEnd="url(#join-order-arrow-teal)" />
+            <rect x="410" y="312" width="114" height="28" rx="14" />
+            <text x="467" y="331">cardinality</text>
+          </g>
+          <g className={`join-order-path plan-to-explain ${explainActive ? "active" : ""}`}>
+            <path d="M 774 468 C 786 468, 792 468, 804 468" markerEnd="url(#join-order-arrow-success)" />
+            <rect x="716" y="432" width="120" height="28" rx="14" />
+            <text x="776" y="451">ANALYZE</text>
+          </g>
+
+          <g className="join-order-signals">
+            {[
+              { name: "driver", value: planActive ? "customers 42" : "--", active: planActive, tone: "success" },
+              { name: "fan-out", value: loopActive ? "7.4x / 0.95x" : "--", active: loopActive, tone: "teal" },
+              { name: "bad path", value: statsActive ? "180k outer" : "--", active: statsActive, tone: "danger" },
+              { name: "examined", value: explainActive ? "648 rows" : "--", active: explainActive, tone: "brand" },
+            ].map((signal, index) => (
+              <g key={signal.name} className={`join-order-signal ${signal.tone} ${signal.active ? "active" : ""}`}>
+                <rect x={106 + index * 238} y="558" width="190" height="30" rx="15" />
+                <text x={122 + index * 238} y="578">{signal.name}</text>
+                <text x={280 + index * 238} y="578">{signal.value}</text>
+              </g>
+            ))}
+          </g>
+        </svg>
+
+        <div className="join-order-mobile-map">
+          <div className="join-order-mobile-flow">
+            {mobileHops.map(([stepNumber, title, value]) => (
+              <div key={title} className={`join-order-mobile-hop ${completedSteps >= stepNumber ? "active" : ""}`}>
+                <span>{title}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="join-order-mobile-facts">
+            {mobileFacts.map(([title, value, active]) => (
+              <div key={title} className={`join-order-mobile-fact ${active ? "active" : ""}`}>
+                <span>{title}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="tcp-handshake-caption join-order-caption">
           <strong>{readLocalizedText(activeStep.title, locale)}</strong>
           <span>{completedSteps}/{simulation.steps.length}</span>
         </div>

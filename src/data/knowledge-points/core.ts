@@ -159,6 +159,7 @@ export const coreKnowledgePointIdsByCategory: Record<CategoryId, string[]> = {
     "select",
     "where",
     "join",
+    "join-order",
     "limit-offset",
     "innodb",
     "clustered-index",

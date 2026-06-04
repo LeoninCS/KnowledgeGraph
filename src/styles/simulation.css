@@ -339,6 +339,44 @@
   display: none;
 }
 
+.join-order-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: clamp(12px, 2.4vw, 28px);
+}
+
+.join-order-card {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.9)),
+    var(--surface);
+  box-shadow: 0 18px 44px rgb(23 32 51 / 0.1);
+  overflow: visible;
+}
+
+:root[data-theme="dark"] .join-order-card {
+  background:
+    linear-gradient(180deg, rgb(21 29 43 / 0.96), rgb(21 29 43 / 0.9)),
+    var(--surface);
+}
+
+.join-order-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+.join-order-mobile-map {
+  display: none;
+}
+
 .redis-hash-slot-stage {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
@@ -4201,6 +4239,230 @@
 }
 
 .secondary-index-caption {
+  right: 16px;
+  bottom: 14px;
+}
+
+.join-order-bg {
+  fill: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 20%, transparent);
+}
+
+.join-order-title {
+  fill: var(--text);
+  font-size: 26px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+.join-order-subtitle {
+  fill: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+  text-anchor: middle;
+}
+
+.join-order-query,
+.join-order-stats,
+.join-order-plan,
+.join-order-bad-plan,
+.join-order-explain,
+.join-order-stat-row,
+.join-order-bad-row,
+.join-order-explain-row,
+.join-order-table-node,
+.join-order-diamond,
+.join-order-path,
+.join-order-plan-link,
+.join-order-signal {
+  opacity: 0.28;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.join-order-query.active,
+.join-order-stats.active,
+.join-order-plan.active,
+.join-order-bad-plan.active,
+.join-order-explain.active,
+.join-order-stat-row.active,
+.join-order-bad-row.active,
+.join-order-explain-row.active,
+.join-order-table-node.active,
+.join-order-diamond.active,
+.join-order-path.active,
+.join-order-plan-link.active,
+.join-order-signal.active {
+  opacity: 1;
+}
+
+.join-order-query > rect,
+.join-order-stats > rect,
+.join-order-plan > rect,
+.join-order-bad-plan > rect,
+.join-order-explain > rect {
+  fill: color-mix(in srgb, var(--surface) 92%, white);
+  stroke: color-mix(in srgb, var(--brand) 18%, var(--border));
+  filter: url("#join-order-soft-shadow");
+}
+
+.join-order-panel-title {
+  fill: var(--text);
+  font-size: 15px;
+  font-weight: 950;
+  text-anchor: start;
+}
+
+.join-order-panel-subtitle,
+.join-order-bad-note {
+  fill: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+  text-anchor: start;
+}
+
+.join-order-code,
+.join-order-stat-row text,
+.join-order-bad-row text,
+.join-order-explain-row text,
+.join-order-table-node text,
+.join-order-diamond text,
+.join-order-path text,
+.join-order-signal text {
+  fill: var(--text);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-anchor: start;
+}
+
+.join-order-code {
+  font-size: 10.5px;
+}
+
+.join-order-stat-row rect,
+.join-order-bad-row rect,
+.join-order-explain-row rect,
+.join-order-signal rect {
+  fill: color-mix(in srgb, var(--muted) 7%, var(--surface));
+  stroke: color-mix(in srgb, var(--muted) 16%, var(--border));
+}
+
+.join-order-stat-row.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.join-order-bad-row.active rect {
+  fill: color-mix(in srgb, var(--danger) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 30%, var(--border));
+}
+
+.join-order-explain-row.active rect {
+  fill: color-mix(in srgb, var(--success) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 32%, var(--border));
+}
+
+.join-order-table-node rect,
+.join-order-diamond path {
+  fill: color-mix(in srgb, var(--brand) 7%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 20%, var(--border));
+  filter: url("#join-order-soft-shadow");
+}
+
+.join-order-table-node.success.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 38%, var(--border));
+}
+
+.join-order-table-node.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 38%, var(--border));
+}
+
+.join-order-table-node.brand.active rect,
+.join-order-diamond.active path {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 38%, var(--border));
+}
+
+.join-order-table-node text:nth-of-type(1) {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.join-order-table-node text:nth-of-type(2) {
+  fill: var(--muted);
+  font-size: 10px;
+}
+
+.join-order-table-node text:nth-of-type(3),
+.join-order-table-node text:nth-of-type(4) {
+  fill: var(--brand-strong);
+  text-anchor: end;
+}
+
+.join-order-diamond text {
+  font-size: 9px;
+  text-anchor: middle;
+}
+
+.join-order-plan-link,
+.join-order-path path {
+  fill: none;
+  stroke: var(--brand);
+  stroke-linecap: round;
+  stroke-width: 3;
+}
+
+.join-order-plan-link.success {
+  stroke: var(--success);
+}
+
+.join-order-plan-link.teal {
+  stroke: var(--tertiary);
+}
+
+.join-order-path rect {
+  fill: color-mix(in srgb, var(--surface) 92%, white);
+  stroke: color-mix(in srgb, var(--border) 80%, transparent);
+}
+
+.join-order-path text {
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+.join-order-signal.success.active rect {
+  fill: color-mix(in srgb, var(--success) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--success) 34%, var(--border));
+}
+
+.join-order-signal.teal.active rect {
+  fill: color-mix(in srgb, var(--tertiary) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--tertiary) 34%, var(--border));
+}
+
+.join-order-signal.danger.active rect {
+  fill: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--danger) 34%, var(--border));
+}
+
+.join-order-signal.brand.active rect {
+  fill: color-mix(in srgb, var(--brand) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--brand) 34%, var(--border));
+}
+
+.join-order-signal text:first-of-type {
+  fill: var(--muted);
+}
+
+.join-order-signal text:last-of-type {
+  fill: var(--brand-strong);
+  text-anchor: end;
+}
+
+.join-order-caption {
   right: 16px;
   bottom: 14px;
 }
@@ -14995,6 +15257,87 @@
   }
 
   .secondary-index-caption {
+    position: static;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .join-order-stage {
+    padding: 12px;
+  }
+
+  .join-order-card {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .join-order-diagram {
+    display: none;
+  }
+
+  .join-order-mobile-map {
+    display: grid;
+    gap: 12px;
+  }
+
+  .join-order-mobile-flow,
+  .join-order-mobile-facts {
+    display: grid;
+    gap: 10px;
+  }
+
+  .join-order-mobile-hop,
+  .join-order-mobile-fact {
+    display: grid;
+    gap: 5px;
+    border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border));
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+    padding: 12px;
+  }
+
+  .join-order-mobile-hop {
+    position: relative;
+  }
+
+  .join-order-mobile-hop::after {
+    content: "";
+    position: absolute;
+    right: 18px;
+    bottom: -18px;
+    width: 2px;
+    height: 16px;
+    background: color-mix(in srgb, var(--brand) 34%, var(--border));
+  }
+
+  .join-order-mobile-hop:last-child::after {
+    display: none;
+  }
+
+  .join-order-mobile-hop span,
+  .join-order-mobile-fact span {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 950;
+  }
+
+  .join-order-mobile-hop strong,
+  .join-order-mobile-fact strong {
+    color: var(--brand-strong);
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+  }
+
+  .join-order-mobile-hop.active,
+  .join-order-mobile-fact.active {
+    border-color: color-mix(in srgb, var(--success) 44%, var(--border));
+    background: color-mix(in srgb, var(--success) 11%, var(--surface));
+  }
+
+  .join-order-caption {
     position: static;
     justify-content: space-between;
     width: 100%;

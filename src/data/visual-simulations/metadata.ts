@@ -294,6 +294,7 @@ const rawVisualPointIds: Partial<Record<CategoryId, string[]>> = {
     "mysql-index",
     "b-plus-tree",
     "secondary-index",
+    "join-order",
     "transaction",
     "isolation-level",
     "mvcc",
