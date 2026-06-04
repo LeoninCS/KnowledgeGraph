@@ -1397,6 +1397,10 @@ export const knowledgeSources = {
     title: "The Twelve-Factor App",
     url: "https://12factor.net/",
   },
+  "martin-fowler-immutable-server": {
+    title: "Martin Fowler: Immutable Server",
+    url: "https://martinfowler.com/bliki/ImmutableServer.html",
+  },
   "cncf-cloud-native-definition": {
     title: "CNCF: Cloud Native Definition",
     url: "https://github.com/cncf/toc/blob/main/DEFINITION.md",
