@@ -1589,9 +1589,41 @@ export const knowledgeSources = {
     title: "RFC 1035: Domain Names - Implementation and Specification",
     url: "https://www.rfc-editor.org/rfc/rfc1035",
   },
+  "rfc2308-dns-negative-caching": {
+    title: "RFC 2308: Negative Caching of DNS Queries (DNS NCACHE)",
+    url: "https://www.rfc-editor.org/rfc/rfc2308",
+  },
   "rfc7766-dns-tcp": {
     title: "RFC 7766: DNS Transport over TCP - Implementation Requirements",
     url: "https://www.rfc-editor.org/rfc/rfc7766",
+  },
+  "rfc6891-edns0": {
+    title: "RFC 6891: Extension Mechanisms for DNS (EDNS(0))",
+    url: "https://www.rfc-editor.org/rfc/rfc6891",
+  },
+  "rfc7871-edns-client-subnet": {
+    title: "RFC 7871: Client Subnet in DNS Queries",
+    url: "https://www.rfc-editor.org/rfc/rfc7871",
+  },
+  "rfc4033-dnssec-intro": {
+    title: "RFC 4033: DNS Security Introduction and Requirements",
+    url: "https://www.rfc-editor.org/rfc/rfc4033",
+  },
+  "cloudflare-dns-ttl": {
+    title: "Cloudflare DNS Docs: Time to Live (TTL)",
+    url: "https://developers.cloudflare.com/dns/manage-dns-records/reference/ttl/",
+  },
+  "cloudflare-dnssec-troubleshooting": {
+    title: "Cloudflare DNS Docs: Troubleshooting DNSSEC",
+    url: "https://developers.cloudflare.com/dns/dnssec/troubleshooting/",
+  },
+  "google-cloud-dns-zones": {
+    title: "Google Cloud DNS: DNS zones overview",
+    url: "https://cloud.google.com/dns/docs/zones/zones-overview",
+  },
+  "bind9-dig-manual": {
+    title: "BIND 9 Manual Pages: dig - DNS lookup utility",
+    url: "https://bind9.readthedocs.io/en/v9.18.42/manpages.html#dig-dns-lookup-utility",
   },
   "rfc9110-http": {
     title: "RFC 9110: HTTP Semantics",
