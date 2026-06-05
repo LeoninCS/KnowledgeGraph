@@ -1317,9 +1317,25 @@ export const knowledgeSources = {
     title: "RFC 1191: Path MTU Discovery",
     url: "https://www.rfc-editor.org/rfc/rfc1191",
   },
+  "rfc8201-ipv6-pmtud": {
+    title: "RFC 8201: Path MTU Discovery for IP version 6",
+    url: "https://www.rfc-editor.org/rfc/rfc8201",
+  },
   "cloudflare-mtu": {
     title: "Cloudflare Learning Center: What is MTU?",
     url: "https://www.cloudflare.com/learning/network-layer/what-is-mtu/",
+  },
+  "cloudflare-icmp-protocol": {
+    title: "Cloudflare Learning Center: What is ICMP?",
+    url: "https://www.cloudflare.com/learning/ddos/glossary/internet-control-message-protocol-icmp/",
+  },
+  "man7-ping": {
+    title: "ping(8) - Linux manual page",
+    url: "https://man7.org/linux/man-pages/man8/ping.8.html",
+  },
+  "man7-traceroute": {
+    title: "traceroute(8) - Linux manual page",
+    url: "https://man7.org/linux/man-pages/man8/traceroute.8.html",
   },
   "man7-ip": {
     title: "ip(7) - Linux IPv4 protocol implementation",
@@ -1388,6 +1404,10 @@ export const knowledgeSources = {
   "rfc4443-icmpv6": {
     title: "RFC 4443: Internet Control Message Protocol (ICMPv6)",
     url: "https://www.rfc-editor.org/rfc/rfc4443",
+  },
+  "rfc4890-icmpv6-firewall": {
+    title: "RFC 4890: Recommendations for Filtering ICMPv6 Messages in Firewalls",
+    url: "https://www.rfc-editor.org/rfc/rfc4890",
   },
   "rfc4291-ipv6-addressing": {
     title: "RFC 4291: IPv6 Addressing Architecture",
