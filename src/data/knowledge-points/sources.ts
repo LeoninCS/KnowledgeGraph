@@ -2953,6 +2953,18 @@ export const knowledgeSources = {
     title: "Cisco: Catalyst ARP or CAM Table Issues Troubleshooting",
     url: "https://www.cisco.com/c/en/us/support/docs/switches/catalyst-6500-series-switches/71079-arp-cam-tableissues.html",
   },
+  "cisco-unicast-flooding": {
+    title: "Cisco: Unicast Flooding in Switched Campus Networks",
+    url: "https://www.cisco.com/c/en/us/support/docs/switches/catalyst-6000-series-switches/23563-143.html",
+  },
+  "ieee-8021q-2022-bridges": {
+    title: "IEEE SA: IEEE 802.1Q-2022 Bridges and Bridged Networks",
+    url: "https://standards.ieee.org/ieee/802.1Q/10323/",
+  },
+  "linux-kernel-bridge": {
+    title: "Linux Kernel Docs: Ethernet Bridging",
+    url: "https://www.kernel.org/doc/html/latest/networking/bridge.html",
+  },
   "cisco-network-switching-operation": {
     title: "Cisco Community: Network Switching Operation",
     url: "https://community.cisco.com/t5/networking-knowledge-base/network-switching-operation/ta-p/4193160",
