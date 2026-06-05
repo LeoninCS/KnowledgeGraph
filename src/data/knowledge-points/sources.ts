@@ -1369,6 +1369,18 @@ export const knowledgeSources = {
     title: "RFC 8200: Internet Protocol, Version 6 (IPv6) Specification",
     url: "https://www.rfc-editor.org/rfc/rfc8200",
   },
+  "rfc5952-ipv6-text": {
+    title: "RFC 5952: A Recommendation for IPv6 Address Text Representation",
+    url: "https://www.rfc-editor.org/rfc/rfc5952",
+  },
+  "iana-ipv6-special-registry": {
+    title: "IANA: IPv6 Special-Purpose Address Registry",
+    url: "https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml",
+  },
+  "rfc4193-ula": {
+    title: "RFC 4193: Unique Local IPv6 Unicast Addresses",
+    url: "https://www.rfc-editor.org/rfc/rfc4193",
+  },
   "rfc4443-icmpv6": {
     title: "RFC 4443: Internet Control Message Protocol (ICMPv6)",
     url: "https://www.rfc-editor.org/rfc/rfc4443",
@@ -1380,6 +1392,22 @@ export const knowledgeSources = {
   "rfc4861-ndp": {
     title: "RFC 4861: Neighbor Discovery for IPv6",
     url: "https://www.rfc-editor.org/rfc/rfc4861",
+  },
+  "rfc4862-slaac": {
+    title: "RFC 4862: IPv6 Stateless Address Autoconfiguration",
+    url: "https://www.rfc-editor.org/rfc/rfc4862",
+  },
+  "rfc6724-ipv6-address-selection": {
+    title: "RFC 6724: Default Address Selection for IPv6",
+    url: "https://www.rfc-editor.org/rfc/rfc6724",
+  },
+  "rfc8305-happy-eyeballs": {
+    title: "RFC 8305: Happy Eyeballs Version 2",
+    url: "https://www.rfc-editor.org/rfc/rfc8305",
+  },
+  "man7-ipv6": {
+    title: "ipv6(7) - Linux IPv6 protocol implementation",
+    url: "https://man7.org/linux/man-pages/man7/ipv6.7.html",
   },
   "rfc4632-cidr": {
     title: "RFC 4632: Classless Inter-domain Routing (CIDR)",
@@ -1408,6 +1436,14 @@ export const knowledgeSources = {
   "aws-vpc-subnet-sizing": {
     title: "AWS VPC: Subnet sizing",
     url: "https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html",
+  },
+  "aws-vpc-ipv6-addressing": {
+    title: "AWS VPC: IP addressing for your VPCs and subnets",
+    url: "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html",
+  },
+  "aws-vpc-subnets": {
+    title: "AWS VPC: Subnets for your VPC",
+    url: "https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html",
   },
   "aws-vpc-route-priority": {
     title: "AWS VPC: How route priority works",
