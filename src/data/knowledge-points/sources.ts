@@ -3901,6 +3901,34 @@ export const knowledgeSources = {
     title: "Linux man-pages: pthreads(7)",
     url: "https://man7.org/linux/man-pages/man7/pthreads.7.html",
   },
+  "linux-man-pages-sem-overview": {
+    title: "Linux man-pages: sem_overview(7)",
+    url: "https://man7.org/linux/man-pages/man7/sem_overview.7.html",
+  },
+  "linux-man-pages-sem-init": {
+    title: "Linux man-pages: sem_init(3)",
+    url: "https://man7.org/linux/man-pages/man3/sem_init.3.html",
+  },
+  "linux-man-pages-sem-wait": {
+    title: "Linux man-pages: sem_wait(3)",
+    url: "https://man7.org/linux/man-pages/man3/sem_wait.3.html",
+  },
+  "linux-man-pages-sem-post": {
+    title: "Linux man-pages: sem_post(3)",
+    url: "https://man7.org/linux/man-pages/man3/sem_post.3.html",
+  },
+  "linux-man-pages-sem-getvalue": {
+    title: "Linux man-pages: sem_getvalue(3)",
+    url: "https://man7.org/linux/man-pages/man3/sem_getvalue.3.html",
+  },
+  "linux-man-pages-sem-open": {
+    title: "Linux man-pages: sem_open(3)",
+    url: "https://man7.org/linux/man-pages/man3/sem_open.3.html",
+  },
+  "linux-man-pages-sem-destroy": {
+    title: "Linux man-pages: sem_destroy(3)",
+    url: "https://man7.org/linux/man-pages/man3/sem_destroy.3.html",
+  },
   "linux-man-pages-pthread-mutex-init": {
     title: "Linux man-pages: pthread_mutex_init(3)",
     url: "https://man7.org/linux/man-pages/man3/pthread_mutex_init.3.html",
@@ -4004,6 +4032,18 @@ export const knowledgeSources = {
   "ostep-threads-locks": {
     title: "Operating Systems: Three Easy Pieces - Locks",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks.pdf",
+  },
+  "ostep-threads-semaphores": {
+    title: "Operating Systems: Three Easy Pieces - Semaphores",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-sema.pdf",
+  },
+  "glibc-sem-wait-source": {
+    title: "glibc source: sem_wait.c",
+    url: "https://codebrowser.dev/glibc/glibc/nptl/sem_wait.c.html",
+  },
+  "glibc-sem-post-source": {
+    title: "glibc source: sem_post.c",
+    url: "https://codebrowser.dev/glibc/glibc/nptl/sem_post.c.html",
   },
   "brendan-gregg-use-linux": {
     title: "Brendan Gregg: USE Method Linux Performance Checklist",
@@ -4120,6 +4160,18 @@ export const knowledgeSources = {
   "posix-base-spec": {
     title: "The Open Group Base Specifications Issue 8",
     url: "https://pubs.opengroup.org/onlinepubs/9799919799/",
+  },
+  "posix-sem-init": {
+    title: "The Open Group POSIX: sem_init",
+    url: "https://pubs.opengroup.org/onlinepubs/9799919799.2024edition/functions/sem_init.html",
+  },
+  "posix-sem-wait": {
+    title: "The Open Group POSIX: sem_wait",
+    url: "https://pubs.opengroup.org/onlinepubs/9799919799.2024edition/functions/sem_wait.html",
+  },
+  "posix-sem-post": {
+    title: "The Open Group POSIX: sem_post",
+    url: "https://pubs.opengroup.org/onlinepubs/9799919799.2024edition/functions/sem_post.html",
   },
   "cp-algorithms": {
     title: "cp-algorithms",
