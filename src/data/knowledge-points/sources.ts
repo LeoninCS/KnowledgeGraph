@@ -2889,6 +2889,26 @@ export const knowledgeSources = {
     title: "Academy of EMC: Time vs Frequency Domain",
     url: "https://www.academyofemc.com/time-vs-frequency-domain",
   },
+  "shannon-1948-mathematical-theory": {
+    title: "Claude Shannon: A Mathematical Theory of Communication",
+    url: "https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf",
+  },
+  "iperf3-docs": {
+    title: "ESnet: iperf3 Documentation",
+    url: "https://software.es.net/iperf/",
+  },
+  "linux-interface-statistics": {
+    title: "Linux Kernel Docs: Interface statistics",
+    url: "https://kernel.org/doc/html/next/networking/statistics.html",
+  },
+  "cisco-ethernet-troubleshooting": {
+    title: "Cisco: Troubleshooting Ethernet",
+    url: "https://www.cisco.com/en/US/docs/internetworking/troubleshooting/guide/tr1904.html",
+  },
+  "cisco-nexus-crc-errors": {
+    title: "Cisco: Understand Cyclic Redundancy Check Errors on Nexus Switches",
+    url: "https://www.cisco.com/c/en/us/support/docs/ios-nx-os-software/nx-os-software/217554-understand-cyclic-redundancy-check-crc.html",
+  },
   "ieee-8023-ethernet": {
     title: "IEEE 802.3 Ethernet Working Group",
     url: "https://www.ieee802.org/3/",
