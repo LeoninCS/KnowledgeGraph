@@ -1629,6 +1629,10 @@ export const knowledgeSources = {
     title: "RFC 9110: HTTP Semantics",
     url: "https://www.rfc-editor.org/rfc/rfc9110",
   },
+  "rfc9112-http1": {
+    title: "RFC 9112: HTTP/1.1",
+    url: "https://www.rfc-editor.org/rfc/rfc9112",
+  },
   "rfc9111-http-cache": {
     title: "RFC 9111: HTTP Caching",
     url: "https://www.rfc-editor.org/rfc/rfc9111",
