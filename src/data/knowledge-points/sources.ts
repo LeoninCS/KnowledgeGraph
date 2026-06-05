@@ -1245,6 +1245,10 @@ export const knowledgeSources = {
     title: "Microsoft Learn: Network adapter performance tuning in Windows Server",
     url: "https://learn.microsoft.com/en-us/windows-server/networking/technologies/network-subsystem/net-sub-performance-tuning-nics",
   },
+  "microsoft-windows-tcp-features": {
+    title: "Microsoft Learn: Description of Windows TCP features",
+    url: "https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/description-tcp-features",
+  },
   "oracle-packet-encapsulation": {
     title: "Oracle Solaris: Data Encapsulation and the TCP/IP Protocol Stack",
     url: "https://docs.oracle.com/pls/topic/lookup?ctx=E23823&id=SYSADV3ipov-32",
@@ -1268,6 +1272,10 @@ export const knowledgeSources = {
   "wireshark-display-filters": {
     title: "Wireshark User's Guide: Building Display Filter Expressions",
     url: "https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html",
+  },
+  "wireshark-tcp-analysis": {
+    title: "Wireshark User's Guide: TCP Analysis",
+    url: "https://www.wireshark.org/docs/wsug_html_chunked/ChAdvTCPAnalysis.html",
   },
   "man7-tcpdump": {
     title: "tcpdump(8) - Linux manual page",
