@@ -7,14 +7,14 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 25 | 424 |
+| 449 | 26 | 423 |
 
 ## 分类进度
 
 | 分类 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- | --- |
 | go | 45 | 0 | 45 |
-| network | 28 | 23 | 5 |
+| network | 28 | 24 | 4 |
 | os | 34 | 0 | 34 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 0 | 48 |
@@ -102,7 +102,7 @@
 | 已优化 | `http-cache` | HTTP 缓存 | HTTP Cache | 2026-06-05 | 12 |
 | 已优化 | `tls` | TLS | Transport Layer Security | 2026-06-05 | 14 |
 | 已优化 | `https` | HTTPS | HTTPS | 2026-06-05 | 13 |
-| 未开始 | `latency-bandwidth` | 延迟与带宽 | Latency and Bandwidth | 2026-05-30 | 5 |
+| 已优化 | `latency-bandwidth` | 延迟与带宽 | Latency and Bandwidth | 2026-06-05 | 12 |
 | 未开始 | `load-balancing` | 负载均衡 | Load Balancing | 2026-05-30 | 5 |
 | 未开始 | `observability` | 网络可观测性 | Network Observability | 2026-05-30 | 6 |
 | 未开始 | `cdn` | CDN | Content Delivery Network | 2026-05-30 | 11 |

@@ -1573,6 +1573,10 @@ export const knowledgeSources = {
     title: "RFC 5681: TCP Congestion Control",
     url: "https://www.rfc-editor.org/rfc/rfc5681",
   },
+  "rfc6349-tcp-throughput": {
+    title: "RFC 6349: Framework for TCP Throughput Testing",
+    url: "https://www.rfc-editor.org/rfc/rfc6349",
+  },
   "rfc6928-tcp-initial-window": {
     title: "RFC 6928: Increasing TCP's Initial Window",
     url: "https://www.rfc-editor.org/rfc/rfc6928",
@@ -2928,6 +2932,14 @@ export const knowledgeSources = {
   "bitag-latency-explained": {
     title: "BITAG: Latency Explained",
     url: "https://www.bitag.org/documents/BITAG_latency_explained.pdf",
+  },
+  "chrome-devtools-network-reference": {
+    title: "Chrome DevTools: Network features reference",
+    url: "https://developer.chrome.com/docs/devtools/network/reference",
+  },
+  "webdev-ttfb": {
+    title: "web.dev: Time to First Byte (TTFB)",
+    url: "https://web.dev/articles/ttfb",
   },
   "learnemc-time-frequency-domain": {
     title: "LearnEMC: Time and Frequency Domain",
