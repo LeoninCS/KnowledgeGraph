@@ -3869,6 +3869,10 @@ export const knowledgeSources = {
     title: "Linux Kernel Labs: System Calls",
     url: "https://linux-kernel-labs.github.io/refs/heads/master/lectures/syscalls.html",
   },
+  "gnu-libc-system-calls": {
+    title: "The GNU C Library Manual: System Calls",
+    url: "https://www.gnu.org/software/libc/manual/html_node/System-Calls.html",
+  },
   "linux-kernel-threat-model": {
     title: "Linux Kernel Documentation: The Linux Kernel threat model",
     url: "https://docs.kernel.org/next/process/threat-model.html",
