@@ -3845,9 +3845,49 @@ export const knowledgeSources = {
     title: "Linux man-pages: proc(5)",
     url: "https://man7.org/linux/man-pages/man5/proc.5.html",
   },
+  "linux-man-pages-fork": {
+    title: "Linux man-pages: fork(2)",
+    url: "https://man7.org/linux/man-pages/man2/fork.2.html",
+  },
+  "linux-man-pages-clone": {
+    title: "Linux man-pages: clone(2)",
+    url: "https://man7.org/linux/man-pages/man2/clone.2.html",
+  },
+  "linux-man-pages-execve": {
+    title: "Linux man-pages: execve(2)",
+    url: "https://man7.org/linux/man-pages/man2/execve.2.html",
+  },
+  "linux-man-pages-wait": {
+    title: "Linux man-pages: wait(2)",
+    url: "https://man7.org/linux/man-pages/man2/wait.2.html",
+  },
+  "linux-man-pages-credentials": {
+    title: "Linux man-pages: credentials(7)",
+    url: "https://man7.org/linux/man-pages/man7/credentials.7.html",
+  },
+  "linux-man-pages-signal": {
+    title: "Linux man-pages: signal(7)",
+    url: "https://man7.org/linux/man-pages/man7/signal.7.html",
+  },
+  "linux-man-pages-getrlimit": {
+    title: "Linux man-pages: getrlimit(2)",
+    url: "https://man7.org/linux/man-pages/man2/getrlimit.2.html",
+  },
+  "linux-man-pages-ps": {
+    title: "Linux man-pages: ps(1)",
+    url: "https://man7.org/linux/man-pages/man1/ps.1.html",
+  },
   "ostep-introduction": {
     title: "Operating Systems: Three Easy Pieces - Introduction",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/intro.pdf",
+  },
+  "ostep-processes": {
+    title: "Operating Systems: Three Easy Pieces - The Abstraction: The Process",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-intro.pdf",
+  },
+  "ostep-process-api": {
+    title: "Operating Systems: Three Easy Pieces - Process API",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-api.pdf",
   },
   "brendan-gregg-use-linux": {
     title: "Brendan Gregg: USE Method Linux Performance Checklist",
