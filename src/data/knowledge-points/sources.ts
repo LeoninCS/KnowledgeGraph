@@ -3901,9 +3901,21 @@ export const knowledgeSources = {
     title: "Linux man-pages: pthreads(7)",
     url: "https://man7.org/linux/man-pages/man7/pthreads.7.html",
   },
+  "linux-man-pages-pthread-mutex-init": {
+    title: "Linux man-pages: pthread_mutex_init(3)",
+    url: "https://man7.org/linux/man-pages/man3/pthread_mutex_init.3.html",
+  },
   "linux-man-pages-pthread-mutex-lock": {
     title: "Linux man-pages: pthread_mutex_lock(3p)",
     url: "https://man7.org/linux/man-pages/man3/pthread_mutex_lock.3p.html",
+  },
+  "linux-man-pages-pthread-mutexattr-gettype": {
+    title: "Linux man-pages: pthread_mutexattr_gettype(3p)",
+    url: "https://man7.org/linux/man-pages/man3/pthread_mutexattr_gettype.3p.html",
+  },
+  "linux-man-pages-pthread-mutexattr-setrobust": {
+    title: "Linux man-pages: pthread_mutexattr_setrobust(3p)",
+    url: "https://man7.org/linux/man-pages/man3/pthread_mutexattr_setrobust.3p.html",
   },
   "linux-man-pages-pthread-create": {
     title: "Linux man-pages: pthread_create(3)",
@@ -4033,6 +4045,14 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Unreliable Guide To Locking",
     url: "https://docs.kernel.org/kernel-hacking/locking.html",
   },
+  "linux-kernel-mutex-design": {
+    title: "Linux Kernel Documentation: Generic Mutex Subsystem",
+    url: "https://www.kernel.org/doc/html/latest/locking/mutex-design.html",
+  },
+  "linux-kernel-locktypes": {
+    title: "Linux Kernel Documentation: Lock types and their rules",
+    url: "https://www.kernel.org/doc/html/latest/locking/locktypes.html",
+  },
   "linux-man-pages-syscall": {
     title: "Linux man-pages: syscall(2)",
     url: "https://man7.org/linux/man-pages/man2/syscall.2.html",
@@ -4056,6 +4076,10 @@ export const knowledgeSources = {
   "linux-man-pages-strace": {
     title: "Linux man-pages: strace(1)",
     url: "https://man7.org/linux/man-pages/man1/strace.1.html",
+  },
+  "linux-man-pages-perf-lock": {
+    title: "Linux man-pages: perf-lock(1)",
+    url: "https://man7.org/linux/man-pages/man1/perf-lock.1.html",
   },
   "ruanyifeng-user-kernel-space": {
     title: "阮一峰的网络日志: User space 与 Kernel space",
