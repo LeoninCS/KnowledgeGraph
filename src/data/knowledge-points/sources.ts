@@ -1509,6 +1509,26 @@ export const knowledgeSources = {
     title: "RFC 5681: TCP Congestion Control",
     url: "https://www.rfc-editor.org/rfc/rfc5681",
   },
+  "rfc6928-tcp-initial-window": {
+    title: "RFC 6928: Increasing TCP's Initial Window",
+    url: "https://www.rfc-editor.org/rfc/rfc6928",
+  },
+  "rfc3168-ecn": {
+    title: "RFC 3168: The Addition of Explicit Congestion Notification (ECN) to IP",
+    url: "https://www.rfc-editor.org/rfc/rfc3168",
+  },
+  "rfc9438-cubic": {
+    title: "RFC 9438: CUBIC for Fast and Long-Distance Networks",
+    url: "https://www.rfc-editor.org/rfc/rfc9438",
+  },
+  "rfc9743-congestion-control-algorithms": {
+    title: "RFC 9743: Specifying New Congestion Control Algorithms",
+    url: "https://www.rfc-editor.org/rfc/rfc9743",
+  },
+  "acmqueue-bbr": {
+    title: "ACM Queue: BBR Congestion-Based Congestion Control",
+    url: "https://queue.acm.org/detail.cfm?id=3022184",
+  },
   "wikimedia-tcp-slow-start-congestion-avoidance": {
     title: "Wikimedia Commons: TCP Slow-Start and Congestion Avoidance",
     url: "https://commons.wikimedia.org/wiki/File:TCP_Slow-Start_and_Congestion_Avoidance.svg",
