@@ -1313,6 +1313,10 @@ export const knowledgeSources = {
     title: "tcp(7) - Linux TCP protocol implementation",
     url: "https://man7.org/linux/man-pages/man7/tcp.7.html",
   },
+  "man7-ss": {
+    title: "ss(8) - Linux socket statistics",
+    url: "https://man7.org/linux/man-pages/man8/ss.8.html",
+  },
   "man7-listen": {
     title: "listen(2) - Linux manual page",
     url: "https://man7.org/linux/man-pages/man2/listen.2.html",
@@ -2916,6 +2920,10 @@ export const knowledgeSources = {
   "krownet-tcp-states": {
     title: "TCP State Transition Diagram",
     url: "https://srg-ics-uplb.github.io/krownet/modules/tcp-states/index.html",
+  },
+  "bcc-tcpstates": {
+    title: "BCC tools: tcpstates",
+    url: "https://github.com/iovisor/bcc/blob/master/tools/tcpstates.py",
   },
   "cloudflare-cdn-overview": {
     title: "Cloudflare Learning Center: What is a CDN?",
