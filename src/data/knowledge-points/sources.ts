@@ -3861,6 +3861,50 @@ export const knowledgeSources = {
     title: "IBM Developer: Anatomy of the Linux kernel",
     url: "https://developer.ibm.com/articles/l-linux-kernel/",
   },
+  "linux-kernel-entry-exit": {
+    title: "Linux Kernel Documentation: Entry/exit handling",
+    url: "https://www.kernel.org/doc/html/latest/core-api/entry.html",
+  },
+  "linux-kernel-labs-syscalls": {
+    title: "Linux Kernel Labs: System Calls",
+    url: "https://linux-kernel-labs.github.io/refs/heads/master/lectures/syscalls.html",
+  },
+  "linux-kernel-threat-model": {
+    title: "Linux Kernel Documentation: The Linux Kernel threat model",
+    url: "https://docs.kernel.org/next/process/threat-model.html",
+  },
+  "linux-man-pages-syscall": {
+    title: "Linux man-pages: syscall(2)",
+    url: "https://man7.org/linux/man-pages/man2/syscall.2.html",
+  },
+  "linux-man-pages-errno": {
+    title: "Linux man-pages: errno(3)",
+    url: "https://man7.org/linux/man-pages/man3/errno.3.html",
+  },
+  "linux-man-pages-vdso": {
+    title: "Linux man-pages: vdso(7)",
+    url: "https://man7.org/linux/man-pages/man7/vdso.7.html",
+  },
+  "linux-man-pages-capabilities": {
+    title: "Linux man-pages: capabilities(7)",
+    url: "https://man7.org/linux/man-pages/man7/capabilities.7.html",
+  },
+  "linux-man-pages-seccomp": {
+    title: "Linux man-pages: seccomp(2)",
+    url: "https://man7.org/linux/man-pages/man2/seccomp.2.html",
+  },
+  "linux-man-pages-strace": {
+    title: "Linux man-pages: strace(1)",
+    url: "https://man7.org/linux/man-pages/man1/strace.1.html",
+  },
+  "ruanyifeng-user-kernel-space": {
+    title: "阮一峰的网络日志: User space 与 Kernel space",
+    url: "https://www.ruanyifeng.com/blog/2016/12/user_space_vs_kernel_space.html",
+  },
+  "xiaolincoding-os-interview": {
+    title: "小林 coding: 操作系统面试题",
+    url: "https://xiaolincoding.com/interview/os.html",
+  },
   "linux-man-pages-epoll": {
     title: "Linux man-pages: epoll(7)",
     url: "https://man7.org/linux/man-pages/man7/epoll.7.html",

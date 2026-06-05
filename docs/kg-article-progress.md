@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 32 | 417 |
+| 449 | 33 | 416 |
 
 ## 分类进度
 
@@ -15,7 +15,7 @@
 | --- | --- | --- | --- |
 | go | 45 | 0 | 45 |
 | network | 28 | 28 | 0 |
-| os | 34 | 2 | 32 |
+| os | 34 | 3 | 31 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 0 | 48 |
 | redis | 44 | 0 | 44 |
@@ -114,7 +114,7 @@
 | --- | --- | --- | --- | --- | --- |
 | 已优化 | `os-overview` | 操作系统概览 | Operating System Overview | 2026-06-05 | 15 |
 | 已优化 | `kernel` | 内核 | Kernel | 2026-06-05 | 17 |
-| 未开始 | `kernel-mode` | 用户态与内核态 | User Mode and Kernel Mode | 2026-05-24 | 7 |
+| 已优化 | `kernel-mode` | 用户态与内核态 | User Mode and Kernel Mode | 2026-06-05 | 20 |
 | 未开始 | `system-call` | 系统调用 | System Call | 2026-05-24 | 7 |
 | 未开始 | `process` | 进程 | Process | 2026-05-24 | 7 |
 | 未开始 | `process-state` | 进程状态 | Process State | 2026-05-24 | 7 |
