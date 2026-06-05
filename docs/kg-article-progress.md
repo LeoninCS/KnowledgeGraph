@@ -7,14 +7,14 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 29 | 420 |
+| 449 | 30 | 419 |
 
 ## 分类进度
 
 | 分类 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- | --- |
 | go | 45 | 0 | 45 |
-| network | 28 | 27 | 1 |
+| network | 28 | 28 | 0 |
 | os | 34 | 0 | 34 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 0 | 48 |
@@ -106,7 +106,7 @@
 | 已优化 | `load-balancing` | 负载均衡 | Load Balancing | 2026-06-05 | 14 |
 | 已优化 | `observability` | 网络可观测性 | Network Observability | 2026-06-05 | 15 |
 | 已优化 | `cdn` | CDN | Content Delivery Network | 2026-06-05 | 15 |
-| 未开始 | `http3` | HTTP/3 | HTTP/3 | 2026-05-30 | 4 |
+| 已优化 | `http3` | HTTP/3 | HTTP/3 | 2026-06-05 | 14 |
 
 ## os
 

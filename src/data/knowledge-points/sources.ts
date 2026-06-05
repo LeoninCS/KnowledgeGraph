@@ -1705,6 +1705,46 @@ export const knowledgeSources = {
     title: "RFC 9000: QUIC",
     url: "https://www.rfc-editor.org/rfc/rfc9000",
   },
+  "rfc9001-quic-tls": {
+    title: "RFC 9001: Using TLS to Secure QUIC",
+    url: "https://www.rfc-editor.org/rfc/rfc9001",
+  },
+  "rfc9002-quic-recovery": {
+    title: "RFC 9002: QUIC Loss Detection and Congestion Control",
+    url: "https://www.rfc-editor.org/rfc/rfc9002",
+  },
+  "rfc9204-qpack": {
+    title: "RFC 9204: QPACK - Field Compression for HTTP/3",
+    url: "https://www.rfc-editor.org/rfc/rfc9204",
+  },
+  "rfc7838-alt-svc": {
+    title: "RFC 7838: HTTP Alternative Services",
+    url: "https://www.rfc-editor.org/rfc/rfc7838",
+  },
+  "mdn-alt-svc": {
+    title: "MDN: Alt-Svc header",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Alt-Svc",
+  },
+  "cloudflare-http3-docs": {
+    title: "Cloudflare Docs: HTTP/3 with QUIC",
+    url: "https://developers.cloudflare.com/speed/optimization/protocol/http3/",
+  },
+  "cloudflare-http3-past-present-future": {
+    title: "Cloudflare Blog: HTTP/3 - the past, the present, and the future",
+    url: "https://blog.cloudflare.com/http3-the-past-present-and-future/",
+  },
+  "curl-http3": {
+    title: "curl: HTTP/3 with curl",
+    url: "https://curl.se/docs/http3.html",
+  },
+  "nginx-http3-module": {
+    title: "NGINX Docs: ngx_http_v3_module",
+    url: "https://nginx.org/en/docs/http/ngx_http_v3_module.html",
+  },
+  "http3-explained": {
+    title: "HTTP/3 explained by Daniel Stenberg",
+    url: "https://http3-explained.haxx.se/en/",
+  },
   "rfc8446-tls13": {
     title: "RFC 8446: TLS 1.3",
     url: "https://www.rfc-editor.org/rfc/rfc8446",
