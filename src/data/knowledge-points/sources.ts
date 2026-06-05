@@ -3857,6 +3857,10 @@ export const knowledgeSources = {
     title: "Microsoft Learn: Troubleshoot Linux performance bottlenecks",
     url: "https://learn.microsoft.com/zh-cn/troubleshoot/azure/virtual-machines/linux/troubleshoot-performance-bottlenecks-linux",
   },
+  "ibm-linux-kernel-anatomy": {
+    title: "IBM Developer: Anatomy of the Linux kernel",
+    url: "https://developer.ibm.com/articles/l-linux-kernel/",
+  },
   "linux-man-pages-epoll": {
     title: "Linux man-pages: epoll(7)",
     url: "https://man7.org/linux/man-pages/man7/epoll.7.html",
