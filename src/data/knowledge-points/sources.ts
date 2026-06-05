@@ -3829,6 +3829,26 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Scheduler",
     url: "https://docs.kernel.org/scheduler/",
   },
+  "linux-kernel-cfs-scheduler": {
+    title: "Linux Kernel Documentation: CFS Scheduler",
+    url: "https://www.kernel.org/doc/html/latest/scheduler/sched-design-CFS.html",
+  },
+  "linux-kernel-eevdf-scheduler": {
+    title: "Linux Kernel Documentation: EEVDF Scheduler",
+    url: "https://www.kernel.org/doc/html/latest/scheduler/sched-eevdf.html",
+  },
+  "linux-kernel-sched-stats": {
+    title: "Linux Kernel Documentation: Scheduler Statistics",
+    url: "https://www.kernel.org/doc/html/latest/scheduler/sched-stats.html",
+  },
+  "linux-kernel-sched-nice-design": {
+    title: "Linux Kernel Documentation: Scheduler Nice Design",
+    url: "https://www.kernel.org/doc/html/latest/scheduler/sched-nice-design.html",
+  },
+  "linux-kernel-psi": {
+    title: "Linux Kernel Documentation: Pressure Stall Information",
+    url: "https://www.kernel.org/doc/html/latest/accounting/psi.html",
+  },
   "linux-kernel-mm-docs": {
     title: "Linux Kernel Documentation: Memory Management",
     url: "https://docs.kernel.org/mm/",
@@ -3949,6 +3969,14 @@ export const knowledgeSources = {
     title: "Operating Systems: Three Easy Pieces - Process API",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-api.pdf",
   },
+  "ostep-cpu-scheduling": {
+    title: "Operating Systems: Three Easy Pieces - Scheduling: Introduction",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched.pdf",
+  },
+  "ostep-mlfq": {
+    title: "Operating Systems: Three Easy Pieces - Scheduling: MLFQ",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched-mlfq.pdf",
+  },
   "ostep-threads-intro": {
     title: "Operating Systems: Three Easy Pieces - Concurrency: An Introduction",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-intro.pdf",
@@ -3960,6 +3988,10 @@ export const knowledgeSources = {
   "brendan-gregg-use-linux": {
     title: "Brendan Gregg: USE Method Linux Performance Checklist",
     url: "https://www.brendangregg.com/USEmethod/use-linux.html",
+  },
+  "brendan-gregg-perf-sched": {
+    title: "Brendan Gregg: perf sched",
+    url: "https://www.brendangregg.com/blog/2017-03-16/perf-sched.html",
   },
   "microsoft-linux-performance-bottlenecks": {
     title: "Microsoft Learn: Troubleshoot Linux performance bottlenecks",
