@@ -1465,6 +1465,26 @@ export const knowledgeSources = {
     title: "RFC 768: User Datagram Protocol",
     url: "https://www.rfc-editor.org/rfc/rfc768",
   },
+  "rfc8085-udp-guidelines": {
+    title: "RFC 8085: UDP Usage Guidelines",
+    url: "https://www.rfc-editor.org/rfc/rfc8085",
+  },
+  "rfc8899-dplpmtud": {
+    title: "RFC 8899: Packetization Layer Path MTU Discovery for Datagram Transports",
+    url: "https://www.rfc-editor.org/rfc/rfc8899",
+  },
+  "man7-udp": {
+    title: "udp(7) - Linux manual page",
+    url: "https://man7.org/linux/man-pages/man7/udp.7.html",
+  },
+  "cloudflare-udp": {
+    title: "Cloudflare Learning Center: What is the User Datagram Protocol (UDP)?",
+    url: "https://www.cloudflare.com/learning/ddos/glossary/user-datagram-protocol-udp/",
+  },
+  "cloudflare-dns-amplification": {
+    title: "Cloudflare Learning Center: DNS amplification DDoS attack",
+    url: "https://www.cloudflare.com/learning/ddos/dns-amplification-ddos-attack/",
+  },
   "iana-service-port-registry": {
     title: "IANA: Service Name and Transport Protocol Port Number Registry",
     url: "https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml",
@@ -1568,6 +1588,10 @@ export const knowledgeSources = {
   "rfc1035-dns": {
     title: "RFC 1035: Domain Names - Implementation and Specification",
     url: "https://www.rfc-editor.org/rfc/rfc1035",
+  },
+  "rfc7766-dns-tcp": {
+    title: "RFC 7766: DNS Transport over TCP - Implementation Requirements",
+    url: "https://www.rfc-editor.org/rfc/rfc7766",
   },
   "rfc9110-http": {
     title: "RFC 9110: HTTP Semantics",
