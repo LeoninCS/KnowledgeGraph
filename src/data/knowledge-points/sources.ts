@@ -2185,6 +2185,30 @@ export const knowledgeSources = {
     title: "NGINX Documentation: HTTP Load Balancing",
     url: "https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/",
   },
+  "aws-elb-how-it-works": {
+    title: "AWS Elastic Load Balancing: How Elastic Load Balancing works",
+    url: "https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html",
+  },
+  "envoy-load-balancing-overview": {
+    title: "Envoy Docs: Load Balancing Overview",
+    url: "https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/load_balancing/overview",
+  },
+  "envoy-outlier-detection": {
+    title: "Envoy Docs: Outlier detection",
+    url: "https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/outlier",
+  },
+  "aliyun-clb-features": {
+    title: "阿里云负载均衡 CLB: 功能特性",
+    url: "https://help.aliyun.com/zh/slb/classic-load-balancer/product-overview/functional-characteristics",
+  },
+  "tencent-clb-overview": {
+    title: "腾讯云负载均衡 CLB: 产品概述",
+    url: "https://cloud.tencent.com/document/product/214/524",
+  },
+  "meituan-mgw-l4-load-balancing": {
+    title: "美团技术团队: MGW 高性能四层负载均衡",
+    url: "https://tech.meituan.com/2017/01/05/mgw.html",
+  },
   "microservices-io-api-gateway": {
     title: "Microservices.io: API Gateway / Backends for Frontends",
     url: "https://microservices.io/patterns/apigateway.html",
