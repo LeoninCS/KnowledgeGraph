@@ -1737,6 +1737,10 @@ export const knowledgeSources = {
     title: "NGINX Docs: Configuring HTTPS servers",
     url: "https://nginx.org/en/docs/http/configuring_https_servers.html",
   },
+  "rfc6797-hsts": {
+    title: "RFC 6797: HTTP Strict Transport Security (HSTS)",
+    url: "https://www.rfc-editor.org/rfc/rfc6797",
+  },
   "ruanyifeng-tls13": {
     title: "阮一峰: TLS 1.3 协议详解",
     url: "https://www.ruanyifeng.com/blog/2018/08/tls_1_3.html",
