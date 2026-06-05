@@ -3033,6 +3033,26 @@ export const knowledgeSources = {
     title: "Cisco Nexus 3000: Configuring Access and Trunk Interfaces",
     url: "https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus3000/sw/layer2/503_U3_1/b_Cisco_n3k_Layer_2_Switching_Config_503_U31_chapter_0111.html",
   },
+  "cisco-vlan-trunking-guide": {
+    title: "Cisco C9350: Configure VLAN Trunks",
+    url: "https://www.cisco.com/c/en/us/td/docs/switches/lan/c9000/lyr2-fwd/vlan/vlan-configuration-guide/configure-vlan-trunks.html",
+  },
+  "cisco-meraki-8021q-vlan-tagging": {
+    title: "Cisco Meraki: Fundamentals of 802.1Q VLAN Tagging",
+    url: "https://documentation.meraki.com/Platform_Management/Dashboard_Administration/Design_and_Configure/Configuration_Guides/Routing_and_Firewall/Fundamentals_of_802.1Q_VLAN_Tagging",
+  },
+  "cisco-campus-lan-l2-cvd": {
+    title: "Cisco Validated Design: Campus LAN Layer 2 Access Deployment",
+    url: "https://www.cisco.com/c/dam/en/us/td/docs/solutions/CVD/Oct2015/CVD-Campus_LAN_L2_Access_Simplified_Dist_Deployment-Oct2015.pdf",
+  },
+  "huawei-vlan-basic-concepts": {
+    title: "Huawei: Basic Concepts of VLAN",
+    url: "https://support.huawei.com/enterprise/en/doc/EDOC1000089036/60b1f2f0/basic-concepts-of-vlan",
+  },
+  "redhat-linux-bridge-vlan-filter": {
+    title: "Red Hat Developer: An introduction to Linux bridging commands and features",
+    url: "https://developers.redhat.com/articles/2022/04/06/introduction-linux-bridging-commands-and-features",
+  },
   "networkacademy-vlan-trunking": {
     title: "NetworkAcademy.IO: VLAN Trunking",
     url: "https://www.networkacademy.io/ccna/ethernet/vlan-trunking",
