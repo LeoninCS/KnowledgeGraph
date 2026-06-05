@@ -3877,6 +3877,46 @@ export const knowledgeSources = {
     title: "Linux man-pages: ps(1)",
     url: "https://man7.org/linux/man-pages/man1/ps.1.html",
   },
+  "linux-man-pages-pthreads": {
+    title: "Linux man-pages: pthreads(7)",
+    url: "https://man7.org/linux/man-pages/man7/pthreads.7.html",
+  },
+  "linux-man-pages-pthread-create": {
+    title: "Linux man-pages: pthread_create(3)",
+    url: "https://man7.org/linux/man-pages/man3/pthread_create.3.html",
+  },
+  "linux-man-pages-pthread-join": {
+    title: "Linux man-pages: pthread_join(3)",
+    url: "https://man7.org/linux/man-pages/man3/pthread_join.3.html",
+  },
+  "linux-man-pages-pthread-detach": {
+    title: "Linux man-pages: pthread_detach(3)",
+    url: "https://man7.org/linux/man-pages/man3/pthread_detach.3.html",
+  },
+  "linux-man-pages-pthread-stacksize": {
+    title: "Linux man-pages: pthread_attr_setstacksize(3)",
+    url: "https://man7.org/linux/man-pages/man3/pthread_attr_setstacksize.3.html",
+  },
+  "linux-man-pages-gettid": {
+    title: "Linux man-pages: gettid(2)",
+    url: "https://man7.org/linux/man-pages/man2/gettid.2.html",
+  },
+  "linux-man-pages-futex": {
+    title: "Linux man-pages: futex(2)",
+    url: "https://man7.org/linux/man-pages/man2/futex.2.html",
+  },
+  "linux-man-pages-nptl": {
+    title: "Linux man-pages: nptl(7)",
+    url: "https://man7.org/linux/man-pages/man7/nptl.7.html",
+  },
+  "linux-man-pages-sched": {
+    title: "Linux man-pages: sched(7)",
+    url: "https://man7.org/linux/man-pages/man7/sched.7.html",
+  },
+  "linux-man-proc-pid-task": {
+    title: "Linux man-pages: proc_pid_task(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_pid_task.5.html",
+  },
   "linux-man-proc-pid-stat": {
     title: "Linux man-pages: proc_pid_stat(5)",
     url: "https://man7.org/linux/man-pages/man5/proc_pid_stat.5.html",
@@ -3908,6 +3948,14 @@ export const knowledgeSources = {
   "ostep-process-api": {
     title: "Operating Systems: Three Easy Pieces - Process API",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-api.pdf",
+  },
+  "ostep-threads-intro": {
+    title: "Operating Systems: Three Easy Pieces - Concurrency: An Introduction",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-intro.pdf",
+  },
+  "ostep-threads-api": {
+    title: "Operating Systems: Three Easy Pieces - Thread API",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-api.pdf",
   },
   "brendan-gregg-use-linux": {
     title: "Brendan Gregg: USE Method Linux Performance Checklist",
@@ -3968,6 +4016,10 @@ export const knowledgeSources = {
   "xiaolincoding-os-interview": {
     title: "小林 coding: 操作系统面试题",
     url: "https://xiaolincoding.com/interview/os.html",
+  },
+  "senlin-pthread-inside": {
+    title: "Senlin's Blog: 深入 Linux 多线程编程",
+    url: "https://senlinzhan.github.io/2017/06/10/pthread-inside/",
   },
   "linux-man-pages-epoll": {
     title: "Linux man-pages: epoll(7)",
