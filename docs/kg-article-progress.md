@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 42 | 407 |
+| 449 | 43 | 406 |
 
 ## 分类进度
 
@@ -15,7 +15,7 @@
 | --- | --- | --- | --- |
 | go | 45 | 0 | 45 |
 | network | 28 | 28 | 0 |
-| os | 34 | 12 | 22 |
+| os | 34 | 13 | 21 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 0 | 48 |
 | redis | 44 | 0 | 44 |
@@ -124,7 +124,7 @@
 | 已优化 | `critical-section` | 临界区 | Critical Section | 2026-06-05 | 19 |
 | 已优化 | `mutex` | 互斥锁 | Mutex | 2026-06-05 | 24 |
 | 已优化 | `semaphore` | 信号量 | Semaphore | 2026-06-05 | 29 |
-| 未开始 | `condition-variable` | 条件变量 | Condition Variable | 2026-05-24 | 7 |
+| 已优化 | `condition-variable` | 条件变量 | Condition Variable | 2026-06-05 | 28 |
 | 未开始 | `thread-safety` | 线程安全 | Thread Safety | 2026-05-24 | 7 |
 | 未开始 | `race-condition` | 竞态条件 | Race Condition | 2026-05-24 | 7 |
 | 未开始 | `deadlock` | 死锁 | Deadlock | 2026-05-24 | 7 |

@@ -3945,6 +3945,14 @@ export const knowledgeSources = {
     title: "Linux man-pages: pthread_mutexattr_setrobust(3p)",
     url: "https://man7.org/linux/man-pages/man3/pthread_mutexattr_setrobust.3p.html",
   },
+  "linux-man-pages-pthread-cond-init": {
+    title: "Linux man-pages: pthread_cond_init(3)",
+    url: "https://man7.org/linux/man-pages/man3/pthread_cond_init.3.html",
+  },
+  "linux-man-pages-pthread-condattr-init": {
+    title: "Linux man-pages: pthread_condattr_init(3)",
+    url: "https://man7.org/linux/man-pages/man3/pthread_condattr_init.3.html",
+  },
   "linux-man-pages-pthread-create": {
     title: "Linux man-pages: pthread_create(3)",
     url: "https://man7.org/linux/man-pages/man3/pthread_create.3.html",
@@ -4037,6 +4045,10 @@ export const knowledgeSources = {
     title: "Operating Systems: Three Easy Pieces - Semaphores",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-sema.pdf",
   },
+  "ostep-threads-cv": {
+    title: "Operating Systems: Three Easy Pieces - Condition Variables",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-cv.pdf",
+  },
   "glibc-sem-wait-source": {
     title: "glibc source: sem_wait.c",
     url: "https://codebrowser.dev/glibc/glibc/nptl/sem_wait.c.html",
@@ -4044,6 +4056,18 @@ export const knowledgeSources = {
   "glibc-sem-post-source": {
     title: "glibc source: sem_post.c",
     url: "https://codebrowser.dev/glibc/glibc/nptl/sem_post.c.html",
+  },
+  "glibc-pthread-cond-wait-source": {
+    title: "glibc source: pthread_cond_wait.c",
+    url: "https://codebrowser.dev/glibc/glibc/nptl/pthread_cond_wait.c.html",
+  },
+  "glibc-pthread-cond-signal-source": {
+    title: "glibc source: pthread_cond_signal.c",
+    url: "https://codebrowser.dev/glibc/glibc/nptl/pthread_cond_signal.c.html",
+  },
+  "glibc-pthread-cond-common-source": {
+    title: "glibc source: pthread_cond_common.c",
+    url: "https://codebrowser.dev/glibc/glibc/nptl/pthread_cond_common.c.html",
   },
   "brendan-gregg-use-linux": {
     title: "Brendan Gregg: USE Method Linux Performance Checklist",
