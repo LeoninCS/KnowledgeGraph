@@ -3901,6 +3901,10 @@ export const knowledgeSources = {
     title: "Linux man-pages: pthreads(7)",
     url: "https://man7.org/linux/man-pages/man7/pthreads.7.html",
   },
+  "linux-man-pages-attributes": {
+    title: "Linux man-pages: attributes(7)",
+    url: "https://man7.org/linux/man-pages/man7/attributes.7.html",
+  },
   "linux-man-pages-sem-overview": {
     title: "Linux man-pages: sem_overview(7)",
     url: "https://man7.org/linux/man-pages/man7/sem_overview.7.html",
@@ -4048,6 +4052,42 @@ export const knowledgeSources = {
   "ostep-threads-cv": {
     title: "Operating Systems: Three Easy Pieces - Condition Variables",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-cv.pdf",
+  },
+  "unix-thread-safety-paper": {
+    title: "The Open Group: Threads and the Single UNIX Specification",
+    url: "https://unix.org/version2/whatsnew/threadspaper.pdf",
+  },
+  "oracle-multithread-guide": {
+    title: "Oracle Solaris Multithreaded Programming Guide",
+    url: "https://docs.oracle.com/cd/E37838_01/html/E61057/index.html",
+  },
+  "oracle-multithread-mt-safety": {
+    title: "Oracle Solaris Multithreaded Programming Guide: MT Interface Safety Levels",
+    url: "https://docs.oracle.com/cd/E53394_01/html/E54803/compat-59005.html",
+  },
+  "oracle-multithread-debugging": {
+    title: "Oracle Solaris Multithreaded Programming Guide: Debugging a Multithreaded Program",
+    url: "https://docs.oracle.com/cd/E37838_01/html/E61057/compile-19263.html",
+  },
+  "cppreference-multithread": {
+    title: "cppreference: Multi-threaded executions and data races",
+    url: "https://en.cppreference.com/w/cpp/language/multithread",
+  },
+  "cppreference-memory-order": {
+    title: "cppreference: std::memory_order",
+    url: "https://en.cppreference.com/w/cpp/atomic/memory_order",
+  },
+  "clang-threadsanitizer": {
+    title: "Clang Docs: ThreadSanitizer",
+    url: "https://clang.llvm.org/docs/ThreadSanitizer.html",
+  },
+  "google-threadsanitizer-cpp-manual": {
+    title: "Google Sanitizers Wiki: ThreadSanitizer C++ Manual",
+    url: "https://github.com/google/sanitizers/wiki/ThreadSanitizerCppManual",
+  },
+  "gcc-instrumentation-options": {
+    title: "GCC Docs: Instrumentation Options",
+    url: "https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html",
   },
   "glibc-sem-wait-source": {
     title: "glibc source: sem_wait.c",
