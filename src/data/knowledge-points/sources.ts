@@ -1281,6 +1281,10 @@ export const knowledgeSources = {
     title: "tcpdump(8) - Linux manual page",
     url: "https://man7.org/linux/man-pages/man8/tcpdump.8.html",
   },
+  "cilium-hubble-network-observability": {
+    title: "Cilium Docs: Network Observability with Hubble",
+    url: "https://docs.cilium.io/en/stable/observability/hubble/",
+  },
   "cloudflare-network-layer": {
     title: "Cloudflare Learning Center: What is the network layer?",
     url: "https://www.cloudflare.com/learning/network-layer/what-is-the-network-layer/",
