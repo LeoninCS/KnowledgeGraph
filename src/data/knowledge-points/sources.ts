@@ -2921,6 +2921,14 @@ export const knowledgeSources = {
     title: "RFC 9542: IANA Considerations for IEEE 802 Parameters",
     url: "https://www.rfc-editor.org/rfc/rfc9542",
   },
+  "iana-ieee-802-numbers": {
+    title: "IANA: IEEE 802 Numbers",
+    url: "https://www.iana.org/assignments/ieee-802-numbers/ieee-802-numbers.xhtml",
+  },
+  "wireshark-ethernet": {
+    title: "Wireshark Wiki: Ethernet",
+    url: "https://wiki.wireshark.org/Ethernet",
+  },
   "cisco-ethernet-autonegotiation": {
     title: "Cisco: Troubleshooting Ethernet Autonegotiation",
     url: "https://www.cisco.com/c/en/us/support/docs/lan-switching/ethernet/10561-3.html",
