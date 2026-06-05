@@ -1293,6 +1293,14 @@ export const knowledgeSources = {
     title: "Cloudflare Learning Center: What is the Internet Protocol?",
     url: "https://www.cloudflare.com/learning/network-layer/internet-protocol/",
   },
+  "iana-ipv4-special-registry": {
+    title: "IANA: IPv4 Special-Purpose Address Registry",
+    url: "https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml",
+  },
+  "rfc6890-special-addresses": {
+    title: "RFC 6890: Special-Purpose IP Address Registries",
+    url: "https://www.rfc-editor.org/rfc/rfc6890",
+  },
   "cloudflare-computer-port": {
     title: "Cloudflare Learning Center: What is a computer port?",
     url: "https://www.cloudflare.com/learning/network-layer/what-is-a-computer-port/",
