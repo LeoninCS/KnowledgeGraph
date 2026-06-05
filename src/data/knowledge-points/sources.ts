@@ -1465,6 +1465,14 @@ export const knowledgeSources = {
     title: "RFC 9293: Transmission Control Protocol (TCP)",
     url: "https://www.rfc-editor.org/rfc/rfc9293",
   },
+  "rfc1337-time-wait-assassination": {
+    title: "RFC 1337: TIME-WAIT Assassination Hazards in TCP",
+    url: "https://datatracker.ietf.org/doc/html/rfc1337",
+  },
+  "rfc6191-time-wait-timestamps": {
+    title: "RFC 6191: Reducing the TIME-WAIT State Using TCP Timestamps",
+    url: "https://www.rfc-editor.org/rfc/rfc6191",
+  },
   "cloudflare-tcp-ip": {
     title: "Cloudflare Learning Center: What is TCP/IP?",
     url: "https://www.cloudflare.com/learning/ddos/glossary/tcp-ip/",
