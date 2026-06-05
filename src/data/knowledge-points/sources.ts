@@ -3825,6 +3825,38 @@ export const knowledgeSources = {
     title: "The Linux Kernel documentation",
     url: "https://docs.kernel.org/",
   },
+  "linux-kernel-scheduler": {
+    title: "Linux Kernel Documentation: Scheduler",
+    url: "https://docs.kernel.org/scheduler/",
+  },
+  "linux-kernel-mm-docs": {
+    title: "Linux Kernel Documentation: Memory Management",
+    url: "https://docs.kernel.org/mm/",
+  },
+  "linux-kernel-vfs": {
+    title: "Linux Kernel Documentation: Virtual File System",
+    url: "https://docs.kernel.org/filesystems/vfs.html",
+  },
+  "linux-man-syscalls": {
+    title: "Linux man-pages: syscalls(2)",
+    url: "https://man7.org/linux/man-pages/man2/syscalls.2.html",
+  },
+  "linux-man-proc": {
+    title: "Linux man-pages: proc(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc.5.html",
+  },
+  "ostep-introduction": {
+    title: "Operating Systems: Three Easy Pieces - Introduction",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/intro.pdf",
+  },
+  "brendan-gregg-use-linux": {
+    title: "Brendan Gregg: USE Method Linux Performance Checklist",
+    url: "https://www.brendangregg.com/USEmethod/use-linux.html",
+  },
+  "microsoft-linux-performance-bottlenecks": {
+    title: "Microsoft Learn: Troubleshoot Linux performance bottlenecks",
+    url: "https://learn.microsoft.com/zh-cn/troubleshoot/azure/virtual-machines/linux/troubleshoot-performance-bottlenecks-linux",
+  },
   "linux-man-pages-epoll": {
     title: "Linux man-pages: epoll(7)",
     url: "https://man7.org/linux/man-pages/man7/epoll.7.html",

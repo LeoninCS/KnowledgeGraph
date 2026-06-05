@@ -1,9 +1,62 @@
 import type { GraphKnowledgePoint } from "./types.ts";
 
 const operatingSystemKnowledgePointBase = [
-  /* <!-- KG_REVIEWED: 操作系统概览 | 2026-05-24 | source_count=7 --> */
+  /* <!-- KG_REVIEWED: 操作系统概览 | 2026-06-05 | source_count=15 --> */
   /* <!-- KG_EXPLAINED: 操作系统概览 | 2026-05-23 | source_count=7 --> */
-  { sourceRefs: ["linux-kernel-docs","linux-man-pages","posix-base-spec","gnu-bash-manual","cs-notes","javaguide","xiaolin-coding"], id: "os-overview", zh: "操作系统概览", en: "Operating System Overview", area: "foundation", difficulty: "easy", summary: "理解操作系统作为硬件资源管理者和应用运行环境的角色。", explanation: ["核心概念：操作系统概览（Operating System Overview）聚焦理解操作系统作为硬件资源管理者和应用运行环境的角色。。操作系统负责在硬件和应用之间管理 CPU、内存、文件、设备与权限；理解它时先抓住内核边界、系统调用、特权级和中断路径，再看输入、状态变化、输出结果和失败分支。","适用场景：操作系统概览常用于用户态进入内核、硬件事件打断执行、内核统一管理资源。学习时把它放回操作系统链路中观察，并结合前置知识基础概念判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，操作系统概览通常会和内核和系统调用一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认内核边界、系统调用、特权级和中断路径是否仍然成立。","常见误区与注意点：实践中容易把操作系统概览当成孤立概念处理，结果遗漏权限切换、异常处理、驱动交互和系统调用开销。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Linux Kernel 文档、Linux man-pages、POSIX/Open Group 规范、GNU Bash 手册以及 CS-Notes、JavaGuide、小林 coding，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["操作系统概览底层机制是什么","操作系统概览和相关概念如何区分","操作系统概览线上异常如何排查"], prerequisites: [], related: ["kernel","system-call"], learningPathPosition: 1 },
+  {
+    sourceRefs: [
+      "linux-kernel-docs",
+      "linux-kernel-scheduler",
+      "linux-kernel-mm-docs",
+      "linux-kernel-vfs",
+      "linux-man-pages",
+      "linux-man-syscalls",
+      "linux-man-proc",
+      "posix-base-spec",
+      "gnu-bash-manual",
+      "ostep-introduction",
+      "brendan-gregg-use-linux",
+      "microsoft-linux-performance-bottlenecks",
+      "cs-notes",
+      "javaguide",
+      "xiaolin-coding",
+    ],
+    id: "os-overview",
+    zh: "操作系统概览",
+    en: "Operating System Overview",
+    area: "foundation",
+    difficulty: "easy",
+    summary: "理解操作系统如何把 CPU、内存、文件、设备和权限组织成可运行、可隔离、可排查的应用环境。",
+    explanation: [
+      "概念定位：操作系统概览解决的是“应用怎样安全、稳定、可观测地使用硬件资源”的基础问题。\n\n操作系统（Operating System, OS）位于硬件和应用之间，向上提供进程、线程、虚拟内存、文件、Socket、权限、时间、网络和设备等抽象，向下管理 CPU、内存、磁盘、网卡、终端和中断。它在真实系统里出现在每一次程序启动、系统调用、网络收发、文件读写、容器隔离、性能抖动和线上故障排查中。\n\n入门时先抓住三件事：操作系统给应用提供统一接口，内核集中管理受保护资源，硬件事件和应用请求都会通过受控路径进入内核。",
+      "准确定义：从工程视角看，操作系统是一组系统软件：内核（kernel）负责特权资源管理，系统调用（system call）提供用户态访问内核能力的入口，运行时库、Shell、服务管理器和命令行工具把这些能力包装成日常可用的接口。\n\nPOSIX 规范定义了大量可移植的系统接口，Linux man-pages 描述 Linux 上具体系统调用和库接口，Linux Kernel 文档解释调度、内存、文件系统、驱动、网络等内核子系统。学习 OS 的核心收益是形成一套稳定判断框架：\n\n- 应用看到的是抽象：进程、地址空间、文件描述符、路径、Socket、权限位。\n- 内核维护的是状态：调度队列、页表、VMA、inode、dentry、socket buffer、设备队列、cgroup 统计。\n- 硬件执行的是动作：CPU 指令、内存访问、中断、DMA、磁盘 I/O、网卡收发。",
+      "心智模型：把操作系统看成“资源管家 + 安全边界 + 证据系统”。\n\n资源管家负责把有限硬件分配给多个程序：CPU 按时间片和优先级轮转，内存按虚拟地址空间隔离，文件系统把块设备组织成目录和文件，网络栈把网卡能力抽象成 Socket。安全边界负责让普通应用通过受控入口请求特权操作，例如 `open`、`read`、`write`、`mmap`、`socket`、`fork`、`execve`。证据系统负责把运行状态暴露给工具，例如 `/proc`、`/sys`、日志、计数器、tracepoint、perf event 和 cgroup 指标。\n\n这个模型适合新手串联知识点，也适合工程师排查“CPU 很高、内存泄漏、文件句柄耗尽、磁盘打满、连接超时、容器被 OOM kill”这类问题。",
+      "主流程机制：一次服务进程处理请求可以串起操作系统的关键路径。\n\n1. 启动阶段：Shell 或服务管理器调用 `fork`/`execve` 创建进程，内核建立 `task_struct`、文件描述符表、虚拟地址空间、凭证和调度实体。\n2. 运行阶段：CPU 在用户态执行应用代码；遇到文件、网络、时间、进程控制等特权操作时，应用通过系统调用进入内核态。\n3. 调度阶段：时钟中断、阻塞 I/O、唤醒事件或优先级变化会触发调度器选择下一个可运行任务，产生上下文切换。\n4. 内存阶段：进程访问虚拟地址，MMU 结合页表完成地址转换；缺页时内核分配物理页、加载文件页或触发回收与 swap。\n5. I/O 阶段：文件读写经过 VFS、页缓存、具体文件系统、块层和设备驱动；网络收发经过 Socket、协议栈、队列、驱动和网卡。\n6. 退出阶段：进程释放地址空间、文件描述符和内核对象，父进程回收退出状态，监控系统记录退出码、信号、资源用量和日志。",
+      "核心抽象速查：操作系统知识可以按“CPU、内存、I/O、权限、隔离、观测”六条线组织。\n\n```text\nCPU: process, thread, scheduler, context switch, interrupt, signal\nMemory: virtual memory, page table, page fault, mmap, page cache, swap, OOM\nFile/I/O: file descriptor, inode, VFS, pipe, socket, epoll, block device\nSecurity: user/group, permission, capability, namespace, seccomp, LSM\nIsolation: process boundary, cgroup, namespace, container, VM\nObservability: /proc, /sys, top, ps, vmstat, iostat, ss, strace, perf, dmesg\n```\n\n这些抽象共同构成系统排查地图。比如“请求慢”可能是 CPU run queue 长、线程锁竞争、page fault 增多、磁盘 I/O 饱和、Socket 队列积压、连接数耗尽或下游网络超时，需要按证据逐层收敛。",
+      "系统调用与边界：系统调用是应用进入内核的主要门，决定了用户态和内核态之间的数据复制、权限校验和错误返回。\n\n```c\nfd = open(\"/var/log/app.log\", O_RDONLY);\nn = read(fd, buf, sizeof(buf));\nclose(fd);\n```\n\n上面三行代码背后包含路径解析、权限检查、文件描述符分配、VFS 调用、页缓存读取和错误码返回。常见错误码本身就是排查线索：`EACCES` 指向权限，`ENOENT` 指向路径，`EMFILE` 指向进程文件描述符上限，`ENOSPC` 指向空间或 inode 耗尽，`EINTR` 指向信号打断，`EAGAIN` 指向非阻塞资源暂时不可用。\n\n性能上，系统调用会发生模式切换、参数检查、可能的数据复制和锁竞争；高频小 I/O、频繁创建线程、过度日志写入和大量短连接都会放大这些成本。",
+      "深层机制与取舍：操作系统的设计目标经常相互拉扯，工程实践需要理解这些取舍。\n\n- 抽象提高可用性：文件描述符统一文件、管道、Socket 和设备；代价是必须理解不同对象的阻塞、缓冲和生命周期差异。\n- 隔离提高安全性：进程地址空间、用户权限、namespace 和 cgroup 限制故障影响面；代价是跨边界通信、资源统计和排查链路更复杂。\n- 缓存提高性能：页缓存、dentry cache、buffer、连接池和 DNS 缓存减少慢路径；代价是可见状态和磁盘/网络真实状态存在时间差。\n- 并发提高吞吐：多进程、多线程、异步 I/O 和 epoll 能承载更多连接；代价是竞态、死锁、惊群、调度开销和队列积压。\n- 延迟和吞吐常需分开优化：低延迟关注上下文切换、锁、缺页、队列等待和中断亲和性；高吞吐关注批量、缓存命中、I/O 合并、零拷贝和背压。",
+      "工程场景：操作系统能力经常以“现象 + 指标 + 内核状态”的形式影响生产系统。\n\n- Web 服务：线程池、Socket backlog、文件描述符上限、epoll 事件循环、连接复用和内核 TCP 参数共同决定并发能力。\n- 数据库：页缓存、direct I/O、fsync、I/O 调度、NUMA、HugePages 和磁盘延迟直接影响查询尾延迟。\n- 消息队列：磁盘刷盘、网络缓冲、零拷贝、page cache 回写和 fd 数量影响吞吐与恢复速度。\n- 容器平台：namespace 提供进程、网络、挂载和 PID 视图隔离，cgroup 统计和限制 CPU、内存、I/O；OOM、CPU throttling 和文件系统层叠会改变应用现象。\n- 日志系统：顺序写、rotate、inode、磁盘空间、文件句柄和 `fsync` 策略决定可靠性与写入成本。",
+      "边界与故障模式：操作系统故障通常表现为资源耗尽、队列堆积、权限失败、内核状态异常或观测盲区。\n\n- CPU：run queue 过长、上下文切换过高、软中断占比异常、锁竞争、cgroup CPU quota 导致 throttling。\n- 内存：RSS 增长、page fault 增多、swap 抖动、page cache 挤压、内存碎片、OOM killer 终止进程。\n- 文件系统：磁盘空间满、inode 耗尽、fd 泄漏、日志文件删除后空间仍被打开句柄占用、只读挂载、权限位错误。\n- I/O：磁盘延迟升高、队列深度过高、写回堵塞、同步刷盘放大尾延迟、网络队列丢包。\n- 进程：僵尸进程未回收、信号处理不当、线程数过多、阻塞系统调用卡住、fork 失败。\n- 安全与隔离：capability 缺失、seccomp 拦截、namespace 视图差异、SELinux/AppArmor 拒绝访问、容器资源限制触发。",
+      "排查实践：OS 层排查要从影响面开始，再按 USE 方法观察 utilization、saturation 和 errors，并把进程视角与系统视角对齐。\n\n```bash\n# 1. 总览：负载、CPU、内存、运行时间\nuptime\ntop\nvmstat 1\n\n# 2. 进程：线程、状态、打开文件、系统调用\nps -eo pid,ppid,stat,comm,%cpu,%mem --sort=-%cpu | head\nls /proc/<pid>/fd | wc -l\ncat /proc/<pid>/status\nstrace -tt -p <pid>\n\n# 3. 内存与 OOM 证据\nfree -h\ncat /proc/meminfo\ndmesg -T | grep -i -E 'oom|out of memory|killed process'\n\n# 4. 磁盘与文件系统\ndf -h\ndf -i\niostat -xz 1\nlsof +L1\n\n# 5. 网络与 Socket\nss -s\nss -ltnp\nss -ant state established | wc -l\n```\n\n建议流程：\n\n1. 固定现象：时间窗、主机、容器、进程、版本、流量、错误码和发布记录。\n2. 看系统饱和：CPU run queue、内存可用量、swap、磁盘 util、I/O await、网络重传和 fd 使用率。\n3. 看进程状态：`R/S/D/Z`、线程数、RSS、句柄数、系统调用卡点、信号和退出码。\n4. 看内核证据：`dmesg`、`/proc`、`/sys/fs/cgroup`、perf、trace、OOM 日志和文件系统错误。\n5. 做小实验：降低并发、调整连接池、切换同步/异步 I/O、扩大 fd/线程/内存限制、隔离磁盘或网络路径，验证瓶颈归因。\n6. 固化修复：补监控、告警阈值、资源上限、启动参数、容量水位和回滚脚本。",
+      "常见误区：成熟的 OS 理解来自边界、状态和证据的组合判断。\n\n- CPU 使用率低仍可能很慢，因为线程可能在锁、I/O、page fault、网络或 cgroup throttle 上等待。\n- 内存“被占满”需要区分匿名内存、页缓存、slab、buffer、swap 和 cgroup 统计，Linux 会积极使用空闲内存做缓存。\n- 文件删除释放的是目录项引用，仍被进程打开的文件会继续占用磁盘空间，`lsof +L1` 能看到证据。\n- 负载高需要结合 CPU 核数和进程状态判断，`D` 状态任务会推高 load average。\n- 容器里看到的 PID、网络和文件系统是隔离视图，宿主机内核和 cgroup 限制仍决定最终行为。\n- 系统调用失败的 `errno` 是接口契约的一部分，排查时要保留返回值、错误码和调用参数。",
+      "面试与复盘抓手：回答操作系统概览题时，建议按“目标 -> 抽象 -> 机制 -> 故障 -> 证据”展开。\n\n高频追问包括：\n\n- 操作系统为什么需要用户态和内核态？一次系统调用经历哪些步骤？\n- 进程、线程、协程、上下文切换和调度器的关系是什么？\n- 虚拟内存解决了什么问题？页表、TLB、缺页异常和 OOM 如何串起来？\n- 文件描述符、inode、VFS、page cache 和磁盘 I/O 的关系是什么？\n- `top` 看到 load 很高但 CPU 使用率不高，如何排查？\n- 线上 fd 泄漏、磁盘空间删除后仍满、容器 OOM、连接超时分别看哪些证据？\n- 操作系统抽象带来哪些性能成本？哪些场景适合批量、缓存、零拷贝、异步 I/O 或限流背压？",
+      "参考来源：本文用 OSTEP 的 virtualization、concurrency、persistence 主线组织学习框架；内核职责、调度、内存管理和 VFS 参考 Linux Kernel Documentation；系统调用、`/proc` 和命令语义参考 Linux man-pages；可移植接口参考 POSIX Base Specifications；Shell 与命令执行语义参考 GNU Bash Manual；性能排查方法参考 Brendan Gregg USE Method 与 Microsoft Learn Linux 性能瓶颈排查；中文知识组织和面试表达参考 CS-Notes、JavaGuide 与小林 coding。",
+    ],
+    typicalProblems: [
+      "操作系统解决什么问题？请从资源管理、抽象、安全边界和可观测性四个角度回答。",
+      "应用从用户态进入内核态的一次系统调用会经历哪些步骤？返回值和 `errno` 在排查中有什么价值？",
+      "进程、线程、调度器、上下文切换、中断和信号之间怎样协作？",
+      "虚拟内存、页表、TLB、缺页异常、page cache、swap 和 OOM 如何串成一条内存管理链路？",
+      "文件描述符、inode、VFS、页缓存、文件系统和块设备在一次文件读写中分别负责什么？",
+      "线上 CPU 使用率低但请求很慢，如何从锁、I/O、缺页、网络、cgroup 和调度队列收集证据？",
+      "磁盘空间删除后仍然占满、fd 泄漏、僵尸进程、容器 OOM、CPU throttling 分别看哪些命令和指标？",
+      "为什么容器隔离依赖 Linux namespace 和 cgroup？这种隔离对排查和安全有什么影响？",
+      "操作系统抽象带来哪些性能成本？批量、缓存、异步 I/O、零拷贝和背压分别适合解决什么问题？",
+    ],
+    prerequisites: [],
+    related: ["kernel", "system-call", "process", "memory-management", "file-system", "io"],
+    learningPathPosition: 1,
+  },
   /* <!-- KG_REVIEWED: 内核 | 2026-05-24 | source_count=7 --> */
   /* <!-- KG_EXPLAINED: 内核 | 2026-05-23 | source_count=7 --> */
   { sourceRefs: ["linux-kernel-docs","linux-man-pages","posix-base-spec","gnu-bash-manual","cs-notes","javaguide","xiaolin-coding"], id: "kernel", zh: "内核", en: "Kernel", area: "foundation", difficulty: "easy", summary: "负责进程、内存、文件、设备和网络等核心资源管理。", explanation: ["核心概念：内核（Kernel）聚焦负责进程、内存、文件、设备和网络等核心资源管理。。操作系统负责在硬件和应用之间管理 CPU、内存、文件、设备与权限；理解它时先抓住内核边界、系统调用、特权级和中断路径，再看输入、状态变化、输出结果和失败分支。","适用场景：内核常用于用户态进入内核、硬件事件打断执行、内核统一管理资源。学习时把它放回操作系统链路中观察，并结合前置知识操作系统概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，内核通常会和用户态与内核态和系统调用一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认内核边界、系统调用、特权级和中断路径是否仍然成立。","常见误区与注意点：实践中容易把内核当成孤立概念处理，结果遗漏权限切换、异常处理、驱动交互和系统调用开销。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考Linux Kernel 文档、Linux man-pages、POSIX/Open Group 规范、GNU Bash 手册以及 CS-Notes、JavaGuide、小林 coding，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["内核底层机制是什么","内核和相关概念如何区分","内核线上异常如何排查"], prerequisites: ["os-overview"], related: ["kernel-mode","system-call"], learningPathPosition: 2 },
