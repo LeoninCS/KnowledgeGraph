@@ -7,14 +7,14 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 22 | 427 |
+| 449 | 23 | 426 |
 
 ## 分类进度
 
 | 分类 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- | --- |
 | go | 45 | 0 | 45 |
-| network | 28 | 20 | 8 |
+| network | 28 | 21 | 7 |
 | os | 34 | 0 | 34 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 0 | 48 |
@@ -99,7 +99,7 @@
 | 已优化 | `udp` | UDP | User Datagram Protocol | 2026-06-05 | 17 |
 | 已优化 | `dns` | DNS | Domain Name System | 2026-06-05 | 16 |
 | 已优化 | `http` | HTTP | Hypertext Transfer Protocol | 2026-06-05 | 13 |
-| 未开始 | `http-cache` | HTTP 缓存 | HTTP Cache | 2026-05-30 | 4 |
+| 已优化 | `http-cache` | HTTP 缓存 | HTTP Cache | 2026-06-05 | 12 |
 | 未开始 | `tls` | TLS | Transport Layer Security | 2026-05-30 | 6 |
 | 未开始 | `https` | HTTPS | HTTPS | 2026-05-30 | 4 |
 | 未开始 | `latency-bandwidth` | 延迟与带宽 | Latency and Bandwidth | 2026-05-30 | 5 |

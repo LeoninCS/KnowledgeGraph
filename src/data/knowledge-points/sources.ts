@@ -1637,6 +1637,10 @@ export const knowledgeSources = {
     title: "RFC 9111: HTTP Caching",
     url: "https://www.rfc-editor.org/rfc/rfc9111",
   },
+  "rfc5861-http-stale-controls": {
+    title: "RFC 5861: HTTP Cache-Control Extensions for Stale Content",
+    url: "https://www.rfc-editor.org/rfc/rfc5861",
+  },
   "rfc9113-http2": {
     title: "RFC 9113: HTTP/2",
     url: "https://www.rfc-editor.org/rfc/rfc9113",
@@ -3049,9 +3053,33 @@ export const knowledgeSources = {
     title: "MDN Web Docs: HTTP caching",
     url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching",
   },
+  "mdn-cache-control": {
+    title: "MDN Web Docs: Cache-Control",
+    url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control",
+  },
+  "webdev-http-cache": {
+    title: "web.dev: Prevent unnecessary network requests with the HTTP Cache",
+    url: "https://web.dev/articles/http-cache",
+  },
   "cloudflare-cache-revalidation": {
     title: "Cloudflare Cache: Revalidation",
     url: "https://developers.cloudflare.com/cache/concepts/revalidation/",
+  },
+  "cloudflare-cache-responses": {
+    title: "Cloudflare Cache: Cache responses",
+    url: "https://developers.cloudflare.com/cache/concepts/cache-responses/",
+  },
+  "fastly-cache-control-headers": {
+    title: "Fastly Docs: About cache control headers",
+    url: "https://www.fastly.com/documentation/guides/full-site-delivery/caching/about-cache-control-headers/",
+  },
+  "nginx-content-caching": {
+    title: "NGINX Documentation: Content Caching",
+    url: "https://docs.nginx.com/nginx/admin-guide/content-cache/content-caching/",
+  },
+  "portswigger-web-cache-poisoning": {
+    title: "PortSwigger Web Security Academy: Web cache poisoning",
+    url: "https://portswigger.net/web-security/web-cache-poisoning",
   },
   "xiaolin-mysql": {
     title: "小林 coding 图解 MySQL",
