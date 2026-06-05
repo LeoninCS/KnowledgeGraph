@@ -4053,6 +4053,10 @@ export const knowledgeSources = {
     title: "Operating Systems: Three Easy Pieces - Condition Variables",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-cv.pdf",
   },
+  "ostep-threads-deadlock": {
+    title: "Operating Systems: Three Easy Pieces - Deadlock",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-deadlock.pdf",
+  },
   "unix-thread-safety-paper": {
     title: "The Open Group: Threads and the Single UNIX Specification",
     url: "https://unix.org/version2/whatsnew/threadspaper.pdf",
@@ -4068,6 +4072,10 @@ export const knowledgeSources = {
   "oracle-multithread-debugging": {
     title: "Oracle Solaris Multithreaded Programming Guide: Debugging a Multithreaded Program",
     url: "https://docs.oracle.com/cd/E37838_01/html/E61057/compile-19263.html",
+  },
+  "oracle-multithread-deadlock": {
+    title: "Oracle Solaris Multithreaded Programming Guide: Using Locking Hierarchies",
+    url: "https://docs.oracle.com/cd/E19683-01/806-6867/sync-ex-3/index.html",
   },
   "cpp-draft-intro-races": {
     title: "C++ Working Draft: Multi-threaded executions and data races",
@@ -4160,6 +4168,14 @@ export const knowledgeSources = {
   "linux-kernel-locktypes": {
     title: "Linux Kernel Documentation: Lock types and their rules",
     url: "https://www.kernel.org/doc/html/latest/locking/locktypes.html",
+  },
+  "linux-kernel-lockdep-design": {
+    title: "Linux Kernel Documentation: Runtime locking correctness validator",
+    url: "https://docs.kernel.org/locking/lockdep-design.html",
+  },
+  "linux-kernel-ww-mutex-design": {
+    title: "Linux Kernel Documentation: Wound/Wait Deadlock-Proof Mutex Design",
+    url: "https://docs.kernel.org/locking/ww-mutex-design.html",
   },
   "linux-kernel-kcsan": {
     title: "Linux Kernel Documentation: Kernel Concurrency Sanitizer",

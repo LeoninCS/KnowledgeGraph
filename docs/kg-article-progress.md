@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 45 | 404 |
+| 449 | 46 | 403 |
 
 ## 分类进度
 
@@ -15,7 +15,7 @@
 | --- | --- | --- | --- |
 | go | 45 | 0 | 45 |
 | network | 28 | 28 | 0 |
-| os | 34 | 15 | 19 |
+| os | 34 | 16 | 18 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 0 | 48 |
 | redis | 44 | 0 | 44 |
@@ -127,7 +127,7 @@
 | 已优化 | `condition-variable` | 条件变量 | Condition Variable | 2026-06-05 | 28 |
 | 已优化 | `thread-safety` | 线程安全 | Thread Safety | 2026-06-05 | 36 |
 | 已优化 | `race-condition` | 竞态条件 | Race Condition | 2026-06-05 | 33 |
-| 未开始 | `deadlock` | 死锁 | Deadlock | 2026-05-24 | 7 |
+| 已优化 | `deadlock` | 死锁 | Deadlock | 2026-06-05 | 32 |
 | 未开始 | `deadlock-conditions` | 死锁四条件 | Deadlock Conditions | 2026-05-24 | 7 |
 | 未开始 | `deadlock-prevention` | 死锁预防与避免 | Deadlock Prevention and Avoidance | 2026-05-24 | 7 |
 | 未开始 | `memory-management` | 内存管理 | Memory Management | 2026-05-24 | 7 |
