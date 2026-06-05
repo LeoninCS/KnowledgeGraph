@@ -3901,6 +3901,10 @@ export const knowledgeSources = {
     title: "Linux man-pages: pthreads(7)",
     url: "https://man7.org/linux/man-pages/man7/pthreads.7.html",
   },
+  "linux-man-pages-pthread-mutex-lock": {
+    title: "Linux man-pages: pthread_mutex_lock(3p)",
+    url: "https://man7.org/linux/man-pages/man3/pthread_mutex_lock.3p.html",
+  },
   "linux-man-pages-pthread-create": {
     title: "Linux man-pages: pthread_create(3)",
     url: "https://man7.org/linux/man-pages/man3/pthread_create.3.html",
@@ -3985,6 +3989,10 @@ export const knowledgeSources = {
     title: "Operating Systems: Three Easy Pieces - Thread API",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-api.pdf",
   },
+  "ostep-threads-locks": {
+    title: "Operating Systems: Three Easy Pieces - Locks",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks.pdf",
+  },
   "brendan-gregg-use-linux": {
     title: "Brendan Gregg: USE Method Linux Performance Checklist",
     url: "https://www.brendangregg.com/USEmethod/use-linux.html",
@@ -4016,6 +4024,14 @@ export const knowledgeSources = {
   "linux-kernel-threat-model": {
     title: "Linux Kernel Documentation: The Linux Kernel threat model",
     url: "https://docs.kernel.org/next/process/threat-model.html",
+  },
+  "linux-kernel-locking-index": {
+    title: "Linux Kernel Documentation: Locking",
+    url: "https://docs.kernel.org/locking/index.html",
+  },
+  "linux-kernel-locking-guide": {
+    title: "Linux Kernel Documentation: Unreliable Guide To Locking",
+    url: "https://docs.kernel.org/kernel-hacking/locking.html",
   },
   "linux-man-pages-syscall": {
     title: "Linux man-pages: syscall(2)",

@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 39 | 410 |
+| 449 | 40 | 409 |
 
 ## 分类进度
 
@@ -15,7 +15,7 @@
 | --- | --- | --- | --- |
 | go | 45 | 0 | 45 |
 | network | 28 | 28 | 0 |
-| os | 34 | 9 | 25 |
+| os | 34 | 10 | 24 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 0 | 48 |
 | redis | 44 | 0 | 44 |
@@ -121,7 +121,7 @@
 | 已优化 | `thread` | 线程 | Thread | 2026-06-05 | 32 |
 | 已优化 | `context-switch` | 上下文切换 | Context Switch | 2026-06-05 | 22 |
 | 已优化 | `scheduler` | 调度器 | Scheduler | 2026-06-05 | 26 |
-| 未开始 | `critical-section` | 临界区 | Critical Section | 2026-05-24 | 7 |
+| 已优化 | `critical-section` | 临界区 | Critical Section | 2026-06-05 | 19 |
 | 未开始 | `mutex` | 互斥锁 | Mutex | 2026-05-24 | 7 |
 | 未开始 | `semaphore` | 信号量 | Semaphore | 2026-05-24 | 7 |
 | 未开始 | `condition-variable` | 条件变量 | Condition Variable | 2026-05-24 | 7 |
