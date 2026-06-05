@@ -1513,6 +1513,14 @@ export const knowledgeSources = {
     title: "RFC 2018: TCP Selective Acknowledgment Options",
     url: "https://www.rfc-editor.org/rfc/rfc2018",
   },
+  "rfc6675-sack-recovery": {
+    title: "RFC 6675: SACK-Based Loss Recovery Algorithm for TCP",
+    url: "https://www.rfc-editor.org/rfc/rfc6675",
+  },
+  "rfc8985-rack-tlp": {
+    title: "RFC 8985: The RACK-TLP Loss Detection Algorithm for TCP",
+    url: "https://www.rfc-editor.org/rfc/rfc8985",
+  },
   "rfc7323-tcp-high-performance": {
     title: "RFC 7323: TCP Extensions for High Performance",
     url: "https://www.rfc-editor.org/rfc/rfc7323",
