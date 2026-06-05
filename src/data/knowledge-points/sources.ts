@@ -4069,6 +4069,10 @@ export const knowledgeSources = {
     title: "Oracle Solaris Multithreaded Programming Guide: Debugging a Multithreaded Program",
     url: "https://docs.oracle.com/cd/E37838_01/html/E61057/compile-19263.html",
   },
+  "cpp-draft-intro-races": {
+    title: "C++ Working Draft: Multi-threaded executions and data races",
+    url: "https://eel.is/c++draft/intro.races",
+  },
   "cppreference-multithread": {
     title: "cppreference: Multi-threaded executions and data races",
     url: "https://en.cppreference.com/w/cpp/language/multithread",
@@ -4156,6 +4160,14 @@ export const knowledgeSources = {
   "linux-kernel-locktypes": {
     title: "Linux Kernel Documentation: Lock types and their rules",
     url: "https://www.kernel.org/doc/html/latest/locking/locktypes.html",
+  },
+  "linux-kernel-kcsan": {
+    title: "Linux Kernel Documentation: Kernel Concurrency Sanitizer",
+    url: "https://docs.kernel.org/dev-tools/kcsan.html",
+  },
+  "linux-kernel-seqlock": {
+    title: "Linux Kernel Documentation: Sequence counters and sequential locks",
+    url: "https://docs.kernel.org/locking/seqlock.html",
   },
   "linux-man-pages-syscall": {
     title: "Linux man-pages: syscall(2)",
