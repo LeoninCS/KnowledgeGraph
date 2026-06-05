@@ -1657,6 +1657,14 @@ export const knowledgeSources = {
     title: "RFC 8446: TLS 1.3",
     url: "https://www.rfc-editor.org/rfc/rfc8446",
   },
+  "rfc6066-tls-sni": {
+    title: "RFC 6066: TLS Extensions - Server Name Indication",
+    url: "https://www.rfc-editor.org/rfc/rfc6066",
+  },
+  "rfc7301-tls-alpn": {
+    title: "RFC 7301: TLS Application-Layer Protocol Negotiation",
+    url: "https://www.rfc-editor.org/rfc/rfc7301",
+  },
   "mdn-tls": {
     title: "MDN: Transport Layer Security (TLS)",
     url: "https://developer.mozilla.org/docs/Web/Security/Transport_Layer_Security",
@@ -1664,6 +1672,30 @@ export const knowledgeSources = {
   "mozilla-ssl-config": {
     title: "Mozilla SSL Configuration Generator",
     url: "https://ssl-config.mozilla.org/",
+  },
+  "openssl-s-client": {
+    title: "OpenSSL Docs: openssl s_client",
+    url: "https://docs.openssl.org/3.0/man1/openssl-s_client/",
+  },
+  "owasp-tls-cheat-sheet": {
+    title: "OWASP: Transport Layer Security Cheat Sheet",
+    url: "https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Security_Cheat_Sheet.html",
+  },
+  "cloudflare-tls-handshake": {
+    title: "Cloudflare: What happens in a TLS handshake?",
+    url: "https://www.cloudflare.com/learning/ssl/what-happens-in-a-tls-handshake/",
+  },
+  "cloudflare-mtls": {
+    title: "Cloudflare: What is mutual TLS (mTLS)?",
+    url: "https://www.cloudflare.com/learning/access-management/what-is-mutual-tls/",
+  },
+  "nginx-https-servers": {
+    title: "NGINX Docs: Configuring HTTPS servers",
+    url: "https://nginx.org/en/docs/http/configuring_https_servers.html",
+  },
+  "ruanyifeng-tls13": {
+    title: "阮一峰: TLS 1.3 协议详解",
+    url: "https://www.ruanyifeng.com/blog/2018/08/tls_1_3.html",
   },
   "rfc5280-pkix": {
     title: "RFC 5280: Internet X.509 PKI Certificate and CRL Profile",
