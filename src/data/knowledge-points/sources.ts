@@ -3873,6 +3873,18 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Memory Management",
     url: "https://docs.kernel.org/mm/",
   },
+  "linux-kernel-mm-concepts": {
+    title: "Linux Kernel Documentation: Memory Management Concepts",
+    url: "https://docs.kernel.org/admin-guide/mm/concepts.html",
+  },
+  "linux-kernel-overcommit-accounting": {
+    title: "Linux Kernel Documentation: Overcommit Accounting",
+    url: "https://docs.kernel.org/mm/overcommit-accounting.html",
+  },
+  "linux-kernel-oom": {
+    title: "Linux Kernel Documentation: Out Of Memory Handling",
+    url: "https://docs.kernel.org/mm/oom.html",
+  },
   "linux-kernel-vfs": {
     title: "Linux Kernel Documentation: Virtual File System",
     url: "https://docs.kernel.org/filesystems/vfs.html",
@@ -3912,6 +3924,22 @@ export const knowledgeSources = {
   "linux-man-pages-getrlimit": {
     title: "Linux man-pages: getrlimit(2)",
     url: "https://man7.org/linux/man-pages/man2/getrlimit.2.html",
+  },
+  "linux-man-pages-mmap": {
+    title: "Linux man-pages: mmap(2)",
+    url: "https://man7.org/linux/man-pages/man2/mmap.2.html",
+  },
+  "linux-man-pages-proc-meminfo": {
+    title: "Linux man-pages: proc_meminfo(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_meminfo.5.html",
+  },
+  "linux-man-pages-proc-pid-status": {
+    title: "Linux man-pages: proc_pid_status(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_pid_status.5.html",
+  },
+  "linux-man-pages-proc-pid-smaps": {
+    title: "Linux man-pages: proc_pid_smaps(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_pid_smaps.5.html",
   },
   "linux-man-pages-ps": {
     title: "Linux man-pages: ps(1)",
@@ -4036,6 +4064,22 @@ export const knowledgeSources = {
   "ostep-introduction": {
     title: "Operating Systems: Three Easy Pieces - Introduction",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/intro.pdf",
+  },
+  "ostep-vm-intro": {
+    title: "Operating Systems: Three Easy Pieces - The Abstraction: Address Spaces",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/vm-intro.pdf",
+  },
+  "ostep-vm-api": {
+    title: "Operating Systems: Three Easy Pieces - Memory API",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/vm-api.pdf",
+  },
+  "ostep-vm-mechanism": {
+    title: "Operating Systems: Three Easy Pieces - Mechanism: Address Translation",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/vm-mechanism.pdf",
+  },
+  "ostep-vm-paging": {
+    title: "Operating Systems: Three Easy Pieces - Paging: Introduction",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/vm-paging.pdf",
   },
   "ostep-processes": {
     title: "Operating Systems: Three Easy Pieces - The Abstraction: The Process",
