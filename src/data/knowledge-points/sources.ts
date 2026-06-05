@@ -3877,6 +3877,26 @@ export const knowledgeSources = {
     title: "Linux man-pages: ps(1)",
     url: "https://man7.org/linux/man-pages/man1/ps.1.html",
   },
+  "linux-man-proc-pid-stat": {
+    title: "Linux man-pages: proc_pid_stat(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_pid_stat.5.html",
+  },
+  "linux-man-proc-pid-status": {
+    title: "Linux man-pages: proc_pid_status(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_pid_status.5.html",
+  },
+  "linux-kernel-driver-basics": {
+    title: "Linux Kernel Documentation: Driver Basics and Wait Queues",
+    url: "https://docs.kernel.org/driver-api/basics.html",
+  },
+  "brendan-gregg-linux-load-averages": {
+    title: "Brendan Gregg: Linux Load Averages - Solving the Mystery",
+    url: "https://www.brendangregg.com/blog/2017-08-08/linux-load-averages.html",
+  },
+  "baeldung-linux-process-states": {
+    title: "Baeldung: Linux Process States",
+    url: "https://www.baeldung.com/linux/process-states",
+  },
   "ostep-introduction": {
     title: "Operating Systems: Three Easy Pieces - Introduction",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/intro.pdf",
