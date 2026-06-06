@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 61 | 388 |
+| 449 | 62 | 387 |
 
 ## 分类进度
 
@@ -15,7 +15,7 @@
 | --- | --- | --- | --- |
 | go | 45 | 0 | 45 |
 | network | 28 | 28 | 0 |
-| os | 34 | 31 | 3 |
+| os | 34 | 32 | 2 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 0 | 48 |
 | redis | 44 | 0 | 44 |
@@ -143,7 +143,7 @@
 | 已优化 | `nonblocking-io` | 非阻塞 I/O | Non-blocking I/O | 2026-06-05 | 26 |
 | 已优化 | `io-multiplexing` | I/O 多路复用 | I/O Multiplexing | 2026-06-05 | 29 |
 | 已优化 | `epoll` | epoll | epoll | 2026-06-05 | 29 |
-| 未开始 | `socket` | Socket | Socket | 2026-05-24 | 7 |
+| 已优化 | `socket` | Socket | Socket | 2026-06-05 | 39 |
 | 未开始 | `linux-shell` | Linux Shell | Linux Shell | 2026-05-24 | 7 |
 | 未开始 | `linux-command` | Linux 常用命令 | Common Linux Commands | 2026-05-24 | 7 |
 
