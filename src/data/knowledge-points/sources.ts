@@ -2313,6 +2313,38 @@ export const knowledgeSources = {
     title: "Protocol Buffers Documentation: Encoding",
     url: "https://protobuf.dev/programming-guides/encoding/",
   },
+  "protobuf-best-practices": {
+    title: "Protocol Buffers Documentation: Proto Best Practices",
+    url: "https://protobuf.dev/best-practices/dos-donts/",
+  },
+  "protobuf-field-presence": {
+    title: "Protocol Buffers Documentation: Field Presence",
+    url: "https://protobuf.dev/programming-guides/field_presence/",
+  },
+  "protobuf-json-format": {
+    title: "Protocol Buffers Documentation: ProtoJSON Format",
+    url: "https://protobuf.dev/programming-guides/json/",
+  },
+  "protobuf-go-generated": {
+    title: "Protocol Buffers Documentation: Go Generated Code Guide",
+    url: "https://protobuf.dev/reference/go/go-generated/",
+  },
+  "protobuf-mime-types": {
+    title: "Protocol Buffers Documentation: MIME Types",
+    url: "https://protobuf.dev/reference/protobuf/mime-types/",
+  },
+  "buf-breaking-overview": {
+    title: "Buf Docs: Breaking Change Detection",
+    url: "https://buf.build/docs/breaking/overview/",
+  },
+  "victoriametrics-go-protobuf": {
+    title: "VictoriaMetrics: How Protobuf Works - The Art of Data Encoding",
+    url: "https://victoriametrics.com/blog/go-protobuf/",
+  },
+  "cnblogs-protobuf-encoding": {
+    title: "博客园：Protocol Buffers 编码详解",
+    url: "https://www.cnblogs.com/fullsail/p/4220293.html",
+  },
   "aws-elb-overview": {
     title: "AWS Elastic Load Balancing: What is Elastic Load Balancing?",
     url: "https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html",
