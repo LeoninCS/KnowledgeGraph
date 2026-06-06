@@ -3877,6 +3877,10 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Memory Management Concepts",
     url: "https://docs.kernel.org/admin-guide/mm/concepts.html",
   },
+  "linux-kernel-process-addresses": {
+    title: "Linux Kernel Documentation: Process Addresses",
+    url: "https://www.kernel.org/doc/html/latest/mm/process_addrs.html",
+  },
   "linux-kernel-overcommit-accounting": {
     title: "Linux Kernel Documentation: Overcommit Accounting",
     url: "https://docs.kernel.org/mm/overcommit-accounting.html",
@@ -3928,6 +3932,22 @@ export const knowledgeSources = {
   "linux-man-pages-mmap": {
     title: "Linux man-pages: mmap(2)",
     url: "https://man7.org/linux/man-pages/man2/mmap.2.html",
+  },
+  "linux-man-pages-mprotect": {
+    title: "Linux man-pages: mprotect(2)",
+    url: "https://man7.org/linux/man-pages/man2/mprotect.2.html",
+  },
+  "linux-man-pages-madvise": {
+    title: "Linux man-pages: madvise(2)",
+    url: "https://man7.org/linux/man-pages/man2/madvise.2.html",
+  },
+  "linux-man-pages-mincore": {
+    title: "Linux man-pages: mincore(2)",
+    url: "https://man7.org/linux/man-pages/man2/mincore.2.html",
+  },
+  "linux-man-pages-proc-pid-maps": {
+    title: "Linux man-pages: proc_pid_maps(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_pid_maps.5.html",
   },
   "linux-man-pages-proc-meminfo": {
     title: "Linux man-pages: proc_meminfo(5)",

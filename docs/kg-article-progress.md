@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 49 | 400 |
+| 449 | 50 | 399 |
 
 ## 分类进度
 
@@ -15,7 +15,7 @@
 | --- | --- | --- | --- |
 | go | 45 | 0 | 45 |
 | network | 28 | 28 | 0 |
-| os | 34 | 19 | 15 |
+| os | 34 | 20 | 14 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 0 | 48 |
 | redis | 44 | 0 | 44 |
@@ -131,7 +131,7 @@
 | 已优化 | `deadlock-conditions` | 死锁四条件 | Deadlock Conditions | 2026-06-05 | 23 |
 | 已优化 | `deadlock-prevention` | 死锁预防与避免 | Deadlock Prevention and Avoidance | 2026-06-05 | 32 |
 | 已优化 | `memory-management` | 内存管理 | Memory Management | 2026-06-05 | 25 |
-| 未开始 | `virtual-memory` | 虚拟内存 | Virtual Memory | 2026-05-24 | 7 |
+| 已优化 | `virtual-memory` | 虚拟内存 | Virtual Memory | 2026-06-05 | 23 |
 | 未开始 | `paging` | 分页 | Paging | 2026-05-24 | 7 |
 | 未开始 | `page-table` | 页表 | Page Table | 2026-05-24 | 7 |
 | 未开始 | `tlb` | TLB | Translation Lookaside Buffer | 2026-05-24 | 7 |
