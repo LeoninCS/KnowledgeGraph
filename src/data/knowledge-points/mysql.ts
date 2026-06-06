@@ -180,7 +180,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 索引选择性 | 2026-05-24 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 索引选择性 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "index-selectivity", zh: "索引选择性", en: "Index Selectivity", area: "index", difficulty: "medium", concept: "索引选择性表示字段区分度，区分度越高越适合作为索引前导列。", explanation: ["核心概念：索引选择性（Index Selectivity）聚焦索引选择性表示字段区分度，区分度越高越适合作为索引前导列。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住B+ 树、聚簇索引、二级索引和覆盖索引，再看输入、状态变化、输出结果和失败分支。","适用场景：索引选择性常用于索引字段排序和低效索引治理。学习时把它放回MySQL链路中观察，并结合前置知识索引判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，索引选择性通常会和联合索引一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认B+ 树、聚簇索引、二级索引和覆盖索引是否仍然成立。","常见误区与注意点：实践中容易把索引选择性当成孤立概念处理，结果遗漏回表、最左前缀、范围条件、低选择性和写入成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["索引选择性执行原理是什么","索引选择性如何影响性能或一致性","索引选择性线上问题怎么排查"], useCases: ["索引字段排序","低效索引治理"], prerequisites: ["mysql-index"], related: ["composite-index"], order: 36 },
-  /* <!-- KG_REVIEWED: 事务 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 事务 | 2026-06-05 | source_count=19 --> */
   /* <!-- KG_EXPLAINED: 事务 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "transaction", zh: "事务", en: "Transaction", area: "transaction", difficulty: "medium", concept: "事务把多个操作组成一个逻辑单元，保证业务状态正确变化。", explanation: ["核心概念：事务（Transaction）聚焦事务把多个操作组成一个逻辑单元，保证业务状态正确变化。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：事务常用于订单支付、库存扣减和资金流水。学习时把它放回MySQL链路中观察，并结合前置知识InnoDB和DML判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，事务通常会和ACID、隔离级别和MVCC一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把事务当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["事务执行原理是什么","事务如何影响性能或一致性","事务线上问题怎么排查"], useCases: ["订单支付","库存扣减","资金流水"], prerequisites: ["innodb","dml"], related: ["acid","isolation-level","mvcc"], order: 37 },
   /* <!-- KG_REVIEWED: ACID | 2026-05-24 | source_count=5 --> */
@@ -1670,8 +1670,74 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["where", "order-by", "limit-offset", "composite-index", "covering-index", "index-selectivity", "explain", "slow-query-log", "gap-lock", "next-key-lock", "buffer-pool"],
   },
   "transaction": {
+    sourceRefs: [
+      "mysql-innodb-transaction-model",
+      "mysql-commit-rollback",
+      "mysql-acid-model",
+      "mysql-transaction-isolation-levels",
+      "mysql-innodb-multi-versioning",
+      "mysql-innodb-consistent-read",
+      "mysql-innodb-undo-logs",
+      "mysql-innodb-redo-log",
+      "mysql-binary-log",
+      "mysql-innodb-locking-reads",
+      "mysql-innodb-locks-set",
+      "mysql-innodb-deadlocks",
+      "mysql-savepoint",
+      "planetscale-database-transactions",
+      "spring-transaction-management",
+      "spring-declarative-transactions",
+      "postgresql-transactions",
+      "xiaolincoding-mysql-mvcc",
+      "javaguide-mysql-mvcc",
+    ],
+    concept:
+      "事务把一组数据库读写封装成可提交或可回滚的业务原子边界，依靠 ACID、隔离级别、Undo、Redo、锁和 MVCC 让并发系统保持可恢复的一致状态。",
+    explanation: [
+      "概念定位：事务（Transaction）解决的是“多个 SQL 共同表达一个业务动作时，系统如何让状态一起成功、一起撤销，并在并发和崩溃中保持可解释”的问题。订单创建、库存扣减、余额转账、优惠券核销、状态机流转、批量修复和后台补偿都依赖事务边界。\n\n在 MySQL/InnoDB 中，事务是从 `START TRANSACTION` 或隐式写语句开始，到 `COMMIT`、`ROLLBACK`、连接断开或错误处理结束的一段一致性控制过程。它连接了 SQL 层的语义、InnoDB 的行版本与锁、Undo/Redo 的恢复能力、Binlog 的复制顺序和应用侧的重试策略。",
+      "准确定义：事务是一组作为单个逻辑工作单元执行的数据库操作。它的结果只有两类：提交后对外可见并进入持久化与复制路径，回滚后用 Undo 撤销未提交修改。\n\n关键术语要分清：\n\n- `ACID`：原子性、一致性、隔离性、持久性，是事务语义的目标集合。\n- `autocommit`：MySQL 默认每条语句自动提交；显式事务会把多条语句放进同一边界。\n- `consistent read`：普通快照读，InnoDB 通过 MVCC 和 ReadView 读取历史版本。\n- `locking read`：`SELECT ... FOR UPDATE` / `FOR SHARE` 这类当前读，会读取最新已提交版本并加锁。\n- `Undo Log`：保存旧版本，服务回滚与 MVCC。\n- `Redo Log`：记录物理修改，服务已提交事务的崩溃恢复。\n- `Binlog`：记录逻辑变更，服务复制、恢复和 CDC。\n- `savepoint`：事务内部的局部回滚点，适合复杂业务步骤降级。",
+      "心智模型：把事务看成一次业务状态迁移的“封闭施工区”。\n\n- 施工区入口是 `START TRANSACTION`，出口是 `COMMIT` 或 `ROLLBACK`。\n- 施工区内的每次修改会留下撤销路线，也就是 Undo。\n- 已完成的关键修改会写入恢复日志，也就是 Redo。\n- 对外广播变更需要进入 Binlog，供副本和下游消费。\n- 并发读写通过 MVCC 与锁决定谁能看见什么、谁需要等待谁。\n- 施工区越大，锁持有时间、Undo 保留时间、复制压力和故障恢复成本越高。\n\n新手先记住“事务是业务原子边界”；老手要继续追问这条边界是否过长、是否可重试、是否会扩大锁范围、是否会阻塞清理和复制。",
+      "主流程机制：一次典型 InnoDB 事务可以按“开始 -> 读写 -> 并发控制 -> 提交/回滚 -> 观测”理解。\n\n1. 会话进入事务边界：显式执行 `START TRANSACTION`，或在 `autocommit=1` 下由单条 DML 自动形成短事务。\n2. 读取数据：普通 `SELECT` 在隔离级别下创建或复用 ReadView；锁定读和写语句走当前读路径。\n3. 修改数据：执行器先按索引定位记录，InnoDB 加必要的记录锁、间隙锁或 Next-Key Lock，然后生成 Undo、修改 Buffer Pool 中的数据页，并产生 Redo。\n4. 维护可见性：未提交版本对其他事务保持隔离；普通快照读通过 Undo 版本链还原可见记录。\n5. 提交事务：InnoDB 进入提交路径，Redo、事务状态和 Binlog 按一致性顺序落入日志体系，提交成功后锁释放，变更对后续事务可见。\n6. 回滚事务：InnoDB 使用 Undo 反向撤销未提交修改，释放事务持有的锁，应用层通常把业务状态标记为失败或进入重试。\n7. 后台清理：Purge 线程在没有活跃 ReadView 依赖旧版本后清理 Undo 历史版本。\n8. 生产观测：`information_schema.innodb_trx`、`performance_schema.data_locks`、`SHOW ENGINE INNODB STATUS`、慢查询日志和应用 Trace 共同证明事务是否短、锁是否可控、提交是否稳定。",
+      "实践例子：库存扣减和订单创建要放在同一事务里，业务唯一键负责幂等，锁定读负责串行化库存行。\n\n```sql\nCREATE TABLE inventory (\n  sku_id BIGINT PRIMARY KEY,\n  available INT NOT NULL\n) ENGINE=InnoDB;\n\nCREATE TABLE orders (\n  id BIGINT PRIMARY KEY,\n  request_id VARCHAR(64) NOT NULL,\n  sku_id BIGINT NOT NULL,\n  quantity INT NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  created_at DATETIME NOT NULL,\n  UNIQUE KEY uk_request_id (request_id),\n  KEY idx_sku_created (sku_id, created_at)\n) ENGINE=InnoDB;\n\nSTART TRANSACTION;\n\nSELECT available\nFROM inventory\nWHERE sku_id = 1001\nFOR UPDATE;\n\nUPDATE inventory\nSET available = available - 2\nWHERE sku_id = 1001\n  AND available >= 2;\n\nINSERT INTO orders(id, request_id, sku_id, quantity, status, created_at)\nVALUES (90001, 'req-20260605-001', 1001, 2, 'CREATED', NOW());\n\nCOMMIT;\n```\n\n这个事务的关键点是：唯一键 `uk_request_id` 让请求幂等，`FOR UPDATE` 让库存行进入当前读和加锁路径，`UPDATE ... available >= 2` 保留条件校验，`COMMIT` 后订单与库存一起对外可见。应用层要把死锁、锁等待超时和唯一键冲突纳入明确的重试或返回策略。",
+      "深层细节：事务质量取决于边界、可见性、锁、日志和应用语义共同配合。\n\n- 原子性依靠 Undo 和事务状态推进；部分 SQL 失败时，应用需要判断是语句级失败、事务仍可继续，还是应整体回滚。\n- 一致性来自数据库约束和应用不变量共同维护，例如唯一键、外键、余额非负、订单状态机和幂等键。\n- 隔离性由隔离级别、MVCC、锁定读和访问路径决定；索引缺失会让扫描范围和锁范围扩大。\n- 持久性由 Redo、刷盘策略、Binlog 同步和存储系统保证；`innodb_flush_log_at_trx_commit` 与 `sync_binlog` 直接影响提交延迟和故障丢失窗口。\n- 普通快照读与当前读混用时，要明确读到的是历史版本还是最新可锁版本。\n- 长事务会持有锁、保留 ReadView、延迟 Undo Purge、抬高 History list length，并拖累备份、DDL、复制和空间回收。\n- DDL、隐式提交语句、连接池复用、事务传播配置和异常吞掉都会改变真实事务边界。\n- 分布式调用放入数据库事务会放大锁时间；更稳的设计是先缩小本地事务，再用幂等消息、事务外盒或补偿流程衔接外部系统。",
+      "工程场景与取舍：事务设计要围绕业务不变量和故障恢复目标。\n\n- 资金转账：余额扣减、余额增加、流水写入、幂等键校验属于同一个强一致边界，金额字段、约束和审计日志要一起设计。\n- 库存扣减：热点 SKU 适合短事务、条件更新、固定访问顺序和失败重试，避免把远程调用放在锁持有期间。\n- 状态机流转：用 `WHERE status = 'PENDING'` 这类条件更新保证状态前置条件，再检查影响行数。\n- 批量修复：按主键或时间窗口分批提交，每批设置上限，记录游标和补偿日志。\n- 后台报表：大范围一致性读会保留旧版本，建议走副本、离线快照或分段读取。\n- 读写分离：事务内读己之写优先走主库或同一连接，跨副本读取要处理复制延迟。\n- 框架事务：Spring 这类声明式事务要重点确认传播行为、异常回滚规则、连接绑定和超时时间。",
+      "边界与故障模式：事务问题往往表现为锁等待、死锁、长事务、提交抖动和数据语义偏差。\n\n- 锁等待：事务持有热点行锁或范围锁，其他会话卡在 `Lock wait`，接口 p99 和连接数一起上升。\n- 死锁：多个事务以不同顺序访问资源，InnoDB 检测等待环并回滚其中一个事务，应用要按幂等语义重试。\n- 长事务：`trx_started` 很早、`History list length` 升高、Undo 空间增长、DDL 等待和备份变慢。\n- 范围锁扩大：缺少合适索引的 `UPDATE`、`DELETE`、`SELECT ... FOR UPDATE` 会扫描更多记录并扩大锁影响面。\n- 提交抖动：磁盘 fsync、Redo 容量、Binlog 同步、组提交和存储延迟会反映在提交耗时上。\n- 隐式提交：DDL、部分管理语句和会话设置可能切断预期事务边界，上线脚本需要单独评审。\n- 连接池污染：应用归还连接前没有完成事务，后续请求继承未提交状态或隔离级别，容易出现难复现问题。\n- 外部副作用：事务内调用消息、HTTP、缓存删除、文件写入时，数据库回滚无法撤销外部世界，需要幂等和补偿。",
+      "排查实践：事务排查要把业务入口、会话、锁、历史版本和日志刷盘串成证据链。\n\n1. 固化现场：记录接口、Trace ID、SQL、绑定参数、事务开始时间、错误码、超时点、隔离级别和实例角色。\n2. 看活跃事务：查 `information_schema.innodb_trx`，定位事务年龄、当前 SQL、等待状态和持有线程。\n3. 看锁关系：查 `performance_schema.data_locks` 与 `data_lock_waits`，确认阻塞方、等待方、索引名、锁模式和锁数据。\n4. 看 InnoDB 状态：用 `SHOW ENGINE INNODB STATUS\\G` 观察 `TRANSACTIONS`、最近死锁、History list length 和锁等待。\n5. 看连接现场：用 `SHOW PROCESSLIST` 或 Performance Schema 线程表定位 Sleep 长事务、DDL 等待和连接池堆积。\n6. 看 SQL 路径：对锁定读和写语句跑 `EXPLAIN`/`EXPLAIN ANALYZE`，确认索引、扫描行数和范围条件。\n7. 看提交链路：观察 Redo/Binlog 相关变量、磁盘 fsync、复制延迟和大事务 Binlog。\n8. 小步修复：缩短事务、拆批、补索引、固定资源访问顺序、设置事务超时、把远程调用移出事务、补幂等重试，并用同一批指标复测。\n\n```sql\nSELECT trx_id, trx_state, trx_started, trx_mysql_thread_id,\n       trx_query, trx_rows_locked, trx_rows_modified\nFROM information_schema.innodb_trx\nORDER BY trx_started\\G\n\nSELECT ENGINE_TRANSACTION_ID, THREAD_ID, OBJECT_SCHEMA, OBJECT_NAME,\n       INDEX_NAME, LOCK_TYPE, LOCK_MODE, LOCK_STATUS, LOCK_DATA\nFROM performance_schema.data_locks\\G\n\nSELECT *\nFROM performance_schema.data_lock_waits\\G\n\nSHOW ENGINE INNODB STATUS\\G\nSHOW PROCESSLIST;\nSHOW VARIABLES LIKE 'transaction_isolation';\nSHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit';\nSHOW VARIABLES LIKE 'sync_binlog';\n```\n\n有效修复会体现为事务年龄下降、锁等待链缩短、History list length 回落、死锁频率下降、提交耗时稳定和业务重试成功率可控。",
+      "指标与命令速查：事务健康度需要同时看边界、锁、版本和提交。\n\n- `information_schema.innodb_trx.trx_started`：判断事务年龄和长事务。\n- `trx_rows_locked` / `trx_rows_modified`：观察锁范围和写入规模。\n- `performance_schema.data_locks`：查看锁对象、索引、锁模式和锁状态。\n- `performance_schema.data_lock_waits`：构造阻塞链。\n- `SHOW ENGINE INNODB STATUS`：查看 `TRANSACTIONS`、死锁、History list length 和等待信息。\n- `SHOW PROCESSLIST`：快速识别 `Sleep` 长事务、锁等待、DDL 等待和慢 SQL。\n- `transaction_isolation`：确认会话和全局隔离级别。\n- `innodb_flush_log_at_trx_commit`：确认 Redo 提交刷盘语义。\n- `sync_binlog`：确认 Binlog 同步策略。\n- `COMMIT` 耗时、死锁次数、锁等待超时、复制延迟、大事务 Binlog 体积：判断事务对业务和复制链路的影响。",
+      "常见误区：事务的正确心智模型是“业务不变量的最小可靠边界”。\n\n- 事务边界越小，锁持有、Undo 保留、提交抖动和复制压力越容易控制。\n- 普通快照读适合稳定读取历史版本，锁定读适合保护即将修改的当前版本。\n- 幂等键、唯一约束、条件更新和影响行数检查是事务设计的一部分。\n- 死锁是高并发写入中的可处理失败形态，应用要按业务幂等性设计重试。\n- 长事务的主要代价常体现在旧版本清理、锁等待、DDL 阻塞和复制延迟上。\n- 框架声明式事务的真实边界由连接、传播行为、异常类型和超时共同决定。\n- 本地数据库事务负责本库状态一致，跨服务一致性需要消息、外盒、Saga、补偿或其他分布式事务方案配合。",
+      "面试追问：事务题适合按“定义 -> ACID -> InnoDB 机制 -> 并发异常 -> 排查证据 -> 工程取舍”回答。\n\n- 事务是什么，它解决业务系统中的哪个核心问题？\n- `autocommit=1`、`START TRANSACTION`、`COMMIT`、`ROLLBACK` 的行为分别是什么？\n- ACID 在 InnoDB 中分别依赖哪些机制？\n- Undo Log、Redo Log、Binlog、锁、MVCC 和 ReadView 在事务中各负责什么？\n- 普通快照读和 `SELECT ... FOR UPDATE` 的可见性与锁行为有什么差异？\n- MySQL 默认可重复读下，事务如何处理快照读、当前读和范围锁？\n- 长事务为什么会导致 History list length 升高、Undo 积压和 DDL 阻塞？\n- 死锁和锁等待如何区分，应用层如何安全重试？\n- 如何用 `innodb_trx`、`data_locks`、`SHOW ENGINE INNODB STATUS` 找到阻塞源？\n- 资金、库存、状态机、批处理和消息发布场景中，事务边界如何设计？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 InnoDB Transaction Model、START TRANSACTION/COMMIT/ROLLBACK、InnoDB and the ACID Model、Transaction Isolation Levels、Multi-Versioning、Consistent Nonlocking Reads、Undo Logs、Redo Log、Binary Log、Locking Reads、Locks Set by Different SQL Statements、Deadlocks in InnoDB 与 SAVEPOINT 文档，并结合 PlanetScale 的 Database Transactions、Spring 事务管理文档、PostgreSQL 事务教程、小林 coding 和 JavaGuide 的 MVCC/事务资料校准中文表达、工程例子和面试问法。官方资料用于定义、命令语义、隔离和锁边界；工程文章用于补充事务边界设计、框架落地和排查路径。"
+    ],
+    typicalProblems: [
+      "事务是什么，它把哪些数据库操作组织成一个业务原子边界？",
+      "`autocommit`、`START TRANSACTION`、`COMMIT`、`ROLLBACK` 和 `SAVEPOINT` 分别如何影响事务生命周期？",
+      "ACID 在 InnoDB 中分别由 Undo、Redo、锁、MVCC、约束和 Binlog 如何支撑？",
+      "普通快照读、当前读和锁定读在事务内的可见性与锁行为有什么差异？",
+      "MySQL 隔离级别如何影响脏读、不可重复读、幻读、锁范围和并发性能？",
+      "一次库存扣减或资金转账事务如何设计幂等键、条件更新、锁顺序和重试策略？",
+      "长事务会怎样影响 Undo Purge、History list length、锁等待、DDL、备份和复制？",
+      "锁等待、死锁、锁等待超时和提交抖动分别如何排查？",
+      "如何用 `information_schema.innodb_trx`、`performance_schema.data_locks`、`data_lock_waits` 和 `SHOW ENGINE INNODB STATUS` 建立事务排查证据链？",
+      "本地事务、声明式事务、事务外盒、Saga 和补偿事务分别适合解决哪些一致性问题？"
+    ],
+    commonCommands: [
+      "START TRANSACTION",
+      "COMMIT",
+      "ROLLBACK",
+      "SAVEPOINT <name>",
+      "ROLLBACK TO SAVEPOINT <name>",
+      "SELECT * FROM information_schema.innodb_trx\\G",
+      "SELECT * FROM performance_schema.data_locks\\G",
+      "SELECT * FROM performance_schema.data_lock_waits\\G",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "SHOW PROCESSLIST",
+      "SHOW VARIABLES LIKE 'transaction_isolation'",
+      "SHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit'",
+      "SHOW VARIABLES LIKE 'sync_binlog'"
+    ],
+    useCases: ["订单创建", "库存扣减", "资金转账", "状态机流转", "幂等写入", "批量数据修复", "锁等待排查", "长事务治理", "死锁重试", "声明式事务设计"],
     prerequisites: ["innodb"],
-    related: ["acid", "isolation-level", "redo-log"],
+    related: ["acid", "isolation-level", "mvcc", "read-view", "undo-log", "redo-log", "binlog", "lock", "row-lock", "deadlock", "two-phase-commit"],
   },
   "acid": {
     prerequisites: ["transaction"],
