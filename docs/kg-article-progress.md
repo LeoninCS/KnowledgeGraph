@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 66 | 383 |
+| 449 | 67 | 382 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 2 | 46 |
+| mysql | 48 | 3 | 45 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -192,7 +192,7 @@
 | --- | --- | --- | --- | --- | --- |
 | 已优化 | `mysql-overview` | MySQL 概览 | MySQL Overview | 2026-06-05 | 17 |
 | 已优化 | `sql` | SQL | SQL | 2026-06-05 | 14 |
-| 未开始 | `schema-design` | 表结构设计 | Schema Design | 2026-05-24 | 5 |
+| 已优化 | `schema-design` | 表结构设计 | Schema Design | 2026-06-05 | 14 |
 | 未开始 | `data-type` | 数据类型 | Data Type | 2026-05-24 | 5 |
 | 未开始 | `primary-key` | 主键 | Primary Key | 2026-05-24 | 5 |
 | 未开始 | `select` | SELECT 查询 | SELECT Query | 2026-05-24 | 5 |

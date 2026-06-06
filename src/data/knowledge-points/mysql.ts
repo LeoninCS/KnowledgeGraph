@@ -7,7 +7,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: SQL | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: SQL | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "sql", zh: "SQL", en: "SQL", area: "foundation", difficulty: "easy", concept: "SQL 是关系型数据库的查询和操作语言，覆盖查询、写入、更新、删除和结构定义。", explanation: ["核心概念：SQL聚焦SQL 是关系型数据库的查询和操作语言，覆盖查询、写入、更新、删除和结构定义。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：SQL常用于业务查询、数据维护和报表分析。学习时把它放回MySQL链路中观察，并结合前置知识MySQL 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，SQL通常会和SELECT 查询、DDL和DML一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把SQL当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["SQL执行原理是什么","SQL如何影响性能或一致性","SQL线上问题怎么排查"], useCases: ["业务查询","数据维护","报表分析"], prerequisites: ["mysql-overview"], related: ["select","ddl","dml"], order: 2 },
-  /* <!-- KG_REVIEWED: 表结构设计 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 表结构设计 | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: 表结构设计 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "schema-design", zh: "表结构设计", en: "Schema Design", area: "foundation", difficulty: "medium", concept: "表结构设计定义实体、字段、主键、约束和关系，直接影响数据质量和查询效率。", explanation: ["核心概念：表结构设计（Schema Design）聚焦表结构设计定义实体、字段、主键、约束和关系，直接影响数据质量和查询效率。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：表结构设计常用于业务建模、数据库初始化和重构老表。学习时把它放回MySQL链路中观察，并结合前置知识SQL判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，表结构设计通常会和范式、主键和外键一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把表结构设计当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["表结构设计执行原理是什么","表结构设计如何影响性能或一致性","表结构设计线上问题怎么排查"], useCases: ["业务建模","数据库初始化","重构老表"], prerequisites: ["sql"], related: ["normalization","primary-key","foreign-key"], order: 3 },
   /* <!-- KG_REVIEWED: 范式 | 2026-05-24 | source_count=5 --> */
@@ -369,8 +369,60 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["schema-design", "select", "sql-optimization"],
   },
   "schema-design": {
+    sourceRefs: [
+      "mysql-reference",
+      "mysql-sql-statements",
+      "mysql-create-table",
+      "mysql-data-types",
+      "mysql-choosing-column-types",
+      "mysql-create-table-foreign-keys",
+      "mysql-show-create-table",
+      "mysql-innodb-index-types",
+      "mysql-optimization",
+      "mysql-planetscale-schema-recap",
+      "mysql-planetscale-primary-keys",
+      "xiaolincoding-mysql-index",
+      "javaguide",
+      "mysql-alibaba-java-development-manual",
+    ],
+    concept:
+      "表结构设计是把业务实体、字段、主键、约束、索引和生命周期固化成可维护数据模型的过程，直接影响数据质量、查询效率和后续演进成本。",
+    explanation: [
+      "概念定位：表结构设计（Schema Design）解决的是“业务事实如何稳定落到关系型数据库表里”的问题。它出现在建库建表、接口开发、订单状态流转、权限模型、历史归档、分库分表、索引优化和线上重构里，是 MySQL 工程质量的起点。\n\n准确地说，表结构设计是在 MySQL 中用 `CREATE TABLE`、字段类型、`PRIMARY KEY`、`UNIQUE`、`FOREIGN KEY`、`CHECK`、默认值、字符集、索引和表选项描述实体、关系、约束和访问模式。优秀的表结构能让数据语义清楚、约束靠近数据、查询路径可预测、DDL 变更可治理、故障排查有证据。",
+      "准确定义：MySQL 的表结构由几类对象共同组成。\n\n- 表：承载一个边界清楚的业务实体或关系，例如 `orders`、`order_items`、`users`。\n- 字段：表达实体属性，字段名、类型、长度、`NULL` 语义、默认值、注释和字符集共同构成契约。\n- 主键：唯一标识一行数据，在 InnoDB 中也是聚簇索引组织核心。\n- 约束：用 `NOT NULL`、`UNIQUE`、`FOREIGN KEY`、`CHECK` 等规则保护数据有效性和关系一致性。\n- 索引：服务查询、排序、关联和约束校验，同时增加写入维护成本。\n- 生命周期：创建、扩展、回填、归档、清理、备份恢复和在线 DDL 都属于表结构设计范围。\n\n新手先理解“表是业务对象的长期契约”；老手会继续评估行大小、页分裂、二级索引体积、锁范围、复制延迟和变更成本。",
+      "心智模型：把表结构看成数据库里的业务合同。\n\n- 合同对象：表名表达这份合同管理哪类业务事实。\n- 合同条款：字段、类型、默认值、枚举和注释定义每个事实的含义。\n- 身份凭证：主键决定一行数据如何被定位、关联和物理组织。\n- 边界规则：唯一约束、外键、检查约束和状态字段约束数据进入表的方式。\n- 履约成本：索引、行长度、大字段、字符集、事务范围和 DDL 方式决定系统运行成本。\n\n这个模型能解释很多线上问题：字段含义混乱会带来口径争议，主键选择失误会放大索引和写入成本，约束缺失会让脏数据进入核心链路，DDL 设计粗糙会在发布期引发锁等待和复制延迟。",
+      "主流程机制：一次表结构设计可以按从业务到物理的顺序推进。\n\n1. 建模业务事实：识别实体、关系、生命周期和读写入口，例如订单、订单明细、支付流水、用户收货地址。\n2. 定义字段契约：为每个属性确定类型、范围、精度、`NULL` 语义、默认值、注释、字符集和时区语义。\n3. 选择主键：优先保证唯一、稳定、短小、可比较，并评估自增 ID、业务 ID、分布式 ID 对写入局部性和二级索引体积的影响。\n4. 添加约束：用 `NOT NULL`、`UNIQUE`、外键或应用层校验表达强规则，确保幂等键、状态唯一性和关联完整性有明确责任边界。\n5. 设计索引：围绕高频 `WHERE`、`JOIN`、`ORDER BY`、分页和唯一校验建立索引，避免把低价值索引长期留在写路径上。\n6. 预估演进：给状态、金额、时间、删除标记、归档字段和大字段拆分留出扩展空间，同时规划在线 DDL、回填、回滚和备份恢复。\n7. 验证证据：用 `SHOW CREATE TABLE`、`SHOW INDEX`、`EXPLAIN`、Information Schema 和线上慢 SQL 样本确认结构与访问路径匹配。\n\n表结构设计的输出是一份可执行、可审查、可演进的 DDL，而质量取决于业务语义、MySQL 机制和线上证据是否对齐。",
+      "实践例子：下面用订单模型展示一份可落地的 MySQL 表结构。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '内部主键',\n  order_no VARCHAR(64) NOT NULL COMMENT '业务订单号，接口幂等键',\n  user_id BIGINT UNSIGNED NOT NULL COMMENT '下单用户',\n  status VARCHAR(32) NOT NULL COMMENT '订单状态',\n  amount DECIMAL(12,2) NOT NULL COMMENT '订单金额',\n  paid_at DATETIME NULL COMMENT '支付完成时间',\n  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',\n  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',\n  deleted_at DATETIME NULL COMMENT '软删除时间',\n  PRIMARY KEY (id),\n  UNIQUE KEY uk_order_no (order_no),\n  KEY idx_user_created (user_id, created_at),\n  KEY idx_status_created (status, created_at),\n  CHECK (amount >= 0)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='订单主表';\n```\n\n这份 DDL 的关键点是：`id` 服务 InnoDB 聚簇索引和内部关联，`order_no` 服务外部幂等与查询，`DECIMAL` 表达金额精度，`created_at/updated_at/deleted_at` 支撑生命周期，两个联合索引覆盖用户列表和状态队列类查询。上线前还要用真实 SQL 样本验证索引顺序和返回列。",
+      "深层细节：表结构设计会直接进入 InnoDB 的物理成本模型。\n\n- 主键越长，所有二级索引叶子节点携带的主键值越大；宽主键会放大索引空间、Buffer Pool 压力和缓存未命中。\n- 主键写入顺序影响页分裂和写入局部性；单调递增主键通常更利于追加写入，分布式随机 ID 需要评估热点、排序和空间成本。\n- 字段类型越精确，行记录越紧凑；MySQL 官方建议选择能覆盖取值范围的最精确类型，金额类数据优先使用定点类型表达业务精度。\n- `VARCHAR`、`TEXT`、`JSON` 等可变或大字段会影响行大小、页内可容纳记录数、排序临时表和网络返回量；高频列表页适合拆出详情表或限制返回列。\n- 字符集和排序规则影响比较、索引长度和排序结果；多语言文本通常使用 `utf8mb4`，大小写敏感需求需要明确 collation。\n- `NULL` 是业务语义的一部分；`NULL`、空字符串、零值和缺省值需要各自代表稳定含义。\n- 外键能把引用完整性放在数据库层执行，也会带来索引要求、级联动作、锁等待和跨服务演进约束；大型分片系统常把关系校验放到应用和数据治理链路中。\n\n老手审表时会从“读写成本、约束责任、未来 DDL、数据恢复”四个角度同时检查。",
+      "工程场景：不同业务形态对应不同设计重点。\n\n- 订单和支付：幂等键、唯一约束、金额精度、状态流转、事务边界和审计时间最关键。\n- 用户和账号：手机号、邮箱、第三方 open_id 等唯一键要明确归属，脱敏、加密和权限审计要靠字段语义支撑。\n- 权限模型：用户、角色、资源、授权关系适合拆表表达多对多关系，唯一约束保护重复授权。\n- 高频列表：过滤字段、排序字段和分页字段共同决定联合索引；字段过宽会放大回表和网络传输。\n- 报表和宽表：读性能、冗余字段、刷新时延和一致性口径要一起设计，通常配合离线任务或物化汇总。\n- 历史归档：时间字段、分区策略、冷热数据拆分、删除窗口和恢复演练要从建表阶段纳入。",
+      "边界与故障模式：表结构问题往往在数据量增长、并发提升和版本演进后暴露。\n\n- 数据脏：缺少唯一约束、状态约束或引用校验，会出现重复订单、重复授权、孤儿明细和统计口径漂移。\n- 查询慢：字段类型错配、索引顺序偏离访问模式、低选择性字段单列索引、宽表回表过多，会导致扫描行数和 I/O 上升。\n- 写入抖：过多二级索引、随机主键、大字段更新和批量回填会放大页分裂、Redo、Undo、Binlog 和复制压力。\n- 发布卡：大表 `ALTER TABLE`、长事务、元数据锁和回填脚本会让 DDL 等待、连接堆积或从库延迟升高。\n- 迁移难：字段复用、枚举含义漂移、缺少注释、时间语义混乱和历史数据格式差异会拖慢重构。\n- 安全风险：敏感字段缺少分级、加密、脱敏、审计和最小权限，会扩大泄露面和合规成本。",
+      "排查实践：表结构相关问题建议按证据链定位。\n\n1. 固化结构现场：导出 `SHOW CREATE TABLE`，记录字段、主键、索引、字符集、约束、行格式和表注释。\n2. 还原访问模式：收集慢 SQL、绑定参数、返回行数、调用入口、排序分页方式和事务范围。\n3. 检查索引质量：查看 `SHOW INDEX` 的 `Key_name`、`Column_name`、`Cardinality`，对比 `EXPLAIN` 的 `key`、`rows`、`filtered`、`Extra`。\n4. 检查字段语义：用 Information Schema 查 `DATA_TYPE`、`IS_NULLABLE`、`COLUMN_DEFAULT`、`COLUMN_TYPE`、`COLLATION_NAME`。\n5. 检查数据分布：统计热点值、重复键、空值比例、最大长度、历史状态和异常金额。\n6. 制定修复路径：新建约束或索引、回填字段、拆表、归档、修复脏数据和执行在线 DDL，先在影子库或小流量环境验证。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\n\nSELECT COLUMN_NAME, DATA_TYPE, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT, COLLATION_NAME\nFROM INFORMATION_SCHEMA.COLUMNS\nWHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders'\nORDER BY ORDINAL_POSITION;\n\nEXPLAIN ANALYZE\nSELECT id, order_no, status\nFROM orders\nWHERE user_id = 1001\nORDER BY created_at DESC\nLIMIT 20;\n\nSELECT order_no, COUNT(*) AS cnt\nFROM orders\nGROUP BY order_no\nHAVING cnt > 1;\n```\n\n这些证据能把“表设计有问题”拆成字段、索引、约束、数据分布和访问模式五类事实。",
+      "常见误区：表结构设计的核心是业务语义与运行成本同时成立。\n\n- 字段名、注释和枚举值是长期契约，稳定语义能减少接口、报表和排障沟通成本。\n- 主键承担唯一标识、聚簇组织和二级索引引用三项职责，选择主键时要同时看业务稳定性和物理成本。\n- 索引服务读路径，同时进入写路径维护成本；高频查询、唯一校验和排序分页优先，低价值索引应定期清理。\n- 范式保证一致性基础，适度冗余服务明确的读性能目标；冗余字段需要同步机制、校验任务和修复手段。\n- 外键、应用校验和数据治理可以组成多层完整性策略，选择依据是团队控制面、分片架构、变更频率和故障恢复方式。\n- DDL 是生产变更，表结构发布需要评估元数据锁、复制延迟、回填批次、回滚路径和备份恢复点。",
+      "面试追问：表结构设计类问题适合按“语义、约束、成本、演进、证据”回答。\n\n- 如何从业务需求推导表、字段、主键、唯一约束和索引？\n- 自增主键、业务主键、UUID、雪花 ID 在 InnoDB 中各自影响什么？\n- 金额、时间、状态、手机号、JSON、大文本字段分别如何选类型？\n- 为什么主键长度会影响二级索引体积和 Buffer Pool 命中？\n- 外键约束、唯一约束和应用层校验如何分工？\n- 高频列表查询的联合索引如何结合过滤、排序、分页和返回列设计？\n- 大表加字段、加索引、回填和回滚如何降低线上影响？\n- 如何用 `SHOW CREATE TABLE`、`SHOW INDEX`、Information Schema、`EXPLAIN ANALYZE` 排查表结构问题？\n- 反范式字段如何保证同步、校验和修复？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 `CREATE TABLE`、Data Types、Choosing the Right Type、Foreign Key Constraints、`SHOW CREATE TABLE`、InnoDB Clustered and Secondary Indexes、Optimization 文档，并结合 PlanetScale 的 Schema Recap、Primary Keys、小林 coding 的索引文章、JavaGuide 和阿里巴巴 Java 开发手册中的 MySQL 设计规范进行工程表达校准。官方资料用于定义、语法、约束和命令语义，中文资料用于补足命名、字段、主键、索引和面试场景。"
+    ],
+    typicalProblems: [
+      "表结构设计需要从哪些业务信息推导表、字段、主键、约束和索引？",
+      "MySQL `CREATE TABLE` 中字段定义、表选项、索引和约束分别承担什么职责？",
+      "如何选择金额、时间、状态、手机号、JSON、大文本等字段类型？",
+      "InnoDB 中主键为什么会影响聚簇索引、二级索引体积和写入局部性？",
+      "唯一约束、外键约束、检查约束和应用层校验如何分工？",
+      "高频查询、排序分页和 JOIN 场景下如何从访问模式反推联合索引？",
+      "宽表、大字段、随机主键、过多索引会带来哪些性能和运维成本？",
+      "大表在线加字段、加索引、回填和回滚需要哪些保护措施？",
+      "线上如何用 `SHOW CREATE TABLE`、`SHOW INDEX`、Information Schema 和 `EXPLAIN ANALYZE` 排查表结构问题？",
+      "面试中如何解释范式、反范式、主键选择、外键取舍和表结构演进？"
+    ],
+    commonCommands: [
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "SELECT COLUMN_NAME, DATA_TYPE, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '<table>'",
+      "EXPLAIN ANALYZE <sql>",
+      "SELECT <unique_key>, COUNT(*) FROM <table> GROUP BY <unique_key> HAVING COUNT(*) > 1"
+    ],
+    useCases: ["业务建模", "数据库初始化", "表结构重构", "索引设计", "数据质量治理", "大表在线变更", "慢 SQL 排查"],
     prerequisites: ["sql"],
-    related: ["data-type", "primary-key"],
+    related: ["data-type", "primary-key", "normalization", "denormalization", "foreign-key", "online-ddl"],
   },
   "data-type": {
     prerequisites: ["schema-design"],

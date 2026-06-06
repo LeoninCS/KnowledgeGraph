@@ -5521,6 +5521,26 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Prepared Statements",
     url: "https://dev.mysql.com/doc/refman/8.4/en/sql-prepared-statements.html",
   },
+  "mysql-create-table": {
+    title: "MySQL Reference Manual: CREATE TABLE Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/create-table.html",
+  },
+  "mysql-data-types": {
+    title: "MySQL Reference Manual: Data Types",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/data-types.html",
+  },
+  "mysql-choosing-column-types": {
+    title: "MySQL Reference Manual: Choosing the Right Type for a Column",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/choosing-types.html",
+  },
+  "mysql-create-table-foreign-keys": {
+    title: "MySQL Reference Manual: CREATE TABLE Foreign Keys",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/create-table-foreign-keys.html",
+  },
+  "mysql-show-create-table": {
+    title: "MySQL Reference Manual: SHOW CREATE TABLE Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/show-create-table.html",
+  },
   "mysql-innodb": {
     title: "MySQL Reference Manual: InnoDB Storage Engine",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-storage-engine.html",
@@ -5564,6 +5584,18 @@ export const knowledgeSources = {
   "xiaolincoding-mysql-index": {
     title: "小林 coding: MySQL 索引",
     url: "https://xiaolincoding.com/mysql/index/index_interview.html",
+  },
+  "mysql-planetscale-schema-recap": {
+    title: "PlanetScale: Schema recap",
+    url: "https://planetscale.com/learn/courses/mysql-for-developers/schema/recap",
+  },
+  "mysql-planetscale-primary-keys": {
+    title: "PlanetScale: Primary keys",
+    url: "https://planetscale.com/learn/courses/mysql-for-developers/schema/primary-keys",
+  },
+  "mysql-alibaba-java-development-manual": {
+    title: "阿里巴巴 Java 开发手册",
+    url: "https://github.com/alibaba/p3c",
   },
   "mysql-innodb-index-types": {
     title: "MySQL Reference Manual: Clustered and Secondary Indexes",
