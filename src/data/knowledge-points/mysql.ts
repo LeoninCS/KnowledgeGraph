@@ -40,7 +40,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: SELECT 查询 | 2026-06-05 | source_count=18 --> */
   /* <!-- KG_EXPLAINED: SELECT 查询 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "select", zh: "SELECT 查询", en: "SELECT Query", area: "sql", difficulty: "easy", concept: "SELECT 用于读取数据，可结合过滤、排序、分组和关联。", explanation: ["核心概念：SELECT 查询（SELECT Query）聚焦SELECT 用于读取数据，可结合过滤、排序、分组和关联。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住查询语言、过滤、关联、分组、排序和分页，再看输入、状态变化、输出结果和失败分支。","适用场景：SELECT 查询常用于列表查询、详情查询和报表查询。学习时把它放回MySQL链路中观察，并结合前置知识SQL判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，SELECT 查询通常会和WHERE 条件、JOIN和GROUP BY一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认查询语言、过滤、关联、分组、排序和分页是否仍然成立。","常见误区与注意点：实践中容易把SELECT 查询当成孤立概念处理，结果遗漏隐式转换、NULL、深分页、临时表和排序成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["SELECT 查询执行原理是什么","SELECT 查询如何影响性能或一致性","SELECT 查询线上问题怎么排查"], useCases: ["列表查询","详情查询","报表查询"], prerequisites: ["sql"], related: ["where","join","group-by"], order: 13 },
-  /* <!-- KG_REVIEWED: WHERE 条件 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: WHERE 条件 | 2026-06-05 | source_count=18 --> */
   /* <!-- KG_EXPLAINED: WHERE 条件 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "where", zh: "WHERE 条件", en: "WHERE Clause", area: "sql", difficulty: "easy", concept: "WHERE 用条件过滤行，条件设计影响索引使用和扫描范围。", explanation: ["核心概念：WHERE 条件（WHERE Clause）聚焦WHERE 用条件过滤行，条件设计影响索引使用和扫描范围。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住查询语言、过滤、关联、分组、排序和分页，再看输入、状态变化、输出结果和失败分支。","适用场景：WHERE 条件常用于按状态筛选、按时间查询和搜索过滤。学习时把它放回MySQL链路中观察，并结合前置知识SELECT 查询判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，WHERE 条件通常会和索引和范围查询一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认查询语言、过滤、关联、分组、排序和分页是否仍然成立。","常见误区与注意点：实践中容易把WHERE 条件当成孤立概念处理，结果遗漏隐式转换、NULL、深分页、临时表和排序成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["WHERE 条件执行原理是什么","WHERE 条件如何影响性能或一致性","WHERE 条件线上问题怎么排查"], useCases: ["按状态筛选","按时间查询","搜索过滤"], prerequisites: ["select"], related: ["mysql-index","range-query"], order: 14 },
   /* <!-- KG_REVIEWED: JOIN | 2026-05-24 | source_count=5 --> */
@@ -607,8 +607,66 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["where", "join", "group-by", "order-by", "limit-offset", "explain", "sql-optimization"],
   },
   "where": {
+    sourceRefs: [
+      "mysql-select-statement",
+      "mysql-select-optimization",
+      "mysql-where-optimization",
+      "mysql-range-optimization",
+      "mysql-how-mysql-uses-indexes",
+      "mysql-index-condition-pushdown",
+      "mysql-comparison-operators",
+      "mysql-logical-operators",
+      "mysql-working-with-null",
+      "mysql-type-conversion",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "mysql-slow-query-log",
+      "mysql-performance-schema-statement-tables",
+      "xiaolincoding-mysql-index",
+      "javaguide-mysql-index",
+      "use-the-index-luke-where-clause",
+      "planetscale-index-obfuscation",
+    ],
+    concept:
+      "WHERE 是 MySQL 查询、更新和删除中的行级过滤条件，用谓词表达业务筛选规则，并直接影响索引访问路径、扫描范围、锁范围和执行计划质量。",
+    explanation: [
+      "概念定位：WHERE 条件（WHERE Clause）解决的是“从候选行里筛出满足业务规则的数据”的问题。它出现在列表筛选、详情校验、权限判断、库存扣减、状态机更新、数据修复、报表抽取、缓存回源和慢 SQL 排查中，是 SELECT、UPDATE、DELETE 的核心入口。\n\n从语义层看，WHERE 由比较、逻辑、范围、模糊匹配、空值判断和子查询谓词组成，输出是每行的 `TRUE`、`FALSE` 或 `UNKNOWN` 判断。从执行层看，优化器会尝试把谓词转成索引等值查找、范围扫描、索引合并、条件下推或执行器过滤；同一条业务规则写法不同，扫描行数、回表次数、锁范围和延迟会有明显差异。",
+      "准确定义：WHERE 是 SQL 语句中的行过滤子句，位于 `FROM` / `JOIN` 之后、`GROUP BY` 之前参与逻辑语义理解。它常见的谓词类型包括：\n\n- 比较谓词：`=`, `<=>`, `<>`, `<`, `<=`, `>`, `>=`。\n- 范围谓词：`BETWEEN`, `IN`, `LIKE 'prefix%'`, 时间区间和数值区间。\n- 空值谓词：`IS NULL`, `IS NOT NULL`，以及空值安全比较 `<=>`。\n- 逻辑组合：`AND`, `OR`, `NOT` 组合多个条件。\n- 子查询谓词：`EXISTS`, `IN (subquery)`, 标量子查询和半连接改写。\n\nWHERE 的工程质量来自三件事：语义精确、谓词可定位、执行证据可验证。",
+      "心智模型：把 WHERE 看成仓库入口的筛选闸门。\n\n- 业务规则是筛选卡片，例如“用户 1001、已支付、最近 30 天”。\n- 索引是预先排好序的通道，等值条件能把入口缩小到具体分区。\n- 范围条件像一段货架区间，扫描量取决于边界宽度和数据分布。\n- 表达式、隐式转换和前置通配符会让闸门先接收更多候选行，再逐行判断。\n- `NULL` 像未填写标签，比较结果进入三值逻辑，需要用专门谓词处理。\n\n这个模型能解释一个现象：返回同样 20 行，精确索引范围扫描和全表候选过滤，在 CPU、I/O、锁等待和 Buffer Pool 影响上是两类成本。",
+      "主流程机制：一条带 WHERE 的查询通常按下面路径运行。\n\n1. 解析器识别 WHERE 表达式，预处理阶段解析列、函数、类型、字符集、权限和别名。\n2. 优化器做常量折叠、条件化简、等值传播、谓词下推和子查询改写。\n3. 优化器基于索引、统计信息、选择性和代价模型，选择 `const`、`eq_ref`、`ref`、`range`、`index_merge`、`index` 或全表扫描等访问路径。\n4. 存储引擎按访问路径读取索引页和数据页；满足索引条件的记录进入执行器，必要时回表读取整行。\n5. Index Condition Pushdown（ICP）可在存储引擎层用索引列继续过滤，减少回表候选记录。\n6. 执行器完成剩余 WHERE 判断，再把结果交给投影、分组、排序、分页或写入路径。\n7. `EXPLAIN`、慢查询日志和 Performance Schema 记录计划、扫描行数、返回行数、耗时和等待事件。\n\n优化 WHERE 的核心是把业务筛选尽量变成索引能定位的有序范围，再用运行证据验证候选行数量。",
+      "实践例子：下面用订单列表展示可定位 WHERE、范围边界和执行计划证据。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n  user_id BIGINT UNSIGNED NOT NULL,\n  status VARCHAR(32) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  created_at DATETIME NOT NULL,\n  PRIMARY KEY (id),\n  KEY idx_user_status_created_id (user_id, status, created_at, id),\n  KEY idx_status_created (status, created_at)\n) ENGINE=InnoDB;\n\nEXPLAIN ANALYZE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001\n  AND status = 'PAID'\n  AND created_at >= '2026-06-01 00:00:00'\n  AND created_at <  '2026-07-01 00:00:00'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nEXPLAIN FORMAT=TREE\nSELECT id\nFROM orders\nWHERE status IN ('PAID', 'SHIPPED')\n  AND amount >= 100\n  AND created_at >= '2026-06-01 00:00:00';\n```\n\n`idx_user_status_created_id` 把等值条件放在前面，把时间范围和稳定排序键接在后面，适合用户订单列表。第二条查询需要结合 `rows`、`filtered`、实际耗时和返回行数判断选择性；状态字段低基数时，时间范围、返回列和排序成本会决定整体收益。",
+      "深层细节：WHERE 的性能取决于谓词形态、数据分布和索引结构共同作用。\n\n- 可定位谓词：`column = constant`、左前缀 `LIKE 'abc%'`、清晰的时间半开区间、联合索引前缀，通常更容易形成 `ref` 或 `range` 访问。\n- 表达式位置：让索引列保持原值参与比较，例如用半开区间表达某天数据，能够让优化器直接使用有序键。\n- 隐式转换：字符串列和数字参数、不同字符集或 collation 的比较会改变比较规则和索引选择，应用绑定参数类型要和字段类型一致。\n- `NULL` 语义：普通比较遇到 `NULL` 会产生 `UNKNOWN`；业务筛选要明确使用 `IS NULL`、`IS NOT NULL` 或 `<=>`。\n- 联合索引：等值列、范围列、排序列和返回列的顺序要贴合访问模式；范围条件负责定位区间，后续索引列仍可能通过 ICP 参与过滤。\n- `OR` 条件：同列 `OR` 可改写为 `IN`；跨列 `OR` 可能触发 `index_merge` 或更大扫描，热点接口常用拆分查询或 UNION 让路径更清晰。\n- 子查询：`EXISTS`、`IN` 和半连接改写会影响驱动表和候选行数，外层 WHERE 与子查询索引要一起评估。\n\n老手评审 WHERE 时会先估算选择性，再看访问类型、候选行数、回表比例和锁范围。",
+      "工程场景：不同 WHERE 场景关注点不同。\n\n- 列表筛选：`tenant_id`、`user_id`、`status`、`created_at` 和排序键决定联合索引设计。\n- 状态机更新：`WHERE id = ? AND status = ?` 表达乐观状态约束，配合受影响行数判断并发竞争。\n- 数据修复：批量 `UPDATE` / `DELETE` 要用主键或时间范围分批，控制单事务锁范围和复制压力。\n- 权限判断：租户、用户、资源和状态条件适合覆盖索引，降低每次请求读放大。\n- 报表抽取：时间范围、分区、只读副本、采样窗口和返回列宽度决定资源影响。\n- 缓存回源：WHERE 要服务高频 key 精确定位，同时设置超时、限流和降级策略。\n- 多租户系统：所有业务查询优先带上租户条件，避免跨租户扫描和权限边界风险。",
+      "边界与故障模式：WHERE 问题常表现为扫描量放大、结果偏差、锁范围扩大和计划漂移。\n\n- 扫描量放大：低选择性条件、函数包裹列、前置通配符、宽时间范围、跨列 `OR` 和隐式转换会增加候选行。\n- 结果偏差：`NULL` 三值逻辑、`NOT IN` 遇到空值、时区边界、字符集排序和金额精度会改变业务结果。\n- 锁范围扩大：`UPDATE`、`DELETE`、`SELECT ... FOR UPDATE` 的 WHERE 路径决定锁定记录和范围，索引路径宽会放大等待链条。\n- 计划漂移：数据分布变化、统计信息陈旧、热点参数、版本升级和新索引上线会改变优化器选择。\n- 资源抖动：大范围 WHERE 会拉高 Buffer Pool 读取、临时表、CPU、I/O、网络返回和副本延迟。\n- 安全风险：动态拼接 WHERE 容易引入注入风险，参数化查询和白名单字段能固定查询结构。\n\n处理这些问题时，把 SQL 文本、绑定参数类型、表结构、索引、数据分布、执行计划、锁等待和运行指标放到同一份证据包。",
+      "排查实践：WHERE 慢查询或结果异常建议按固定顺序定位。\n\n1. 固化现场：记录 SQL、绑定参数值和类型、调用入口、返回行数、执行时间、事务范围和库实例。\n2. 看结构：执行 `SHOW CREATE TABLE`、`SHOW INDEX`，确认字段类型、字符集、联合索引顺序和是否覆盖返回列。\n3. 看计划：用 `EXPLAIN FORMAT=TREE` 观察访问类型、条件下推和排序路径，用 `EXPLAIN ANALYZE` 对比估算行数与实际行数。\n4. 看数据分布：统计过滤列基数、热点值、空值比例、时间范围、状态分布和租户规模。\n5. 看运行证据：检查慢查询日志、Performance Schema 语句摘要、锁等待、CPU、I/O、Buffer Pool 和复制延迟。\n6. 小步修复：改写谓词、对齐参数类型、补联合索引、拆分 `OR`、缩小时间窗口、分批执行，并用相同 SQL 样本验证收益。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\n\nEXPLAIN ANALYZE\nSELECT id, amount\nFROM orders\nWHERE user_id = 1001\n  AND status = 'PAID'\n  AND created_at >= '2026-06-01 00:00:00'\n  AND created_at <  '2026-07-01 00:00:00';\n\nSELECT status, COUNT(*) AS cnt\nFROM orders\nGROUP BY status;\n\nSELECT COUNT(*) AS rows_in_range\nFROM orders\nWHERE created_at >= '2026-06-01 00:00:00'\n  AND created_at <  '2026-07-01 00:00:00';\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nWHERE DIGEST_TEXT LIKE 'SELECT%ORDERS%WHERE%'\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n```\n\n有效修复会同时体现为候选行数下降、访问类型改善、实际耗时下降、锁等待收敛和业务结果稳定。",
+      "常见误区：WHERE 是业务语义和物理访问路径的交汇点。\n\n- 索引命中只是第一层证据，`rows`、`filtered`、回表次数、ICP、等待事件和实际耗时同样关键。\n- `AND` 条件数量多会提升表达精度，真正的性能收益来自高选择性条件和合适索引顺序。\n- 函数、表达式和隐式转换会改变可定位性，把计算放到常量侧或预计算列上更利于稳定计划。\n- `NULL` 需要专门谓词表达，`IS NULL`、`IS NOT NULL` 和 `<=>` 能让语义清楚。\n- 低基数字段适合与租户、用户、时间或排序键组成联合索引，单列索引价值取决于数据分布和查询组合。\n- WHERE 优化要同时评估读成本、写入维护、锁范围、发布风险和回滚路径。",
+      "面试追问：WHERE 类问题适合按“语义、索引、优化器、边界、排查、取舍”回答。\n\n- WHERE 在 SELECT、UPDATE、DELETE 中分别承担什么职责？\n- MySQL 如何把 WHERE 谓词转成 `ref`、`range`、`index_merge` 或过滤条件？\n- 什么样的 WHERE 条件更容易使用 B+ 树索引定位？\n- 隐式类型转换、函数包裹列、前置通配符和 collation 会怎样影响访问路径？\n- `NULL`、`IS NULL`、`<=>`、`NOT IN` 在结果语义上有哪些关键边界？\n- 联合索引里等值条件、范围条件、排序列和 ICP 如何协作？\n- 低基数字段、跨列 `OR`、大时间范围分别如何优化？\n- WHERE 在锁定读、UPDATE、DELETE 中如何影响锁范围和死锁概率？\n- 如何用 `EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 排查 WHERE 慢查询？\n- 线上新增索引或改写 WHERE 时，如何评估收益、写入成本和回滚方案？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 SELECT、Optimizing SELECT Statements、WHERE Clause Optimization、Range Optimization、How MySQL Uses Indexes、Index Condition Pushdown、Comparison Operators、Logical Operators、Working with NULL Values、Type Conversion、EXPLAIN、Slow Query Log 和 Performance Schema Statement Tables 文档，并结合小林 coding 的 MySQL 索引文章、JavaGuide 的 MySQL 索引详解、Use The Index, Luke 的 WHERE 讲解和 PlanetScale 的 Index obfuscation 课程进行工程表达校准。官方资料用于定义、优化器行为、谓词语义和观测字段，工程资料用于补充索引可定位性、写法判断、排查路径和面试表达。"
+    ],
+    typicalProblems: [
+      "WHERE 条件解决什么问题，和 SELECT、UPDATE、DELETE 的关系是什么？",
+      "WHERE 谓词如何影响 MySQL 优化器的访问路径选择？",
+      "哪些条件更容易形成 `ref` 或 `range` 索引访问？",
+      "函数包裹列、隐式类型转换、字符集排序和前置通配符会带来哪些成本？",
+      "`NULL`、`IS NULL`、`<=>`、`NOT IN` 的语义边界如何判断？",
+      "联合索引中等值条件、范围条件、排序列和 ICP 如何协作？",
+      "低基数字段、跨列 `OR`、大时间范围和子查询 WHERE 如何优化？",
+      "WHERE 在锁定读、UPDATE 和 DELETE 中如何影响锁范围？",
+      "如何用 `EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 建立 WHERE 排查证据链？",
+      "线上改写 WHERE 或新增索引时，如何评估收益、写入成本和回滚方案？"
+    ],
+    commonCommands: [
+      "EXPLAIN FORMAT=TREE <sql_with_where>",
+      "EXPLAIN ANALYZE <sql_with_where>",
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "SELECT <cols> FROM <table> WHERE <eq_cols> AND <range_col> >= ? AND <range_col> < ? ORDER BY <range_col> DESC LIMIT 20",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10",
+      "UPDATE <table> SET status = ? WHERE id = ? AND status = ?"
+    ],
+    useCases: ["列表筛选", "详情校验", "权限判断", "状态机更新", "批量数据修复", "报表抽取", "缓存回源", "慢 SQL 治理"],
     prerequisites: ["select"],
-    related: ["mysql-index", "range-query"],
+    related: ["select", "mysql-index", "range-query", "composite-index", "leftmost-prefix", "index-selectivity", "explain", "slow-query-log"],
   },
   "join": {
     prerequisites: ["select"],

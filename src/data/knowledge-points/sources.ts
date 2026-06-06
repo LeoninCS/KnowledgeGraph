@@ -5533,6 +5533,22 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: How MySQL Uses Indexes",
     url: "https://dev.mysql.com/doc/refman/8.4/en/mysql-indexes.html",
   },
+  "mysql-index-condition-pushdown": {
+    title: "MySQL Reference Manual: Index Condition Pushdown Optimization",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/index-condition-pushdown-optimization.html",
+  },
+  "mysql-comparison-operators": {
+    title: "MySQL Reference Manual: Comparison Functions and Operators",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/comparison-operators.html",
+  },
+  "mysql-logical-operators": {
+    title: "MySQL Reference Manual: Logical Operators",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/logical-operators.html",
+  },
+  "mysql-working-with-null": {
+    title: "MySQL Reference Manual: Working with NULL Values",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/working-with-null.html",
+  },
   "mysql-order-by-optimization": {
     title: "MySQL Reference Manual: ORDER BY Optimization",
     url: "https://dev.mysql.com/doc/refman/8.4/en/order-by-optimization.html",
@@ -5688,6 +5704,14 @@ export const knowledgeSources = {
   "javaguide-mysql-index": {
     title: "JavaGuide: MySQL 索引详解",
     url: "https://javaguide.cn/database/mysql/mysql-index.html",
+  },
+  "use-the-index-luke-where-clause": {
+    title: "Use The Index, Luke: The WHERE Clause",
+    url: "https://use-the-index-luke.com/sql/where-clause",
+  },
+  "planetscale-index-obfuscation": {
+    title: "PlanetScale: Index obfuscation",
+    url: "https://planetscale.com/learn/courses/mysql-for-developers/queries/index-obfuscation",
   },
   "mysql-planetscale-schema-recap": {
     title: "PlanetScale: Schema recap",
