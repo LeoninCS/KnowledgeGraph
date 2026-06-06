@@ -4,7 +4,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: MySQL 概览 | 2026-06-05 | source_count=17 --> */
   /* <!-- KG_EXPLAINED: MySQL 概览 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "mysql-overview", zh: "MySQL 概览", en: "MySQL Overview", area: "foundation", difficulty: "easy", concept: "MySQL 是常用关系型数据库，核心能力包括 SQL、事务、索引、存储引擎和复制。", explanation: ["核心概念：MySQL 概览（MySQL Overview）聚焦MySQL 是常用关系型数据库，核心能力包括 SQL、事务、索引、存储引擎和复制。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：MySQL 概览常用于业务数据存储、后台系统数据库和OLTP 场景。学习时把它放回MySQL链路中观察，并结合前置知识基础概念判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，MySQL 概览通常会和SQL、InnoDB和事务一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把MySQL 概览当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["MySQL 概览执行原理是什么","MySQL 概览如何影响性能或一致性","MySQL 概览线上问题怎么排查"], useCases: ["业务数据存储","后台系统数据库","OLTP 场景"], prerequisites: [], related: ["sql","innodb","transaction"], order: 1 },
-  /* <!-- KG_REVIEWED: SQL | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: SQL | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: SQL | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "sql", zh: "SQL", en: "SQL", area: "foundation", difficulty: "easy", concept: "SQL 是关系型数据库的查询和操作语言，覆盖查询、写入、更新、删除和结构定义。", explanation: ["核心概念：SQL聚焦SQL 是关系型数据库的查询和操作语言，覆盖查询、写入、更新、删除和结构定义。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：SQL常用于业务查询、数据维护和报表分析。学习时把它放回MySQL链路中观察，并结合前置知识MySQL 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，SQL通常会和SELECT 查询、DDL和DML一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把SQL当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["SQL执行原理是什么","SQL如何影响性能或一致性","SQL线上问题怎么排查"], useCases: ["业务查询","数据维护","报表分析"], prerequisites: ["mysql-overview"], related: ["select","ddl","dml"], order: 2 },
   /* <!-- KG_REVIEWED: 表结构设计 | 2026-05-24 | source_count=5 --> */
@@ -313,6 +313,58 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["sql", "innodb", "transaction"],
   },
   "sql": {
+    sourceRefs: [
+      "mysql-reference",
+      "mysql-sql-statements",
+      "mysql-select-statement",
+      "mysql-prepared-statements",
+      "mysql-optimization",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "sqlbolt-sql-tutorial",
+      "use-the-index-luke-mysql-explain",
+      "javaguide-mysql-explain",
+      "xiaolincoding-mysql-select",
+      "xiaolin-mysql",
+      "javaguide",
+      "cs-notes",
+    ],
+    concept:
+      "SQL 是关系型数据库的声明式操作语言，用结构化语句描述建表、查询、写入、事务控制和权限管理意图。",
+    explanation: [
+      "概念定位：SQL（Structured Query Language）解决的是“应用如何用统一语言描述关系型数据结构和读写意图”的问题。它出现在后台接口查询、订单写入、报表统计、数据订正、表结构变更、权限管理和事务控制里，是 MySQL、PostgreSQL、SQL Server、Oracle 等关系型数据库的共同入口。\n\n在 MySQL 中，SQL 语句先进入 SQL 层，被解析、校验、优化，再由执行器调用存储引擎。开发者写的是声明式语义：需要哪些列、过滤哪些行、如何关联和聚合；MySQL 负责选择索引、访问顺序、JOIN 算法、临时表、排序和返回方式。掌握 SQL 的关键是同时理解“语义顺序”和“物理执行计划”。",
+      "准确定义：SQL 是面向关系模型的结构化查询语言，核心对象是表、行、列、约束、表达式、结果集和事务。\n\n常见分类可以这样记：\n\n- `DDL`（Data Definition Language）：定义结构，例如 `CREATE TABLE`、`ALTER TABLE`、`DROP INDEX`。\n- `DML`（Data Manipulation Language）：修改数据，例如 `INSERT`、`UPDATE`、`DELETE`。\n- `DQL`（Data Query Language）：查询数据，核心是 `SELECT`。\n- `TCL`（Transaction Control Language）：控制事务，例如 `START TRANSACTION`、`COMMIT`、`ROLLBACK`、`SAVEPOINT`。\n- `DCL`（Data Control Language）：控制权限，例如 `GRANT`、`REVOKE`。\n\n新手先把 SQL 看成“描述数据任务的语言”；工程实践里还要把 SQL 看成“会消耗 CPU、内存、锁、I/O、网络和复制资源的执行请求”。",
+      "心智模型：一条 SQL 像一份给数据库的工单，写法表达目标，执行计划决定成本。\n\n- 业务语义层：`SELECT id FROM orders WHERE user_id = 1` 表示要取某个用户的订单编号。\n- 逻辑处理层：先确定数据来源，再过滤、分组、聚合、投影、排序和分页。\n- 物理执行层：优化器可能选择索引范围扫描、全表扫描、Nested Loop Join、临时表或 filesort。\n- 存储引擎层：InnoDB 读取页、命中 Buffer Pool、加锁、生成 Undo/Redo，并把结果交回执行器。\n- 观测层：`EXPLAIN`、慢查询日志、Performance Schema 和监控指标展示真实成本证据。\n\n这种模型能解释同样的 SQL 在不同数据量、索引、统计信息、参数和隔离级别下表现差异很大。",
+      "主流程机制：以 `SELECT` 为例，可以把语义顺序和 MySQL 执行路径分开理解。\n\n1. 客户端发送 SQL，服务端完成语法解析、对象解析、权限校验和语义检查。\n2. 逻辑语义通常按 `FROM/JOIN -> WHERE -> GROUP BY -> HAVING -> SELECT -> DISTINCT -> ORDER BY -> LIMIT` 理解。\n3. 优化器基于统计信息、索引、条件选择性和代价模型选择访问路径，可能改写子查询、调整 JOIN 顺序、选择索引或放弃索引。\n4. 执行器按物理计划访问存储引擎，读取索引页或数据页，处理过滤、回表、排序、聚合和临时结果。\n5. 结果集返回客户端，慢查询日志、Performance Schema、`EXPLAIN ANALYZE` 等留下执行时间、扫描行数和等待事件。\n\n这也是 SQL 学习的主线：语法决定表达能力，索引和计划决定性能，事务和锁决定并发行为，观测证据决定排障效率。",
+      "实践例子：下面的订单查询同时展示建表、写入、查询、执行计划和参数化写法。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT PRIMARY KEY,\n  user_id BIGINT NOT NULL,\n  status VARCHAR(32) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  created_at DATETIME NOT NULL,\n  KEY idx_user_status_created (user_id, status, created_at)\n) ENGINE=InnoDB;\n\nINSERT INTO orders (id, user_id, status, amount, created_at)\nVALUES (1, 1001, 'PAID', 99.90, '2026-06-05 10:00:00');\n\nEXPLAIN ANALYZE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC\nLIMIT 20;\n\nPREPARE stmt FROM\n  'SELECT id, amount FROM orders WHERE user_id = ? AND status = ? ORDER BY created_at DESC LIMIT ?';\n```\n\n`idx_user_status_created` 能同时服务等值过滤和排序分页；`EXPLAIN ANALYZE` 能看到实际耗时和行数；Prepared Statement 把 SQL 模板和参数分开，适合减少拼接错误和注入风险。",
+      "深层细节：SQL 的“可读语义”和“执行成本”之间有几类高频差异。\n\n- `SELECT *` 会扩大网络传输、内存占用和回表概率，高频接口更适合列出必要字段。\n- `WHERE` 条件中的函数、隐式类型转换、字符集/排序规则差异，可能让索引使用效果变差。\n- `JOIN` 的驱动表、连接顺序和索引覆盖度会影响扫描行数，数据分布变化会让旧计划失效。\n- `GROUP BY`、`DISTINCT`、`ORDER BY` 常需要临时表或 filesort，组合索引可以把过滤、分组和排序合并到有序扫描里。\n- `LIMIT offset, size` 在深分页下需要跳过大量行，游标分页或基于有序键的 seek 查询更适合大数据量列表。\n- `UPDATE` 和 `DELETE` 也是查询加修改，会先定位行，再持有锁、写 Undo/Redo、影响复制和二级索引维护。\n\n老手写 SQL 时会先估算基数、访问路径、锁范围和返回行数，再用计划和运行时指标验证。",
+      "工程场景：SQL 设计需要贴合业务读写形态。\n\n- 后台列表：过滤字段、排序字段和返回字段共同决定联合索引顺序，分页方式决定可扩展性。\n- 交易写入：`INSERT`、`UPDATE` 和唯一约束要承载幂等、状态机和并发控制，事务范围要短。\n- 报表统计：聚合 SQL 要关注扫描范围、临时表、只读副本、离线宽表和预聚合。\n- 数据订正：批量 `UPDATE/DELETE` 要分批、带主键范围、观察锁等待和复制延迟。\n- 灰度发布：DDL 与 DML 的兼容顺序、默认值、回填脚本和回滚方案要提前验证。\n- 安全合规：参数化查询、最小权限、审计日志和脱敏字段能降低注入与越权风险。",
+      "边界与故障模式：SQL 问题通常表现为慢、错、堵、抖四类。\n\n- 慢：全表扫描、低选择性索引、大排序、临时表、深分页、回表过多、网络返回过大。\n- 错：`NULL` 三值逻辑、时区转换、隐式类型转换、字符集排序、聚合口径和事务隔离可见性。\n- 堵：长事务持锁、`UPDATE` 扫描范围过大、DDL 等待元数据锁、连接池堆积。\n- 抖：统计信息变化、参数分布偏斜、Buffer Pool 被大查询污染、复制延迟和磁盘 I/O 峰值。\n\n处理边界问题时，先把 SQL 文本、绑定参数、表结构、索引、数据分布、事务隔离级别和执行计划放到同一个证据包里。",
+      "排查实践：慢 SQL 排查建议按固定流程执行。\n\n1. 收集 SQL、参数、执行时间、返回行数、调用入口、事务边界和错误码。\n2. 查看表结构与索引：`SHOW CREATE TABLE`、`SHOW INDEX`、字段类型和字符集。\n3. 跑执行计划：先用 `EXPLAIN` 看 `type`、`possible_keys`、`key`、`rows`、`filtered`、`Extra`，再用 `EXPLAIN ANALYZE` 看真实行数和耗时。\n4. 对比数据分布：统计过滤字段基数、热点值、时间范围和返回列大小。\n5. 观察运行证据：慢查询日志、Performance Schema 语句摘要、锁等待、CPU、I/O、临时表和复制延迟。\n6. 小步修复：改索引、改写 SQL、拆批、改分页、限制返回列，验证计划和线上指标后发布。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\nEXPLAIN FORMAT=TREE\nSELECT id, amount FROM orders WHERE user_id = 1001 ORDER BY created_at DESC LIMIT 20;\nEXPLAIN ANALYZE\nSELECT id, amount FROM orders WHERE user_id = 1001 ORDER BY created_at DESC LIMIT 20;\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n```\n\n稳定的排查流程能避免只凭经验改 SQL，也能把优化收益转化为可复盘的证据。",
+      "常见误区：SQL 是声明式语言，数据库执行的是优化器选择出的物理计划。判断一条 SQL 的质量，需要同时看语义正确性、访问路径、扫描行数、锁范围、返回数据量和运行时证据。\n\n索引命中只是起点，`rows`、`filtered`、回表、排序、临时表和实际耗时同样重要。`EXPLAIN` 是估算计划，`EXPLAIN ANALYZE` 能补充真实运行数据。事务内 SQL 的影响会被锁持有时间、隔离级别和提交路径放大。批量 SQL 的风险来自每批影响行数、Undo/Redo、Binlog、复制延迟和回滚成本。",
+      "面试追问：SQL 类问题可以按“语法分类、执行流程、性能证据、工程取舍”回答。\n\n- SQL 有哪些分类，DDL、DML、DQL、TCL、DCL 分别解决什么问题？\n- 一条 SELECT 的逻辑执行顺序是什么，MySQL 的物理执行路径如何产生？\n- `WHERE`、`JOIN`、`GROUP BY`、`ORDER BY`、`LIMIT` 分别会带来哪些典型成本？\n- `EXPLAIN` 中 `type`、`key`、`rows`、`filtered`、`Extra` 如何用于判断计划质量？\n- 为什么参数化查询能改善安全性和可维护性，动态拼接 SQL 有哪些风险？\n- 慢查询如何从 SQL 文本、绑定参数、索引、统计信息、锁等待和运行指标建立证据链？\n- 批量更新、深分页、报表查询和线上 DDL 分别需要哪些工程保护？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 SQL Statements、SELECT、Prepared Statements、Optimization、EXPLAIN 和 EXPLAIN Output 文档，用 SQLBolt 校准入门语法路径，用 Use The Index, Luke、JavaGuide 和小林 coding 补充执行计划阅读、查询流程、索引实践和中文面试表达。官方资料用于定义、语法和命令语义，工程文章用于补足性能判断和排查视角。"
+    ],
+    typicalProblems: [
+      "SQL 是什么，DDL、DML、DQL、TCL、DCL 分别覆盖哪些操作？",
+      "一条 SELECT 的逻辑执行顺序是什么，MySQL 实际执行计划如何生成？",
+      "为什么同一条 SQL 在不同数据量、索引和参数下性能差异很大？",
+      "`WHERE` 条件、隐式类型转换、函数调用和字符集排序如何影响索引使用？",
+      "`JOIN`、`GROUP BY`、`ORDER BY`、`LIMIT` 分别有哪些常见性能成本？",
+      "如何用 `EXPLAIN`、`EXPLAIN ANALYZE` 和 Performance Schema 排查慢 SQL？",
+      "参数化查询如何降低 SQL 注入风险，Prepared Statement 在 MySQL 中如何使用？",
+      "批量更新、深分页、报表 SQL 和线上 DDL 分别需要哪些工程保护？",
+      "面试中如何把 SQL 语法、优化器、索引、锁和事务联系起来回答？"
+    ],
+    commonCommands: [
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "EXPLAIN FORMAT=TREE <sql>",
+      "EXPLAIN ANALYZE <sql>",
+      "PREPARE stmt FROM '<sql with ?>'",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10"
+    ],
+    useCases: ["业务查询", "数据写入", "报表统计", "数据订正", "事务控制", "权限管理", "慢 SQL 排查"],
     prerequisites: ["mysql-overview"],
     related: ["schema-design", "select", "sql-optimization"],
   },

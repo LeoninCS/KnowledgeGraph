@@ -5513,6 +5513,14 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: SQL Statements",
     url: "https://dev.mysql.com/doc/refman/8.4/en/sql-statements.html",
   },
+  "mysql-select-statement": {
+    title: "MySQL Reference Manual: SELECT Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/select.html",
+  },
+  "mysql-prepared-statements": {
+    title: "MySQL Reference Manual: Prepared Statements",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/sql-prepared-statements.html",
+  },
   "mysql-innodb": {
     title: "MySQL Reference Manual: InnoDB Storage Engine",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-storage-engine.html",
@@ -5692,6 +5700,22 @@ export const knowledgeSources = {
   "mysql-explain-statement": {
     title: "MySQL Reference Manual: EXPLAIN Statement",
     url: "https://dev.mysql.com/doc/refman/8.4/en/explain.html",
+  },
+  "sqlbolt-sql-tutorial": {
+    title: "SQLBolt: Learn SQL",
+    url: "https://sqlbolt.com/",
+  },
+  "use-the-index-luke-mysql-explain": {
+    title: "Use The Index, Luke: MySQL and MariaDB execution plan operations",
+    url: "https://use-the-index-luke.com/sql/explain-plan/mysql/operations",
+  },
+  "javaguide-mysql-explain": {
+    title: "JavaGuide: MySQL 执行计划分析",
+    url: "https://javaguide.cn/database/mysql/mysql-query-execution-plan.html",
+  },
+  "xiaolincoding-mysql-select": {
+    title: "小林 coding: 执行一条 select 语句期间发生了什么",
+    url: "https://www.xiaolincoding.com/mysql/base/how_select.html",
   },
   "sobyte-mysql-mvcc": {
     title: "SoByte: MVCC in MySQL",
