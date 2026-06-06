@@ -4017,6 +4017,26 @@ export const knowledgeSources = {
     title: "Linux man-pages: socket(2)",
     url: "https://man7.org/linux/man-pages/man2/socket.2.html",
   },
+  "linux-man-pages-socket7": {
+    title: "Linux man-pages: socket(7)",
+    url: "https://man7.org/linux/man-pages/man7/socket.7.html",
+  },
+  "linux-man-pages-accept": {
+    title: "Linux man-pages: accept(2)",
+    url: "https://man7.org/linux/man-pages/man2/accept.2.html",
+  },
+  "linux-man-pages-connect": {
+    title: "Linux man-pages: connect(2)",
+    url: "https://man7.org/linux/man-pages/man2/connect.2.html",
+  },
+  "linux-man-pages-recv": {
+    title: "Linux man-pages: recv(2)",
+    url: "https://man7.org/linux/man-pages/man2/recv.2.html",
+  },
+  "linux-man-pages-send": {
+    title: "Linux man-pages: send(2)",
+    url: "https://man7.org/linux/man-pages/man2/send.2.html",
+  },
   "linux-man-pages-read": {
     title: "Linux man-pages: read(2)",
     url: "https://man7.org/linux/man-pages/man2/read.2.html",
@@ -4024,6 +4044,14 @@ export const knowledgeSources = {
   "linux-man-pages-write": {
     title: "Linux man-pages: write(2)",
     url: "https://man7.org/linux/man-pages/man2/write.2.html",
+  },
+  "linux-man-pages-select": {
+    title: "Linux man-pages: select(2)",
+    url: "https://man7.org/linux/man-pages/man2/select.2.html",
+  },
+  "linux-man-pages-poll": {
+    title: "Linux man-pages: poll(2)",
+    url: "https://man7.org/linux/man-pages/man2/poll.2.html",
   },
   "linux-man-pages-fsync": {
     title: "Linux man-pages: fsync(2)",
@@ -4532,6 +4560,10 @@ export const knowledgeSources = {
   "xiaolincoding-socket-c10k": {
     title: "小林 coding：高性能网络模式",
     url: "https://xiaolincoding.com/os/8_network_system/selete_poll_epoll.html",
+  },
+  "eklitzke-nonblocking-io-epoll": {
+    title: "Eric K. Litzke: Blocking I/O, Nonblocking I/O, And Epoll",
+    url: "https://eklitzke.org/blocking-io-nonblocking-io-and-epoll",
   },
   "gnu-bash-manual": {
     title: "GNU Bash Reference Manual",
