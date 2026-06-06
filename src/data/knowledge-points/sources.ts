@@ -2661,6 +2661,26 @@ export const knowledgeSources = {
     title: "AWS Elastic Load Balancing: Health checks for target groups",
     url: "https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html",
   },
+  "envoy-health-checking": {
+    title: "Envoy Docs: Health Checking",
+    url: "https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/health_checking",
+  },
+  "spring-boot-actuator-health": {
+    title: "Spring Boot Docs: Kubernetes Probes and Actuator Health Groups",
+    url: "https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.endpoints.kubernetes-probes",
+  },
+  "azure-health-endpoint-monitoring": {
+    title: "Azure Architecture Center: Health Endpoint Monitoring pattern",
+    url: "https://learn.microsoft.com/en-us/azure/architecture/patterns/health-endpoint-monitoring",
+  },
+  "aliyun-alb-health-checks": {
+    title: "阿里云 ALB：健康检查",
+    url: "https://help.aliyun.com/zh/slb/application-load-balancer/user-guide/health-checks",
+  },
+  "aliyun-alb-health-check-troubleshooting": {
+    title: "阿里云 ALB：健康检查异常排查",
+    url: "https://help.aliyun.com/zh/slb/application-load-balancer/support/troubleshoot-health-check-errors",
+  },
   "aws-security-groups": {
     title: "AWS VPC: Control traffic using security groups",
     url: "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html",
