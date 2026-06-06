@@ -16,7 +16,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 反范式 | 2026-05-24 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 反范式 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "denormalization", zh: "反范式", en: "Denormalization", area: "foundation", difficulty: "medium", concept: "反范式通过冗余字段减少关联查询，换取读取性能。", explanation: ["核心概念：反范式（Denormalization）聚焦反范式通过冗余字段减少关联查询，换取读取性能。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：反范式常用于高频列表查询、报表宽表和读多写少场景。学习时把它放回MySQL链路中观察，并结合前置知识范式判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，反范式通常会和SQL 优化一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把反范式当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["反范式执行原理是什么","反范式如何影响性能或一致性","反范式线上问题怎么排查"], useCases: ["高频列表查询","报表宽表","读多写少场景"], prerequisites: ["normalization"], related: ["sql-optimization"], order: 5 },
-  /* <!-- KG_REVIEWED: 数据类型 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 数据类型 | 2026-06-05 | source_count=17 --> */
   /* <!-- KG_EXPLAINED: 数据类型 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "data-type", zh: "数据类型", en: "Data Type", area: "foundation", difficulty: "easy", concept: "数据类型决定字段存储方式、范围、比较规则和索引效率。", explanation: ["核心概念：数据类型（Data Type）聚焦数据类型决定字段存储方式、范围、比较规则和索引效率。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：数据类型常用于字段设计、空间优化和精度控制。学习时把它放回MySQL链路中观察，并结合前置知识表结构设计判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，数据类型通常会和varchar、datetime和decimal一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把数据类型当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["数据类型执行原理是什么","数据类型如何影响性能或一致性","数据类型线上问题怎么排查"], useCases: ["字段设计","空间优化","精度控制"], prerequisites: ["schema-design"], related: ["mysql-index","sql-optimization"], order: 6 },
   /* <!-- KG_REVIEWED: 主键 | 2026-05-24 | source_count=5 --> */
@@ -425,8 +425,64 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["data-type", "primary-key", "normalization", "denormalization", "foreign-key", "online-ddl"],
   },
   "data-type": {
+    sourceRefs: [
+      "mysql-data-types",
+      "mysql-choosing-column-types",
+      "mysql-storage-requirements",
+      "mysql-data-size-optimization",
+      "mysql-char-varchar",
+      "mysql-datetime-timestamp",
+      "mysql-decimal-data-type",
+      "mysql-json-data-type",
+      "mysql-character-sets",
+      "mysql-type-conversion",
+      "mysql-innodb-row-format",
+      "mysql-innodb-index-types",
+      "mysql-planetscale-schema-recap",
+      "mysql-planetscale-datetimes",
+      "mysql-planetscale-strings",
+      "mysql-alibaba-java-development-manual",
+      "javaguide",
+    ],
+    concept:
+      "MySQL 数据类型定义字段的取值范围、存储布局、比较规则和索引成本，是表结构设计、查询性能、数据正确性和线上排障的基础契约。",
+    explanation: [
+      "概念定位：数据类型（Data Type）解决的是“一个字段能存什么、怎么存、怎么比较、用多少空间、如何参与索引和计算”的问题。它出现在建表评审、订单金额、时间字段、手机号、状态枚举、JSON 扩展字段、慢 SQL 排查、字符集迁移和线上数据订正中。\n\nMySQL 的字段类型主要分为数值、字符串、日期时间、JSON、空间和二进制等类别。选择类型时要同时满足业务语义、取值边界、存储空间、索引长度、排序比较、函数计算、时区语义和未来扩展。新手先把类型当作字段的“容器规格”；老手还会继续评估行大小、页内记录数、Buffer Pool 命中、隐式转换、复制兼容和 DDL 成本。",
+      "准确定义：MySQL 数据类型是一组在 `CREATE TABLE` 字段定义中声明的约束和物理编码规则。\n\n- 数值类型：`TINYINT`、`INT`、`BIGINT`、`DECIMAL`、`FLOAT`、`DOUBLE`，负责范围、符号位、精度和计算语义。\n- 字符串类型：`CHAR`、`VARCHAR`、`TEXT`、`BLOB`、`ENUM`、`SET`，负责长度、字符集、排序规则和大字段存储。\n- 日期时间类型：`DATE`、`TIME`、`DATETIME`、`TIMESTAMP`、`YEAR`，负责时间范围、显示格式、时区转换和默认值行为。\n- JSON 类型：存储合法 JSON 文档，适合扩展属性、低频筛选和半结构化数据，并可配合生成列或函数索引优化访问。\n- 字符集与排序规则：`CHARACTER SET` 和 `COLLATE` 决定字符编码、大小写/重音敏感性、比较和排序结果。\n\n字段类型和 `NOT NULL`、默认值、索引、约束共同组成数据契约；类型选择一旦进入生产表，修改会牵涉数据重写、索引重建、应用兼容和回滚路径。",
+      "心智模型：把数据类型看成仓库货架的规格。\n\n- 货架尺寸：`INT`、`BIGINT`、`VARCHAR(64)`、`DECIMAL(12,2)` 决定能放多大、能放多少。\n- 货物标签：字符集、排序规则、时区和精度决定同一份数据如何被识别和比较。\n- 通道宽度：行长度、索引长度和返回列大小决定扫描、排序、回表和网络传输成本。\n- 入库规则：严格 SQL 模式、范围检查、默认值和 `NULL` 语义决定异常数据如何进入或被拦截。\n- 改造成本：生产表上改类型会影响 DDL 算法、锁、复制延迟、回填和应用发布顺序。\n\n这个模型能解释很多线上现象：手机号用数值类型会丢失前导零，金额用浮点会产生精度误差，字符列和数值参数比较会触发隐式转换，超宽 `VARCHAR` 会增加临时表和索引成本。",
+      "主流程机制：字段类型选择可以按从业务语义到物理证据的顺序推进。\n\n1. 定义业务含义：字段表示标识、数量、金额、状态、时间、文本、二进制内容还是扩展属性。\n2. 确定范围和精度：估算当前最大值、三年增长、单位、是否需要符号、是否允许小数和四舍五入规则。\n3. 选择类型族：金额优先 `DECIMAL`，计数和 ID 常用整型，短文本用 `VARCHAR`，大文本用 `TEXT`，事件时间常用 `DATETIME` 或 `TIMESTAMP`，扩展属性可用 JSON。\n4. 明确编码和比较：为字符列确定 `utf8mb4`、业务需要的 collation、大小写敏感性和唯一键比较规则。\n5. 设计空值与默认值：让 `NULL`、空字符串、零值、默认状态各自表达稳定含义，结合严格模式阻止异常截断和越界。\n6. 评估索引成本：宽字段、低选择性字段、大文本前缀索引、字符集长度和主键宽度都会放大二级索引与 Buffer Pool 压力。\n7. 验证访问模式：用 `SHOW CREATE TABLE`、Information Schema、`SHOW INDEX`、`EXPLAIN ANALYZE` 和真实参数确认类型、索引和 SQL 写法匹配。\n\n字段类型的输出是一份可长期演进的契约，质量来自业务边界、MySQL 编码规则和线上查询证据三者一致。",
+      "实践例子：下面是一张订单表中常见字段的类型选择。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '内部主键',\n  order_no VARCHAR(64) NOT NULL COMMENT '业务订单号，保留外部格式',\n  user_id BIGINT UNSIGNED NOT NULL COMMENT '用户 ID',\n  status TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '订单状态编码',\n  amount DECIMAL(12,2) NOT NULL COMMENT '订单金额，精确到分',\n  currency CHAR(3) NOT NULL DEFAULT 'CNY' COMMENT 'ISO 货币代码',\n  buyer_phone VARCHAR(32) NOT NULL COMMENT '手机号，按字符串保存',\n  ext JSON NULL COMMENT '低频扩展属性',\n  paid_at DATETIME NULL COMMENT '业务支付时间',\n  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',\n  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',\n  PRIMARY KEY (id),\n  UNIQUE KEY uk_order_no (order_no),\n  KEY idx_user_created (user_id, created_at),\n  KEY idx_status_created (status, created_at)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;\n```\n\n这份 DDL 的重点是：`BIGINT UNSIGNED` 给 ID 留增长空间，`VARCHAR` 保留订单号和手机号的外部格式，`TINYINT` 承载有限状态，`DECIMAL` 保证金额精度，`CHAR(3)` 表达固定长度货币代码，`JSON` 收纳低频扩展，时间字段使用明确业务语义。上线前要用真实 SQL 检查索引顺序和返回列。",
+      "深层细节：数据类型会进入 MySQL 的存储、优化器和执行路径。\n\n- 行大小：定长、变长和大字段共同决定页内可容纳记录数；行越宽，单次扫描需要读取的页越多，Buffer Pool 可缓存的有效行越少。\n- 索引大小：二级索引叶子节点保存索引列和主键值，宽字符列、长主键和多列联合索引会直接放大索引空间与回表成本。\n- 字符比较：`VARCHAR` 的长度单位与字符集相关，`utf8mb4` 字符可能占用多个字节；collation 决定大小写、重音、排序和唯一键判等。\n- 数值精度：`DECIMAL` 适合金额和精确计算，`FLOAT/DOUBLE` 适合近似科学计算；财务字段要把单位、精度和舍入规则写进字段设计。\n- 时间语义：`TIMESTAMP` 会受会话时区影响并转换存储，`DATETIME` 更适合表达业务发生的本地时间；跨时区系统需要统一时区、存储规范和展示转换。\n- 隐式转换：字符串列和数字参数比较、不同字符集比较、函数包裹列、日期字符串格式差异，都可能改变比较结果和索引访问路径。\n- 大字段：`TEXT`、`BLOB`、`JSON` 会放大返回、排序、临时表和复制成本；高频列表页适合只取摘要字段或拆出详情表。\n\n老手做字段评审时会把“语义正确、范围足够、行记录紧凑、索引友好、变更可控”同时纳入判断。",
+      "工程场景：不同字段类型有高频的生产取舍。\n\n- ID 与计数：业务增长快、分库分表和外部 ID 场景优先评估 `BIGINT UNSIGNED`，短小主键能降低所有二级索引成本。\n- 金额与费率：金额用 `DECIMAL(p,s)` 或以最小货币单位保存整数，费率要明确精度、舍入和展示口径。\n- 状态与枚举：有限状态可用 `TINYINT` 搭配代码枚举和注释，强语义字段需要在应用层、约束或字典表中保持可读性。\n- 手机号和证件号：外部标识按字符串保存，保留前导零、区号、分隔符和国家差异，并配合脱敏、加密和最小权限。\n- 时间字段：业务事件时间、创建更新时间、过期时间和审计时间要分清来源；跨地区系统建议统一写入时区策略。\n- JSON 扩展：适合低频、非核心、变化快的属性；高频过滤和排序字段适合沉淀为独立列或生成列索引。\n- 大文本与附件：正文、图片、文件优先放对象存储或详情表，主表保留 URL、摘要、状态和元数据。\n\n这些选择决定后续索引、慢查询、数据治理、合规审计和 DDL 演进成本。",
+      "边界与故障模式：数据类型问题常表现为写入报错、查询变慢、结果偏差和迁移困难。\n\n- 越界与截断：整型范围、`VARCHAR` 长度、`DECIMAL` 精度和日期合法性会在严格模式下报错，在历史兼容模式下可能产生截断或警告。\n- 精度偏差：浮点金额、单位混乱、四舍五入口径差异会让账务、报表和对账结果漂移。\n- 索引失效：字段类型与参数类型错配、字符集/排序规则不一致、函数包裹索引列、日期字符串格式不稳定，会增加扫描行数。\n- 排序差异：collation 改变大小写敏感、中文排序、唯一键判等和跨库对比结果。\n- 时区错误：`TIMESTAMP`、会话 `time_zone`、应用时区和展示时区混用，会造成跨天统计、延迟任务和审计日志偏差。\n- 宽表膨胀：过大的 `VARCHAR`、大 `JSON`、多余 `TEXT` 和过多宽索引，会放大 I/O、临时表、复制和备份恢复耗时。\n- 类型变更风险：生产表改字段类型需要考虑在线 DDL 能力、锁等待、索引重建、回填批次、双写兼容和回滚方案。",
+      "排查实践：字段类型相关问题建议先建立结构、数据、计划和运行证据。\n\n1. 固化表结构：查看字段类型、字符集、排序规则、默认值、主键和索引。\n2. 固化异常样本：记录 SQL、绑定参数类型、报错信息、SQL mode、会话时区和异常数据值。\n3. 检查范围与长度：统计最大值、最小值、最大字符长度、空值比例、重复值和异常格式。\n4. 检查访问路径：用 `EXPLAIN` 或 `EXPLAIN ANALYZE` 看 `key`、`rows`、`filtered`、`Extra` 和真实耗时。\n5. 检查运行影响：观察慢查询日志、Performance Schema 语句摘要、临时表、排序、锁等待、复制延迟和表大小。\n6. 制定修复：先修数据和应用参数，再考虑加生成列、补索引、拆字段、改类型或在线回填，发布前准备兼容读写和回滚。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW FULL COLUMNS FROM orders;\nSHOW INDEX FROM orders;\n\nSELECT COLUMN_NAME, COLUMN_TYPE, CHARACTER_SET_NAME, COLLATION_NAME,\n       IS_NULLABLE, COLUMN_DEFAULT\nFROM INFORMATION_SCHEMA.COLUMNS\nWHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders'\nORDER BY ORDINAL_POSITION;\n\nSELECT MAX(amount), MIN(amount), MAX(CHAR_LENGTH(order_no)),\n       SUM(buyer_phone REGEXP '^[0-9+ -]+$') AS phone_like_rows\nFROM orders;\n\nEXPLAIN ANALYZE\nSELECT id, order_no\nFROM orders\nWHERE order_no = '202606060001';\n\nSELECT @@sql_mode, @@time_zone, @@system_time_zone;\n```\n\n排查的核心是把“字段类型是否合适”落到可验证事实：类型定义、真实数据分布、查询参数类型、执行计划和运行指标。",
+      "常见误区：字段类型是业务语义和数据库成本的共同表达。\n\n- `VARCHAR(255)` 是默认上限思维，字段长度应来自业务格式、索引成本和未来增长判断。\n- 手机号、订单号、证件号属于外部标识，字符串能保留格式、前导零和跨地区变化。\n- 金额字段需要精确语义，`DECIMAL` 或最小单位整数能让计算、存储和对账口径稳定。\n- `NULL` 表示未知或缺失，空字符串、零值和默认枚举表示具体业务状态；每种取值都要有清楚含义。\n- JSON 是扩展工具，核心查询字段应沉淀为列、生成列或索引表达式，方便优化器和排障工具观察。\n- 字符集和排序规则是字段契约的一部分，唯一键、排序和大小写敏感需求要在建表阶段确定。\n- 改字段类型是生产数据迁移，评估范围覆盖应用兼容、DDL 锁、复制延迟、数据校验和回滚。",
+      "面试追问：数据类型类问题适合按“语义、范围、存储、索引、异常、迁移”回答。\n\n- MySQL 常见数据类型有哪些，分别适合哪些业务字段？\n- `CHAR`、`VARCHAR`、`TEXT`、`BLOB` 在存储、索引和使用场景上有什么差异？\n- 金额为什么常用 `DECIMAL` 或最小单位整数，`FLOAT/DOUBLE` 适合哪些计算？\n- `DATETIME` 和 `TIMESTAMP` 的时区语义、范围和默认值行为如何影响系统设计？\n- `utf8mb4` 和 collation 如何影响字符串长度、排序、唯一键和大小写敏感？\n- 为什么字段类型错配或隐式转换会影响索引访问路径，线上如何验证？\n- 宽字段、大 JSON、多列宽索引如何影响 InnoDB 行格式、Buffer Pool、临时表和复制？\n- 大表字段类型选错后，如何规划数据修复、在线 DDL、回填、双写兼容和回滚？\n- 面试中如何从订单表、用户表、日志表分别说明字段类型选择？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Data Types、Choosing the Right Type、Storage Requirements、Optimizing Data Size、`CHAR/VARCHAR`、`DATETIME/TIMESTAMP`、`DECIMAL`、JSON、Character Sets、Type Conversion、InnoDB Row Formats 和 Clustered and Secondary Indexes 文档，并结合 PlanetScale 的 Schema、Strings、Datetimes vs Timestamps、阿里巴巴 Java 开发手册和 JavaGuide 的 MySQL 规范表达进行工程校准。官方资料用于定义、范围、存储、时区和转换语义，工程资料用于补充字段评审、索引成本、排查路径和面试表达。"
+    ],
+    typicalProblems: [
+      "MySQL 数据类型解决什么问题，字段类型如何影响数据正确性和查询性能？",
+      "数值、字符串、日期时间、JSON 和二进制类型分别适合哪些业务场景？",
+      "如何为订单金额、手机号、状态、时间、扩展字段和大文本选择类型？",
+      "`CHAR`、`VARCHAR`、`TEXT`、`BLOB` 在存储、索引和排序上的关键差异是什么？",
+      "`DECIMAL`、`FLOAT`、`DOUBLE` 在精度、性能和业务风险上如何取舍？",
+      "`DATETIME` 和 `TIMESTAMP` 的时区语义如何影响跨地区系统和审计日志？",
+      "字符集和 collation 如何影响唯一键、排序、大小写敏感和索引长度？",
+      "隐式类型转换、字段类型错配和函数包裹列为什么会改变执行计划？",
+      "线上如何用 `SHOW CREATE TABLE`、Information Schema、`EXPLAIN ANALYZE` 和 SQL mode 排查类型问题？",
+      "大表字段类型选错后，在线 DDL、数据回填、应用兼容和回滚如何设计？"
+    ],
+    commonCommands: [
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW FULL COLUMNS FROM <table>",
+      "SHOW INDEX FROM <table>",
+      "SELECT COLUMN_NAME, COLUMN_TYPE, CHARACTER_SET_NAME, COLLATION_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '<table>'",
+      "EXPLAIN ANALYZE <sql>",
+      "SELECT @@sql_mode, @@time_zone, @@system_time_zone"
+    ],
+    useCases: ["字段设计", "空间优化", "精度控制", "索引评审", "慢 SQL 排查", "字符集治理", "时间字段治理", "大表类型变更"],
     prerequisites: ["schema-design"],
-    related: ["mysql-index", "sql-optimization"],
+    related: ["schema-design", "primary-key", "mysql-index", "sql-optimization", "explain", "online-ddl"],
   },
   "primary-key": {
     prerequisites: ["schema-design"],

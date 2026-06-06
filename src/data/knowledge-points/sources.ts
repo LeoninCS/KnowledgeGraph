@@ -5533,6 +5533,38 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Choosing the Right Type for a Column",
     url: "https://dev.mysql.com/doc/refman/8.4/en/choosing-types.html",
   },
+  "mysql-storage-requirements": {
+    title: "MySQL Reference Manual: Data Type Storage Requirements",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/storage-requirements.html",
+  },
+  "mysql-data-size-optimization": {
+    title: "MySQL Reference Manual: Optimizing Data Size",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/data-size.html",
+  },
+  "mysql-char-varchar": {
+    title: "MySQL Reference Manual: The CHAR and VARCHAR Types",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/char.html",
+  },
+  "mysql-datetime-timestamp": {
+    title: "MySQL Reference Manual: The DATE, DATETIME, and TIMESTAMP Types",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/datetime.html",
+  },
+  "mysql-decimal-data-type": {
+    title: "MySQL Reference Manual: Fixed-Point Types DECIMAL and NUMERIC",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/fixed-point-types.html",
+  },
+  "mysql-json-data-type": {
+    title: "MySQL Reference Manual: The JSON Data Type",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/json.html",
+  },
+  "mysql-character-sets": {
+    title: "MySQL Reference Manual: Character Sets, Collations, Unicode",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/charset.html",
+  },
+  "mysql-type-conversion": {
+    title: "MySQL Reference Manual: Type Conversion in Expression Evaluation",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/type-conversion.html",
+  },
   "mysql-create-table-foreign-keys": {
     title: "MySQL Reference Manual: CREATE TABLE Foreign Keys",
     url: "https://dev.mysql.com/doc/refman/8.4/en/create-table-foreign-keys.html",
@@ -5552,6 +5584,10 @@ export const knowledgeSources = {
   "mysql-innodb-physical-structure": {
     title: "MySQL Reference Manual: InnoDB Row Formats and Physical Structure",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-physical-structure.html",
+  },
+  "mysql-innodb-row-format": {
+    title: "MySQL Reference Manual: InnoDB Row Formats",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-row-format.html",
   },
   "mysql-optimization": {
     title: "MySQL Reference Manual: Optimization",
@@ -5592,6 +5628,14 @@ export const knowledgeSources = {
   "mysql-planetscale-primary-keys": {
     title: "PlanetScale: Primary keys",
     url: "https://planetscale.com/learn/courses/mysql-for-developers/schema/primary-keys",
+  },
+  "mysql-planetscale-datetimes": {
+    title: "PlanetScale: Datetimes versus timestamps in MySQL",
+    url: "https://planetscale.com/blog/datetimes-vs-timestamps-in-mysql",
+  },
+  "mysql-planetscale-strings": {
+    title: "PlanetScale: Strings",
+    url: "https://planetscale.com/learn/courses/mysql-for-developers/schema/strings",
   },
   "mysql-alibaba-java-development-manual": {
     title: "阿里巴巴 Java 开发手册",
