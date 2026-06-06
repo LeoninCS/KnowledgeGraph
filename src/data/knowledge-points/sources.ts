@@ -1717,6 +1717,14 @@ export const knowledgeSources = {
     title: "RFC 9113: HTTP/2",
     url: "https://www.rfc-editor.org/rfc/rfc9113",
   },
+  "rfc7541-hpack": {
+    title: "RFC 7541: HPACK - Header Compression for HTTP/2",
+    url: "https://www.rfc-editor.org/rfc/rfc7541",
+  },
+  "rfc9218-http-priority": {
+    title: "RFC 9218: Extensible Prioritization Scheme for HTTP",
+    url: "https://www.rfc-editor.org/rfc/rfc9218",
+  },
   "rfc9114-http3": {
     title: "RFC 9114: HTTP/3",
     url: "https://www.rfc-editor.org/rfc/rfc9114",
@@ -3292,6 +3300,26 @@ export const knowledgeSources = {
   "mdn-http-caching": {
     title: "MDN Web Docs: HTTP caching",
     url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching",
+  },
+  "mdn-http2": {
+    title: "MDN Web Docs: HTTP/2",
+    url: "https://developer.mozilla.org/en-US/docs/Glossary/HTTP_2",
+  },
+  "nginx-http2-module": {
+    title: "NGINX Docs: Module ngx_http_v2_module",
+    url: "https://nginx.org/en/docs/http/ngx_http_v2_module.html",
+  },
+  "nghttp2-docs": {
+    title: "nghttp2 Documentation",
+    url: "https://nghttp2.org/documentation/",
+  },
+  "curl-http2": {
+    title: "curl Docs: HTTP/2",
+    url: "https://curl.se/docs/http2.html",
+  },
+  "wireshark-http2": {
+    title: "Wireshark Display Filter Reference: HTTP2",
+    url: "https://www.wireshark.org/docs/dfref/h/http2.html",
   },
   "mdn-cache-control": {
     title: "MDN Web Docs: Cache-Control",
