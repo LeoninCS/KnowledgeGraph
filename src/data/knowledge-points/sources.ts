@@ -3977,6 +3977,10 @@ export const knowledgeSources = {
     title: "Linux man-pages: getrlimit(2)",
     url: "https://man7.org/linux/man-pages/man2/getrlimit.2.html",
   },
+  "linux-kernel-sysctl-fs": {
+    title: "Linux Kernel Documentation: /proc/sys/fs",
+    url: "https://docs.kernel.org/admin-guide/sysctl/fs.html",
+  },
   "linux-man-pages-path-resolution": {
     title: "Linux man-pages: path_resolution(7)",
     url: "https://man7.org/linux/man-pages/man7/path_resolution.7.html",
@@ -3988,6 +3992,30 @@ export const knowledgeSources = {
   "linux-man-pages-open": {
     title: "Linux man-pages: open(2)",
     url: "https://man7.org/linux/man-pages/man2/open.2.html",
+  },
+  "linux-man-pages-close": {
+    title: "Linux man-pages: close(2)",
+    url: "https://man7.org/linux/man-pages/man2/close.2.html",
+  },
+  "linux-man-pages-dup": {
+    title: "Linux man-pages: dup(2)",
+    url: "https://man7.org/linux/man-pages/man2/dup.2.html",
+  },
+  "linux-man-pages-fcntl": {
+    title: "Linux man-pages: fcntl(2)",
+    url: "https://man7.org/linux/man-pages/man2/fcntl.2.html",
+  },
+  "linux-man-pages-proc-pid-fd": {
+    title: "Linux man-pages: proc_pid_fd(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_pid_fd.5.html",
+  },
+  "linux-man-pages-pipe": {
+    title: "Linux man-pages: pipe(2)",
+    url: "https://man7.org/linux/man-pages/man2/pipe.2.html",
+  },
+  "linux-man-pages-socket": {
+    title: "Linux man-pages: socket(2)",
+    url: "https://man7.org/linux/man-pages/man2/socket.2.html",
   },
   "linux-man-pages-read": {
     title: "Linux man-pages: read(2)",
@@ -4016,6 +4044,14 @@ export const knowledgeSources = {
   "linux-man-pages-mount": {
     title: "Linux man-pages: mount(8)",
     url: "https://man7.org/linux/man-pages/man8/mount.8.html",
+  },
+  "lsof-man-page": {
+    title: "lsof manual page",
+    url: "https://www.man7.org/linux/man-pages/man8/lsof.8.html",
+  },
+  "linux-fasionchan-file-descriptor": {
+    title: "学习 Linux: 文件描述符",
+    url: "https://linux.fasionchan.com/zh_CN/latest/system-programming/file-io/file-descriptor.html",
   },
   "linux-man-pages-mmap": {
     title: "Linux man-pages: mmap(2)",
