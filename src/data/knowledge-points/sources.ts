@@ -1225,6 +1225,14 @@ export const knowledgeSources = {
     title: "Cloudflare SSL/TLS Docs: Concepts",
     url: "https://developers.cloudflare.com/ssl/concepts/",
   },
+  "letsencrypt-docs": {
+    title: "Let's Encrypt Docs",
+    url: "https://letsencrypt.org/docs/",
+  },
+  "certbot-instructions": {
+    title: "Certbot: Instructions",
+    url: "https://certbot.eff.org/instructions",
+  },
   "mdn-how-internet-works": {
     title: "MDN Web Docs: How does the Internet work?",
     url: "https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Web_mechanics/How_does_the_Internet_work",
@@ -1817,13 +1825,33 @@ export const knowledgeSources = {
     title: "RFC 6797: HTTP Strict Transport Security (HSTS)",
     url: "https://www.rfc-editor.org/rfc/rfc6797",
   },
+  "rfc6960-ocsp": {
+    title: "RFC 6960: Online Certificate Status Protocol (OCSP)",
+    url: "https://www.rfc-editor.org/rfc/rfc6960",
+  },
   "ruanyifeng-tls13": {
     title: "阮一峰: TLS 1.3 协议详解",
     url: "https://www.ruanyifeng.com/blog/2018/08/tls_1_3.html",
   },
+  "ruanyifeng-https-upgrade": {
+    title: "阮一峰: HTTPS 升级指南",
+    url: "https://www.ruanyifeng.com/blog/2016/08/migrate-from-http-to-https.html",
+  },
   "rfc5280-pkix": {
     title: "RFC 5280: Internet X.509 PKI Certificate and CRL Profile",
     url: "https://www.rfc-editor.org/rfc/rfc5280",
+  },
+  "cabforum-tls-baseline-requirements": {
+    title: "CA/Browser Forum: TLS Baseline Requirements",
+    url: "https://cabforum.org/working-groups/server/baseline-requirements/documents/",
+  },
+  "xiaolincoding-http-interview": {
+    title: "小林 coding: HTTP 常见面试题",
+    url: "https://xiaolincoding.com/network/2_http/http_interview.html",
+  },
+  "aliyun-ssl-chain-incomplete": {
+    title: "阿里云: SSL 证书链不完整的原因及解决方法",
+    url: "https://help.aliyun.com/zh/ssl-certificate/support/the-certificate-chain-is-incomplete",
   },
   "mdn-http-overview": {
     title: "MDN: An overview of HTTP",
