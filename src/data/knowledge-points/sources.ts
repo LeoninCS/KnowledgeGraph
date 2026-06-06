@@ -3885,6 +3885,14 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Page Tables",
     url: "https://docs.kernel.org/mm/page_tables.html",
   },
+  "linux-kernel-cachetlb": {
+    title: "Linux Kernel Documentation: Cache and TLB Flushing Under Linux",
+    url: "https://www.kernel.org/doc/html/latest/core-api/cachetlb.html",
+  },
+  "linux-kernel-x86-tlb": {
+    title: "Linux Kernel Documentation: The TLB",
+    url: "https://docs.kernel.org/arch/x86/tlb.html",
+  },
   "linux-kernel-pagemap": {
     title: "Linux Kernel Documentation: Examining Process Page Tables",
     url: "https://docs.kernel.org/admin-guide/mm/pagemap.html",
@@ -4121,6 +4129,10 @@ export const knowledgeSources = {
     title: "Operating Systems: Three Easy Pieces - Paging: Introduction",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/vm-paging.pdf",
   },
+  "ostep-vm-tlbs": {
+    title: "Operating Systems: Three Easy Pieces - Paging: Faster Translations (TLBs)",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/vm-tlbs.pdf",
+  },
   "ostep-processes": {
     title: "Operating Systems: Three Easy Pieces - The Abstraction: The Process",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-intro.pdf",
@@ -4312,6 +4324,10 @@ export const knowledgeSources = {
   "linux-man-pages-strace": {
     title: "Linux man-pages: strace(1)",
     url: "https://man7.org/linux/man-pages/man1/strace.1.html",
+  },
+  "linux-man-pages-perf-stat": {
+    title: "Linux man-pages: perf-stat(1)",
+    url: "https://man7.org/linux/man-pages/man1/perf-stat.1.html",
   },
   "linux-man-pages-perf-lock": {
     title: "Linux man-pages: perf-lock(1)",
