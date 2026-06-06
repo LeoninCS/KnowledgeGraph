@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 77 | 372 |
+| 449 | 78 | 371 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 13 | 35 |
+| mysql | 48 | 14 | 34 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -202,7 +202,7 @@
 | 已优化 | `innodb` | InnoDB | InnoDB | 2026-06-05 | 18 |
 | 已优化 | `clustered-index` | 聚簇索引 | Clustered Index | 2026-06-05 | 14 |
 | 已优化 | `buffer-pool` | Buffer Pool | Buffer Pool | 2026-06-05 | 19 |
-| 未开始 | `mysql-index` | 索引 | Index | 2026-05-24 | 5 |
+| 已优化 | `mysql-index` | 索引 | Index | 2026-06-05 | 21 |
 | 未开始 | `b-plus-tree` | B+ 树 | B+ Tree | 2026-06-04 | 6 |
 | 未开始 | `secondary-index` | 二级索引 | Secondary Index | 2026-05-24 | 5 |
 | 未开始 | `back-to-table` | 回表 | Back to Table | 2026-05-24 | 5 |

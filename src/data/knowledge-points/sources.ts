@@ -5573,6 +5573,14 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Tracing the Optimizer",
     url: "https://dev.mysql.com/doc/refman/8.4/en/optimizer-tracing.html",
   },
+  "mysql-analyze-table": {
+    title: "MySQL Reference Manual: ANALYZE TABLE Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/analyze-table.html",
+  },
+  "mysql-invisible-indexes": {
+    title: "MySQL Reference Manual: Invisible Indexes",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/invisible-indexes.html",
+  },
   "mysql-where-optimization": {
     title: "MySQL Reference Manual: WHERE Clause Optimization",
     url: "https://dev.mysql.com/doc/refman/8.4/en/where-optimization.html",
@@ -5584,6 +5592,18 @@ export const knowledgeSources = {
   "mysql-how-mysql-uses-indexes": {
     title: "MySQL Reference Manual: How MySQL Uses Indexes",
     url: "https://dev.mysql.com/doc/refman/8.4/en/mysql-indexes.html",
+  },
+  "mysql-column-indexes": {
+    title: "MySQL Reference Manual: Column Indexes",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/column-indexes.html",
+  },
+  "mysql-multiple-column-indexes": {
+    title: "MySQL Reference Manual: Multiple-Column Indexes",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/multiple-column-indexes.html",
+  },
+  "mysql-verifying-index-usage": {
+    title: "MySQL Reference Manual: Verifying Index Usage",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/verifying-index-usage.html",
   },
   "mysql-index-condition-pushdown": {
     title: "MySQL Reference Manual: Index Condition Pushdown Optimization",

@@ -150,7 +150,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: Checkpoint | 2026-05-24 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: Checkpoint | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "checkpoint", zh: "Checkpoint", en: "Checkpoint", area: "engine", difficulty: "hard", concept: "Checkpoint 推进脏页刷盘位置，缩短崩溃恢复时间。", explanation: ["核心概念：Checkpoint聚焦Checkpoint 推进脏页刷盘位置，缩短崩溃恢复时间。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住InnoDB 页、Buffer Pool、脏页和检查点，再看输入、状态变化、输出结果和失败分支。","适用场景：Checkpoint常用于恢复时间控制和刷盘机制理解。学习时把它放回MySQL链路中观察，并结合前置知识脏页和Redo Log判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Checkpoint通常会和崩溃恢复一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认InnoDB 页、Buffer Pool、脏页和检查点是否仍然成立。","常见误区与注意点：实践中容易把Checkpoint当成孤立概念处理，结果遗漏页分裂、刷盘抖动、Buffer Pool 污染和主键设计。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Checkpoint执行原理是什么","Checkpoint如何影响性能或一致性","Checkpoint线上问题怎么排查"], useCases: ["恢复时间控制","刷盘机制理解"], prerequisites: ["dirty-page","redo-log"], related: ["crash-recovery"], order: 26 },
-  /* <!-- KG_REVIEWED: 索引 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 索引 | 2026-06-05 | source_count=21 --> */
   /* <!-- KG_EXPLAINED: 索引 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "mysql-index", zh: "索引", en: "Index", area: "index", difficulty: "medium", concept: "索引用额外数据结构加速查询，但会增加写入和存储成本。", explanation: ["核心概念：索引（Index）聚焦索引用额外数据结构加速查询，但会增加写入和存储成本。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住B+ 树、聚簇索引、二级索引和覆盖索引，再看输入、状态变化、输出结果和失败分支。","适用场景：索引常用于查询加速、排序优化和唯一约束。学习时把它放回MySQL链路中观察，并结合前置知识SELECT 查询和InnoDB判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，索引通常会和B+ 树、联合索引和SQL 优化一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认B+ 树、聚簇索引、二级索引和覆盖索引是否仍然成立。","常见误区与注意点：实践中容易把索引当成孤立概念处理，结果遗漏回表、最左前缀、范围条件、低选择性和写入成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["索引执行原理是什么","索引如何影响性能或一致性","索引线上问题怎么排查"], useCases: ["查询加速","排序优化","唯一约束"], prerequisites: ["select","innodb"], related: ["b-plus-tree","composite-index","sql-optimization"], order: 27 },
   /* <!-- KG_REVIEWED: B+ 树 | 2026-06-04 | source_count=6 --> */
@@ -1091,8 +1091,72 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["page", "dirty-page", "checkpoint", "redo-log", "clustered-index", "mysql-index", "sql-optimization", "slow-query-log"],
   },
   "mysql-index": {
-    prerequisites: ["sql"],
-    related: ["b-plus-tree", "composite-index", "sql-optimization"],
+    sourceRefs: [
+      "mysql-how-mysql-uses-indexes",
+      "mysql-column-indexes",
+      "mysql-multiple-column-indexes",
+      "mysql-innodb-index-types",
+      "mysql-innodb-physical-structure",
+      "mysql-innodb-best-practices",
+      "mysql-optimizing-innodb-storage-layout",
+      "mysql-range-optimization",
+      "mysql-index-condition-pushdown",
+      "mysql-order-by-optimization",
+      "mysql-optimizer-statistics",
+      "mysql-analyze-table",
+      "mysql-invisible-indexes",
+      "mysql-verifying-index-usage",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "mysql-slow-query-log",
+      "mysql-performance-schema-statement-tables",
+      "xiaolincoding-mysql-index",
+      "javaguide-mysql-index",
+      "solarwinds-mysql-indexes",
+    ],
+    concept:
+      "索引是 MySQL 为加速定位、过滤、排序和约束检查而维护的辅助数据结构；它把读路径从大范围扫描收窄为有序查找，同时增加写入、存储和优化器维护成本。",
+    explanation: [
+      "概念定位：索引（Index）解决的是“数据库怎样在大量行中快速找到目标数据”的问题。它常出现在详情查询、列表筛选、排序分页、唯一约束、JOIN、慢 SQL 排查、线上锁等待、写入抖动和容量评审中。\n\n从 SQL 层看，索引给优化器提供候选访问路径，让查询可以用 `ref`、`range`、`index` 等方式访问表。从 InnoDB 层看，常见索引是 B+ 树：主键索引叶子保存完整行，二级索引叶子保存索引列和主键值。索引的价值来自减少扫描、回表、排序和锁范围；索引的成本来自额外页、写入维护、统计信息漂移、Buffer Pool 占用和变更发布风险。",
+      "准确定义：MySQL 索引是一组按键值组织的数据结构，用来帮助服务器快速查找行、减少比较、辅助排序和维护唯一性。常见类型和术语如下。\n\n- `PRIMARY KEY`：主键索引，在 InnoDB 中也是聚簇索引（clustered index），叶子节点保存完整行。\n- `Secondary Index`：二级索引，叶子节点保存二级索引键和主键值，查询需要更多列时会回到主键索引取整行。\n- `Composite Index`：联合索引，按多个列依次排序，字段顺序决定可定位前缀、排序能力和覆盖能力。\n- `Covering Index`：覆盖索引，查询需要的列都能从索引读取，减少回表。\n- `Unique Index`：唯一索引，既可加速查找，也可维护唯一约束。\n- `Index Condition Pushdown`：索引条件下推，让存储引擎在索引扫描阶段过滤更多候选记录。\n- `Optimizer Statistics`：优化器统计信息，影响索引选择、扫描行数估算和执行计划稳定性。",
+      "心智模型：把索引看成按不同维度排好的目录。\n\n- 主键目录按 `id` 排序，目录页最终就是完整货物记录。\n- 二级目录按 `user_id`、`status`、`created_at` 等字段排序，目录项记录目标货物的主键编号。\n- 联合目录像多级字典，先按第一列排序，再在相同第一列内按第二列排序，继续向后排列。\n- 覆盖目录把查询需要的字段也放进目录页，高频列表可以直接从目录返回。\n- 优化器像调度员，会根据目录顺序、数据分布、成本估算和 SQL 条件选择一条路径。\n\n这个模型能解释两个核心现象：索引适合高选择性和有序访问；索引数量和字段宽度会被每次写入、缓存和备份持续支付成本。",
+      "主流程机制：一条带索引条件的查询会经历语义解析、路径选择和页访问。\n\n1. SQL 层解析 `WHERE`、`JOIN`、`ORDER BY`、`GROUP BY` 和返回列，识别可能使用的索引。\n2. 优化器读取统计信息，估算候选行数、回表成本、排序成本、临时表成本和不同索引路径的总代价。\n3. 选定索引后，执行器调用 InnoDB 访问 B+ 树，从根页、中间页一路定位到叶子页。\n4. 等值查询把搜索范围缩到具体键值；范围查询在叶子链表上按边界顺序扫描。\n5. 二级索引命中后，如果返回列被覆盖，直接返回索引中的字段；如果需要更多列，用主键值回到聚簇索引读取整行。\n6. ICP 能在索引扫描时继续判断索引列条件，减少回表候选。\n7. `EXPLAIN`、`EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 记录索引选择、估算行数、实际耗时和扫描证据。\n\n索引优化的目标是让高频 SQL 的候选行数、回表次数、排序成本和锁范围都保持可解释、可验证、可回滚。",
+      "实践例子：下面用订单列表展示索引如何同时服务过滤、排序和覆盖。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n  user_id BIGINT UNSIGNED NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  created_at DATETIME NOT NULL,\n  updated_at DATETIME NOT NULL,\n  PRIMARY KEY (id),\n  KEY idx_user_status_created_id (user_id, status, created_at, id),\n  KEY idx_status_created (status, created_at)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n\nEXPLAIN ANALYZE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001\n  AND status = 'PAID'\n  AND created_at >= '2026-06-01 00:00:00'\n  AND created_at <  '2026-07-01 00:00:00'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nEXPLAIN FORMAT=TREE\nSELECT id\nFROM orders\nWHERE status = 'PAID'\nORDER BY created_at DESC\nLIMIT 20;\n```\n\n`idx_user_status_created_id` 的前两列服务等值过滤，`created_at` 服务范围和排序，`id` 让排序稳定并辅助覆盖。第二条 SQL 使用 `idx_status_created` 时，要结合状态字段选择性和返回量判断收益；低基数字段单独建索引的价值来自它和时间、租户、用户或排序列组合后的访问路径。",
+      "深层细节：索引性能取决于 B+ 树结构、字段顺序、数据分布和优化器判断共同作用。\n\n- B+ 树页：InnoDB 表和索引按页组织，页大小、行宽、主键宽度和索引字段宽度会影响树高度、Buffer Pool 命中和随机 I/O。\n- 聚簇索引：主键叶子保存完整行，主键短且大体有序时，二级索引体积、回表成本和页分裂压力更可控。\n- 二级索引：二级索引叶子保存主键值，长主键会放大所有二级索引；查询列被索引覆盖时可减少回表。\n- 联合索引顺序：等值条件、范围条件、排序列和返回列要围绕高频 SQL 设计，字段顺序决定可定位范围和有序输出能力。\n- 选择性：高区分度列通常更适合作为前导列；低基数字段可与租户、用户、时间、状态机条件组合使用。\n- 条件写法：函数包裹列、隐式转换、前置通配符和跨列 `OR` 会降低可定位性，参数类型和字段类型要一致。\n- 统计信息：`ANALYZE TABLE` 能刷新统计信息，数据分布变化、热点参数和版本升级都可能改变执行计划。\n- 不可见索引：Invisible Index 可以让索引继续维护但默认对优化器不可见，适合评估删除索引或验证计划影响。\n- 写入放大：每个 `INSERT`、`UPDATE`、`DELETE` 都要维护相关索引页、Redo、Undo 和锁，索引越多，写入和在线 DDL 成本越高。\n\n老手评审索引时会同时问：这条索引服务哪些 SQL，能减少多少候选行，是否覆盖，是否支撑排序，写入成本多大，删除或回滚路径是否清楚。",
+      "工程场景与取舍：索引设计要围绕真实访问模式展开。\n\n- 详情查询：主键或唯一索引让单行定位稳定，适合订单详情、用户详情和幂等校验。\n- 列表分页：联合索引把租户、用户、状态、时间和稳定排序键组织到同一条有序路径，适合游标分页。\n- JOIN：驱动表过滤后，被驱动表关联列需要合适索引，减少嵌套循环中的重复扫描。\n- 排序聚合：索引顺序可减少 `filesort` 和临时表，字段顺序要和 `WHERE`、`ORDER BY`、`GROUP BY` 同时评估。\n- 覆盖查询：高频只读接口可以把返回列放入联合索引，换取更低回表成本和更高缓存效率。\n- 唯一约束：业务单号、手机号、租户内名称等用唯一索引表达约束，同时服务查找和幂等。\n- 大表变更：新增索引会占用 I/O、CPU、临时空间和元数据锁窗口，生产发布要控制时间、监控、回滚和副本延迟。\n- 索引治理：长期未用、重复、前缀重叠和低收益索引会拖慢写入，治理要基于观测数据和灰度验证。",
+      "边界与故障模式：索引问题通常表现为慢查询、计划漂移、锁范围扩大和写入变慢。\n\n- 索引缺失：`type=ALL`、扫描行数大、慢日志 `Rows_examined` 高，接口延迟和磁盘读上升。\n- 索引失效：隐式转换、函数包裹列、字符集/排序规则差异、前置 `%LIKE`、跨列 `OR` 会让可定位范围变宽。\n- 回表过多：二级索引筛出大量候选行，再回聚簇索引读取整行，Buffer Pool 与随机 I/O 压力上升。\n- 选择性偏低：单列状态索引、布尔索引、热点租户值可能收益有限，组合条件和数据分布决定最终效果。\n- 计划漂移：统计信息陈旧、数据倾斜、参数值变化、新索引上线和版本升级会让优化器选择不同路径。\n- 写入抖动：索引过多、随机主键、宽索引、批量导入和在线建索引会增加页分裂、Redo、锁等待和复制压力。\n- 锁范围扩大：锁定读、更新和删除依赖索引路径；宽范围扫描会放大记录锁、间隙锁和死锁概率。\n- 索引重复：多个联合索引前缀重叠会增加维护成本，清理前要确认查询覆盖、约束语义和回滚方案。",
+      "排查实践：索引相关慢 SQL 要把 SQL、表结构、计划、数据分布和运行指标串起来。\n\n1. 固化 SQL：记录原始 SQL、绑定参数值和类型、调用入口、执行频率、返回行数、事务范围和时间窗口。\n2. 看结构：用 `SHOW CREATE TABLE`、`SHOW INDEX` 查看主键、联合索引顺序、唯一约束、字段类型、字符集和索引基数。\n3. 看计划：用 `EXPLAIN FORMAT=TREE` 看访问路径，用 `EXPLAIN ANALYZE` 对比估算行数和实际行数。\n4. 看数据分布：统计过滤列基数、热点值、时间范围、租户规模和空值比例，判断选择性是否稳定。\n5. 看运行证据：慢查询日志、Performance Schema 语句摘要、Buffer Pool 物理读、锁等待和复制延迟要和慢 SQL 时间线对齐。\n6. 小步修复：改写谓词、补联合索引、减少返回列、设计覆盖索引、刷新统计信息、使用不可见索引灰度评估，并保留回滚脚本。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\n\nEXPLAIN FORMAT=TREE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC\nLIMIT 20;\n\nEXPLAIN ANALYZE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001\n  AND status = 'PAID'\n  AND created_at >= '2026-06-01 00:00:00'\nORDER BY created_at DESC\nLIMIT 20;\n\nANALYZE TABLE orders;\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nWHERE DIGEST_TEXT LIKE 'SELECT%ORDERS%'\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n\n-- 评估删除索引前，可先把候选索引设为不可见观察计划影响\nALTER TABLE orders ALTER INDEX idx_status_created INVISIBLE;\nALTER TABLE orders ALTER INDEX idx_status_created VISIBLE;\n```\n\n有效修复会体现为扫描行数下降、实际耗时下降、回表减少、排序或临时表消失、锁等待收敛，以及写入和复制指标仍保持稳定。",
+      "指标与命令速查：索引优化要用多种证据交叉确认。\n\n- `SHOW INDEX`：查看索引名、列顺序、唯一性、基数、可见性和索引类型。\n- `EXPLAIN` 的 `type`：常见访问类型包括 `const`、`eq_ref`、`ref`、`range`、`index`、`ALL`，用于判断访问路径级别。\n- `possible_keys` / `key`：优化器候选索引与实际使用索引。\n- `key_len`：参与访问路径的索引字节长度，可辅助判断联合索引使用到哪些列。\n- `rows` / `filtered`：估算扫描行数和过滤比例，要和 `EXPLAIN ANALYZE` 的实际行数对比。\n- `Extra`：关注 `Using index`、`Using index condition`、`Using filesort`、`Using temporary` 等信号。\n- 慢查询日志：`Rows_examined`、`Rows_sent` 和查询时间能反映扫描与返回比例。\n- Performance Schema：按 digest 聚合 SQL 次数、耗时、扫描行和返回行，适合找高频高成本语句。\n- `ANALYZE TABLE`：刷新统计信息，适合处理计划估算偏差。\n- Invisible Index：用于灰度评估索引删除或优化器路径变化。",
+      "常见误区：索引是访问路径设计工具，也是持续维护成本。\n\n- 索引价值来自减少候选行、回表、排序和锁范围，判断要以 SQL 样本和运行证据为准。\n- 联合索引字段顺序服务访问模式，等值、范围、排序和覆盖要一起设计。\n- 低基数字段可以成为联合索引的一部分，关键是组合后的过滤范围和排序收益。\n- 覆盖索引适合高频只读路径，宽覆盖索引会增加写入、缓存和在线变更成本。\n- 新增索引会改变优化器选择，发布前要比较计划、数据分布、写入指标和回滚路径。\n- 索引治理要保护约束语义、核心 SQL、线上观测和灰度窗口。",
+      "面试追问：索引题适合按“定义 -> B+ 树 -> InnoDB 组织 -> 优化器 -> 排查证据 -> 取舍”回答。\n\n- MySQL 索引解决什么问题，为什么能减少查询成本？\n- InnoDB 的聚簇索引和二级索引分别存什么？\n- 为什么二级索引查询可能回表，覆盖索引如何减少回表？\n- 联合索引为什么强调字段顺序，最左前缀和范围条件如何影响访问路径？\n- 选择性、基数、统计信息如何影响优化器选择索引？\n- `EXPLAIN` 里 `type`、`key`、`key_len`、`rows`、`Extra` 分别怎么看？\n- 隐式转换、函数包裹列、前置通配符和跨列 `OR` 为什么会让索引收益下降？\n- 索引越多会带来哪些写入、存储、缓存、锁和发布成本？\n- 线上慢 SQL 如何判断是缺索引、回表多、统计信息偏差、计划漂移还是锁等待？\n- 大表新增、删除或合并索引时，如何设计验证、灰度、监控和回滚？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 How MySQL Uses Indexes、Column Indexes、Multiple-Column Indexes、Clustered and Secondary Indexes、InnoDB Physical Structure、InnoDB Best Practices、Storage Layout、Range Optimization、Index Condition Pushdown、ORDER BY Optimization、Optimizer Statistics、ANALYZE TABLE、Invisible Indexes、EXPLAIN、EXPLAIN Output、Slow Query Log 和 Performance Schema Statement Tables 文档，并结合小林 coding、JavaGuide 和 SolarWinds 的 MySQL 索引文章校准中文表达、工程案例和排查路径。官方资料用于定义、机制、优化器和命令语义，技术文章用于补充 B+ 树直觉、面试问法和生产治理经验。"
+    ],
+    typicalProblems: [
+      "MySQL 索引解决什么问题，查询加速和写入成本分别来自哪里？",
+      "InnoDB 聚簇索引、二级索引、唯一索引、联合索引和覆盖索引分别如何工作？",
+      "为什么二级索引叶子节点保存主键值，主键长度如何影响所有二级索引？",
+      "联合索引字段顺序如何影响等值过滤、范围查询、排序和覆盖能力？",
+      "回表、ICP、覆盖索引和 Buffer Pool 命中如何共同影响慢 SQL？",
+      "选择性、统计信息、数据倾斜和 `ANALYZE TABLE` 如何影响优化器选择索引？",
+      "如何用 `EXPLAIN`、`EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 建立索引排查证据链？",
+      "函数包裹列、隐式转换、前置通配符、跨列 `OR` 和低基数字段分别如何处理？",
+      "索引过多、宽索引、随机主键和在线建索引会带来哪些生产成本？",
+      "大表索引新增、删除、合并和不可见索引灰度验证如何设计？"
+    ],
+    commonCommands: [
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "EXPLAIN FORMAT=TREE <sql>",
+      "EXPLAIN ANALYZE <sql>",
+      "ANALYZE TABLE <table>",
+      "ALTER TABLE <table> ADD INDEX <idx_name> (<columns>)",
+      "ALTER TABLE <table> ALTER INDEX <idx_name> INVISIBLE",
+      "ALTER TABLE <table> ALTER INDEX <idx_name> VISIBLE",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10"
+    ],
+    useCases: ["详情查询", "列表筛选", "排序分页", "唯一约束", "JOIN 优化", "覆盖查询", "慢 SQL 排查", "索引治理", "大表变更评审", "锁范围控制"],
+    prerequisites: ["sql", "select", "where", "innodb"],
+    related: ["b-plus-tree", "clustered-index", "secondary-index", "back-to-table", "covering-index", "composite-index", "leftmost-prefix", "range-query", "index-selectivity", "explain", "sql-optimization"],
   },
   "b-plus-tree": {
     sourceRefs: [
