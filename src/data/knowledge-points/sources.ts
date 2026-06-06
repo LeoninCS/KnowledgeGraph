@@ -4049,6 +4049,10 @@ export const knowledgeSources = {
     title: "Linux man-pages: select(2)",
     url: "https://man7.org/linux/man-pages/man2/select.2.html",
   },
+  "linux-man-pages-select-tut": {
+    title: "Linux man-pages: select_tut(2)",
+    url: "https://man7.org/linux/man-pages/man2/select_tut.2.html",
+  },
   "linux-man-pages-poll": {
     title: "Linux man-pages: poll(2)",
     url: "https://man7.org/linux/man-pages/man2/poll.2.html",
@@ -4549,6 +4553,14 @@ export const knowledgeSources = {
     title: "Linux man-pages: epoll_ctl(2)",
     url: "https://man7.org/linux/man-pages/man2/epoll_ctl.2.html",
   },
+  "linux-man-pages-epoll-create": {
+    title: "Linux man-pages: epoll_create(2)",
+    url: "https://man7.org/linux/man-pages/man2/epoll_create.2.html",
+  },
+  "linux-man-pages-epoll-wait": {
+    title: "Linux man-pages: epoll_wait(2)",
+    url: "https://man7.org/linux/man-pages/man2/epoll_wait.2.html",
+  },
   "man7-training-epoll": {
     title: "man7.org Training: epoll API",
     url: "https://man7.org/training/download/epoll_API.pdf",
@@ -4564,6 +4576,14 @@ export const knowledgeSources = {
   "eklitzke-nonblocking-io-epoll": {
     title: "Eric K. Litzke: Blocking I/O, Nonblocking I/O, And Epoll",
     url: "https://eklitzke.org/blocking-io-nonblocking-io-and-epoll",
+  },
+  "kegel-c10k": {
+    title: "Dan Kegel: The C10K problem",
+    url: "http://www.kegel.com/c10k.html",
+  },
+  "libevent-book": {
+    title: "The Libevent Book",
+    url: "https://libevent.org/libevent-book/",
   },
   "gnu-bash-manual": {
     title: "GNU Bash Reference Manual",

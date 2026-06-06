@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 59 | 390 |
+| 449 | 60 | 389 |
 
 ## 分类进度
 
@@ -15,7 +15,7 @@
 | --- | --- | --- | --- |
 | go | 45 | 0 | 45 |
 | network | 28 | 28 | 0 |
-| os | 34 | 29 | 5 |
+| os | 34 | 30 | 4 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 0 | 48 |
 | redis | 44 | 0 | 44 |
@@ -141,7 +141,7 @@
 | 已优化 | `file-descriptor` | 文件描述符 | File Descriptor | 2026-06-05 | 24 |
 | 已优化 | `io` | I/O | Input Output | 2026-06-05 | 25 |
 | 已优化 | `nonblocking-io` | 非阻塞 I/O | Non-blocking I/O | 2026-06-05 | 26 |
-| 未开始 | `io-multiplexing` | I/O 多路复用 | I/O Multiplexing | 2026-05-24 | 7 |
+| 已优化 | `io-multiplexing` | I/O 多路复用 | I/O Multiplexing | 2026-06-05 | 29 |
 | 未开始 | `epoll` | epoll | epoll | 2026-06-04 | 5 |
 | 未开始 | `socket` | Socket | Socket | 2026-05-24 | 7 |
 | 未开始 | `linux-shell` | Linux Shell | Linux Shell | 2026-05-24 | 7 |
