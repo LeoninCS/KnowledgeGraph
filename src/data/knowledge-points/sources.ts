@@ -5517,6 +5517,34 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: SELECT Statement",
     url: "https://dev.mysql.com/doc/refman/8.4/en/select.html",
   },
+  "mysql-select-optimization": {
+    title: "MySQL Reference Manual: Optimizing SELECT Statements",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/select-optimization.html",
+  },
+  "mysql-where-optimization": {
+    title: "MySQL Reference Manual: WHERE Clause Optimization",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/where-optimization.html",
+  },
+  "mysql-range-optimization": {
+    title: "MySQL Reference Manual: Range Optimization",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/range-optimization.html",
+  },
+  "mysql-how-mysql-uses-indexes": {
+    title: "MySQL Reference Manual: How MySQL Uses Indexes",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/mysql-indexes.html",
+  },
+  "mysql-order-by-optimization": {
+    title: "MySQL Reference Manual: ORDER BY Optimization",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/order-by-optimization.html",
+  },
+  "mysql-group-by-optimization": {
+    title: "MySQL Reference Manual: GROUP BY Optimization",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/group-by-optimization.html",
+  },
+  "mysql-limit-optimization": {
+    title: "MySQL Reference Manual: LIMIT Query Optimization",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/limit-optimization.html",
+  },
   "mysql-prepared-statements": {
     title: "MySQL Reference Manual: Prepared Statements",
     url: "https://dev.mysql.com/doc/refman/8.4/en/sql-prepared-statements.html",
@@ -5624,6 +5652,14 @@ export const knowledgeSources = {
   "mysql-performance-schema": {
     title: "MySQL Reference Manual: MySQL Performance Schema",
     url: "https://dev.mysql.com/doc/refman/8.4/en/performance-schema.html",
+  },
+  "mysql-performance-schema-statement-tables": {
+    title: "MySQL Reference Manual: Performance Schema Statement Event Tables",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/performance-schema-statement-tables.html",
+  },
+  "mysql-slow-query-log": {
+    title: "MySQL Reference Manual: The Slow Query Log",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/slow-query-log.html",
   },
   "mysql-backup-recovery": {
     title: "MySQL Reference Manual: Backup and Recovery",

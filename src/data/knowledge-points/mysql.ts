@@ -37,7 +37,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: DML | 2026-05-24 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: DML | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "dml", zh: "DML", en: "Data Manipulation Language", area: "sql", difficulty: "easy", concept: "DML 用于插入、更新和删除表数据。", explanation: ["核心概念：DML（Data Manipulation Language）聚焦DML 用于插入、更新和删除表数据。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住查询语言、过滤、关联、分组、排序和分页，再看输入、状态变化、输出结果和失败分支。","适用场景：DML常用于业务写入、批量更新和数据修复。学习时把它放回MySQL链路中观察，并结合前置知识SQL判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，DML通常会和事务和锁一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认查询语言、过滤、关联、分组、排序和分页是否仍然成立。","常见误区与注意点：实践中容易把DML当成孤立概念处理，结果遗漏隐式转换、NULL、深分页、临时表和排序成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["DML执行原理是什么","DML如何影响性能或一致性","DML线上问题怎么排查"], useCases: ["业务写入","批量更新","数据修复"], prerequisites: ["sql"], related: ["transaction","lock"], order: 12 },
-  /* <!-- KG_REVIEWED: SELECT 查询 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: SELECT 查询 | 2026-06-05 | source_count=18 --> */
   /* <!-- KG_EXPLAINED: SELECT 查询 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "select", zh: "SELECT 查询", en: "SELECT Query", area: "sql", difficulty: "easy", concept: "SELECT 用于读取数据，可结合过滤、排序、分组和关联。", explanation: ["核心概念：SELECT 查询（SELECT Query）聚焦SELECT 用于读取数据，可结合过滤、排序、分组和关联。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住查询语言、过滤、关联、分组、排序和分页，再看输入、状态变化、输出结果和失败分支。","适用场景：SELECT 查询常用于列表查询、详情查询和报表查询。学习时把它放回MySQL链路中观察，并结合前置知识SQL判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，SELECT 查询通常会和WHERE 条件、JOIN和GROUP BY一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认查询语言、过滤、关联、分组、排序和分页是否仍然成立。","常见误区与注意点：实践中容易把SELECT 查询当成孤立概念处理，结果遗漏隐式转换、NULL、深分页、临时表和排序成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["SELECT 查询执行原理是什么","SELECT 查询如何影响性能或一致性","SELECT 查询线上问题怎么排查"], useCases: ["列表查询","详情查询","报表查询"], prerequisites: ["sql"], related: ["where","join","group-by"], order: 13 },
   /* <!-- KG_REVIEWED: WHERE 条件 | 2026-05-24 | source_count=5 --> */
@@ -545,8 +545,66 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["schema-design", "data-type", "clustered-index", "auto-increment", "unique-index", "secondary-index", "sharding", "snowflake-id"],
   },
   "select": {
+    sourceRefs: [
+      "mysql-select-statement",
+      "mysql-select-optimization",
+      "mysql-where-optimization",
+      "mysql-range-optimization",
+      "mysql-how-mysql-uses-indexes",
+      "mysql-order-by-optimization",
+      "mysql-group-by-optimization",
+      "mysql-limit-optimization",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "mysql-innodb-consistent-read",
+      "mysql-innodb-locking-reads",
+      "mysql-slow-query-log",
+      "mysql-performance-schema-statement-tables",
+      "xiaolincoding-mysql-select",
+      "use-the-index-luke-mysql-explain",
+      "javaguide-mysql-explain",
+      "sqlbolt-sql-tutorial",
+    ],
+    concept:
+      "SELECT 是 MySQL 读取数据的核心语句，用声明式语义描述数据来源、过滤、关联、聚合、排序和分页，并由优化器把语义转化为具体执行计划。",
+    explanation: [
+      "概念定位：SELECT 查询（SELECT Query）解决的是“应用如何从关系表中取出需要的数据”的问题。它出现在详情页、列表页、后台筛选、报表统计、权限判断、风控校验、缓存回源、读写分离和慢查询治理中，是 MySQL 最常见、最需要工程判断的 SQL 入口。\n\n从语义层看，SELECT 描述要读哪些列、从哪些表读、如何过滤、关联、分组、排序和限制返回量。从执行层看，MySQL 会解析语句、校验权限、选择索引和 JOIN 顺序、调用 InnoDB 读取页、处理排序聚合和返回结果。新手先掌握语法主线；有经验的工程师还要看执行计划、扫描行数、锁范围、快照可见性、临时表、filesort、网络返回和观测证据。",
+      "准确定义：SELECT 是 SQL 的查询语句，核心输出是结果集（result set）。一条完整查询通常由这些部分组成。\n\n- `SELECT`：投影列、表达式、聚合函数和别名。\n- `FROM` / `JOIN`：数据来源、表关系和连接条件。\n- `WHERE`：行级过滤条件，直接影响索引访问路径和扫描范围。\n- `GROUP BY` / `HAVING`：分组、聚合和聚合后过滤。\n- `ORDER BY`：结果排序，可能使用索引顺序或 filesort。\n- `LIMIT` / `OFFSET`：限制返回行数，深分页会放大扫描和丢弃成本。\n- `FOR SHARE` / `FOR UPDATE`：锁定读语义，用于并发更新前的行保护。\n\nSELECT 的质量来自三件事：语义正确、访问路径可控、运行证据可解释。",
+      "心智模型：把 SELECT 看成一次数据库取货流程。\n\n- 清单：`SELECT id, amount` 指定只取哪些货物字段。\n- 仓库入口：`FROM orders` 指定去哪个仓库。\n- 货架索引：`WHERE user_id = ?` 决定能否走到合适的索引通道。\n- 多仓协作：`JOIN` 决定先从哪张表取、用什么键关联下一张表。\n- 打包加工：`GROUP BY`、聚合函数和 `ORDER BY` 会把原始行加工成统计或有序结果。\n- 出库数量：`LIMIT` 控制最终返回量，`OFFSET` 大时会先跳过大量候选行。\n\n这个模型能解释常见现象：同样返回 20 行，走精确索引和扫描十万行后的前 20 行，资源成本差异很大。",
+      "主流程机制：一条 SELECT 从客户端到结果集大致经历这些阶段。\n\n1. 客户端发送 SQL 和参数，MySQL 完成连接状态、字符集、权限和语法语义检查。\n2. 解析器把 SQL 转为内部结构，预处理阶段解析表、列、函数、别名和权限。\n3. 优化器基于统计信息、索引、条件选择性和代价模型选择访问路径，可能改写子查询、下推条件、调整 JOIN 顺序和选择索引。\n4. 执行器按计划迭代取行，调用 InnoDB 读取聚簇索引、二级索引或范围扫描，必要时执行回表、排序、聚合、去重和临时表操作。\n5. InnoDB 根据隔离级别提供快照读或锁定读；普通一致性读通常走 MVCC 快照，`FOR UPDATE` / `FOR SHARE` 进入锁定读路径。\n6. MySQL 把结果集分批返回客户端，并在慢查询日志、Performance Schema、状态变量和监控中留下耗时、扫描行数、等待事件和临时表等证据。\n\n理解 SELECT 要把“SQL 写法、优化器计划、存储引擎读法、观测结果”串成一条链。",
+      "实践例子：下面用订单列表查询展示 SELECT、索引、执行计划和分页写法。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n  user_id BIGINT UNSIGNED NOT NULL,\n  status VARCHAR(32) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  created_at DATETIME NOT NULL,\n  PRIMARY KEY (id),\n  KEY idx_user_status_created_id (user_id, status, created_at, id)\n) ENGINE=InnoDB;\n\nEXPLAIN ANALYZE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nEXPLAIN ANALYZE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001\n  AND status = 'PAID'\n  AND (created_at, id) < ('2026-06-05 10:00:00', 987654321)\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n```\n\n第一条适合首页列表，第二条是基于游标的 seek 分页。联合索引把等值过滤、排序键和稳定游标放在同一条有序访问路径上，能够减少深分页扫描、filesort 和回表压力。",
+      "深层细节：SELECT 的成本主要由访问路径、返回列、排序聚合和一致性语义共同决定。\n\n- 列裁剪：只选择必要列可以减少回表、临时表宽度、网络传输和客户端反序列化成本。\n- 索引选择：`WHERE` 条件的等值、范围、前缀、函数、隐式转换和 collation 会影响优化器选择 `ref`、`range`、`index` 或全表扫描。\n- 覆盖索引：返回列都在二级索引中时，执行器可以直接从索引叶子拿到结果，回表成本显著下降。\n- JOIN：多表 SELECT 的驱动表、连接顺序、连接列类型和索引覆盖度决定中间行数，参数分布偏斜会改变最优计划。\n- 排序与聚合：`ORDER BY`、`GROUP BY`、`DISTINCT` 和窗口类计算可能产生临时表或 filesort；索引顺序、内存限制和返回列宽度决定代价。\n- 分页：`LIMIT 20 OFFSET 100000` 需要先读出并丢弃前面候选行；seek 分页用上次边界键继续范围扫描，更适合大数据量列表。\n- 一致性：InnoDB 普通读使用一致性快照；锁定读会获取锁并影响并发更新路径，事务范围越大，锁和快照影响越长。\n\n老手优化 SELECT 时会先估算候选行数、访问路径和结果宽度，再用 `EXPLAIN ANALYZE` 验证真实行数和耗时。",
+      "工程场景：不同 SELECT 场景有不同的关键约束。\n\n- 详情查询：主键或唯一键定位，返回列明确，接口延迟目标稳定。\n- 用户列表：过滤、排序、分页字段共同决定联合索引，游标分页优先服务大数据量。\n- 报表聚合：扫描范围、分组基数、临时表、只读副本、预聚合和时间窗口是重点。\n- 权限判断：唯一键、覆盖索引和短事务能降低每次请求的读放大。\n- 缓存回源：热点 key 查询要控制返回列、超时时间、连接池等待和降级路径。\n- 读写分离：读请求打到副本时要评估复制延迟、读己之写需求和故障切换期间的路由策略。\n- 并发更新前查询：`SELECT ... FOR UPDATE` 适合状态机、库存扣减和任务领取，需要明确索引条件和事务边界。",
+      "边界与故障模式：SELECT 线上问题通常集中在慢查询、结果偏差、锁等待和资源抖动。\n\n- 慢查询：全表扫描、索引选择偏差、低选择性条件、回表过多、深分页、大排序、大聚合、返回列过宽。\n- 结果偏差：`NULL` 三值逻辑、时区转换、字符集排序、隐式类型转换、聚合口径、事务隔离快照和副本延迟。\n- 锁等待：锁定读、范围条件、长事务、更新前查询和热点行会让等待链条变长。\n- 资源抖动：大查询污染 Buffer Pool、临时表落盘、filesort 内存不足、网络返回过大、连接池排队。\n- 计划漂移：数据分布变化、统计信息陈旧、参数热点和版本升级会让优化器选择变化。\n- 复制影响：报表 SELECT 打满只读副本 CPU/I/O，副本延迟会影响读一致性和故障切换判断。\n\n处理边界问题时，把 SQL 文本、绑定参数、表结构、索引、数据分布、隔离级别、执行计划和运行指标放到同一份证据包。",
+      "排查实践：SELECT 慢查询建议按固定顺序建立证据链。\n\n1. 固化现场：记录 SQL、绑定参数、调用接口、事务范围、返回行数、执行时间、库实例和读写路由。\n2. 看结构：执行 `SHOW CREATE TABLE`、`SHOW INDEX`，确认字段类型、字符集、主键、联合索引顺序和返回列宽度。\n3. 看计划：用 `EXPLAIN FORMAT=TREE` 看估算计划，用 `EXPLAIN ANALYZE` 看真实耗时、循环次数和实际行数。\n4. 看数据分布：统计过滤字段基数、热点值、时间范围、分页深度和返回列大小。\n5. 看运行证据：检查慢查询日志、Performance Schema 语句摘要、临时表、排序、锁等待、CPU、I/O、Buffer Pool 和复制延迟。\n6. 小步修复：列裁剪、补联合索引、改写条件、改游标分页、拆报表、限制单次扫描、调整读路由，并用同一组指标验证收益。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\n\nEXPLAIN FORMAT=TREE\nSELECT id, amount\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC\nLIMIT 20;\n\nEXPLAIN ANALYZE\nSELECT id, amount\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC\nLIMIT 20;\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n```\n\n有效排查的标志是：修改前后计划、扫描行数、返回行数、耗时和资源指标都能对齐。",
+      "常见误区：SELECT 是声明式查询，最终成本由优化器计划、索引结构、数据分布、隔离级别和返回结果共同决定。\n\n- `SELECT *` 会扩大结果宽度，明确列清单更利于覆盖索引、网络传输和接口契约。\n- 索引命中只是起点，`rows`、`filtered`、回表、临时表、filesort、实际耗时和等待事件同样关键。\n- 逻辑执行顺序帮助理解语义，物理执行顺序来自优化器选择。\n- 深分页的成本来自跳过候选行，seek 分页用有序边界降低扫描量。\n- 普通 SELECT 的快照可见性和锁定读的并发影响属于事务设计的一部分。\n- 查询优化的目标是降低总体成本，索引数量、写入维护、缓存命中、复制延迟和发布风险要一起评估。",
+      "面试追问：SELECT 类问题适合按“语义、执行流程、优化器、InnoDB、排查证据、工程取舍”回答。\n\n- 一条 SELECT 的语法组成和逻辑处理顺序是什么？\n- MySQL 执行 SELECT 时，解析器、优化器、执行器和 InnoDB 分别做什么？\n- `WHERE` 条件如何影响索引选择，隐式转换和函数调用会带来什么成本？\n- `JOIN`、`GROUP BY`、`ORDER BY`、`DISTINCT`、`LIMIT` 各自容易产生哪些额外代价？\n- 覆盖索引和回表如何影响 SELECT 性能？\n- 普通快照读、`FOR UPDATE`、`FOR SHARE` 在并发语义上如何区分？\n- 深分页为什么慢，seek 分页如何设计游标和排序键？\n- 如何用 `EXPLAIN`、`EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 定位慢 SELECT？\n- 读写分离场景下 SELECT 如何处理复制延迟和读己之写？\n- 面试中如何把 SELECT、索引、事务隔离、锁和线上排障串成完整答案？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 SELECT、Optimizing SELECT Statements、WHERE、Range、How MySQL Uses Indexes、ORDER BY、GROUP BY、LIMIT、EXPLAIN、EXPLAIN Output、InnoDB Consistent Reads、Locking Reads、Slow Query Log 和 Performance Schema Statement Tables 文档，并结合小林 coding 的 SELECT 执行流程、Use The Index, Luke 的执行计划阅读、JavaGuide 的 EXPLAIN 讲解和 SQLBolt 的入门语法进行表达校准。官方资料用于定义、语法、优化器、锁定读和观测表语义，工程文章用于补足流程理解、执行计划阅读和中文面试表达。"
+    ],
+    typicalProblems: [
+      "SELECT 查询解决什么问题，常见语法组成有哪些？",
+      "一条 SELECT 从客户端到结果集会经历哪些 MySQL 执行阶段？",
+      "逻辑执行顺序和优化器生成的物理执行计划如何区分？",
+      "`WHERE` 条件、索引选择、回表和覆盖索引如何影响 SELECT 性能？",
+      "`JOIN`、`GROUP BY`、`ORDER BY`、`DISTINCT` 和 `LIMIT` 分别有哪些典型成本？",
+      "普通快照读、`FOR UPDATE`、`FOR SHARE` 在 InnoDB 中分别适合哪些并发场景？",
+      "深分页慢在哪里，基于游标的 seek 分页如何设计？",
+      "如何用 `EXPLAIN`、`EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 建立慢 SELECT 证据链？",
+      "读写分离和副本延迟会如何影响 SELECT 的一致性判断？",
+      "面试中如何把 SELECT、索引、事务隔离、锁和线上排障一起讲清楚？"
+    ],
+    commonCommands: [
+      "EXPLAIN FORMAT=TREE <select_sql>",
+      "EXPLAIN ANALYZE <select_sql>",
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10",
+      "SELECT * FROM <table> WHERE <indexed_condition> ORDER BY <cursor_key> LIMIT 20",
+      "SELECT * FROM <table> WHERE id = ? FOR UPDATE"
+    ],
+    useCases: ["详情查询", "列表分页", "报表聚合", "权限判断", "缓存回源", "读写分离", "并发更新前锁定读", "慢查询治理"],
     prerequisites: ["sql"],
-    related: ["where", "join", "limit-offset"],
+    related: ["where", "join", "group-by", "order-by", "limit-offset", "explain", "sql-optimization"],
   },
   "where": {
     prerequisites: ["select"],
