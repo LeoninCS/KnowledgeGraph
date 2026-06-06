@@ -153,7 +153,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 索引 | 2026-06-05 | source_count=21 --> */
   /* <!-- KG_EXPLAINED: 索引 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "mysql-index", zh: "索引", en: "Index", area: "index", difficulty: "medium", concept: "索引用额外数据结构加速查询，但会增加写入和存储成本。", explanation: ["核心概念：索引（Index）聚焦索引用额外数据结构加速查询，但会增加写入和存储成本。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住B+ 树、聚簇索引、二级索引和覆盖索引，再看输入、状态变化、输出结果和失败分支。","适用场景：索引常用于查询加速、排序优化和唯一约束。学习时把它放回MySQL链路中观察，并结合前置知识SELECT 查询和InnoDB判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，索引通常会和B+ 树、联合索引和SQL 优化一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认B+ 树、聚簇索引、二级索引和覆盖索引是否仍然成立。","常见误区与注意点：实践中容易把索引当成孤立概念处理，结果遗漏回表、最左前缀、范围条件、低选择性和写入成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["索引执行原理是什么","索引如何影响性能或一致性","索引线上问题怎么排查"], useCases: ["查询加速","排序优化","唯一约束"], prerequisites: ["select","innodb"], related: ["b-plus-tree","composite-index","sql-optimization"], order: 27 },
-  /* <!-- KG_REVIEWED: B+ 树 | 2026-06-04 | source_count=6 --> */
+  /* <!-- KG_REVIEWED: B+ 树 | 2026-06-05 | source_count=19 --> */
   /* <!-- KG_EXPLAINED: B+ 树 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "b-plus-tree", zh: "B+ 树", en: "B+ Tree", area: "index", difficulty: "medium", concept: "B+ 树是 MySQL 常用索引结构，适合范围查询和排序。", explanation: ["核心概念：B+ 树（B+ Tree）聚焦B+ 树是 MySQL 常用索引结构，适合范围查询和排序。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住B+ 树、聚簇索引、二级索引和覆盖索引，再看输入、状态变化、输出结果和失败分支。","适用场景：B+ 树常用于范围查询、索引原理和磁盘页访问优化。学习时把它放回MySQL链路中观察，并结合前置知识索引判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，B+ 树通常会和聚簇索引和二级索引一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认B+ 树、聚簇索引、二级索引和覆盖索引是否仍然成立。","常见误区与注意点：实践中容易把B+ 树当成孤立概念处理，结果遗漏回表、最左前缀、范围条件、低选择性和写入成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["B+ 树执行原理是什么","B+ 树如何影响性能或一致性","B+ 树线上问题怎么排查"], useCases: ["范围查询","索引原理","磁盘页访问优化"], prerequisites: ["mysql-index"], related: ["clustered-index","secondary-index"], order: 28 },
   /* <!-- KG_REVIEWED: 二级索引 | 2026-05-24 | source_count=5 --> */
@@ -1160,15 +1160,68 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
   },
   "b-plus-tree": {
     sourceRefs: [
+      "mysql-how-mysql-uses-indexes",
+      "mysql-column-indexes",
+      "mysql-innodb-index-types",
       "mysql-innodb-physical-structure",
       "mysql-innodb-architecture",
+      "mysql-innodb-best-practices",
+      "mysql-optimizing-innodb-storage-layout",
+      "mysql-range-optimization",
+      "mysql-index-condition-pushdown",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "mysql-slow-query-log",
+      "mysql-performance-schema-statement-tables",
+      "mysql-innodb-limits",
+      "mysql-show-index",
       "jeremy-cole-innodb-btree",
       "planetscale-btree-indexes",
-      "oneuptime-mysql-btree-index",
       "xiaolincoding-mysql-index",
+      "javaguide-mysql-index",
     ],
+    concept:
+      "B+ 树是 InnoDB 组织大多数索引的页级有序结构，通过少量层级定位键值，并用叶子页的有序链路支持范围扫描、排序和分页。",
+    explanation: [
+      "概念定位：B+ 树（B+ Tree）解决的是“磁盘和内存页里怎样高效定位、顺序扫描和维护大量有序键”的问题。它出现在主键查询、二级索引查询、范围筛选、排序分页、联合索引、回表、锁范围、慢 SQL 排查和大表写入抖动中。\n\n在 MySQL InnoDB 里，除空间索引等特殊类型外，常规索引按 B-tree/B+ tree 形态存放在页中。默认索引页大小是 16KB，根页和中间页保存键值边界与子页指针，叶子页保存索引记录。聚簇索引的叶子记录保存完整行，二级索引的叶子记录保存二级键和主键值。B+ 树把随机查找、范围扫描和写入维护统一到同一套页结构里，因此它既是索引原理，也是生产 SQL 性能判断的底座。",
+      "准确定义：B+ 树是一种多路平衡搜索树，所有真实数据记录都位于叶子层，非叶子层承担导航，叶子页按键顺序连接，适合磁盘页和 Buffer Pool 管理。\n\n关键术语如下：\n\n- `root page`：根页，索引访问的入口，记录子树边界。\n- `internal page`：中间页，保存分隔键和子页指针，负责把搜索范围缩小到下一级。\n- `leaf page`：叶子页，保存索引记录；聚簇索引叶子保存整行，二级索引叶子保存二级键与主键。\n- `page split`：页空间不足时拆分页面，维护有序性，同时带来写放大和页碎片。\n- `page merge`：页利用率下降到阈值附近时合并页面，回收空间并压缩树结构。\n- `range scan`：定位到范围起点后沿叶子页顺序读取，服务 `BETWEEN`、`>`、`<`、前缀匹配和排序分页。\n- `fan-out`：一个内部页能指向多少个子页，扇出越高，树高度越低，单次查询访问页数越少。",
+      "心智模型：把 B+ 树看成一本分层目录。\n\n- 根目录只告诉你目标键大致在哪个分册。\n- 中间目录继续缩小范围，直到找到具体页。\n- 叶子目录按键值排好序，真正的索引记录都在这里。\n- 查一个点，路径是“根页 -> 中间页 -> 叶子页”。\n- 查一段范围，先找到起点叶子页，再沿叶子页顺序读到结束边界。\n\n这个模型能解释两个工程现象：B+ 树点查通常只访问少量页；范围查询、排序和分页的效率来自叶子层有序链路。索引字段越宽、主键越宽、页分裂越频繁，树的页数、缓存占用和写入成本都会上升。",
+      "主流程机制：一次 InnoDB B+ 树索引访问可以按页级路径理解。\n\n1. SQL 层解析谓词和排序需求，优化器根据统计信息选择候选索引。\n2. 执行器调用 InnoDB，从索引根页开始读取；页在 Buffer Pool 中命中时直接使用，缺页时从表空间加载。\n3. 根页根据搜索键选择下一层子页，中间页继续用边界键缩小搜索范围。\n4. 到达叶子页后，等值查询在页内定位匹配记录；范围查询先定位起点，再沿叶子页顺序扫描。\n5. 聚簇索引命中后可直接取整行；二级索引命中后根据返回列判断是否覆盖，必要时用主键回到聚簇索引。\n6. 写入、更新和删除会修改相关叶子页，并维护上层边界、Redo、Undo、锁和二级索引记录。\n7. 页空间不足时触发页分裂；删除或变短导致页利用率下降时，InnoDB 可能尝试页合并。\n\n这条路径说明了 B+ 树性能的本质：一次查询的成本主要是访问多少页、扫描多少叶子记录、回表多少次，以及这些页是否在 Buffer Pool 中。",
+      "实践例子：下面用订单表观察点查、范围查和覆盖读。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n  user_id BIGINT UNSIGNED NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  created_at DATETIME NOT NULL,\n  PRIMARY KEY (id),\n  KEY idx_user_status_created_id (user_id, status, created_at, id)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n\n-- 主键点查：沿 PRIMARY 的 B+ 树到叶子页，叶子记录就是整行\nEXPLAIN ANALYZE\nSELECT id, user_id, status, amount\nFROM orders\nWHERE id = 90001;\n\n-- 二级索引范围扫描：定位起点后沿叶子页读取，返回列被索引覆盖\nEXPLAIN ANALYZE\nSELECT id, user_id, status, created_at\nFROM orders\nWHERE user_id = 1001\n  AND status = 'PAID'\n  AND created_at >= '2026-06-01 00:00:00'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\n-- 返回 amount 时，amount 未在二级索引中，需要额外回到聚簇索引\nEXPLAIN ANALYZE\nSELECT id, user_id, amount, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n```\n\n第一条体现聚簇索引点查；第二条体现 B+ 树叶子页有序扫描和覆盖索引；第三条体现二级索引命中后的回表成本。`EXPLAIN ANALYZE` 的实际行数、循环次数和耗时能把这些路径变成可验证证据。",
+      "深层细节：B+ 树的优势来自页友好结构，成本也来自页维护。\n\n- 树高度：InnoDB 默认 16KB 页和高扇出让常见索引保持较低高度，点查通常访问根页、中间页和叶子页几个层级。\n- 页内容：索引记录存放在叶子页，页内有记录目录和页头元数据；范围扫描的瓶颈常在连续叶子页数量、过滤比例和回表次数。\n- 聚簇索引：主键决定整表物理组织，主键短且大体递增时，页分裂和二级索引体积更可控。\n- 二级索引：二级索引叶子包含主键值，长主键会复制到每个二级索引记录里，放大页数和缓存占用。\n- 联合索引：B+ 树按列顺序做字典序排序，先比较第一列，再比较第二列，字段顺序决定定位范围和排序能力。\n- 页分裂：随机插入、UUID 主键、热点页更新和宽记录会增加页分裂、Redo、锁等待和复制压力。\n- 页合并：大量删除或更新变短后，页利用率下降，合并能回收空间，也会带来额外维护动作。\n- 索引构建：创建或重建索引时，InnoDB 可按排序方式批量构建 B-tree 页，`innodb_fill_factor` 影响预留空间。\n- 限制条件：InnoDB 二级索引数量、联合索引列数、索引键长度和页大小存在上限，宽字符列和多列索引要按字节评估。",
+      "工程场景与取舍：B+ 树设计要围绕访问模式和写入形态做判断。\n\n- 主键查询：主键 B+ 树叶子保存整行，适合订单详情、用户详情和幂等记录定位。\n- 范围查询：时间、金额、版本号、自增主键等有序字段适合范围扫描，扫描边界要足够窄。\n- 排序分页：联合索引把过滤列、排序列和稳定主键放在同一条 B+ 树路径里，可以减少 filesort 和深分页成本。\n- 覆盖查询：高频列表只返回索引列时，二级索引叶子页即可返回结果，降低回表和 Buffer Pool 压力。\n- 写入密集表：每增加一条索引，就增加一棵需要维护的 B+ 树；宽索引和随机键会持续增加写入放大。\n- 大表变更：新增索引、重建索引和主键调整会消耗 I/O、CPU、临时空间和复制带宽，发布前要准备灰度与回滚。",
+      "边界与故障模式：B+ 树相关问题通常表现为扫描范围过大、回表过多、页分裂和计划漂移。\n\n- 范围过宽：`rows` 很大、慢日志 `Rows_examined` 明显高于 `Rows_sent`，说明叶子页扫描量偏大。\n- 回表过多：二级索引过滤出大量主键，再访问聚簇索引，随机 I/O、Buffer Pool 压力和延迟都会上升。\n- 写入抖动：随机主键、热点字段更新、宽索引和批量导入会增加页分裂、Redo 和锁等待。\n- 字段过宽：长字符串、多个字符列和长主键降低扇出，增加树高度、页数量和缓存占用。\n- 统计偏差：数据分布变化后，优化器可能选择扫描更多页的索引路径，需要用 `ANALYZE TABLE` 和真实计划验证。\n- 锁范围扩大：更新或锁定读沿索引范围扫描时，扫描边界越宽，记录锁、间隙锁和死锁概率越高。\n- 容量限制：索引键长度、联合索引列数和二级索引数量达到上限时，要调整字段、前缀长度、索引合并策略或查询模型。",
+      "排查实践：B+ 树问题要把 SQL 计划、索引结构、页访问和运行指标连起来。\n\n1. 固化现场：记录 SQL、绑定参数、返回列、排序、分页、执行耗时、返回行数和事务范围。\n2. 看索引定义：用 `SHOW CREATE TABLE`、`SHOW INDEX` 查看主键、联合索引顺序、字段类型、基数和索引可见性。\n3. 看执行计划：用 `EXPLAIN FORMAT=TREE` 确认 index lookup、index range scan、covering index lookup 等路径。\n4. 看真实执行：用 `EXPLAIN ANALYZE` 对比估算行数、实际行数、循环次数和耗时。\n5. 看数据分布：统计过滤列基数、热点值、时间窗口、租户规模、空值比例和排序键重复度。\n6. 看运行证据：慢查询日志、Performance Schema、Buffer Pool 读、锁等待、Redo 写入和复制延迟要和慢 SQL 时间线对齐。\n7. 小步修复：收窄范围、调整联合索引顺序、补覆盖列、缩短主键或索引字段、刷新统计、分批写入，并用同一批参数复测。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\n\nEXPLAIN FORMAT=TREE\nSELECT id, user_id, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nEXPLAIN ANALYZE\nSELECT id, user_id, created_at\nFROM orders\nWHERE user_id = 1001\n  AND status = 'PAID'\n  AND created_at >= '2026-06-01 00:00:00'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nANALYZE TABLE orders;\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nWHERE DIGEST_TEXT LIKE 'SELECT%ORDERS%'\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n\nSHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_read%';\nSHOW ENGINE INNODB STATUS\\G\n```\n\n有效修复会体现为实际扫描行数下降、回表减少、Buffer Pool 物理读下降、锁等待收敛、p95/p99 延迟降低，并且写入和复制指标保持稳定。",
+      "指标与命令速查：判断 B+ 树访问质量时，优先看能证明页访问和扫描范围的证据。\n\n- `SHOW INDEX`：看 `Key_name`、`Seq_in_index`、`Column_name`、`Cardinality`、`Visible`，确认 B+ 树字段顺序和估算基数。\n- `EXPLAIN FORMAT=TREE`：看 index lookup、index range scan、covering index lookup、filter、sort 等执行节点。\n- `EXPLAIN ANALYZE`：看真实行数、循环次数和每个迭代器耗时，校准优化器估算。\n- `Rows_examined` / `Rows_sent`：慢查询日志里的扫描与返回比例，适合识别范围过宽。\n- `SUM_ROWS_EXAMINED` / `SUM_ROWS_SENT`：Performance Schema 按 digest 聚合的扫描证据。\n- `Innodb_buffer_pool_read_requests` / `Innodb_buffer_pool_reads`：逻辑读与物理读，可辅助判断索引页和数据页命中情况。\n- `SHOW ENGINE INNODB STATUS`：观察锁等待、Buffer Pool、I/O、历史列表和最近死锁。\n- `ANALYZE TABLE`：刷新统计信息，适合处理数据分布变化后的计划偏差。\n- InnoDB 限制：默认 16KB 页下索引键长度、二级索引数量和联合索引列数都要纳入设计约束。",
+      "常见误区：B+ 树是有序页结构，价值来自低层级定位和叶子层顺序扫描。\n\n- B+ 树服务的是索引访问路径，SQL 质量要用扫描行数、回表次数、排序成本和实际耗时判断。\n- 聚簇索引和二级索引都是 B+ 树，叶子记录内容决定主键查询、回表和覆盖索引的差异。\n- 联合索引按字段顺序形成字典序，字段顺序影响定位、范围、排序和覆盖。\n- 低层级树高来自页扇出，宽字段、宽主键和大量二级索引会降低缓存效率并增加写入成本。\n- 随机插入会增加页分裂概率，主键选择会长期影响写入局部性、表空间和二级索引体积。\n- 线上排查要用 `EXPLAIN ANALYZE`、慢日志、Performance Schema 和 InnoDB 指标共同验证。",
+      "面试追问：B+ 树题适合按“结构 -> 查询 -> InnoDB 组织 -> 写入维护 -> 排查证据 -> 取舍”回答。\n\n- B+ 树解决什么问题，为什么适合数据库索引？\n- 根页、中间页和叶子页分别保存什么，叶子页有序链路有什么价值？\n- InnoDB 聚簇索引和二级索引的叶子节点分别存什么？\n- 为什么范围查询、排序分页和最左前缀都能用 B+ 树解释？\n- 主键长度、字段宽度、页大小和扇出如何影响树高度和 Buffer Pool 命中？\n- 页分裂、页合并、随机插入和顺序插入对写入性能有什么影响？\n- 二级索引范围扫描后为什么可能回表，覆盖索引如何减少回表？\n- `EXPLAIN` 中的 index range scan、rows、Extra 和 `EXPLAIN ANALYZE` 实际行数如何解读？\n- 线上慢 SQL 如何判断是范围过宽、回表过多、统计信息偏差、页缓存压力还是锁等待？\n- 大表新增或重建 B+ 树索引时，如何评估 I/O、锁、复制延迟、回滚和验证方案？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 How MySQL Uses Indexes、Column Indexes、Clustered and Secondary Indexes、InnoDB Architecture、InnoDB Physical Structure、InnoDB Best Practices、Storage Layout、Range Optimization、Index Condition Pushdown、EXPLAIN、EXPLAIN Output、Slow Query Log、Performance Schema Statement Tables、InnoDB Limits 和 SHOW INDEX 文档，并结合 Jeremy Cole 的 InnoDB B+Tree 页结构文章、PlanetScale 的 B-tree 索引课程、小林 coding 与 JavaGuide 的中文索引资料校准结构细节、中文表达和面试问法。官方资料用于定义、限制、页结构和命令语义，工程文章用于补足页级心智模型与生产排查经验。"
+    ],
+    typicalProblems: [
+      "B+ 树为什么适合 MySQL 索引，它解决了点查、范围查和排序中的哪些成本？",
+      "InnoDB B+ 树的根页、中间页、叶子页分别存什么，页大小和扇出如何影响树高？",
+      "聚簇索引和二级索引都是 B+ 树时，叶子记录内容分别是什么？",
+      "为什么联合索引字段顺序、最左前缀和范围查询都可以用 B+ 树字典序解释？",
+      "二级索引范围扫描后为什么可能发生回表，覆盖索引如何减少页访问？",
+      "顺序主键、随机主键、宽主键和宽联合索引对页分裂、缓存和写入放大有什么影响？",
+      "如何用 `EXPLAIN FORMAT=TREE`、`EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 判断 B+ 树访问质量？",
+      "页分裂、页合并、统计信息偏差和 Buffer Pool 缺页分别会造成哪些线上现象？",
+      "大表新增、重建或删除 B+ 树索引时，需要评估哪些 I/O、锁、复制和回滚风险？",
+      "面试中如何把 B+ 树、InnoDB 页、聚簇索引、二级索引、回表和锁范围串成完整答案？"
+    ],
+    commonCommands: [
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "EXPLAIN FORMAT=TREE <sql>",
+      "EXPLAIN ANALYZE <sql>",
+      "ANALYZE TABLE <table>",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_read%'",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10"
+    ],
+    useCases: ["主键点查", "二级索引查询", "范围扫描", "排序分页", "联合索引设计", "覆盖索引优化", "回表成本分析", "慢 SQL 排查", "主键方案评审", "大表索引变更"],
     prerequisites: ["mysql-index"],
-    related: ["clustered-index", "range-query"],
+    related: ["mysql-index", "clustered-index", "secondary-index", "back-to-table", "covering-index", "composite-index", "leftmost-prefix", "range-query", "index-selectivity", "buffer-pool", "page", "explain", "sql-optimization"],
   },
   "secondary-index": {
     sourceRefs: [

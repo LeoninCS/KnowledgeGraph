@@ -5597,6 +5597,10 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Column Indexes",
     url: "https://dev.mysql.com/doc/refman/8.4/en/column-indexes.html",
   },
+  "mysql-show-index": {
+    title: "MySQL Reference Manual: SHOW INDEX Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/show-index.html",
+  },
   "mysql-multiple-column-indexes": {
     title: "MySQL Reference Manual: Multiple-Column Indexes",
     url: "https://dev.mysql.com/doc/refman/8.4/en/multiple-column-indexes.html",
@@ -5704,6 +5708,10 @@ export const knowledgeSources = {
   "mysql-innodb-architecture": {
     title: "MySQL Reference Manual: InnoDB Architecture",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-architecture.html",
+  },
+  "mysql-innodb-limits": {
+    title: "MySQL Reference Manual: InnoDB Limits",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-limits.html",
   },
   "mysql-innodb-buffer-pool": {
     title: "MySQL Reference Manual: InnoDB Buffer Pool",
