@@ -4181,6 +4181,22 @@ export const knowledgeSources = {
     title: "Linux man-pages: ps(1)",
     url: "https://man7.org/linux/man-pages/man1/ps.1.html",
   },
+  "linux-man-pages-top": {
+    title: "Linux man-pages: top(1)",
+    url: "https://man7.org/linux/man-pages/man1/top.1.html",
+  },
+  "linux-man-pages-free": {
+    title: "Linux man-pages: free(1)",
+    url: "https://man7.org/linux/man-pages/man1/free.1.html",
+  },
+  "linux-man-pages-vmstat": {
+    title: "Linux man-pages: vmstat(8)",
+    url: "https://man7.org/linux/man-pages/man8/vmstat.8.html",
+  },
+  "linux-man-pages-pgrep": {
+    title: "Linux man-pages: pgrep(1)",
+    url: "https://man7.org/linux/man-pages/man1/pgrep.1.html",
+  },
   "linux-man-pages-pthreads": {
     title: "Linux man-pages: pthreads(7)",
     url: "https://man7.org/linux/man-pages/man7/pthreads.7.html",
@@ -4440,6 +4456,26 @@ export const knowledgeSources = {
   "brendan-gregg-use-linux": {
     title: "Brendan Gregg: USE Method Linux Performance Checklist",
     url: "https://www.brendangregg.com/USEmethod/use-linux.html",
+  },
+  "gnu-coreutils-manual": {
+    title: "GNU Coreutils Manual",
+    url: "https://www.gnu.org/software/coreutils/manual/coreutils.html",
+  },
+  "gnu-grep-manual": {
+    title: "GNU Grep Manual",
+    url: "https://www.gnu.org/software/grep/manual/grep.html",
+  },
+  "gnu-findutils-manual": {
+    title: "GNU Findutils Manual",
+    url: "https://www.gnu.org/software/findutils/manual/html_mono/find.html",
+  },
+  "gnu-sed-manual": {
+    title: "GNU sed Manual",
+    url: "https://www.gnu.org/software/sed/manual/sed.html",
+  },
+  "gnu-gawk-manual": {
+    title: "GNU Awk User's Guide",
+    url: "https://www.gnu.org/software/gawk/manual/gawk.html",
   },
   "brendan-gregg-perf-sched": {
     title: "Brendan Gregg: perf sched",
