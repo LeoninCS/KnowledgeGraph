@@ -5777,6 +5777,18 @@ export const knowledgeSources = {
     title: "Use The Index, Luke: SQL Joins",
     url: "https://use-the-index-luke.com/sql/join",
   },
+  "planetscale-mysql-pagination": {
+    title: "PlanetScale: Pagination in MySQL",
+    url: "https://planetscale.com/blog/mysql-pagination",
+  },
+  "planetscale-deferred-joins": {
+    title: "PlanetScale: Deferred joins",
+    url: "https://planetscale.com/learn/courses/mysql-for-developers/examples/deferred-joins",
+  },
+  "use-the-index-luke-pagination": {
+    title: "Use The Index, Luke: Paging Through Results",
+    url: "https://use-the-index-luke.com/sql/partial-results/fetch-next-page",
+  },
   "sqlbolt-sql-joins": {
     title: "SQLBolt: Multi-table queries with JOINs",
     url: "https://sqlbolt.com/lesson/select_queries_with_joins",

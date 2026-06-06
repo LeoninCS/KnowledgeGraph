@@ -52,7 +52,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: ORDER BY | 2026-05-24 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: ORDER BY | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "order-by", zh: "ORDER BY", en: "ORDER BY", area: "sql", difficulty: "medium", concept: "ORDER BY 用于排序，可通过索引减少 filesort。", explanation: ["核心概念：ORDER BY聚焦ORDER BY 用于排序，可通过索引减少 filesort。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住查询语言、过滤、关联、分组、排序和分页，再看输入、状态变化、输出结果和失败分支。","适用场景：ORDER BY常用于列表排序、排行榜和最新记录查询。学习时把它放回MySQL链路中观察，并结合前置知识SELECT 查询判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，ORDER BY通常会和Filesort和联合索引一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认查询语言、过滤、关联、分组、排序和分页是否仍然成立。","常见误区与注意点：实践中容易把ORDER BY当成孤立概念处理，结果遗漏隐式转换、NULL、深分页、临时表和排序成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["ORDER BY执行原理是什么","ORDER BY如何影响性能或一致性","ORDER BY线上问题怎么排查"], useCases: ["列表排序","排行榜","最新记录查询"], prerequisites: ["select"], related: ["filesort","composite-index"], order: 17 },
-  /* <!-- KG_REVIEWED: LIMIT 分页 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: LIMIT 分页 | 2026-06-05 | source_count=16 --> */
   /* <!-- KG_EXPLAINED: LIMIT 分页 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "limit-offset", zh: "LIMIT 分页", en: "LIMIT Pagination", area: "sql", difficulty: "medium", concept: "LIMIT 用于分页，大 offset 会造成扫描和回表成本升高。", explanation: ["核心概念：LIMIT 分页（LIMIT Pagination）聚焦LIMIT 用于分页，大 offset 会造成扫描和回表成本升高。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住查询语言、过滤、关联、分组、排序和分页，再看输入、状态变化、输出结果和失败分支。","适用场景：LIMIT 分页常用于后台列表分页和搜索结果分页。学习时把它放回MySQL链路中观察，并结合前置知识SELECT 查询判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，LIMIT 分页通常会和游标分页和SQL 优化一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认查询语言、过滤、关联、分组、排序和分页是否仍然成立。","常见误区与注意点：实践中容易把LIMIT 分页当成孤立概念处理，结果遗漏隐式转换、NULL、深分页、临时表和排序成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["LIMIT 分页执行原理是什么","LIMIT 分页如何影响性能或一致性","LIMIT 分页线上问题怎么排查"], useCases: ["后台列表分页","搜索结果分页"], prerequisites: ["select"], related: ["cursor-pagination","sql-optimization"], order: 18 },
   /* <!-- KG_REVIEWED: 游标分页 | 2026-05-24 | source_count=5 --> */
@@ -810,8 +810,65 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["join-order", "sql-optimization", "composite-index", "mysql-index", "explain", "slow-query-log"],
   },
   "limit-offset": {
+    sourceRefs: [
+      "mysql-select-statement",
+      "mysql-select-optimization",
+      "mysql-order-by-optimization",
+      "mysql-limit-optimization",
+      "mysql-how-mysql-uses-indexes",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "mysql-slow-query-log",
+      "mysql-performance-schema-statement-tables",
+      "mysql-innodb-consistent-read",
+      "mysql-innodb-locking-reads",
+      "planetscale-mysql-pagination",
+      "planetscale-deferred-joins",
+      "use-the-index-luke-pagination",
+      "xiaolincoding-mysql-select",
+      "javaguide-mysql-explain",
+    ],
+    concept:
+      "LIMIT 分页是 MySQL 中用 `LIMIT` 与 `OFFSET` 分批读取有序结果集的查询方式，核心质量取决于稳定排序、索引访问路径、跳过行成本和深分页治理策略。",
+    explanation: [
+      "概念定位：LIMIT 分页（LIMIT Pagination）解决的是“列表数据如何按页返回给用户或批处理任务”的问题。它常出现在后台列表、订单流水、搜索结果、审计日志、报表明细、管理台导出和开放 API 中。\n\n从语义层看，`LIMIT row_count OFFSET offset` 表示跳过前 `offset` 行，再返回 `row_count` 行。从执行层看，MySQL 仍然要按照 `WHERE`、`ORDER BY` 和执行计划找到前 `offset + row_count` 个候选结果，再丢弃前面的行。浅分页关注语义清楚和排序稳定；深分页关注扫描、回表、排序、临时表、Buffer Pool、慢查询和接口超时。",
+      "准确定义：LIMIT 是 MySQL SELECT 语句中的结果行数限制子句，常见写法包括：\n\n- `LIMIT 20`：返回最多 20 行。\n- `LIMIT 20 OFFSET 40`：跳过 40 行，返回最多 20 行。\n- `LIMIT 40, 20`：MySQL 兼容写法，含义等同于 `LIMIT 20 OFFSET 40`。\n- `ORDER BY created_at DESC, id DESC LIMIT 20`：用稳定排序键返回第一页。\n- 带游标条件的 `LIMIT 20`：用上一页最后一行的排序键继续读取下一页。\n\n分页查询的工程质量来自三件事：排序结果稳定、访问路径可控、深分页成本有上限。",
+      "心智模型：把 LIMIT 分页看成从一条有序队列里取窗口。\n\n- `ORDER BY` 决定队列顺序，排序键相同的行需要追加主键或唯一键做平局裁决。\n- `WHERE` 决定候选队列范围，过滤越精确，分页越轻。\n- `OFFSET` 像把窗口向后推，推得越远，前面被跳过的候选行越多。\n- 覆盖索引像只看目录页，能减少回表；`SELECT *` 像每个候选都打开完整档案。\n- 游标分页像拿着上一页最后一行的位置继续往后走，适合连续翻页和无限滚动。\n\n这个模型能解释一个常见现象：同样返回 20 行，第一页可能只读几十行，`OFFSET 100000` 可能要先处理十万级候选行。",
+      "主流程机制：一条典型 LIMIT 分页查询通常沿着下面路径执行。\n\n1. 客户端传入页大小、页号或游标，服务端校验 `page_size` 上限、排序字段白名单和过滤条件。\n2. MySQL 解析 SELECT，优化器基于统计信息、索引、`WHERE`、`ORDER BY` 和 `LIMIT` 选择访问路径。\n3. 执行器按计划扫描索引或表，满足过滤条件的行进入排序、临时表或直接按索引顺序输出的路径。\n4. 存在 `OFFSET` 时，执行器跳过前 `offset` 个合格结果，继续取后面的 `row_count` 行。\n5. 返回列超出索引覆盖范围时，InnoDB 需要回表读取聚簇索引行；深 offset 会把回表成本放大。\n6. `EXPLAIN`、`EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 留下访问类型、扫描行、返回行、排序、临时表和耗时证据。\n\n`LIMIT` 能让优化器在部分场景提前停止扫描或使用更小的排序结构；当 `OFFSET` 很大时，总处理量仍然跟跳过行数一起增长。",
+      "实践例子：下面用订单列表展示三类分页写法。核心目标是让过滤、排序和游标都落在同一条联合索引上。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n  user_id BIGINT UNSIGNED NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  created_at DATETIME NOT NULL,\n  PRIMARY KEY (id),\n  KEY idx_user_status_created_id (user_id, status, created_at, id)\n) ENGINE=InnoDB;\n\n-- 浅分页：适合第一页和少量跳页\nEXPLAIN ANALYZE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20 OFFSET 40;\n\n-- 深分页优化：先分页出主键，再回表取完整列\nEXPLAIN ANALYZE\nSELECT o.id, o.amount, o.created_at\nFROM orders AS o\nJOIN (\n  SELECT id\n  FROM orders\n  WHERE user_id = 1001 AND status = 'PAID'\n  ORDER BY created_at DESC, id DESC\n  LIMIT 20 OFFSET 100000\n) AS page_ids USING (id)\nORDER BY o.created_at DESC, o.id DESC;\n\n-- 游标分页：用上一页最后一行继续 seek\nEXPLAIN ANALYZE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001\n  AND status = 'PAID'\n  AND (created_at, id) < ('2026-06-05 10:00:00', 987654321)\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n```\n\n第一条保留页码体验；第二条把深 offset 的主要工作限制在较窄索引上；第三条适合连续翻页，通常能把扫描量稳定在页大小附近。",
+      "深层细节：LIMIT 分页的成本由排序、扫描、回表和一致性共同决定。\n\n- 稳定排序：`ORDER BY created_at DESC` 在相同时间上存在任意顺序空间，追加 `id DESC` 能让翻页结果可复现。\n- 索引顺序：联合索引需要同时服务等值过滤、排序列和唯一平局列，典型形态是 `(user_id, status, created_at, id)`。\n- 回表放大：深 offset 下，执行器可能先读取大量二级索引记录，再为候选行回表；只取索引覆盖列能显著降低 I/O。\n- Top-N 排序：MySQL 在 `ORDER BY ... LIMIT` 中可利用 `LIMIT` 降低排序工作量，排序键缺少可用索引时仍会产生 filesort。\n- MVCC 可见性：InnoDB 普通 SELECT 使用一致性读；用户连续翻页期间有新写入时，页码分页会出现位置漂移，游标分页会围绕边界键保持方向性。\n- 锁定读：`FOR UPDATE` 分页会沿访问路径加锁，批处理任务要控制页大小、索引范围和事务时长。\n- 复制延迟：读写分离场景中，第一页读主库、后续页读副本可能出现结果跳动；分页上下文要携带路由和一致性策略。\n\n有经验的工程师会先估算 `offset + limit`、返回列宽度和排序路径，再用实际执行数据验证。",
+      "工程场景与方案选择：分页方案要和产品体验、数据规模和一致性需求匹配。\n\n- 页码分页：适合后台管理台、浅页跳转、低频筛选和小结果集，优点是实现简单、支持随机跳页。\n- 游标分页：适合信息流、消息列表、订单流水、审计日志和无限滚动，优点是连续翻页成本稳定。\n- 延迟关联：适合需要保留页码体验的大表列表，用覆盖索引先拿主键，再按主键回表取宽列。\n- 最大页深限制：适合搜索和管理后台，把极深页转换成更精确过滤、导出任务或异步报表。\n- 快照型导出：适合强一致分页导出，先固化 ID 集合或时间边界，再分批读取。\n- 分片场景：每个分片独立 offset 后再合并会放大成本，常用全局排序键、游标 token 或搜索引擎承担分页。",
+      "边界与故障模式：LIMIT 分页线上问题通常有清晰信号。\n\n- 深分页慢：慢查询日志中 `Rows_examined` 远大于 `Rows_sent`，Performance Schema 的 `SUM_ROWS_EXAMINED` 持续升高。\n- 排序不稳：相同排序键缺少唯一平局列，用户刷新或翻页看到重复行、漏行或位置跳动。\n- 临时表与 filesort：`EXPLAIN` 的 `Extra` 出现 `Using temporary`、`Using filesort`，CPU 和临时文件指标上升。\n- 回表过多：返回列很宽、二级索引无法覆盖、Buffer Pool 命中下降，I/O 和延迟一起上升。\n- 页大小失控：开放 API 接受超大 `limit`，单次请求占用连接、内存、网络和应用反序列化资源。\n- 并发漂移：翻页过程中数据插入、删除、状态变更，页码语义和用户观察结果出现偏移。\n- 批处理锁等待：分页更新或锁定读的事务过长，热点范围内的写入等待增多。\n\n排障时优先把“扫描多少、返回多少、排序如何做、是否回表、是否临时表、是否跨副本”变成证据。",
+      "排查实践：LIMIT 分页慢查询建议按固定步骤处理。\n\n1. 固化现场：记录 SQL、绑定参数、页号、页大小、排序字段、返回列、调用入口、执行时间和实例角色。\n2. 看计划：用 `EXPLAIN FORMAT=TREE` 与 `EXPLAIN ANALYZE` 观察访问类型、实际行数、循环次数、排序和耗时。\n3. 看结构：执行 `SHOW CREATE TABLE`、`SHOW INDEX`，确认过滤列、排序列、主键和返回列是否能被联合索引覆盖。\n4. 看数据分布：统计过滤条件候选行、最大页深、热点用户或租户、排序键重复度和时间范围。\n5. 看运行证据：检查慢查询日志、Performance Schema、`Rows_examined`、`Rows_sent`、临时表、sort rows、CPU、I/O 和 Buffer Pool。\n6. 小步修复：追加稳定排序键、收窄返回列、补联合索引、改延迟关联、改游标分页、限制最大页深，并用同一批参数复测。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\n\nEXPLAIN FORMAT=TREE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20 OFFSET 100000;\n\nEXPLAIN ANALYZE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20 OFFSET 100000;\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT,\n       SUM_SORT_ROWS, SUM_CREATED_TMP_TABLES, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nWHERE DIGEST_TEXT LIKE 'SELECT%ORDERS%LIMIT%'\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n```\n\n有效修复会体现为扫描行下降、回表减少、filesort 或临时表消失、p95/p99 延迟收敛，业务页序保持稳定。",
+      "设计与取舍：分页接口上线前建议固定这些约束。\n\n- 排序契约：公开排序字段白名单，每个排序都追加唯一平局列，例如 `created_at, id`。\n- 页大小上限：面向用户的列表常见 20 到 100；导出任务走异步批处理。\n- 索引契约：每个高频筛选排序组合对应一条可解释的联合索引，写入成本纳入评审。\n- 深页策略：页码分页设定最大页深，超过后引导用户加过滤条件、使用导出或切换游标。\n- 游标 token：包含排序键、方向、过滤条件摘要和签名，避免客户端伪造越权查询。\n- 兼容发布：新索引先灰度建好并验证计划，再切查询写法，保留回滚开关和监控看板。\n\n分页优化的目标是控制每次请求的最大工作量，让数据库、应用和用户体验都可预测。",
+      "常见误区：LIMIT 分页的正确判断来自排序、索引和证据。\n\n- `LIMIT 20` 只限制最终返回行，深 offset 的扫描与跳过工作仍然发生。\n- `ORDER BY` 要包含唯一平局列，分页结果才具备稳定顺序。\n- 覆盖索引能降低深分页回表压力，宽列适合在确定主键集合后读取。\n- 游标分页关注连续浏览体验，页码分页关注随机跳页体验，两者服务不同产品目标。\n- `EXPLAIN` 的估算行数用于判断计划方向，`EXPLAIN ANALYZE` 的实际行数用于校准真实成本。\n- 分页 SQL 优化要同时评估新增索引的写入成本、空间成本、复制延迟和发布风险。",
+      "面试追问：LIMIT 分页题适合按“语义 -> 成本 -> 优化 -> 一致性 -> 排查”回答。\n\n- `LIMIT 20 OFFSET 100000` 在 MySQL 中大致会做哪些工作？\n- 为什么深分页会变慢，`Rows_examined` 和 `Rows_sent` 能说明什么？\n- `ORDER BY created_at DESC LIMIT 20` 为什么需要追加 `id` 作为平局列？\n- 联合索引如何同时服务 `WHERE`、`ORDER BY` 和分页游标？\n- 覆盖索引、延迟关联和游标分页分别解决哪类成本？\n- 游标分页如何设计下一页条件、排序方向和 token？\n- 数据插入、删除和状态变更会如何影响页码分页结果？\n- `EXPLAIN`、`EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 如何建立排查证据链？\n- 批量分页更新为什么要控制事务长度和锁范围？\n- 开放 API 分页如何设计页大小、最大页深、排序白名单和防滥用策略？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 SELECT、Optimizing SELECT Statements、ORDER BY Optimization、LIMIT Query Optimization、How MySQL Uses Indexes、EXPLAIN、EXPLAIN Output、Slow Query Log、Performance Schema Statement Tables、InnoDB Consistent Reads 和 InnoDB Locking Reads 文档，并结合 PlanetScale 的 MySQL Pagination、Deferred joins、Use The Index, Luke 的 Paging Through Results、小林 coding 的 SELECT 执行流程和 JavaGuide 的 EXPLAIN 讲解进行工程表达校准。官方资料用于语法、优化器、执行计划和观测字段，工程文章用于补充分页方案选择、深分页优化和中文面试表达。"
+    ],
+    typicalProblems: [
+      "LIMIT 分页解决什么问题，`LIMIT 20 OFFSET 40` 和 `LIMIT 40, 20` 的语义是什么？",
+      "MySQL 执行深分页时为什么会出现扫描行远大于返回行？",
+      "`ORDER BY` 如何设计稳定排序，为什么常追加主键作为平局列？",
+      "联合索引怎样同时覆盖过滤条件、排序字段和分页游标？",
+      "深 offset 下回表、filesort、临时表和 Buffer Pool 会带来哪些成本？",
+      "覆盖索引、延迟关联、游标分页和最大页深限制分别适合哪些场景？",
+      "页码分页和游标分页在产品体验、一致性和随机跳页能力上如何取舍？",
+      "数据插入、删除、状态变化和副本延迟会如何影响连续翻页？",
+      "如何用 `EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 排查分页慢 SQL？",
+      "开放 API 和批处理任务中的分页如何设置页大小、排序白名单、token 和事务边界？"
+    ],
+    commonCommands: [
+      "EXPLAIN FORMAT=TREE <pagination_sql>",
+      "EXPLAIN ANALYZE <pagination_sql>",
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "SELECT <cols> FROM <table> WHERE <filters> ORDER BY <sort_col>, id LIMIT <size> OFFSET <offset>",
+      "SELECT <cols> FROM <table> WHERE <filters> AND (<sort_col>, id) < (?, ?) ORDER BY <sort_col> DESC, id DESC LIMIT <size>",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_SORT_ROWS, SUM_CREATED_TMP_TABLES, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10"
+    ],
+    useCases: ["后台列表分页", "订单流水查询", "搜索结果分页", "审计日志浏览", "开放 API 列表", "无限滚动", "批处理分片读取", "慢 SQL 治理"],
     prerequisites: ["select"],
-    related: ["cursor-pagination", "sql-optimization"],
+    related: ["cursor-pagination", "sql-optimization", "order-by", "composite-index", "covering-index", "explain", "slow-query-log"],
   },
   "innodb": {
     prerequisites: ["mysql-overview"],

@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 73 | 376 |
+| 449 | 74 | 375 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 9 | 39 |
+| mysql | 48 | 10 | 38 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -198,7 +198,7 @@
 | 已优化 | `select` | SELECT 查询 | SELECT Query | 2026-06-05 | 18 |
 | 已优化 | `where` | WHERE 条件 | WHERE Clause | 2026-06-05 | 18 |
 | 已优化 | `join` | JOIN | JOIN | 2026-06-05 | 20 |
-| 未开始 | `limit-offset` | LIMIT 分页 | LIMIT Pagination | 2026-05-24 | 5 |
+| 已优化 | `limit-offset` | LIMIT 分页 | LIMIT Pagination | 2026-06-05 | 16 |
 | 未开始 | `innodb` | InnoDB | InnoDB | 2026-05-24 | 5 |
 | 未开始 | `clustered-index` | 聚簇索引 | Clustered Index | 2026-05-24 | 5 |
 | 未开始 | `buffer-pool` | Buffer Pool | Buffer Pool | 2026-05-24 | 5 |
