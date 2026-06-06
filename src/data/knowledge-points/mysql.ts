@@ -165,7 +165,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 覆盖索引 | 2026-06-05 | source_count=28 --> */
   /* <!-- KG_EXPLAINED: 覆盖索引 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "covering-index", zh: "覆盖索引", en: "Covering Index", area: "index", difficulty: "medium", concept: "覆盖索引让查询所需字段都能从索引中获得，减少回表。", explanation: ["核心概念：覆盖索引（Covering Index）聚焦覆盖索引让查询所需字段都能从索引中获得，减少回表。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住B+ 树、聚簇索引、二级索引和覆盖索引，再看输入、状态变化、输出结果和失败分支。","适用场景：覆盖索引常用于列表查询优化和高频只读查询。学习时把它放回MySQL链路中观察，并结合前置知识二级索引判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，覆盖索引通常会和联合索引和SQL 优化一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认B+ 树、聚簇索引、二级索引和覆盖索引是否仍然成立。","常见误区与注意点：实践中容易把覆盖索引当成孤立概念处理，结果遗漏回表、最左前缀、范围条件、低选择性和写入成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["覆盖索引执行原理是什么","覆盖索引如何影响性能或一致性","覆盖索引线上问题怎么排查"], useCases: ["列表查询优化","高频只读查询"], prerequisites: ["secondary-index"], related: ["composite-index","sql-optimization"], order: 31 },
-  /* <!-- KG_REVIEWED: 联合索引 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 联合索引 | 2026-06-05 | source_count=29 --> */
   /* <!-- KG_EXPLAINED: 联合索引 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "composite-index", zh: "联合索引", en: "Composite Index", area: "index", difficulty: "medium", concept: "联合索引包含多个字段，字段顺序影响过滤、排序和覆盖能力。", explanation: ["核心概念：联合索引（Composite Index）聚焦联合索引包含多个字段，字段顺序影响过滤、排序和覆盖能力。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住B+ 树、聚簇索引、二级索引和覆盖索引，再看输入、状态变化、输出结果和失败分支。","适用场景：联合索引常用于多条件查询和排序分页优化。学习时把它放回MySQL链路中观察，并结合前置知识索引判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，联合索引通常会和最左前缀和覆盖索引一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认B+ 树、聚簇索引、二级索引和覆盖索引是否仍然成立。","常见误区与注意点：实践中容易把联合索引当成孤立概念处理，结果遗漏回表、最左前缀、范围条件、低选择性和写入成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["联合索引执行原理是什么","联合索引如何影响性能或一致性","联合索引线上问题怎么排查"], useCases: ["多条件查询","排序分页优化"], prerequisites: ["mysql-index"], related: ["leftmost-prefix","covering-index"], order: 32 },
   /* <!-- KG_REVIEWED: 最左前缀 | 2026-05-24 | source_count=5 --> */
@@ -1440,8 +1440,82 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["back-to-table", "composite-index", "leftmost-prefix", "range-query", "index-selectivity", "explain", "slow-query-log", "sql-optimization", "buffer-pool"],
   },
   "composite-index": {
-    prerequisites: ["mysql-index"],
-    related: ["leftmost-prefix", "covering-index"],
+    sourceRefs: [
+      "mysql-multiple-column-indexes",
+      "mysql-how-mysql-uses-indexes",
+      "mysql-column-indexes",
+      "mysql-innodb-index-types",
+      "mysql-index-extensions",
+      "mysql-range-optimization",
+      "mysql-order-by-optimization",
+      "mysql-group-by-optimization",
+      "mysql-limit-optimization",
+      "mysql-index-condition-pushdown",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "mysql-verifying-index-usage",
+      "mysql-show-index",
+      "mysql-analyze-table",
+      "mysql-optimizer-statistics",
+      "mysql-invisible-indexes",
+      "mysql-innodb-physical-structure",
+      "mysql-innodb-buffer-pool",
+      "mysql-performance-schema-statement-tables",
+      "mysql-slow-query-log",
+      "mysql-innodb-locks-set",
+      "planetscale-btree-indexes",
+      "planetscale-secondary-keys",
+      "planetscale-covering-indexes",
+      "xiaolincoding-mysql-index",
+      "javaguide-mysql-index",
+      "use-the-index-luke-where-clause",
+      "solarwinds-mysql-indexes",
+    ],
+    concept:
+      "联合索引是按多个列依次排序的复合 B+ 树访问路径，核心价值是把多条件过滤、排序、分组和覆盖读取合并到一条可验证的索引路径中。",
+    explanation: [
+      "概念定位：联合索引（Composite Index / Multiple-Column Index）解决的是“业务查询同时按多个字段过滤、排序、分页或返回少量列”时的访问路径设计问题。订单列表、租户后台筛选、消息时间线、状态流转查询、JOIN 被驱动表查找、排行榜、报表分组和慢 SQL 治理都会反复用到它。\n\nMySQL 可以创建包含多个列的索引，官方文档把它称为 multiple-column index；InnoDB 中联合二级索引的叶子记录保存联合键列和主键列。联合索引的关键判断集中在四件事：列顺序、最左前缀、范围边界、覆盖收益。它把查询语义、B+ 树排序、优化器成本、Buffer Pool 压力和写入放大串成一条工程取舍链。",
+      "准确定义：联合索引是在一个索引定义中按顺序放入多个列，例如 `(tenant_id, status, created_at, id)`。索引记录先按 `tenant_id` 排序，再在相同 `tenant_id` 内按 `status` 排序，再按 `created_at` 和 `id` 排序。\n\n- `leftmost prefix`：优化器可以从索引最左侧连续列构造查找区间，例如 `(a)`、`(a,b)`、`(a,b,c)`。\n- `key part`：联合索引中的单个组成列，`EXPLAIN key_len` 可辅助判断参与访问的 key part 范围。\n- `range interval`：范围访问把联合键元组限制在一个或多个有序区间内。\n- `index extension`：InnoDB 会把主键列追加到二级索引记录中，主键可参与覆盖、排序和执行计划判断。\n- `covering`：过滤列、排序列和返回列都来自同一条联合索引时，`EXPLAIN Extra` 常见 `Using index`。\n- `ICP`：Index Condition Pushdown 能在索引扫描阶段用索引列先过滤候选记录。\n\n联合索引是一条具体 SQL 访问路径的设计结果，评审时要把 `WHERE`、`JOIN`、`ORDER BY`、`GROUP BY`、`LIMIT` 和 `SELECT` 列一起看。",
+      "心智模型：把联合索引想成一本多级排序的电话簿。\n\n- 第一列是一级目录，决定先翻到哪个大区间。\n- 第二列是二级目录，只有在一级目录固定后才能快速缩小范围。\n- 范围列像翻到一段连续页码，后续列仍在索引记录里，但更适合作为过滤或覆盖信息。\n- 排序列跟索引顺序一致时，扫描叶子页天然得到目标顺序。\n- 返回列被索引记录包含时，查询可以直接从目录页回答。\n- 索引列越多，目录越厚，写入、缓存、DDL 和复制成本也越高。\n\n这个模型帮助新手记住核心规律：联合索引先服务定位，再服务顺序，最后服务覆盖。",
+      "主流程机制：一次联合索引查询可以按“列需求 -> 前缀区间 -> 叶子扫描 -> 过滤排序 -> 返回结果 -> 指标验证”理解。\n\n1. SQL 层收集等值条件、范围条件、连接条件、排序列、分组列、分页和返回列。\n2. 优化器根据统计信息、列选择性、索引顺序、回表成本、排序成本和 LIMIT 成本选择候选索引。\n3. 等值条件从最左列开始连续收窄区间，例如 `tenant_id = 8 AND status = 'PAID'` 定位到一个更小的键范围。\n4. 范围条件把区间变成连续扫描，例如 `created_at >= '2026-06-01'` 决定扫描起止位置。\n5. 后续索引列仍可参与 ICP、覆盖读取、排序判断或过滤，真实使用位置由执行计划体现。\n6. 叶子页按联合键顺序扫描；需要整行字段时用叶子记录中的主键回到聚簇索引读取。\n7. `ORDER BY` 与索引顺序、常量前缀和方向一致时，MySQL 可以用索引顺序减少 `filesort`。\n8. `GROUP BY`、`LIMIT`、覆盖读取和 JOIN 内层 lookup 会进一步影响访问成本。\n9. 发布后用 `EXPLAIN ANALYZE`、慢查询日志、Performance Schema 和 Buffer Pool 指标验证估算与真实行为。",
+      "实践例子：下面的订单列表把多条件过滤、排序分页和覆盖读取放到同一条联合索引中。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n  tenant_id BIGINT UNSIGNED NOT NULL,\n  user_id BIGINT UNSIGNED NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  created_at DATETIME NOT NULL,\n  paid_at DATETIME NULL,\n  PRIMARY KEY (id),\n  KEY idx_tenant_status_created_id (tenant_id, status, created_at DESC, id DESC),\n  KEY idx_tenant_user_created (tenant_id, user_id, created_at DESC, id DESC)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n\nEXPLAIN FORMAT=TREE\nSELECT id, tenant_id, status, created_at\nFROM orders\nWHERE tenant_id = 42\n  AND status = 'PAID'\n  AND created_at >= '2026-06-01'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nEXPLAIN ANALYZE\nSELECT id, tenant_id, user_id, created_at\nFROM orders\nWHERE tenant_id = 42\n  AND user_id = 10001\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n```\n\n第一条查询用 `(tenant_id, status)` 做等值前缀，用 `created_at` 做范围和排序，用 `id` 让分页顺序稳定。第二条查询服务用户维度时间线，`tenant_id` 先隔离租户数据，`user_id` 再缩小用户范围。",
+      "列顺序设计：联合索引顺序要从业务查询集合和数据分布出发，常用策略是“等值前缀稳定、范围列靠后、排序列连续、返回列克制”。\n\n- 高频入口优先：先服务调用频率高、p95/p99 敏感、扫描行数大的 SQL。\n- 等值列前置：租户、用户、状态、类型等常量条件适合形成连续前缀。\n- 选择性结合场景：高选择性列能快速缩小范围，低选择性列在租户隔离、排序或覆盖场景仍有价值。\n- 范围列控制扫描：时间、金额、分数等范围列通常放在等值前缀之后，决定叶子扫描区间。\n- 排序列保持连续：`ORDER BY created_at DESC, id DESC` 与索引尾列一致时可减少排序成本。\n- 主键尾列稳定分页：把 `id` 放在时间后面可处理相同时间戳下的确定顺序，也便于游标分页。\n- 返回列少量追加：高频列表返回的轻量字段可作为覆盖列，长文本和低频字段交给详情查询。\n- 重复索引治理：`(a,b,c)` 已经服务 `(a)` 和 `(a,b)` 的前缀查询，评审时合并相近索引。",
+      "深层细节：联合索引的收益来自有序元组，成本来自更宽的树和更复杂的计划选择。\n\n- B+ 树排序：联合键按字典序排列，最左列决定连续区间的入口。\n- 范围边界：`=`、`<=>`、`IS NULL` 能继续扩展 key part；`>`、`<`、`BETWEEN`、`LIKE 'abc%'` 等范围条件会形成扫描区间。\n- 后续列价值：范围列后的索引列仍可用于 ICP、覆盖、排序细节或回表减少，具体收益要看 `EXPLAIN` 和真实执行。\n- Index Merge 取舍：多个单列索引可能触发 Index Merge；一条匹配查询形状的联合索引通常提供更稳定的过滤顺序和排序能力。\n- 主键追加：InnoDB 二级索引携带主键，主键宽度会放大所有联合二级索引；联合索引尾部显式放主键也能表达业务排序稳定性。\n- 排序方向：MySQL 支持前向或反向扫描；混合 `ASC`/`DESC` 场景要让索引方向与排序同质性匹配。\n- 前缀索引：字符串前缀索引可降低空间，但排序、覆盖和唯一性判断只能基于保存的前缀。\n- NULL 与隐式转换：`NULL`、字符集/排序规则、函数包裹、类型转换会影响范围构造和索引使用。\n- 统计信息：`Cardinality`、直方图、索引 dives 和 `ANALYZE TABLE` 影响优化器估算，数据倾斜会放大估算误差。",
+      "工程场景与取舍：联合索引适合把一组稳定查询压缩成少数高质量访问路径。\n\n- 多租户列表：`(tenant_id, status, created_at, id)` 同时隔离租户、过滤状态、按时间倒序分页。\n- 用户时间线：`(tenant_id, user_id, created_at, id)` 服务用户维度消息、订单和审计日志。\n- JOIN 内层查找：被驱动表用 `(foreign_id, status, id)` 降低嵌套循环中的内层扫描。\n- 后台筛选：`(tenant_id, type, created_at, id)` 适合常见枚举过滤加时间范围。\n- 报表分组：分组列与过滤列顺序匹配时，索引可减少临时表和排序压力。\n- 深分页治理：先用联合覆盖索引取主键，再延迟关联读取详情。\n- 写多读少表：索引列数和覆盖列更克制，优先保护写入延迟、Redo、Buffer Pool 和复制延迟。\n- 大表变更：新增或替换联合索引用在线 DDL、Invisible Index、限速发布和回滚计划控制风险。",
+      "边界与故障模式：联合索引的线上问题通常表现为扫描变大、排序回归、计划漂移和写入成本升高。\n\n- 前导列缺失：查询从第二列开始过滤时，访问路径会转向全索引扫描、Skip Scan、Index Merge 或其他索引。\n- 范围过宽：时间跨度、状态低选择性、热点租户会让叶子扫描行数远大于返回行数。\n- 排序错位：`ORDER BY` 使用非连续列、表达式、跨表列或方向组合错配时，计划可能出现 `Using filesort`。\n- 返回字段扩张：接口新增列会改变覆盖关系，回表次数和 Buffer Pool 物理读随之上升。\n- 统计信息陈旧：批量导入、删除、归档和租户倾斜会让 `rows` 估算偏离实际，`EXPLAIN ANALYZE` 能暴露差距。\n- 宽索引副作用：长字符串、JSON、低频展示字段进入联合索引后，页密度下降，写入、备份、DDL 和复制压力增加。\n- 重复与交叉索引：多个近似联合索引会提高维护成本，索引评审要保留能覆盖最多高频查询的组合。\n- 锁与写语句：`UPDATE`、`DELETE` 走联合二级索引时会结合隔离级别设置记录锁、间隙锁或 Next-Key Lock，范围越大锁影响越大。",
+      "排查实践：联合索引排查要把 SQL 形状、索引结构、优化器估算和真实运行指标放在同一张证据表里。\n\n1. 固化 SQL：记录绑定参数、返回列、过滤条件、排序、分页、执行频率、慢日志样本和业务入口。\n2. 拆列需求：把 `WHERE` 等值列、范围列、JOIN 列、`ORDER BY` 列、`GROUP BY` 列、`SELECT` 列分开。\n3. 对照索引：用 `SHOW CREATE TABLE` 和 `SHOW INDEX` 看 `Seq_in_index`、列顺序、`Sub_part`、`Cardinality`、`Visible` 和主键宽度。\n4. 看计划估算：用 `EXPLAIN` 关注 `type`、`possible_keys`、`key`、`key_len`、`rows`、`filtered`、`Extra`。\n5. 看树形计划：用 `EXPLAIN FORMAT=TREE` 观察 range scan、covering index lookup、filter、sort 和 join 顺序。\n6. 看真实执行：用 `EXPLAIN ANALYZE` 对比估算行数和实际行数，定位扫描放大、回表、排序和循环次数。\n7. 看运行指标：慢查询日志看 `Rows_examined` / `Rows_sent`，Performance Schema 按 digest 汇总影响面。\n8. 看副作用：观察 Buffer Pool 物理读、Redo 写入、写延迟、复制延迟、磁盘增长和在线 DDL 时间。\n9. 小步治理：字段裁剪、调整列顺序、拆分详情查询、补稳定主键尾列、刷新统计信息、合并重复索引、用 Invisible Index 灰度验证。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\n\nEXPLAIN\nSELECT id, tenant_id, status, created_at\nFROM orders\nWHERE tenant_id = 42 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nEXPLAIN FORMAT=TREE\nSELECT id, tenant_id, status, created_at\nFROM orders\nWHERE tenant_id = 42 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nEXPLAIN ANALYZE\nSELECT id, tenant_id, status, created_at\nFROM orders\nWHERE tenant_id = 42 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nANALYZE TABLE orders;\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nWHERE DIGEST_TEXT LIKE 'SELECT%ORDERS%'\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n\nALTER TABLE orders ALTER INDEX idx_tenant_status_created_id INVISIBLE;\nALTER TABLE orders ALTER INDEX idx_tenant_status_created_id VISIBLE;\n```\n\n有效修复通常体现为目标索引稳定命中、`key_len` 对应连续前缀、实际扫描行数下降、`Using filesort` 或临时表减少、`Rows_examined` / `Rows_sent` 收敛，写入链路指标保持在发布前基线附近。",
+      "指标与命令速查：联合索引评审要重点看这些信号。\n\n- `SHOW INDEX`：`Seq_in_index` 表示列顺序，`Cardinality` 体现粗略区分度，`Sub_part` 表示前缀索引长度。\n- `EXPLAIN type`：`ref`、`range`、`index`、`ALL` 体现访问方式层级。\n- `EXPLAIN key`：确认选择的联合索引。\n- `EXPLAIN key_len`：辅助判断连续 key part 参与访问的范围。\n- `EXPLAIN rows` / `filtered`：估算扫描量和过滤比例。\n- `Extra=Using index`：覆盖读取信号。\n- `Extra=Using index condition`：索引条件下推信号。\n- `Extra=Using filesort`：排序额外阶段信号。\n- `EXPLAIN FORMAT=TREE`：观察访问路径、排序位置和覆盖 lookup。\n- `EXPLAIN ANALYZE`：真实行数、循环次数和迭代器耗时。\n- 慢查询日志：`Rows_examined`、`Rows_sent`、`Query_time` 体现扫描放大。\n- Performance Schema：`SUM_ROWS_EXAMINED`、`SUM_ROWS_SENT`、`SUM_TIMER_WAIT` 衡量 SQL 指纹影响面。\n- `Innodb_buffer_pool_read%`：观察物理读变化。\n- Invisible Index：灰度验证索引删除、替换和合并。",
+      "常见误区：联合索引的正确心智模型是“围绕查询形状设计有序访问路径”。\n\n- 列顺序决定定位区间、排序能力和覆盖收益。\n- 最左前缀关注连续 key part，查询条件书写顺序由优化器规范化，索引定义顺序决定访问能力。\n- 范围列后的索引列仍有过滤、覆盖和排序价值，真实收益由执行计划和指标确认。\n- 多个单列索引与一条联合索引服务的访问形态差异明显，联合索引更适合稳定多条件查询和排序分页。\n- 低选择性列在租户隔离、常量前缀、排序和覆盖场景中仍可能成为合适前导列。\n- `SELECT *` 会扩大列需求，列表接口字段裁剪能显著提升覆盖机会。\n- 宽联合索引会增加写入、缓存、空间、备份、DDL 和复制成本，发布前要用频率与指标证明收益。\n- 联合索引上线后要持续观察统计信息、计划漂移、慢日志和业务参数分布。",
+      "面试追问：联合索引题适合按“定义 -> 有序元组 -> 最左前缀 -> 范围边界 -> 排序覆盖 -> 线上验证 -> 取舍”回答。\n\n- 联合索引是什么，和多个单列索引的访问路径有什么差异？\n- 为什么 `(a,b,c)` 能服务 `(a)`、`(a,b)`、`(a,b,c)` 这类前缀查询？\n- 范围条件对联合索引后续列的使用有什么影响？\n- `WHERE a=? AND b BETWEEN ? AND ? ORDER BY c` 如何判断是否需要调整索引？\n- `ORDER BY` 如何利用联合索引顺序减少 `filesort`？\n- 联合索引如何同时服务覆盖索引和游标分页？\n- 低选择性列、租户列、状态列和时间列应该如何排序？\n- 如何通过 `EXPLAIN key_len`、`rows`、`Extra` 和 `EXPLAIN ANALYZE` 验证列顺序有效？\n- 联合索引过宽会带来哪些写入、空间、缓存、DDL 和复制副作用？\n- 线上计划漂移时，如何用统计刷新、Invisible Index、字段裁剪和重复索引合并治理？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Multiple-Column Indexes、How MySQL Uses Indexes、Column Indexes、Clustered and Secondary Indexes、Use of Index Extensions、Range Optimization、ORDER BY Optimization、GROUP BY Optimization、LIMIT Query Optimization、Index Condition Pushdown、EXPLAIN、EXPLAIN Output、Verifying Index Usage、SHOW INDEX、ANALYZE TABLE、Optimizer Statistics、Invisible Indexes、InnoDB Physical Structure、Buffer Pool、Slow Query Log、Performance Schema Statement Tables 和 InnoDB Locks Set by Different SQL Statements，并结合 PlanetScale 的 B-tree、Secondary Keys、Covering Indexes，Use The Index, Luke 的 WHERE Clause，小林 coding、JavaGuide 与 SolarWinds 的索引资料校准中文表达、例子和面试问法。官方资料用于定义、优化器行为、执行计划信号和边界说明，工程文章用于补充索引设计直觉、线上治理和取舍经验。"
+    ],
+    typicalProblems: [
+      "联合索引是什么，它解决多条件查询中的哪个访问路径问题？",
+      "MySQL 为什么能用 `(a,b,c)` 服务 `(a)`、`(a,b)` 和 `(a,b,c)` 的前缀查询？",
+      "联合索引字段顺序如何影响过滤、排序、分组、覆盖和回表？",
+      "等值条件、范围条件、`IN`、`LIKE 'abc%'`、`IS NULL` 在联合索引里分别怎样形成扫描区间？",
+      "`ORDER BY`、`GROUP BY` 和 `LIMIT` 如何利用联合索引减少排序、临时表和扫描行数？",
+      "联合索引和多个单列索引、Index Merge、覆盖索引之间如何取舍？",
+      "为什么低选择性状态列有时仍适合作为联合索引前导列？",
+      "如何用 `EXPLAIN key_len`、`rows`、`Extra` 和 `EXPLAIN ANALYZE` 验证联合索引真实效果？",
+      "联合索引过宽会给写入、缓存、空间、在线 DDL 和复制带来哪些成本？",
+      "线上联合索引计划漂移时，如何用统计刷新、Invisible Index、字段裁剪和重复索引合并治理？"
+    ],
+    commonCommands: [
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "EXPLAIN <sql>",
+      "EXPLAIN FORMAT=TREE <sql>",
+      "EXPLAIN ANALYZE <sql>",
+      "ANALYZE TABLE <table>",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_read%'",
+      "ALTER TABLE <table> ALTER INDEX <index_name> INVISIBLE",
+      "ALTER TABLE <table> ALTER INDEX <index_name> VISIBLE"
+    ],
+    useCases: ["多条件查询优化", "租户列表分页", "用户时间线", "状态流转查询", "排序分页优化", "覆盖索引设计", "JOIN 被驱动表优化", "报表分组", "慢 SQL 排查", "重复索引治理"],
+    prerequisites: ["mysql-index", "b-plus-tree", "secondary-index"],
+    related: ["leftmost-prefix", "range-query", "covering-index", "index-selectivity", "order-by", "group-by", "explain", "sql-optimization", "slow-query-log", "buffer-pool"],
   },
   "leftmost-prefix": {
     prerequisites: ["composite-index"],
