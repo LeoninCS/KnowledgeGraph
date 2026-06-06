@@ -171,7 +171,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 最左前缀 | 2026-06-05 | source_count=28 --> */
   /* <!-- KG_EXPLAINED: 最左前缀 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "leftmost-prefix", zh: "最左前缀", en: "Leftmost Prefix", area: "index", difficulty: "medium", concept: "最左前缀原则要求联合索引从最左字段开始连续匹配。", explanation: ["核心概念：最左前缀（Leftmost Prefix）聚焦最左前缀原则要求联合索引从最左字段开始连续匹配。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住B+ 树、聚簇索引、二级索引和覆盖索引，再看输入、状态变化、输出结果和失败分支。","适用场景：最左前缀常用于联合索引设计和索引失效排查。学习时把它放回MySQL链路中观察，并结合前置知识联合索引判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，最左前缀通常会和范围查询一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认B+ 树、聚簇索引、二级索引和覆盖索引是否仍然成立。","常见误区与注意点：实践中容易把最左前缀当成孤立概念处理，结果遗漏回表、最左前缀、范围条件、低选择性和写入成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["最左前缀执行原理是什么","最左前缀如何影响性能或一致性","最左前缀线上问题怎么排查"], useCases: ["联合索引设计","索引失效排查"], prerequisites: ["composite-index"], related: ["range-query"], order: 33 },
-  /* <!-- KG_REVIEWED: 范围查询 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 范围查询 | 2026-06-05 | source_count=26 --> */
   /* <!-- KG_EXPLAINED: 范围查询 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "range-query", zh: "范围查询", en: "Range Query", area: "index", difficulty: "medium", concept: "范围查询会影响联合索引后续字段的使用，需要结合条件选择性设计索引。", explanation: ["核心概念：范围查询（Range Query）聚焦范围查询会影响联合索引后续字段的使用，需要结合条件选择性设计索引。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住B+ 树、聚簇索引、二级索引和覆盖索引，再看输入、状态变化、输出结果和失败分支。","适用场景：范围查询常用于时间范围筛选和价格区间查询。学习时把它放回MySQL链路中观察，并结合前置知识最左前缀判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，范围查询通常会和WHERE 条件和ORDER BY一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认B+ 树、聚簇索引、二级索引和覆盖索引是否仍然成立。","常见误区与注意点：实践中容易把范围查询当成孤立概念处理，结果遗漏回表、最左前缀、范围条件、低选择性和写入成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["范围查询执行原理是什么","范围查询如何影响性能或一致性","范围查询线上问题怎么排查"], useCases: ["时间范围筛选","价格区间查询"], prerequisites: ["leftmost-prefix"], related: ["where","order-by"], order: 34 },
   /* <!-- KG_REVIEWED: 唯一索引 | 2026-05-24 | source_count=5 --> */
@@ -1593,8 +1593,81 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["composite-index", "range-query", "order-by", "group-by", "covering-index", "index-selectivity", "explain", "sql-optimization", "slow-query-log", "buffer-pool"],
   },
   "range-query": {
+    sourceRefs: [
+      "mysql-range-optimization",
+      "mysql-how-mysql-uses-indexes",
+      "mysql-column-indexes",
+      "mysql-multiple-column-indexes",
+      "mysql-where-optimization",
+      "mysql-order-by-optimization",
+      "mysql-limit-optimization",
+      "mysql-index-condition-pushdown",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "mysql-verifying-index-usage",
+      "mysql-show-index",
+      "mysql-analyze-table",
+      "mysql-optimizer-statistics",
+      "mysql-optimizer-trace",
+      "mysql-invisible-indexes",
+      "mysql-innodb-index-types",
+      "mysql-innodb-physical-structure",
+      "mysql-innodb-buffer-pool",
+      "mysql-performance-schema-statement-tables",
+      "mysql-slow-query-log",
+      "planetscale-btree-indexes",
+      "planetscale-index-obfuscation",
+      "xiaolincoding-mysql-index",
+      "javaguide-mysql-index",
+      "use-the-index-luke-where-clause",
+    ],
+    concept:
+      "范围查询把比较谓词转成一个或多个索引值区间，核心价值是控制 B+ 树叶子扫描宽度、排序分页成本和锁影响面。",
+    explanation: [
+      "概念定位：范围查询（Range Query / Range Access）解决的是“怎样从一大张表里按时间、价格、编号、游标或字符串前缀取出一段数据”的问题。订单列表、账单明细、时间线分页、批量清理、报表窗口、库存区间筛选和锁定读都会遇到它。\n\nMySQL 官方 Range Optimization 文档把 `range` 访问方法定义为使用单个索引读取一个或多个索引值区间内的行；EXPLAIN 文档也把 `type=range` 描述为只取给定范围内的行。工程上看，范围查询的核心目标是把业务筛选变成足够窄、顺序稳定、证据可验证的索引区间。",
+      "准确定义：范围查询是 `WHERE` 中可以形成索引值区间的谓词集合。对 B-tree 索引来说，常见形态包括 `>`、`>=`、`<`、`<=`、`BETWEEN`、`LIKE 'abc%'`、`IN (...)`、`=`、`<=>`、`IS NULL`、`IS NOT NULL`，以及由 `AND` / `OR` 组合出来的多个区间。\n\n- `range access`：优化器选择的一种访问路径，表现为 `EXPLAIN type=range`。\n- `index interval`：索引上的起点和终点，例如 `(tenant_id=42, created_at >= '2026-06-01')`。\n- `access predicate`：用于构造扫描起止边界的条件。\n- `filter predicate`：扫描过程中或回表后继续判断的条件。\n- `equality range`：`IN` 或多个 `OR` 等值形成的多个单点区间。\n- `key part`：联合索引中的一个组成列，区间构造按索引定义顺序推进。\n- `ICP`：Index Condition Pushdown，在二级索引扫描阶段用索引列先过滤候选记录。\n\n业务里的“查一段时间”只是表层语义，数据库真正执行的是对索引有序空间的区间裁剪和叶子遍历。",
+      "心智模型：把 B+ 树想成一本按索引键排好序的账本。\n\n- 等值条件像先翻到某个章节，例如 `tenant_id = 42`。\n- 范围条件像在章节里划出页码起止，例如 `created_at >= '2026-06-01'`。\n- 扫描从下界页开始，沿叶子页顺序向后读，直到上界结束。\n- 区间越窄，叶子页、回表、排序和锁影响越小。\n- 联合索引里，等值列通常放在范围列前面，让范围扫描发生在更小的局部有序空间里。\n\n这个模型能帮助新手理解范围查询的本质：先定位起点，再顺序扫一段。",
+      "主流程机制：MySQL 处理范围查询时，优化器和存储引擎按“抽取区间 -> 估算成本 -> 叶子扫描 -> 剩余过滤”协作。\n\n1. 解析 `WHERE`，识别常量、参数、字段类型、字符集、函数表达式、`AND` / `OR` 结构和候选索引。\n2. 针对每个候选索引抽取可构造区间的条件，保留结果完整性，并把重叠区间合并、空区间消除。\n3. 对联合索引按 key part 顺序构造多列元组区间，等值条件继续向右收窄，范围条件形成上下界。\n4. 对 `IN`、同列 `OR` 等 equality range 估算多段单点区间成本，必要时使用索引 dives 或统计信息。\n5. 结合统计信息、页访问、回表、排序、`LIMIT`、覆盖索引和候选行数，选择 `range`、`ref`、`index_merge`、`index` 或全表访问路径。\n6. 存储引擎定位到区间起点，沿 B+ 树叶子页顺序扫描；二级索引命中后按需回表到聚簇索引。\n7. ICP 可以在二级索引阶段用后续索引列过滤候选记录，减少完整行读取。\n8. 执行器完成剩余 `WHERE`、排序、分组、分页和返回列投影。\n9. 用 `EXPLAIN`、`EXPLAIN FORMAT=TREE`、`EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 验证估算和真实扫描。",
+      "实践例子：下面的订单表展示时间范围、半开区间、排序分页和函数改写。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n  tenant_id BIGINT UNSIGNED NOT NULL,\n  user_id BIGINT UNSIGNED NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  created_at DATETIME NOT NULL,\n  PRIMARY KEY (id),\n  KEY idx_tenant_status_time_id (tenant_id, status, created_at DESC, id DESC),\n  KEY idx_tenant_time_id (tenant_id, created_at DESC, id DESC),\n  KEY idx_tenant_amount_id (tenant_id, amount, id)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n\n-- 典型列表：等值前缀 tenant_id + status，把 created_at 范围限制在租户和状态内部\nEXPLAIN FORMAT=TREE\nSELECT id, status, created_at\nFROM orders\nWHERE tenant_id = 42\n  AND status = 'PAID'\n  AND created_at >= '2026-06-01 00:00:00'\n  AND created_at <  '2026-06-08 00:00:00'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\n-- 日期查询保持索引列原值，用半开区间表达一天\nEXPLAIN ANALYZE\nSELECT id, amount, created_at\nFROM orders\nWHERE tenant_id = 42\n  AND created_at >= '2026-06-06 00:00:00'\n  AND created_at <  '2026-06-07 00:00:00'\nORDER BY created_at DESC, id DESC\nLIMIT 50;\n\n-- 金额区间适合先按租户收窄，再扫描 amount 叶子范围\nEXPLAIN\nSELECT id, amount\nFROM orders\nWHERE tenant_id = 42\n  AND amount BETWEEN 100 AND 500\nORDER BY amount ASC, id ASC\nLIMIT 30;\n```\n\n半开时间区间让日期边界清晰，`tenant_id` 把扫描限定在租户局部，`id` 让同一时间或金额下的翻页顺序稳定。",
+      "深层细节：老手分析范围查询时，重点看“哪个条件负责边界，哪个条件负责过滤”。\n\n- 单列区间：`created_at >= ? AND created_at < ?` 形成一个连续区间，范围宽度直接决定叶子页扫描量。\n- 联合区间：`(tenant_id, status, created_at)` 先用租户和状态缩小局部空间，再由时间形成上下界。\n- 区间宽化：官方文档说明范围抽取后的区间可能比原始 `WHERE` 更宽，执行器会继续检查完整条件。\n- `key_len`：传统 `EXPLAIN` 中的 `key_len` 表示参与访问的最长索引前缀，可辅助判断哪些 key part 进入边界。\n- `IN`：多个值会形成多个 equality range；值很多时，索引 dives、统计信息和 `eq_range_index_dive_limit` 会影响估算成本。\n- 复杂 `OR`：同列区间可合并，跨列条件可能触发 `index_merge` 或更大的扫描计划。\n- `LIKE 'abc%'`：固定前缀可转成字符串范围；业务搜索需求更复杂时，全文索引或搜索引擎更贴合。\n- ICP：范围列之后的索引列仍可在二级索引扫描阶段做过滤，`Extra=Using index condition` 是重要信号。\n- Skip Scan：缺少联合索引前导列时，MySQL 可在特定条件下按前导列不同取值做多段范围扫描，`Extra=Using index for skip scan` 体现该路径。\n- 范围优化内存：大量 `OR` / `IN` 组合会消耗 range optimizer 内存，`range_optimizer_max_mem_size` 触发后计划可能退化，并产生 3170 警告。",
+      "工程场景与设计取舍：范围查询设计要围绕访问模式，而非单个 SQL 片段。\n\n- 时间线分页：`(tenant_id, user_id, created_at, id)` 适合按用户读取最近记录，`id` 作为稳定游标尾列。\n- 订单后台：`(tenant_id, status, created_at, id)` 服务状态筛选和时间倒序列表。\n- 金额或库存区间：等值维度在前，数值范围在后，减少扫描候选量。\n- 批量清理：按主键或时间窗口分批 `DELETE`，每批控制扫描和锁范围。\n- 报表窗口：按租户、业务线、时间窗口组合索引，让报表扫描集中在目标区间。\n- 深分页治理：范围游标分页比大 `OFFSET` 更稳定，扫描从上次游标继续推进。\n- 覆盖列表：范围索引尾部追加少量返回列可减少回表，但会增加写入、空间、缓存和 DDL 成本。\n- 统计维护：大批量导入、归档、冷热迁移后，`ANALYZE TABLE` 能帮助优化器恢复更贴近现实的行数估算。",
+      "边界与故障模式：范围查询相关问题通常表现为扫描放大、排序回归、锁等待和计划漂移。\n\n- 范围过宽：一天、一个月、全租户窗口差异巨大，同一 SQL 在不同参数下扫描量会相差几个数量级。\n- 范围列前置：联合索引把时间放在租户或状态之前时，后续等值条件更常作为过滤，扫描叶子页增多。\n- 表达式包裹：`DATE(created_at)`、字符串转数字、不同 collation 比较会让可定位条件退化，保持索引列原值参与比较更稳。\n- `BETWEEN` 边界：`BETWEEN` 包含上下界，日期时间字段推荐用半开区间表达自然日。\n- `OR` 组合爆炸：大量动态条件会增加区间枚举、优化器内存和估算成本。\n- 统计陈旧：数据倾斜、热点租户、批量导入会导致优化器低估或高估范围行数。\n- 排序错配：范围扫描方向、`ORDER BY` 列顺序、混合方向和返回列会影响 `Using filesort`。\n- 锁影响面：`UPDATE`、`DELETE`、`SELECT ... FOR UPDATE` 在可重复读下结合范围扫描，容易扩大记录锁、间隙锁或 Next-Key Lock 范围。\n- 缓存压力：宽范围回表会把大量数据页拉入 Buffer Pool，挤压热点页并抬高读放大。",
+      "排查实践：范围查询排查要用同一组参数串联 SQL、索引、计划、行数和锁证据。\n\n1. 固化现场：记录 SQL、绑定参数、返回列、排序、分页方式、执行频率、慢日志样本和业务入口。\n2. 拆条件：标出等值列、范围列、`IN`、`OR`、`LIKE`、函数表达式、排序列和返回列。\n3. 对索引：用 `SHOW INDEX` 看 `Seq_in_index`、`Column_name`、`Cardinality`、`Sub_part`、`Visible` 和主键宽度。\n4. 判边界：确认哪些条件构成下界和上界，哪些条件在扫描中继续过滤。\n5. 看计划：用 `EXPLAIN` 检查 `type=range`、`key`、`key_len`、`rows`、`filtered`、`Extra`。\n6. 看真实执行：用 `EXPLAIN ANALYZE` 对比估算行数、实际行数、循环次数和耗时。\n7. 看优化器证据：必要时打开 `optimizer_trace`，观察 range alternatives、index dives、skip scan 和 chosen path。\n8. 看生产指标：慢查询日志看 `Rows_examined` / `Rows_sent`，Performance Schema 按 digest 汇总扫描量和总耗时。\n9. 小步治理：改写半开区间、调整联合索引列序、增加覆盖列、刷新统计、灰度 Invisible Index、拆分大 `OR` 或按游标分批。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\n\nEXPLAIN\nSELECT id, status, created_at\nFROM orders\nWHERE tenant_id = 42\n  AND status = 'PAID'\n  AND created_at >= '2026-06-01 00:00:00'\n  AND created_at <  '2026-06-08 00:00:00'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nEXPLAIN FORMAT=TREE\nSELECT id, status, created_at\nFROM orders\nWHERE tenant_id = 42\n  AND status = 'PAID'\n  AND created_at >= '2026-06-01 00:00:00'\n  AND created_at <  '2026-06-08 00:00:00'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nEXPLAIN ANALYZE\nSELECT id, status, created_at\nFROM orders\nWHERE tenant_id = 42\n  AND status = 'PAID'\n  AND created_at >= '2026-06-01 00:00:00'\n  AND created_at <  '2026-06-08 00:00:00'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nSET optimizer_trace='enabled=on';\nSELECT id FROM orders\nWHERE tenant_id = 42 AND created_at >= '2026-06-01' AND created_at < '2026-06-08'\nORDER BY created_at DESC, id DESC LIMIT 20;\nSELECT TRACE FROM information_schema.OPTIMIZER_TRACE\\G\nSET optimizer_trace='enabled=off';\n\nANALYZE TABLE orders;\nSHOW WARNINGS;\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nWHERE DIGEST_TEXT LIKE 'SELECT%ORDERS%'\nORDER BY SUM_ROWS_EXAMINED DESC\nLIMIT 10;\n\nALTER TABLE orders ALTER INDEX idx_tenant_status_time_id INVISIBLE;\nALTER TABLE orders ALTER INDEX idx_tenant_status_time_id VISIBLE;\n```",
+      "指标与命令速查：范围查询优化要同时看访问路径、扫描规模和运行影响。\n\n- `EXPLAIN type=range`：当前表使用范围访问。\n- `possible_keys` / `key`：候选索引和实际索引选择。\n- `key_len`：参与边界构造的最长索引前缀线索。\n- `rows` / `filtered`：优化器估算扫描行数和过滤比例。\n- `Extra=Using index condition`：ICP 在二级索引上过滤候选记录。\n- `Extra=Using index`：覆盖读取，减少回表。\n- `Extra=Using filesort`：排序阶段额外发生。\n- `Extra=Using MRR`：Multi-Range Read 路径，用于降低部分回表随机读成本。\n- `EXPLAIN FORMAT=TREE`：查看 index range scan、filter、sort、limit 位置。\n- `EXPLAIN ANALYZE`：查看真实行数、循环次数和每个迭代器耗时。\n- `OPTIMIZER_TRACE`：查看区间抽取、候选路径、index dives 和 skip scan 选择。\n- 慢查询日志：`Rows_examined`、`Rows_sent`、`Query_time` 衡量扫描放大。\n- Performance Schema：`SUM_ROWS_EXAMINED`、`SUM_ROWS_SENT`、`SUM_TIMER_WAIT` 衡量 SQL 指纹影响面。\n- `ANALYZE TABLE`：刷新统计信息，校准选择性估算。\n- Invisible Index：灰度验证新旧索引切换。",
+      "常见误区：范围查询的正确心智模型是“索引区间宽度决定主要成本，剩余条件决定过滤成本”。\n\n- 等值列放在范围列前面，通常能把范围扫描压缩到更小局部空间。\n- 范围列之后的索引列仍可能提供 ICP、覆盖读取和部分排序收益。\n- `BETWEEN` 包含上下界，时间查询用半开区间表达自然窗口更清晰。\n- `LIKE 'prefix%'` 可转成字符串范围，搜索型模糊匹配适合单独评估全文索引或搜索服务。\n- `key_len` 是边界构造线索，需要结合 `EXPLAIN FORMAT=TREE` 和真实行数判断。\n- 范围命中索引只是起点，宽窗口、低选择性和大量回表仍会造成慢查询。\n- `LIMIT` 会改变成本模型，排序顺序与索引顺序匹配时收益更明显。\n- 锁定读和写操作中的范围扫描需要重点评估间隙、Next-Key Lock 和死锁概率。\n- 上线范围索引时要同时评估写入放大、页密度、Buffer Pool、在线 DDL、备份和复制延迟。",
+      "面试追问：范围查询题适合按“定义 -> B+ 树区间 -> 联合索引边界 -> 计划证据 -> 工程取舍”回答。\n\n- MySQL 中 `range` 访问方法解决什么问题？\n- `>`、`BETWEEN`、`IN`、`LIKE 'abc%'`、`IS NULL` 分别如何形成范围条件？\n- 范围查询在 B+ 树叶子页上如何执行？\n- 联合索引 `(a,b,c)` 中 `a=? AND b BETWEEN ? AND ? AND c=?` 如何判断边界和过滤？\n- 为什么等值列常放在范围列之前？\n- `key_len`、`rows`、`filtered`、`Extra=Using index condition` 分别说明什么？\n- `IN` 列表很大时，index dives、统计信息和 range optimizer 内存如何影响计划？\n- 宽范围查询、深分页和 `ORDER BY LIMIT` 如何优化？\n- 范围查询和覆盖索引、ICP、Index Merge、Skip Scan、Invisible Index 如何协作？\n- 线上范围查询慢、锁等待或计划漂移时，如何用慢日志、Performance Schema、`EXPLAIN ANALYZE` 和 `OPTIMIZER_TRACE` 排查？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Range Optimization、How MySQL Uses Indexes、Column Indexes、Multiple-Column Indexes、WHERE Clause Optimization、ORDER BY Optimization、LIMIT Query Optimization、Index Condition Pushdown、EXPLAIN、EXPLAIN Output、Verifying Index Usage、SHOW INDEX、ANALYZE TABLE、Optimizer Statistics、Optimizer Trace、Invisible Indexes、InnoDB Index Types、InnoDB Physical Structure、Buffer Pool、Slow Query Log 和 Performance Schema Statement Tables，并结合 PlanetScale 的 B-tree 与索引可用性文章、小林 coding 的联合索引范围条件示例、JavaGuide 的索引资料、Use The Index, Luke 的范围谓词分析校准中文表达和工程判断。官方资料用于定义、区间抽取、成本估算和执行计划信号，工程文章用于补充索引列序、函数改写、排查步骤和面试问法。"
+    ],
+    typicalProblems: [
+      "范围查询是什么，它和 MySQL `range` 访问方法是什么关系？",
+      "B+ 树如何执行 `>`、`BETWEEN`、`LIKE 'abc%'` 和时间半开区间？",
+      "联合索引中等值列、范围列、排序列和返回列应如何排序？",
+      "`IN`、同列 `OR`、跨列 `OR` 会怎样影响范围区间和成本估算？",
+      "范围条件之后的索引列还能通过 ICP、覆盖读取或排序发挥什么作用？",
+      "如何用 `EXPLAIN key_len`、`type=range`、`rows`、`filtered` 和 `Extra` 证明范围边界？",
+      "`EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 如何定位扫描放大？",
+      "`range_optimizer_max_mem_size`、`eq_range_index_dive_limit`、统计信息和 `ANALYZE TABLE` 如何影响计划？",
+      "宽范围查询、深分页、时间边界、函数包裹和隐式转换分别有哪些工程风险？",
+      "范围查询在 `UPDATE`、`DELETE`、锁定读和可重复读下如何影响锁范围和死锁概率？"
+    ],
+    commonCommands: [
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "EXPLAIN <sql>",
+      "EXPLAIN FORMAT=TREE <sql>",
+      "EXPLAIN ANALYZE <sql>",
+      "SET optimizer_trace='enabled=on'",
+      "SELECT TRACE FROM information_schema.OPTIMIZER_TRACE\\G",
+      "SET optimizer_trace='enabled=off'",
+      "ANALYZE TABLE <table>",
+      "SHOW WARNINGS",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_ROWS_EXAMINED DESC LIMIT 10",
+      "ALTER TABLE <table> ALTER INDEX <index_name> INVISIBLE",
+      "ALTER TABLE <table> ALTER INDEX <index_name> VISIBLE"
+    ],
+    useCases: ["时间范围筛选", "价格区间查询", "订单列表分页", "用户时间线", "批量清理", "报表窗口", "游标分页", "慢 SQL 排查", "锁范围评估", "范围索引设计"],
     prerequisites: ["b-plus-tree", "leftmost-prefix"],
-    related: ["gap-lock", "index-selectivity"],
+    related: ["where", "order-by", "limit-offset", "composite-index", "covering-index", "index-selectivity", "explain", "slow-query-log", "gap-lock", "next-key-lock", "buffer-pool"],
   },
   "transaction": {
     prerequisites: ["innodb"],
