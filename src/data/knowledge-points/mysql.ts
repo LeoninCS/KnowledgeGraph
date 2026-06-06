@@ -138,7 +138,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 聚簇索引 | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: 聚簇索引 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "clustered-index", zh: "聚簇索引", en: "Clustered Index", area: "engine", difficulty: "medium", concept: "InnoDB 按主键组织数据，主键索引叶子节点存储整行记录。", explanation: ["核心概念：聚簇索引（Clustered Index）聚焦InnoDB 按主键组织数据，主键索引叶子节点存储整行记录。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住InnoDB 页、Buffer Pool、脏页和检查点，再看输入、状态变化、输出结果和失败分支。","适用场景：聚簇索引常用于主键查询和表数据组织理解。学习时把它放回MySQL链路中观察，并结合前置知识InnoDB和主键判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，聚簇索引通常会和二级索引和回表一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认InnoDB 页、Buffer Pool、脏页和检查点是否仍然成立。","常见误区与注意点：实践中容易把聚簇索引当成孤立概念处理，结果遗漏页分裂、刷盘抖动、Buffer Pool 污染和主键设计。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["聚簇索引执行原理是什么","聚簇索引如何影响性能或一致性","聚簇索引线上问题怎么排查"], useCases: ["主键查询","表数据组织理解"], prerequisites: ["innodb","primary-key"], related: ["secondary-index","back-to-table"], order: 22 },
-  /* <!-- KG_REVIEWED: Buffer Pool | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: Buffer Pool | 2026-06-05 | source_count=19 --> */
   /* <!-- KG_EXPLAINED: Buffer Pool | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "buffer-pool", zh: "Buffer Pool", en: "Buffer Pool", area: "engine", difficulty: "medium", concept: "Buffer Pool 缓存数据页和索引页，减少磁盘 I/O。", explanation: ["核心概念：Buffer Pool聚焦Buffer Pool 缓存数据页和索引页，减少磁盘 I/O。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住InnoDB 页、Buffer Pool、脏页和检查点，再看输入、状态变化、输出结果和失败分支。","适用场景：Buffer Pool常用于性能调优、内存配置和热点数据缓存。学习时把它放回MySQL链路中观察，并结合前置知识InnoDB判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Buffer Pool通常会和数据页和脏页一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认InnoDB 页、Buffer Pool、脏页和检查点是否仍然成立。","常见误区与注意点：实践中容易把Buffer Pool当成孤立概念处理，结果遗漏页分裂、刷盘抖动、Buffer Pool 污染和主键设计。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Buffer Pool执行原理是什么","Buffer Pool如何影响性能或一致性","Buffer Pool线上问题怎么排查"], useCases: ["性能调优","内存配置","热点数据缓存"], prerequisites: ["innodb"], related: ["page","dirty-page"], order: 23 },
   /* <!-- KG_REVIEWED: 数据页 | 2026-05-24 | source_count=5 --> */
@@ -1013,8 +1013,82 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["b-plus-tree", "secondary-index", "back-to-table", "covering-index", "primary-key", "page", "buffer-pool", "sql-optimization"],
   },
   "buffer-pool": {
+    sourceRefs: [
+      "mysql-innodb",
+      "mysql-innodb-architecture",
+      "mysql-innodb-buffer-pool",
+      "mysql-innodb-buffer-pool-resize",
+      "mysql-innodb-buffer-pool-flushing",
+      "mysql-innodb-performance-midpoint-insertion",
+      "mysql-innodb-performance-read-ahead",
+      "mysql-innodb-preload-buffer-pool",
+      "mysql-information-schema-innodb-buffer-pool-stats",
+      "mysql-innodb-physical-structure",
+      "mysql-innodb-index-types",
+      "mysql-innodb-checkpoints",
+      "mysql-innodb-change-buffer",
+      "mysql-innodb-redo-log",
+      "mysql-show-engine",
+      "mysql-performance-schema",
+      "mysql-slow-query-log",
+      "xiaolin-mysql",
+      "cs-notes",
+    ],
+    concept:
+      "Buffer Pool 是 InnoDB 缓存数据页和索引页的核心内存区域，决定热点读命中、脏页刷盘、预读、缓存污染控制和数据库冷启动表现。",
+    explanation: [
+      "概念定位：Buffer Pool 解决的是“磁盘上的 InnoDB 页怎样以更低延迟、更高吞吐服务在线读写”的问题。它常出现在慢 SQL 排查、数据库内存配置、热点表访问、全表扫描污染、脏页刷盘抖动、实例重启预热、读 I/O 激增和写入峰值治理中。\n\nInnoDB 的表和索引都按页组织，默认页大小常见为 16KB。查询读取索引页和数据页，写入修改内存页并产生 Redo，后台线程再把脏页写回磁盘。Buffer Pool 就是这条路径里的主工作区：热点页留在内存，冷页被淘汰，脏页按检查点和刷盘压力回写。理解 Buffer Pool 后，MySQL 性能排查会从“数据库慢”变成“哪些页、哪些 SQL、哪些刷盘和哪些缓存行为在变慢”。",
+      "准确定义：Buffer Pool 是 InnoDB 用来缓存表数据页、索引页和部分内部页的内存区域，英文通常写作 `InnoDB Buffer Pool`。\n\n- `page`：InnoDB 在磁盘与内存之间移动的基本单位，表和索引访问都落到页。\n- `buffer frame`：Buffer Pool 中容纳一个页的内存槽位。\n- `free list`：当前可直接接收新页的空闲 frame 列表。\n- `LRU list`：按冷热管理已缓存页的列表，MySQL 使用 young/old 分段降低大扫描污染热点页的风险。\n- `flush list`：按修改历史组织的脏页列表，后台刷盘和 Checkpoint 推进会消费它。\n- `dirty page`：内存中已被修改、磁盘中旧版本仍待更新的页。\n- `read-ahead`：InnoDB 判断顺序访问趋势后提前把相邻页读入 Buffer Pool。\n- `buffer pool dump/load`：保存和恢复热点页标识，让实例重启后更快预热。\n\n新手可以先记住：Buffer Pool 是 InnoDB 的页缓存；老手继续关注缓存命中率、LRU 污染、脏页比例、刷盘节奏、NUMA/内存压力和恢复窗口。",
+      "心智模型：把 Buffer Pool 看成数据库机房里的热页货架。\n\n- 磁盘是仓库，所有表页和索引页最终都在那里。\n- Buffer Pool 是前台货架，最近和高频访问的页放在这里。\n- Free list 像空货位，新读入的页先找空位。\n- LRU list 像热度队列，常访问的页靠前，冷页靠后，old 区承接大扫描带来的临时页。\n- Flush list 像待回仓清单，记录已经修改但尚未写回磁盘的页。\n- Redo Log 像修改凭证，脏页可以晚些写回，崩溃后仍能用日志恢复。\n\n这个模型能解释一个常见现象：同一条 SQL 在热缓存下毫秒返回，在冷缓存或缓存被报表扫描污染后可能出现明显 I/O 延迟。",
+      "主流程机制：一次页访问会沿着命中、缺页、淘汰和刷盘链路推进。\n\n1. 执行器通过 InnoDB 访问聚簇索引或二级索引，先判断目标页是否已经在 Buffer Pool。\n2. 命中时，线程直接读取内存页；页会根据访问规则在 LRU list 中调整位置，并受 midpoint insertion 策略保护。\n3. 缺页时，InnoDB 从磁盘读取页到空闲 frame；free list 紧张时，从 LRU 尾部选择可淘汰页。\n4. 被淘汰页如果是干净页，可以直接释放 frame；如果是脏页，需要先刷盘，再释放 frame。\n5. 写入修改 Buffer Pool 中的页，生成 Undo 和 Redo；页成为脏页并进入 flush list。\n6. 后台刷盘线程根据脏页比例、LRU 需求、Checkpoint 年龄和 I/O 能力把脏页写回表空间。\n7. 实例关闭或重启时，可以 dump/load Buffer Pool 中的热点页标识，减少冷启动后的随机读压力。\n\n这条链路的输出是可观测的：逻辑读、物理读、脏页、LRU 淘汰、预读、fsync、Checkpoint 和慢 SQL 指标会一起变化。",
+      "实践例子：下面用订单表观察 Buffer Pool 对查询和写入的影响。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n  user_id BIGINT UNSIGNED NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  created_at DATETIME NOT NULL,\n  PRIMARY KEY (id),\n  KEY idx_user_created (user_id, created_at, id)\n) ENGINE=InnoDB;\n\n-- 高频列表：通常希望 idx_user_created 和相关聚簇页保持热\nEXPLAIN ANALYZE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001\nORDER BY created_at DESC\nLIMIT 20;\n\n-- 宽范围扫描：可能把大量低复用页带入 Buffer Pool\nEXPLAIN ANALYZE\nSELECT SUM(amount)\nFROM orders\nWHERE created_at >= '2026-06-01'\n  AND created_at <  '2026-07-01';\n\nSHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_read%';\nSHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_pages%';\nSHOW VARIABLES LIKE 'innodb_buffer_pool_size';\nSHOW VARIABLES LIKE 'innodb_old_blocks%';\n```\n\n第一条查询的健康状态是少量索引页和数据页反复命中；第二条查询会读取较宽时间范围，适合放到只读副本、离线任务或更精确的分区/索引路径中评估。",
+      "深层细节：Buffer Pool 的性能来自缓存策略和刷盘策略共同作用。\n\n- young/old 分段 LRU：新读入的页先进入 old 区，短时间内再次访问才进入 young 区；`innodb_old_blocks_pct` 和 `innodb_old_blocks_time` 用来控制 old 区比例和晋升等待时间。\n- scan resistance：大表扫描、备份校验或报表查询会读入大量低复用页，old 区能吸收这类页，保护热点页留在 young 区。\n- 预读机制：线性预读和随机预读会提前加载可能被访问的页，顺序扫描受益，误判时会增加无效 I/O 和缓存压力。\n- 脏页刷盘：`innodb_max_dirty_pages_pct`、`innodb_lru_scan_depth`、Checkpoint 年龄和存储 I/O 能力共同影响刷盘节奏。\n- Change Buffer：普通二级索引变更可以先缓存在 change buffer，后续读到相关页时合并，降低部分随机写页读取。\n- 读写耦合：读路径需要空闲 frame，写路径制造脏页；刷盘跟不上时，读缺页、写入提交和后台 I/O 都会互相影响。\n- 热点集大小：工作集超过 Buffer Pool 时，物理读持续增加；新增索引、宽主键、宽行和低选择性扫描都会压缩可缓存的有效业务页。\n- 在线调整：MySQL 支持在线调整 `innodb_buffer_pool_size`，生产变更仍要观察操作系统内存、swap、NUMA、容器限制和实例并发。\n\n经验判断是：Buffer Pool 调优先收集工作集、命中率、脏页和 I/O 证据，再决定加内存、改 SQL、补索引、拆负载或调整刷盘参数。",
+      "工程场景与取舍：Buffer Pool 设计要和实例角色、负载形态和恢复目标匹配。\n\n- OLTP 主库：优先保障热点索引页和数据页命中，控制报表扫描、批量导出和大范围修复任务。\n- 只读副本：可承接报表和导出，仍要评估缓存污染、复制 SQL 线程、临时表和磁盘 I/O。\n- 写入高峰：观察脏页比例、Redo 写入、Checkpoint 推进和存储延迟，避免刷盘追赶造成延迟抖动。\n- 实例重启：开启 Buffer Pool dump/load 能保存热点页信息，减少重启后的冷缓存冲击。\n- 内存配置：Buffer Pool 通常是 MySQL 实例最大内存消费者，还要给连接、排序、临时表、Redo、操作系统页缓存和监控代理留空间。\n- 云数据库：参数组、实例规格、存储 IOPS 和自动重启策略会限制可调范围，变更前要确认平台文档与回滚窗口。\n\nBuffer Pool 的目标是让高价值页稳定驻留，把低价值扫描和突发写入的影响控制在可恢复范围内。",
+      "边界与故障模式：Buffer Pool 问题通常会在指标、SQL 和 I/O 三处同时留下证据。\n\n- 命中率下降：`Innodb_buffer_pool_reads` 相对 `Innodb_buffer_pool_read_requests` 增长，磁盘读、p95/p99 延迟和 CPU 等待上升。\n- 缓存污染：大范围查询后热点接口变慢，old 区、LRU 淘汰、物理读和慢查询时间窗口能对上。\n- 脏页积压：`Innodb_buffer_pool_pages_dirty` 升高，Checkpoint 推进变慢，写入延迟和后台 I/O 抖动增加。\n- 空闲页紧张：free pages 长期很低，LRU 扫描和脏页刷盘被迫参与前台读缺页路径。\n- 预读误判：预读页大量进入 Buffer Pool 后复用低，物理 I/O 增加，热点命中受到挤压。\n- 冷启动：实例重启、故障切换或扩容后热点页丢失，短时间内物理读和延迟升高。\n- 内存压力：Buffer Pool 配置过大可能挤压 OS、连接线程、临时内存和容器限制，表现为 swap、OOM 或系统级延迟抖动。\n- 参数误调：过度追求高脏页比例会增加恢复窗口和刷盘尖峰，过度刷盘会浪费 I/O 并降低写入吞吐。\n\n排障时把这些现象放到同一时间线，才能区分 SQL 访问路径问题、容量问题和刷盘问题。",
+      "排查实践：Buffer Pool 相关慢查询或 I/O 抖动建议按固定证据链定位。\n\n1. 固化时间窗口：记录慢接口、SQL 样本、QPS、p95/p99、实例角色、重启/发布/报表任务和存储 I/O。\n2. 看逻辑读与物理读：比较 `Innodb_buffer_pool_read_requests` 和 `Innodb_buffer_pool_reads`，判断缺页读是否升高。\n3. 看页状态：检查 total/free/data/dirty pages，确认工作集、空闲页和脏页压力。\n4. 看 SQL 来源：用慢查询日志、Performance Schema 和 `EXPLAIN ANALYZE` 找出扫描行、返回行、索引和回表行为。\n5. 看 InnoDB 状态：用 `SHOW ENGINE INNODB STATUS\\G` 观察 Buffer Pool、I/O、Pending reads/writes、LRU 和 flush 信息。\n6. 看配置边界：确认 `innodb_buffer_pool_size`、`innodb_old_blocks_pct`、`innodb_old_blocks_time`、`innodb_max_dirty_pages_pct`、`innodb_lru_scan_depth` 和 dump/load 配置。\n7. 小步修复：收窄 SQL、补覆盖索引、限制导出、迁移报表到副本、增加内存、调整刷盘或预热策略，并用同一组指标复测。\n\n```sql\nSHOW ENGINE INNODB STATUS\\G\n\nSHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_read%';\nSHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_pages%';\nSHOW GLOBAL STATUS LIKE 'Innodb_data%';\n\nSHOW VARIABLES LIKE 'innodb_buffer_pool_size';\nSHOW VARIABLES LIKE 'innodb_old_blocks%';\nSHOW VARIABLES LIKE 'innodb_max_dirty_pages_pct';\nSHOW VARIABLES LIKE 'innodb_lru_scan_depth';\nSHOW VARIABLES LIKE 'innodb_buffer_pool_dump%';\nSHOW VARIABLES LIKE 'innodb_buffer_pool_load%';\n\nSELECT POOL_ID, POOL_SIZE, FREE_BUFFERS, DATABASE_PAGES, OLD_DATABASE_PAGES,\n       MODIFIED_DATABASE_PAGES, PENDING_READS, PENDING_FLUSH_LRU,\n       PENDING_FLUSH_LIST, PAGES_MADE_YOUNG, PAGES_NOT_MADE_YOUNG,\n       PAGES_READ, PAGES_CREATED, PAGES_WRITTEN\nFROM information_schema.INNODB_BUFFER_POOL_STATS\\G\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n```\n\n有效修复会体现为物理读下降、热点 SQL 延迟收敛、脏页比例平稳、存储 I/O 队列降低和重启后预热时间可预测。",
+      "指标与配置速查：Buffer Pool 指标要组合解读。\n\n- `Innodb_buffer_pool_read_requests`：逻辑读请求，代表从 Buffer Pool 读取页的请求规模。\n- `Innodb_buffer_pool_reads`：需要从磁盘读取的页数，持续升高通常指向缺页或缓存污染。\n- `Innodb_buffer_pool_pages_total`：Buffer Pool 总页数，可结合页大小估算容量。\n- `Innodb_buffer_pool_pages_free`：空闲页数量，长期很低时要结合 LRU 和脏页判断压力。\n- `Innodb_buffer_pool_pages_dirty`：脏页数量，影响刷盘压力和恢复窗口。\n- `INNODB_BUFFER_POOL_STATS`：能按 pool 查看 free、old、modified、pending flush/read 和 made young 等更细指标。\n- `innodb_buffer_pool_size`：Buffer Pool 总容量，通常按实例内存和负载预算设置。\n- `innodb_old_blocks_pct`、`innodb_old_blocks_time`：控制 old 区大小和页晋升，适合治理扫描污染。\n- `innodb_max_dirty_pages_pct`、`innodb_lru_scan_depth`：影响刷盘节奏和 LRU 可用页补充。\n- `innodb_buffer_pool_dump_at_shutdown`、`innodb_buffer_pool_load_at_startup`：控制关闭保存和启动加载热点页标识。\n\n命中率可以用 `1 - Innodb_buffer_pool_reads / Innodb_buffer_pool_read_requests` 粗略估算，生产判断还要结合 SQL 访问路径、工作集变化、存储延迟和冷启动状态。",
+      "常见误区：Buffer Pool 的正确理解来自页级访问路径。\n\n- Buffer Pool 缓存的是 InnoDB 页，索引页和数据页都会竞争同一类内存预算。\n- 命中率高代表多数页读来自内存，慢 SQL 仍然可能来自锁等待、排序、临时表、CPU 或网络返回。\n- 大范围扫描的代价包括 I/O、CPU、回表、排序和缓存扰动，治理重点是限制工作量和隔离负载。\n- 脏页是正常写入路径的一部分，关键是刷盘节奏、Checkpoint 和恢复窗口保持可控。\n- Buffer Pool 越大，冷启动预热、恢复演练、内存碎片和实例迁移也需要纳入运维计划。\n- 调整内存参数前先确认操作系统和容器边界，避免数据库内存扩大后挤压其他必要内存。",
+      "面试追问：Buffer Pool 题适合按“定义 -> 页访问 -> 缓存策略 -> 刷盘 -> 证据 -> 取舍”回答。\n\n- Buffer Pool 解决什么问题，缓存的对象是什么？\n- InnoDB 读取一个索引页时，Buffer Pool 命中和缺页分别会发生什么？\n- Free list、LRU list、flush list 分别解决什么管理问题？\n- young/old 分段 LRU 为什么能降低大表扫描污染？\n- 脏页如何产生，后台刷盘、Checkpoint 和 Redo Log 之间有什么关系？\n- `Innodb_buffer_pool_read_requests` 与 `Innodb_buffer_pool_reads` 如何用于判断物理读压力？\n- 为什么同一条 SQL 在冷缓存和热缓存下延迟差异很大？\n- Buffer Pool 配置过小、过大分别会带来哪些线上表现？\n- 报表查询、备份扫描、批量修复如何影响 Buffer Pool，生产中怎样隔离？\n- 如何设计一次 Buffer Pool 命中率下降或脏页积压的排查路径？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 InnoDB Storage Engine、Architecture、Buffer Pool、Online Buffer Pool Resizing、Buffer Pool Flushing、Midpoint Insertion、Read-Ahead、Buffer Pool Dump/Load、INNODB_BUFFER_POOL_STATS、Physical Structure、Clustered and Secondary Indexes、Checkpoints、Change Buffer、Redo Log、SHOW ENGINE、Performance Schema 和 Slow Query Log 文档，并结合小林 coding、CS-Notes 的 MySQL 学习资料校准中文表达。官方资料用于定义、列表结构、参数、状态变量和观测表，中文资料用于补充学习路径、面试问法和工程化表达。"
+    ],
+    typicalProblems: [
+      "Buffer Pool 解决什么问题，为什么 InnoDB 以页为单位缓存数据和索引？",
+      "一次 SELECT 命中 Buffer Pool 与发生缺页读取时，执行路径分别怎样变化？",
+      "Free list、LRU list、flush list、dirty page 分别承担什么职责？",
+      "MySQL 的 young/old 分段 LRU 如何缓解大表扫描造成的缓存污染？",
+      "预读、Change Buffer、脏页刷盘和 Checkpoint 如何共同影响读写延迟？",
+      "如何用 `Innodb_buffer_pool_read_requests`、`Innodb_buffer_pool_reads`、dirty pages 和 `INNODB_BUFFER_POOL_STATS` 判断缓存健康度？",
+      "同一条慢 SQL 如何区分索引问题、冷缓存问题、缓存污染问题和刷盘压力问题？",
+      "`innodb_buffer_pool_size`、`innodb_old_blocks_pct`、`innodb_old_blocks_time`、`innodb_max_dirty_pages_pct` 各自影响什么？",
+      "数据库重启或故障切换后，Buffer Pool dump/load 如何降低冷启动影响？",
+      "生产环境如何在内存占用、热点命中、写入吞吐、恢复时间和报表隔离之间做取舍？"
+    ],
+    commonCommands: [
+      "SHOW ENGINE INNODB STATUS\\G",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_read%'",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_pages%'",
+      "SHOW VARIABLES LIKE 'innodb_buffer_pool_size'",
+      "SHOW VARIABLES LIKE 'innodb_old_blocks%'",
+      "SHOW VARIABLES LIKE 'innodb_max_dirty_pages_pct'",
+      "SHOW VARIABLES LIKE 'innodb_lru_scan_depth'",
+      "SHOW VARIABLES LIKE 'innodb_buffer_pool_dump%'",
+      "SHOW VARIABLES LIKE 'innodb_buffer_pool_load%'",
+      "SELECT * FROM information_schema.INNODB_BUFFER_POOL_STATS\\G",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10",
+      "EXPLAIN ANALYZE <sql>"
+    ],
+    useCases: [
+      "慢 SQL 排查",
+      "数据库内存配置",
+      "热点数据缓存",
+      "大表扫描治理",
+      "脏页刷盘调优",
+      "实例重启预热",
+      "读 I/O 压力分析",
+      "报表负载隔离"
+    ],
     prerequisites: ["innodb"],
-    related: ["dirty-page", "checkpoint", "page"],
+    related: ["page", "dirty-page", "checkpoint", "redo-log", "clustered-index", "mysql-index", "sql-optimization", "slow-query-log"],
   },
   "mysql-index": {
     prerequisites: ["sql"],

@@ -5689,6 +5689,30 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: InnoDB Buffer Pool",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-buffer-pool.html",
   },
+  "mysql-innodb-buffer-pool-resize": {
+    title: "MySQL Reference Manual: Online InnoDB Buffer Pool Resizing",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-buffer-pool-resize.html",
+  },
+  "mysql-innodb-buffer-pool-flushing": {
+    title: "MySQL Reference Manual: Configuring Buffer Pool Flushing",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-buffer-pool-flushing.html",
+  },
+  "mysql-innodb-performance-midpoint-insertion": {
+    title: "MySQL Reference Manual: Making the Buffer Pool Scan Resistant",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-performance-midpoint_insertion.html",
+  },
+  "mysql-innodb-performance-read-ahead": {
+    title: "MySQL Reference Manual: Configuring InnoDB Buffer Pool Prefetching",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-performance-read_ahead.html",
+  },
+  "mysql-innodb-preload-buffer-pool": {
+    title: "MySQL Reference Manual: Saving and Restoring the Buffer Pool State",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-preload-buffer-pool.html",
+  },
+  "mysql-information-schema-innodb-buffer-pool-stats": {
+    title: "MySQL Reference Manual: The INFORMATION_SCHEMA INNODB_BUFFER_POOL_STATS Table",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/information-schema-innodb-buffer-pool-stats-table.html",
+  },
   "mysql-innodb-physical-structure": {
     title: "MySQL Reference Manual: InnoDB Row Formats and Physical Structure",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-physical-structure.html",
