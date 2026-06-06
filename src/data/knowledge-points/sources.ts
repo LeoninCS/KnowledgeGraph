@@ -2221,6 +2221,30 @@ export const knowledgeSources = {
     title: "RFC 6455: The WebSocket Protocol",
     url: "https://www.rfc-editor.org/rfc/rfc6455",
   },
+  "whatwg-websockets": {
+    title: "WHATWG: WebSockets Standard",
+    url: "https://websockets.spec.whatwg.org/",
+  },
+  "mdn-websocket-api": {
+    title: "MDN: WebSocket API",
+    url: "https://developer.mozilla.org/en-US/docs/Web/API/WebSocket",
+  },
+  "mdn-websocket-bufferedamount": {
+    title: "MDN: WebSocket bufferedAmount",
+    url: "https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/bufferedAmount",
+  },
+  "rfc8441-websocket-http2": {
+    title: "RFC 8441: Bootstrapping WebSockets with HTTP/2",
+    url: "https://www.rfc-editor.org/rfc/rfc8441",
+  },
+  "nginx-websocket-proxying": {
+    title: "NGINX Docs: WebSocket proxying",
+    url: "https://nginx.org/en/docs/http/websocket.html",
+  },
+  "ruanyifeng-websocket": {
+    title: "阮一峰: WebSocket 教程",
+    url: "https://www.ruanyifeng.com/blog/2017/05/websocket.html",
+  },
   "grpc-core-concepts": {
     title: "gRPC Docs: Core concepts, architecture and lifecycle",
     url: "https://grpc.io/docs/what-is-grpc/core-concepts/",
