@@ -3881,6 +3881,14 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Process Addresses",
     url: "https://www.kernel.org/doc/html/latest/mm/process_addrs.html",
   },
+  "linux-kernel-page-tables": {
+    title: "Linux Kernel Documentation: Page Tables",
+    url: "https://docs.kernel.org/mm/page_tables.html",
+  },
+  "linux-kernel-transparent-hugepage": {
+    title: "Linux Kernel Documentation: Transparent Hugepage Support",
+    url: "https://docs.kernel.org/admin-guide/mm/transhuge.html",
+  },
   "linux-kernel-overcommit-accounting": {
     title: "Linux Kernel Documentation: Overcommit Accounting",
     url: "https://docs.kernel.org/mm/overcommit-accounting.html",
@@ -3933,6 +3941,10 @@ export const knowledgeSources = {
     title: "Linux man-pages: mmap(2)",
     url: "https://man7.org/linux/man-pages/man2/mmap.2.html",
   },
+  "linux-man-pages-getpagesize": {
+    title: "Linux man-pages: getpagesize(2)",
+    url: "https://man7.org/linux/man-pages/man2/getpagesize.2.html",
+  },
   "linux-man-pages-mprotect": {
     title: "Linux man-pages: mprotect(2)",
     url: "https://man7.org/linux/man-pages/man2/mprotect.2.html",
@@ -3952,6 +3964,10 @@ export const knowledgeSources = {
   "linux-man-pages-proc-meminfo": {
     title: "Linux man-pages: proc_meminfo(5)",
     url: "https://man7.org/linux/man-pages/man5/proc_meminfo.5.html",
+  },
+  "linux-man-pages-proc-vmstat": {
+    title: "Linux man-pages: proc_vmstat(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_vmstat.5.html",
   },
   "linux-man-pages-proc-pid-status": {
     title: "Linux man-pages: proc_pid_status(5)",
