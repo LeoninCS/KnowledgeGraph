@@ -135,7 +135,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 存储引擎 | 2026-05-24 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 存储引擎 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "storage-engine", zh: "存储引擎", en: "Storage Engine", area: "engine", difficulty: "medium", concept: "存储引擎负责数据存储、索引实现、锁和事务能力。", explanation: ["核心概念：存储引擎（Storage Engine）聚焦存储引擎负责数据存储、索引实现、锁和事务能力。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住InnoDB 页、Buffer Pool、脏页和检查点，再看输入、状态变化、输出结果和失败分支。","适用场景：存储引擎常用于引擎选型和能力差异分析。学习时把它放回MySQL链路中观察，并结合前置知识MySQL 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，存储引擎通常会和InnoDB一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认InnoDB 页、Buffer Pool、脏页和检查点是否仍然成立。","常见误区与注意点：实践中容易把存储引擎当成孤立概念处理，结果遗漏页分裂、刷盘抖动、Buffer Pool 污染和主键设计。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["存储引擎执行原理是什么","存储引擎如何影响性能或一致性","存储引擎线上问题怎么排查"], useCases: ["引擎选型","能力差异分析"], prerequisites: ["mysql-overview"], related: ["innodb"], order: 21 },
-  /* <!-- KG_REVIEWED: 聚簇索引 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 聚簇索引 | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: 聚簇索引 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "clustered-index", zh: "聚簇索引", en: "Clustered Index", area: "engine", difficulty: "medium", concept: "InnoDB 按主键组织数据，主键索引叶子节点存储整行记录。", explanation: ["核心概念：聚簇索引（Clustered Index）聚焦InnoDB 按主键组织数据，主键索引叶子节点存储整行记录。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住InnoDB 页、Buffer Pool、脏页和检查点，再看输入、状态变化、输出结果和失败分支。","适用场景：聚簇索引常用于主键查询和表数据组织理解。学习时把它放回MySQL链路中观察，并结合前置知识InnoDB和主键判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，聚簇索引通常会和二级索引和回表一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认InnoDB 页、Buffer Pool、脏页和检查点是否仍然成立。","常见误区与注意点：实践中容易把聚簇索引当成孤立概念处理，结果遗漏页分裂、刷盘抖动、Buffer Pool 污染和主键设计。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["聚簇索引执行原理是什么","聚簇索引如何影响性能或一致性","聚簇索引线上问题怎么排查"], useCases: ["主键查询","表数据组织理解"], prerequisites: ["innodb","primary-key"], related: ["secondary-index","back-to-table"], order: 22 },
   /* <!-- KG_REVIEWED: Buffer Pool | 2026-05-24 | source_count=5 --> */
@@ -946,8 +946,71 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["clustered-index", "buffer-pool", "transaction"],
   },
   "clustered-index": {
+    sourceRefs: [
+      "mysql-innodb-index-types",
+      "mysql-primary-key-optimization",
+      "mysql-innodb-physical-structure",
+      "mysql-innodb-row-format",
+      "mysql-innodb-best-practices",
+      "mysql-optimizing-innodb-storage-layout",
+      "mysql-innodb-buffer-pool",
+      "mysql-how-mysql-uses-indexes",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "jeremy-cole-innodb-btree",
+      "mysql-planetscale-primary-key-data-types",
+      "planetscale-uuid-primary-key-mysql",
+      "xiaolincoding-mysql-index",
+    ],
+    concept:
+      "聚簇索引是 InnoDB 按主键组织整张表数据的 B+ 树，主键叶子页保存完整行记录，并直接影响查询路径、二级索引体积、写入局部性和线上排障证据。",
+    explanation: [
+      "概念定位：聚簇索引（Clustered Index）解决的是“表里的行数据按什么顺序组织、从哪里定位、如何和二级索引衔接”的问题。它出现在主键设计、订单详情查询、二级索引回表、深分页优化、随机主键写入抖动、Buffer Pool 命中率下降和大表迁移评审中。\n\n在 InnoDB 中，表数据本身存放在聚簇索引里。主键索引的叶子节点保存完整行记录，二级索引的叶子节点保存二级索引键和主键值。理解聚簇索引以后，才能把“为什么主键要短、稳定、有序”“为什么二级索引会回表”“为什么随机 UUID 写入容易抖动”串成一条工程链路。",
+      "准确定义：聚簇索引是 InnoDB 表的数据组织方式，英文通常写作 `clustered index`。\n\n- 有显式 `PRIMARY KEY` 时，InnoDB 使用主键作为聚簇索引。\n- 缺少显式主键时，InnoDB 会选择合适的非空唯一索引；仍然缺少可选索引时，会使用内部隐藏行 ID 组织数据。\n- 聚簇索引叶子节点保存整行记录，非叶子节点保存页内导航需要的键值和指针。\n- 二级索引叶子节点保存二级键和对应主键值，查询整行时再用主键访问聚簇索引。\n- 每张 InnoDB 表只有一套聚簇数据组织，多个二级索引用主键值连接到这套组织。\n\n新手可以先记住：InnoDB 的表是一棵按主键排序的 B+ 树；老手继续关注页、行格式、主键宽度、页分裂、缓存和锁范围。",
+      "心智模型：把聚簇索引看成一本按主键排序的档案册。\n\n- 主键目录页负责导航，叶子页就是档案正文，打开叶子页就能看到整行。\n- 二级索引像专题目录，例如按 `user_id` 或 `status` 排序；目录条目会写着主键号。\n- 回表像先查专题目录拿到主键号，再回到主键档案册取完整记录。\n- 主键越短，所有专题目录的条目越轻；主键越随机，新档案越容易插到册子中间。\n- Buffer Pool 像常用页缓存，热点主键范围和热点二级索引页命中率决定大量查询延迟。\n\n这个模型能解释两类常见现象：主键查询通常很直接，非覆盖二级索引查询会多一次聚簇索引访问。",
+      "主流程机制：一次读写会沿着聚簇索引、二级索引和页结构推进。\n\n1. 建表时声明 `PRIMARY KEY`，InnoDB 以这个键构造聚簇索引 B+ 树；每个叶子页保存若干完整行记录。\n2. 插入一行时，InnoDB 根据主键定位目标叶子页，把整行写入聚簇索引，同时为每个二级索引写入二级键和主键值。\n3. 主键等值查询时，执行器直接沿聚簇索引从根页、内节点页到叶子页，读取完整行。\n4. 二级索引查询命中非覆盖列时，执行器先从二级索引拿到主键值，再访问聚簇索引叶子页取剩余列。\n5. 更新主键会改变行在聚簇索引中的位置，并牵动二级索引记录；生产系统优先让主键在行生命周期内保持稳定。\n6. 页满后继续插入会触发页分裂或页重组；随机主键更容易把写入分散到多个叶子页，有序主键更容易追加到右侧页。\n7. Buffer Pool 缓存聚簇索引页和二级索引页；查询局部性、主键顺序和返回列宽度共同决定缓存压力。\n\n聚簇索引的输出是一套物理访问路径：主键定位、二级索引回表、页级 I/O、锁定范围和性能证据都围绕它展开。",
+      "实践例子：下面用订单表观察聚簇索引和二级索引的区别。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n  user_id BIGINT UNSIGNED NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  created_at DATETIME NOT NULL,\n  PRIMARY KEY (id),\n  KEY idx_user_created (user_id, created_at, id)\n) ENGINE=InnoDB;\n\n-- 主键查询：直接访问聚簇索引叶子页\nEXPLAIN ANALYZE\nSELECT id, user_id, status, amount, created_at\nFROM orders\nWHERE id = 90001;\n\n-- 二级索引覆盖：需要的列都在 idx_user_created 中\nEXPLAIN ANALYZE\nSELECT id, user_id, created_at\nFROM orders\nWHERE user_id = 1001\nORDER BY created_at DESC\nLIMIT 20;\n\n-- 二级索引回表：amount 不在 idx_user_created 中，需要回到聚簇索引取完整行\nEXPLAIN ANALYZE\nSELECT id, user_id, amount, created_at\nFROM orders\nWHERE user_id = 1001\nORDER BY created_at DESC\nLIMIT 20;\n\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\n```\n\n第一条走主键聚簇索引；第二条可从二级索引拿到全部返回列；第三条每个候选行还要用主键访问聚簇索引。慢 SQL 排查时，`EXPLAIN ANALYZE` 的实际行数、循环次数和耗时能验证这三类路径。",
+      "深层细节：聚簇索引把主键选择、页结构、缓存和写入成本连在一起。\n\n- 主键宽度：二级索引叶子会保存主键值，`BIGINT`、`CHAR(36)` UUID、复合主键的体积差异会被所有二级索引放大。\n- 主键顺序：递增或大体有序的主键提高写入局部性；随机主键增加页分裂、随机读写和 Buffer Pool 扰动概率。\n- 行格式：InnoDB 行格式、变长列、长 `VARCHAR`、`BLOB/TEXT` 溢出页会影响叶子页可容纳行数，进而影响树高和 I/O。\n- 二级索引成本：每增加一个二级索引，写入就多一份维护成本；主键越宽，二级索引空间和缓存占用越高。\n- 回表成本：非覆盖二级索引查询的回表次数接近候选行数，深分页、低选择性条件和宽返回列会放大成本。\n- 锁范围：InnoDB 行锁锁在索引记录上，访问路径决定扫描范围，也决定当前读、更新和删除持有的记录锁或 Next-Key Lock 范围。\n- 刷盘和恢复：聚簇索引页被修改后成为脏页，Redo 记录页修改，后台刷盘再把页写回表空间。\n\n经验判断是：高频 OLTP 表优先选择短、稳定、大体有序、业务泄露风险可控的主键，并用覆盖索引减少高频列表回表。",
+      "工程场景与取舍：聚簇索引设计通常落在主键方案和查询路径上。\n\n- 自增主键：适合大多数单库 OLTP 表，写入局部性好，排查简单；公开给用户时要评估枚举和业务规模泄露风险。\n- 雪花 ID 或 UUIDv7/ULID：适合分布式生成，保留一定时间有序性，能兼顾跨节点唯一性和索引局部性。\n- 随机 UUID：适合外部不可猜 ID，写入 InnoDB 聚簇索引时要承担更高的页分裂、空间和缓存成本。\n- 复合主键：适合关系明细表和天然联合唯一场景，字段顺序会影响查询、外键、二级索引体积和后续迁移。\n- 业务主键：可读性和幂等性好，稳定性、长度、变更概率和外部泄露风险需要在建模阶段确认。\n- 代理主键加唯一业务键：常用于订单、账户、库存等核心表，用短主键服务 InnoDB 组织，用唯一键服务业务幂等。\n\n主键是存储组织契约，也会影响 API、分片、复制、归档和数据修复。",
+      "边界与故障模式：聚簇索引相关问题通常能从 SQL、索引和 InnoDB 证据里看到。\n\n- 随机主键写入抖动：写入延迟升高、页分裂增多、Buffer Pool 命中下降，热点页分散到更多叶子页。\n- 主键过宽：二级索引文件变大，缓存可容纳条目变少，回表和范围扫描的 I/O 压力升高。\n- 缺少显式主键：数据修复、复制、行定位和排障证据变差，部分运维规范会要求所有 InnoDB 表显式声明主键。\n- 低效回表：`Rows_examined` 明显高于 `Rows_sent`，`EXPLAIN` 显示走二级索引但返回列无法覆盖。\n- 深分页放大：二级索引先跳过大量候选，再对宽列回表，慢查询日志和 Performance Schema 能看到扫描行上升。\n- 主键更新：行位置变化并牵动索引维护，容易引入锁等待、写入放大和应用一致性风险。\n- 大表换主键：涉及全表重建、元数据锁、复制延迟、回滚策略和业务写入窗口。\n\n这些故障都可以回到一个核心判断：当前访问路径读取了哪些索引页、哪些聚簇页、多少候选行和多少完整行。",
+      "排查实践：聚簇索引类慢 SQL 可以按下面步骤建立证据链。\n\n1. 固化 SQL：记录查询语句、绑定参数、返回列、排序、页码、调用入口和实例角色。\n2. 看表结构：用 `SHOW CREATE TABLE` 确认主键、二级索引、字段宽度、字符集和行格式。\n3. 看索引：用 `SHOW INDEX` 检查二级索引是否包含过滤列、排序列、返回列和主键。\n4. 看计划：用 `EXPLAIN FORMAT=TREE` 与 `EXPLAIN ANALYZE` 观察访问路径、实际行数、回表迹象和耗时。\n5. 看语句统计：用 Performance Schema 汇总 `ROWS_EXAMINED`、`ROWS_SENT`、排序、临时表和总耗时。\n6. 看 InnoDB 状态：观察 Buffer Pool、I/O、锁等待、死锁和脏页刷盘压力。\n7. 小步修复：缩窄返回列、补覆盖索引、改主键方案、限制深分页、分批迁移或重建索引，并用同一批参数复测。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\n\nEXPLAIN FORMAT=TREE\nSELECT id, user_id, amount, created_at\nFROM orders\nWHERE user_id = 1001\nORDER BY created_at DESC\nLIMIT 20 OFFSET 100000;\n\nEXPLAIN ANALYZE\nSELECT id, user_id, amount, created_at\nFROM orders\nWHERE user_id = 1001\nORDER BY created_at DESC\nLIMIT 20 OFFSET 100000;\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nWHERE DIGEST_TEXT LIKE 'SELECT%ORDERS%'\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n\nSHOW ENGINE INNODB STATUS\\G\nSHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool%';\n```\n\n修复有效时，常见表现是实际扫描行下降、回表减少、Buffer Pool 压力下降、p95/p99 延迟收敛。",
+      "常见误区：聚簇索引的正确心智模型来自 InnoDB 的表组织事实。\n\n- InnoDB 表数据保存在聚簇索引叶子页中，主键索引就是完整行的主要入口。\n- 二级索引保存主键值，回表成本和主键宽度、候选行数、返回列有关。\n- 主键设计会影响所有二级索引的空间、缓存命中、写入局部性和排障体验。\n- 随机主键的成本主要体现在页分裂、随机 I/O、缓存扰动和索引空间上。\n- 覆盖索引能减少回表，新增索引也会增加写入维护、存储和复制成本。\n- 大表调整主键属于高风险结构变更，需要在线 DDL 策略、影子表方案、复制监控和回滚预案。",
+      "面试追问：聚簇索引题适合按“定义 -> 组织 -> 路径 -> 成本 -> 排障 -> 取舍”回答。\n\n- 什么是 InnoDB 聚簇索引，它和主键是什么关系？\n- InnoDB 缺少显式主键时会怎样组织表数据？\n- 聚簇索引和二级索引的叶子节点分别保存什么？\n- 为什么二级索引查询可能需要回表，覆盖索引如何减少回表？\n- 主键长度为什么会影响所有二级索引的体积？\n- 自增 ID、随机 UUID、雪花 ID、复合主键作为聚簇索引键分别有什么取舍？\n- 随机主键为什么可能导致页分裂和 Buffer Pool 扰动？\n- 如何用 `EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 判断回表过多？\n- 更新主键和大表更换主键有哪些线上风险？\n- 聚簇索引、B+ 树、页、Buffer Pool、行锁之间如何串成一次查询或更新链路？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Clustered and Secondary Indexes、Primary Key Optimization、InnoDB Row Formats and Physical Structure、InnoDB Row Formats、Best Practices for InnoDB Tables、Optimizing Storage Layout for InnoDB Tables、InnoDB Buffer Pool、How MySQL Uses Indexes、EXPLAIN 文档，并结合 Jeremy Cole 的 InnoDB B+Tree 结构文章、PlanetScale 的主键类型和 UUID 主键工程文章、小林 coding 的 MySQL 索引讲解进行表达校准。官方资料用于定义、表组织、行格式、索引路径和观测命令，工程资料用于补充随机主键、页分裂、回表和面试表达。"
+    ],
+    typicalProblems: [
+      "聚簇索引解决什么问题，为什么说 InnoDB 表数据按主键组织？",
+      "聚簇索引和二级索引的叶子节点分别保存什么，回表路径如何发生？",
+      "InnoDB 表缺少显式主键时会选择什么作为聚簇索引键？",
+      "主键宽度为什么会放大所有二级索引的空间和缓存成本？",
+      "自增主键、随机 UUID、雪花 ID、复合主键分别适合哪些场景？",
+      "随机主键为什么可能增加页分裂、随机 I/O 和 Buffer Pool 扰动？",
+      "如何用覆盖索引、延迟关联和返回列收敛来降低回表成本？",
+      "主键更新、大表换主键和在线 DDL 会带来哪些锁、复制和回滚风险？",
+      "如何通过 `EXPLAIN ANALYZE`、Performance Schema、慢查询日志和 InnoDB 状态排查聚簇索引相关慢 SQL？",
+      "聚簇索引如何影响行锁范围、深分页、分库分表 ID 设计和生产排障？"
+    ],
+    commonCommands: [
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "EXPLAIN FORMAT=TREE <sql>",
+      "EXPLAIN ANALYZE <sql>",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool%'"
+    ],
+    useCases: [
+      "主键查询",
+      "表数据组织理解",
+      "二级索引回表分析",
+      "主键方案评审",
+      "随机主键写入调优",
+      "深分页优化",
+      "慢 SQL 排查",
+      "大表结构迁移"
+    ],
     prerequisites: ["innodb", "primary-key"],
-    related: ["b-plus-tree", "secondary-index"],
+    related: ["b-plus-tree", "secondary-index", "back-to-table", "covering-index", "primary-key", "page", "buffer-pool", "sql-optimization"],
   },
   "buffer-pool": {
     prerequisites: ["innodb"],

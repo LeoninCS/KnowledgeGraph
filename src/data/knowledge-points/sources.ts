@@ -5833,6 +5833,10 @@ export const knowledgeSources = {
     title: "PlanetScale: Primary key data types",
     url: "https://planetscale.com/learn/courses/mysql-for-developers/indexes/primary-key-data-types",
   },
+  "planetscale-uuid-primary-key-mysql": {
+    title: "PlanetScale: The problem with using a UUID primary key in MySQL",
+    url: "https://planetscale.com/blog/the-problem-with-using-a-uuid-primary-key-in-mysql",
+  },
   "mysql-planetscale-datetimes": {
     title: "PlanetScale: Datetimes versus timestamps in MySQL",
     url: "https://planetscale.com/blog/datetimes-vs-timestamps-in-mysql",
