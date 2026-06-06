@@ -5509,6 +5509,10 @@ export const knowledgeSources = {
     title: "MySQL 8.4 Reference Manual",
     url: "https://dev.mysql.com/doc/refman/8.4/en/",
   },
+  "mysql-sql-statements": {
+    title: "MySQL Reference Manual: SQL Statements",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/sql-statements.html",
+  },
   "mysql-innodb": {
     title: "MySQL Reference Manual: InnoDB Storage Engine",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-storage-engine.html",
@@ -5520,6 +5524,22 @@ export const knowledgeSources = {
   "mysql-innodb-physical-structure": {
     title: "MySQL Reference Manual: InnoDB Row Formats and Physical Structure",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-physical-structure.html",
+  },
+  "mysql-optimization": {
+    title: "MySQL Reference Manual: Optimization",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/optimization.html",
+  },
+  "mysql-performance-schema": {
+    title: "MySQL Reference Manual: MySQL Performance Schema",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/performance-schema.html",
+  },
+  "mysql-backup-recovery": {
+    title: "MySQL Reference Manual: Backup and Recovery",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/backup-and-recovery.html",
+  },
+  "mysql-security": {
+    title: "MySQL Reference Manual: Security",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/security.html",
   },
   "jeremy-cole-innodb-btree": {
     title: "Jeremy Cole: B+Tree index structures in InnoDB",

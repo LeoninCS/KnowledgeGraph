@@ -1,7 +1,7 @@
 import type { GraphKnowledgePoint } from "./types.ts";
 
 const mysqlKnowledgePointBase = [
-  /* <!-- KG_REVIEWED: MySQL 概览 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: MySQL 概览 | 2026-06-05 | source_count=17 --> */
   /* <!-- KG_EXPLAINED: MySQL 概览 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "mysql-overview", zh: "MySQL 概览", en: "MySQL Overview", area: "foundation", difficulty: "easy", concept: "MySQL 是常用关系型数据库，核心能力包括 SQL、事务、索引、存储引擎和复制。", explanation: ["核心概念：MySQL 概览（MySQL Overview）聚焦MySQL 是常用关系型数据库，核心能力包括 SQL、事务、索引、存储引擎和复制。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：MySQL 概览常用于业务数据存储、后台系统数据库和OLTP 场景。学习时把它放回MySQL链路中观察，并结合前置知识基础概念判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，MySQL 概览通常会和SQL、InnoDB和事务一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把MySQL 概览当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["MySQL 概览执行原理是什么","MySQL 概览如何影响性能或一致性","MySQL 概览线上问题怎么排查"], useCases: ["业务数据存储","后台系统数据库","OLTP 场景"], prerequisites: [], related: ["sql","innodb","transaction"], order: 1 },
   /* <!-- KG_REVIEWED: SQL | 2026-05-24 | source_count=5 --> */
@@ -257,6 +257,59 @@ const mysqlKnowledgePointBase = [
 
 const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {
   "mysql-overview": {
+    sourceRefs: [
+      "mysql-reference",
+      "mysql-sql-statements",
+      "mysql-innodb",
+      "mysql-innodb-architecture",
+      "mysql-innodb-index-types",
+      "mysql-acid-model",
+      "mysql-innodb-transaction-model",
+      "mysql-binary-log",
+      "mysql-replication-implementation",
+      "mysql-optimization",
+      "mysql-explain-statement",
+      "mysql-performance-schema",
+      "mysql-backup-recovery",
+      "mysql-security",
+      "xiaolin-mysql",
+      "javaguide",
+      "cs-notes",
+    ],
+    concept:
+      "MySQL 是面向 OLTP 的关系型数据库服务，通过 SQL 层、InnoDB 存储引擎、事务日志、复制和观测体系支撑可靠的业务数据读写。",
+    explanation: [
+      "概念定位：MySQL 概览（MySQL Overview）解决的是“业务数据如何被可靠地建模、读写、保护和排查”的问题。它常出现在订单、账户、库存、权限、内容、支付流水等核心链路里，承担结构化数据存储、事务一致性、查询优化、主从复制和备份恢复。\n\n准确地说，MySQL 是一个关系型数据库管理系统（RDBMS）。开发者通过 SQL 描述数据结构和读写意图，服务端负责连接认证、语法解析、权限校验、优化执行、存储引擎访问、事务提交、日志持久化、复制分发和性能观测。学习 MySQL 的入口是这条端到端链路，而核心能力集中在 `SQL`、`InnoDB`、索引、事务、Redo/Undo/Binlog、复制和 Performance Schema。",
+      "心智模型：把 MySQL 看成一套分层的数据服务流水线。\n\n- `连接与 SQL 层`：处理账号权限、会话变量、SQL 解析、优化器、执行器和结果返回。\n- `InnoDB 引擎层`：用表、页、聚簇索引、二级索引、Buffer Pool、锁、MVCC、Undo Log 和 Redo Log 管理数据。\n- `日志与复制层`：Redo Log 服务崩溃恢复，Binlog 服务复制、恢复和 CDC，同一事务提交路径需要协调引擎日志和服务层日志。\n- `运维与观测层`：慢查询日志、`EXPLAIN`、Performance Schema、`SHOW PROCESSLIST`、备份恢复、账号权限和 TLS 共同构成线上治理工具箱。\n\n新手先把一次 SQL 看成“进入 SQL 层、访问 InnoDB、产生日志、返回结果”的路径；老手会继续追踪锁等待、Buffer Pool 命中、刷盘策略、Binlog 顺序、复制延迟和恢复窗口。",
+      "主流程机制：一次典型请求从客户端进入 MySQL 后，会沿着明确的状态变化推进。\n\n1. 客户端通过连接池建立 TCP/MySQL 协议连接，完成认证，继承会话变量，例如 `autocommit`、`transaction_isolation`、`time_zone`、`sql_mode`。\n2. SQL 层解析语句、检查权限、展开视图或表达式，优化器基于统计信息选择索引、JOIN 顺序和访问方法。\n3. 执行器调用存储引擎接口。InnoDB 先查 Buffer Pool，缺页时读取磁盘页；二级索引命中后可能回到聚簇索引取完整行。\n4. 读请求根据隔离级别使用当前读或一致性读；写请求修改记录前生成 Undo，修改页后产生 Redo，必要时加行锁、间隙锁或 Next-Key Lock。\n5. 提交阶段把事务状态、Redo、Binlog 和内存脏页纳入持久化与复制路径。提交完成后结果返回客户端，慢查询日志、Performance Schema、复制线程和监控指标记录对应证据。\n\n这条链路说明了 MySQL 的关键特征：SQL 决定访问意图，索引决定访问路径，事务决定一致性边界，日志决定恢复能力，复制决定读扩展和高可用基础，观测决定排障效率。",
+      "实践例子：从一个订单表可以观察 MySQL 的主路径。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT PRIMARY KEY,\n  user_id BIGINT NOT NULL,\n  status VARCHAR(32) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  created_at DATETIME NOT NULL,\n  KEY idx_user_created (user_id, created_at)\n) ENGINE=InnoDB;\n\nEXPLAIN ANALYZE\nSELECT id, status, amount\nFROM orders\nWHERE user_id = 1001\nORDER BY created_at DESC\nLIMIT 20;\n\nSHOW VARIABLES LIKE 'transaction_isolation';\nSHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit';\nSHOW VARIABLES LIKE 'sync_binlog';\n```\n\n这个例子里，`ENGINE=InnoDB` 决定事务、行锁和恢复机制；`PRIMARY KEY` 决定聚簇索引组织方式；`idx_user_created` 让高频用户订单列表走有序范围扫描；`EXPLAIN ANALYZE` 能看到实际执行时间、扫描行数和访问路径；两个刷盘变量体现提交延迟与持久性取舍。",
+      "工程场景：MySQL 的设计重点取决于业务读写形态和故障目标。\n\n- 建模：核心实体优先明确主键、唯一约束、字段范围、字符集、时间语义和生命周期，给后续索引、分片和归档留下空间。\n- 查询：高频 SQL 先围绕过滤条件、排序条件和返回列设计索引，再用 `EXPLAIN` 校验访问类型、扫描行数、临时表和排序行为。\n- 事务：事务范围越大，锁持有时间、Undo 积压、复制延迟和死锁概率越高；短事务、固定访问顺序和幂等重试能显著降低线上波动。\n- 持久性：`innodb_flush_log_at_trx_commit=1` 与 `sync_binlog=1` 提供强持久化语义，写入延迟和 fsync 压力也会提高。\n- 复制：读写分离能扩展读流量，业务需要识别复制延迟、读己之写、一致性读路由和故障切换窗口。\n- 安全：账号权限、最小授权、TLS、备份加密、审计和脱敏决定数据暴露面。",
+      "边界与故障模式：MySQL 线上问题通常能映射到链路中的某一层。\n\n- SQL 层：慢 SQL、全表扫描、隐式类型转换、排序溢出、临时表、统计信息偏差，会表现为 p95/p99 延迟升高和 CPU/I/O 抬升。\n- InnoDB 层：锁等待、死锁、长事务、Buffer Pool 命中率下降、脏页刷盘抖动，会表现为吞吐下降、提交变慢或连接堆积。\n- 日志层：Redo 写入压力、Binlog fsync、磁盘空间紧张，会直接影响提交延迟和恢复时间。\n- 复制层：大事务、单线程瓶颈、网络抖动、从库资源不足，会产生 `Seconds_Behind_Source`、Relay Log 积压和读到旧数据。\n- 运维层：连接池放大、权限配置、备份恢复演练、字符集/排序规则、时区和版本差异，会影响上线、迁移和审计。\n\n排障时先定位层级，再收集该层证据，能把“数据库慢”拆成可验证的事实。",
+      "排查实践：一次生产排查可以按证据链推进。\n\n1. 明确症状：看错误码、超时点、慢查询样本、QPS、p95/p99、连接数、复制延迟和磁盘 I/O。\n2. 查现场连接：用 `SHOW PROCESSLIST` 找出长事务、锁等待、复制线程、DDL 等待和连接堆积。\n3. 查执行计划：用 `EXPLAIN` 或 `EXPLAIN ANALYZE` 确认索引、扫描行数、排序、临时表和实际耗时。\n4. 查 InnoDB：用 `SHOW ENGINE INNODB STATUS\\G` 观察死锁、锁等待、History list length、Buffer Pool 和 I/O 状态。\n5. 查性能事件：用 Performance Schema 或 sys schema 汇总语句、等待事件、锁和 I/O 热点。\n6. 查复制与恢复：用 `SHOW REPLICA STATUS\\G`、Binlog 位点、GTID 集合、备份时间点和恢复演练结果确认数据链路。\n\n```sql\nSHOW PROCESSLIST;\nEXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 1001 ORDER BY created_at DESC LIMIT 20;\nSHOW ENGINE INNODB STATUS\\G\nSHOW REPLICA STATUS\\G\nSELECT * FROM performance_schema.events_statements_summary_by_digest\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 5;\n```\n\n这些命令覆盖会话、计划、引擎、复制和事件五类证据，适合建立稳定的排查模板。",
+      "常见误区：MySQL 性能主要由数据模型、索引、事务范围、I/O、内存、连接数和复制拓扑共同决定。单条 SQL 写法只是入口。\n\n主键是 InnoDB 表的物理组织核心，会影响页分裂、二级索引体积和写入局部性。索引服务查询路径，同时增加写入维护成本和存储占用。事务隔离提供一致性语义，也会带来锁、版本链和清理压力。复制提升读扩展和灾备能力，同时引入延迟、切换和读一致性治理。备份的价值体现在可恢复性，定期恢复演练和校验结果才是生产信心来源。",
+      "面试追问：回答 MySQL 概览类问题时，建议按“分层、链路、取舍、证据”组织。\n\n- 定义题：MySQL 是什么，SQL 层和存储引擎各负责什么。\n- 机制题：一条 SELECT 或 UPDATE 从连接进入到结果返回会经历哪些阶段。\n- 事务题：ACID 在 InnoDB 中分别依赖哪些机制，Redo、Undo、锁、MVCC 和 Binlog 承担什么角色。\n- 优化题：慢查询如何定位，`EXPLAIN` 里先看哪些字段，索引设计如何结合过滤、排序和返回列。\n- 排障题：连接打满、死锁、复制延迟、磁盘写满、主库故障分别看哪些指标和命令。\n- 取舍题：强持久化、短事务、读写分离、连接池大小、分库分表和备份恢复各自解决什么工程问题。",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 SQL Statements、InnoDB Storage Engine、InnoDB Architecture、ACID Model、Binary Log、Replication、Optimization、EXPLAIN、Performance Schema、Backup and Recovery、Security 文档，并结合小林 coding、JavaGuide、CS-Notes 中面向中文读者的索引、事务、日志和面试资料进行表达校准。官方文档用于定义、边界和命令语义，中文资料用于补足学习路径、常见问法和实践理解。"
+    ],
+    typicalProblems: [
+      "MySQL 的 SQL 层、优化器、执行器和 InnoDB 存储引擎分别负责什么？",
+      "一条 SELECT 从客户端发起到返回结果，完整流程如何描述？",
+      "一条 UPDATE 提交时，Undo Log、Redo Log、Binlog、Buffer Pool 和锁分别发挥什么作用？",
+      "为什么主键、二级索引和 Buffer Pool 会影响查询和写入性能？",
+      "线上慢查询如何用 EXPLAIN、慢查询日志和 Performance Schema 建立证据链？",
+      "事务隔离级别、MVCC、锁等待和死锁之间有什么关系？",
+      "读写分离和主从复制会带来哪些一致性、延迟和故障切换问题？",
+      "如何选择 `innodb_flush_log_at_trx_commit`、`sync_binlog`、连接池大小和事务范围？",
+      "MySQL 备份恢复、权限、TLS、字符集和时区在生产系统里分别影响什么？"
+    ],
+    commonCommands: [
+      "EXPLAIN ANALYZE <sql>",
+      "SHOW PROCESSLIST",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "SHOW REPLICA STATUS\\G",
+      "SHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit'",
+      "SELECT * FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 5"
+    ],
+    useCases: ["核心业务数据存储", "高并发 OLTP", "事务一致性", "读写分离", "备份恢复", "数据库性能排查"],
     related: ["sql", "innodb", "transaction"],
   },
   "sql": {
