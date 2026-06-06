@@ -5685,6 +5685,10 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: InnoDB Architecture",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-architecture.html",
   },
+  "mysql-innodb-buffer-pool": {
+    title: "MySQL Reference Manual: InnoDB Buffer Pool",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-buffer-pool.html",
+  },
   "mysql-innodb-physical-structure": {
     title: "MySQL Reference Manual: InnoDB Row Formats and Physical Structure",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-physical-structure.html",
@@ -5704,6 +5708,22 @@ export const knowledgeSources = {
   "mysql-innodb-auto-increment": {
     title: "MySQL Reference Manual: AUTO_INCREMENT Handling in InnoDB",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-auto-increment-handling.html",
+  },
+  "mysql-innodb-checkpoints": {
+    title: "MySQL Reference Manual: InnoDB Checkpoints",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-checkpoints.html",
+  },
+  "mysql-innodb-doublewrite-buffer": {
+    title: "MySQL Reference Manual: InnoDB Doublewrite Buffer",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-doublewrite-buffer.html",
+  },
+  "mysql-innodb-change-buffer": {
+    title: "MySQL Reference Manual: InnoDB Change Buffer",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-change-buffer.html",
+  },
+  "mysql-show-engine": {
+    title: "MySQL Reference Manual: SHOW ENGINE Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/show-engine.html",
   },
   "mysql-generated-invisible-primary-keys": {
     title: "MySQL Reference Manual: Generated Invisible Primary Keys",

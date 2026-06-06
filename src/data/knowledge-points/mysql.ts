@@ -58,9 +58,80 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 游标分页 | 2026-05-24 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 游标分页 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "cursor-pagination", zh: "游标分页", en: "Cursor Pagination", area: "sql", difficulty: "medium", concept: "游标分页用上一次结果的排序键继续查询，适合深分页优化。", explanation: ["核心概念：游标分页（Cursor Pagination）聚焦游标分页用上一次结果的排序键继续查询，适合深分页优化。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住查询语言、过滤、关联、分组、排序和分页，再看输入、状态变化、输出结果和失败分支。","适用场景：游标分页常用于信息流翻页、大表分页和日志查询。学习时把它放回MySQL链路中观察，并结合前置知识LIMIT 分页判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，游标分页通常会和索引一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认查询语言、过滤、关联、分组、排序和分页是否仍然成立。","常见误区与注意点：实践中容易把游标分页当成孤立概念处理，结果遗漏隐式转换、NULL、深分页、临时表和排序成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["游标分页执行原理是什么","游标分页如何影响性能或一致性","游标分页线上问题怎么排查"], useCases: ["信息流翻页","大表分页","日志查询"], prerequisites: ["limit-offset"], related: ["mysql-index"], order: 19 },
-  /* <!-- KG_REVIEWED: InnoDB | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: InnoDB | 2026-06-05 | source_count=18 --> */
   /* <!-- KG_EXPLAINED: InnoDB | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "innodb", zh: "InnoDB", en: "InnoDB", area: "engine", difficulty: "medium", concept: "InnoDB 是 MySQL 默认事务型存储引擎，支持事务、行锁、MVCC 和崩溃恢复。", explanation: ["核心概念：InnoDB聚焦InnoDB 是 MySQL 默认事务型存储引擎，支持事务、行锁、MVCC 和崩溃恢复。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住InnoDB 页、Buffer Pool、脏页和检查点，再看输入、状态变化、输出结果和失败分支。","适用场景：InnoDB常用于核心业务表、高并发 OLTP和事务一致性。学习时把它放回MySQL链路中观察，并结合前置知识MySQL 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，InnoDB通常会和事务、Buffer Pool和Redo Log一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认InnoDB 页、Buffer Pool、脏页和检查点是否仍然成立。","常见误区与注意点：实践中容易把InnoDB当成孤立概念处理，结果遗漏页分裂、刷盘抖动、Buffer Pool 污染和主键设计。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["InnoDB执行原理是什么","InnoDB如何影响性能或一致性","InnoDB线上问题怎么排查"], useCases: ["核心业务表","高并发 OLTP","事务一致性"], prerequisites: ["mysql-overview"], related: ["transaction","buffer-pool","redo-log"], order: 20 },
+  {
+    sourceRefs: [
+      "mysql-innodb",
+      "mysql-innodb-architecture",
+      "mysql-innodb-buffer-pool",
+      "mysql-innodb-physical-structure",
+      "mysql-innodb-row-format",
+      "mysql-innodb-index-types",
+      "mysql-innodb-multi-versioning",
+      "mysql-innodb-consistent-read",
+      "mysql-innodb-undo-logs",
+      "mysql-innodb-redo-log",
+      "mysql-innodb-checkpoints",
+      "mysql-innodb-doublewrite-buffer",
+      "mysql-innodb-change-buffer",
+      "mysql-innodb-transaction-model",
+      "mysql-innodb-locking-reads",
+      "mysql-show-engine",
+      "xiaolincoding-mysql-index",
+      "xiaolincoding-mysql-log",
+    ],
+    id: "innodb",
+    zh: "InnoDB",
+    en: "InnoDB",
+    area: "engine",
+    difficulty: "medium",
+    concept: "InnoDB 是 MySQL 的默认事务型存储引擎，用页、B+Tree、Buffer Pool、MVCC、锁、Undo 和 Redo 支撑高并发 OLTP 的一致性、性能与崩溃恢复。",
+    explanation: [
+      "概念定位：InnoDB 解决的是“关系型业务数据怎样在高并发读写下保持正确、可恢复、可排查”的问题。它出现在订单、账户、库存、支付流水、权限、内容和配置等核心表里，是 MySQL 事务、索引、锁、MVCC、Buffer Pool、Redo Log、Undo Log 和崩溃恢复的共同载体。\n\nMySQL 的 SQL 层负责解析、优化和执行请求，InnoDB 负责把行记录组织成页和 B+Tree，管理缓存、并发控制、版本链、日志和恢复。学 InnoDB 要抓住一条主线：数据以页为单位在磁盘和内存之间流动，事务修改先进入内存并写日志，后台刷盘和崩溃恢复保证最终回到一致状态。",
+      "准确定义：InnoDB 是 MySQL 8.x 默认的通用存储引擎，面向 OLTP 工作负载设计，核心能力包括事务、行级锁、外键、崩溃恢复、一致性非锁定读和聚簇索引表组织。\n\n可以把它拆成六组关键结构：\n- 表空间与页：`.ibd`、系统表空间、Undo 表空间、Redo 日志文件，以及默认 16KB 的数据页、索引页、Undo 页。\n- 索引组织：主键聚簇索引存整行，二级索引叶子节点存二级键和主键值。\n- 内存缓存：Buffer Pool 缓存数据页和索引页，内部有 LRU、flush list、free list 等管理结构。\n- 事务版本：Undo Log 保存旧版本，Read View 判断可见性，Purge 线程清理无用历史版本。\n- 写入恢复：Redo Log 记录物理修改，Checkpoint 推进可恢复边界，Doublewrite Buffer 降低页写坏风险。\n- 并发控制：意向锁、记录锁、间隙锁、Next-Key Lock、锁等待和死锁检测保护写入正确性。",
+      "心智模型：把 InnoDB 想成一个带缓存和账本的页工厂。\n\n- 磁盘上保存的是表空间和 B+Tree 页。\n- Buffer Pool 是车间，热点页在这里被读取、修改和淘汰。\n- Undo 是旧版本账本，服务回滚和一致性读。\n- Redo 是重做账本，服务提交后的崩溃恢复。\n- Checkpoint 是已刷盘进度线，决定异常重启要回放多少日志。\n- 锁是并发闸门，保证多个事务修改同一批记录时顺序清楚。\n\n新手先记住“读写都围绕页展开”；老手继续看页分裂、脏页刷盘、版本链膨胀、锁范围扩大、Redo 空间压力和 Buffer Pool 污染这些生产现象。",
+      "主流程机制：一次 InnoDB 读写请求可以按页、锁、版本和日志理解。\n\n1. SQL 层选出执行计划，执行器通过 handler 接口让 InnoDB 访问索引。\n2. InnoDB 根据聚簇索引或二级索引定位页；Buffer Pool 命中时直接读内存，未命中时从表空间读页进内存。\n3. 一致性读会用 Read View 判断记录版本可见性，必要时沿 Undo 版本链构造旧版本。\n4. 当前读或写入会按索引记录加锁；范围更新在可重复读下可能涉及记录锁、间隙锁或 Next-Key Lock。\n5. 写入先生成 Undo，再修改 Buffer Pool 中的页并产生 Redo 记录；被修改的页成为脏页。\n6. 事务提交时 Redo 按刷盘策略持久化，Binlog 与 Redo 共同进入提交链路；脏页由后台线程按 Checkpoint、LRU 和刷盘压力逐步写回。\n7. 实例崩溃后，InnoDB 用 Redo 重放已提交修改，用 Undo 回滚未完成事务，恢复到一致状态。\n\n这条链路解释了 InnoDB 的核心取舍：同步写日志比同步写整页更便宜，后台刷脏页提升吞吐，日志与检查点共同控制恢复时间。",
+      "实践例子：下面的订单表能同时观察聚簇索引、二级索引、Buffer Pool、锁、Undo 和 Redo。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT PRIMARY KEY,\n  user_id BIGINT NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  version INT NOT NULL DEFAULT 0,\n  created_at DATETIME NOT NULL,\n  KEY idx_user_created (user_id, created_at),\n  KEY idx_status_created (status, created_at)\n) ENGINE=InnoDB;\n\n-- 一致性读：通常走 MVCC 快照，适合普通列表查询\nSELECT id, status, amount\nFROM orders\nWHERE user_id = 1001\nORDER BY created_at DESC\nLIMIT 20;\n\n-- 当前读：读取最新版本并加锁，适合状态流转\nSTART TRANSACTION;\nSELECT id, status, version\nFROM orders\nWHERE id = 90001\nFOR UPDATE;\nUPDATE orders\nSET status = 'PAID', version = version + 1\nWHERE id = 90001 AND status = 'NEW';\nCOMMIT;\n```\n\n`PRIMARY KEY` 决定整行在聚簇索引中的位置，`idx_user_created` 服务用户订单列表，`FOR UPDATE` 进入当前读并持有锁，`UPDATE` 产生 Undo 和 Redo，提交后后台刷盘把脏页写回表空间。",
+      "深层细节：InnoDB 的性能和一致性来自几组互相制约的机制。\n\n- 聚簇索引：主键顺序影响写入局部性、页分裂、二级索引体积和范围扫描成本。递增主键通常更利于插入局部性，随机主键会提高页分裂和缓存扰动概率。\n- Buffer Pool：热点页命中率决定读延迟；大查询、全表扫描和低选择性索引会挤出热点页，表现为读 I/O 上升和延迟抖动。\n- Change Buffer：部分二级索引修改可以先缓存在 change buffer，后续读到相关页时合并，适合写多读少的普通二级索引场景。\n- MVCC：一致性读减少读写互相阻塞，长事务会保留旧版本，History list length 升高，Undo 清理变慢。\n- Redo 与 Checkpoint：写入先顺序写日志，脏页异步落盘；Checkpoint 推进慢会拉长恢复窗口，并在日志空间紧张时反向压低写入吞吐。\n- Doublewrite Buffer：脏页写盘前先写到双写区域，降低操作系统或存储故障造成半页写入后的恢复风险。\n- 锁与索引：行锁实际锁在索引记录上，条件无法有效走索引时，扫描范围和锁等待都会放大。",
+      "工程场景：InnoDB 的调优常围绕主键、内存、事务、日志和观测展开。\n\n- 核心 OLTP 表：主键要稳定、短、递增或近似递增，字段和索引宽度会直接影响页密度与二级索引空间。\n- 高频查询：联合索引要服务过滤、排序和回表成本，避免让 Buffer Pool 被低效扫描污染。\n- 高并发写入：事务保持短小，按固定顺序访问行，减少长锁、死锁和 Undo 积压。\n- 写入峰值：观察 Redo 写入、脏页比例、fsync 延迟和 Checkpoint 年龄，避免日志空间成为吞吐瓶颈。\n- 混合负载：报表、大导出、批量订正和在线 DDL 要安排批次、限速和只读副本，控制缓存污染、复制延迟和锁等待。\n- 故障恢复：RTO 受 Redo 回放量、脏页、存储吞吐和未完成事务回滚影响，压测与恢复演练能给出真实边界。",
+      "边界与故障：InnoDB 问题通常会从某个内部结构外溢成线上症状。\n\n- Buffer Pool 命中率下降：读 I/O、延迟和 CPU 上升，常见原因是索引选择差、全表扫描、大范围导出或热点集超过内存。\n- 脏页刷盘抖动：提交变慢、后台 I/O 打满，常见原因是写入峰值、Checkpoint 追赶和存储 fsync 变慢。\n- 长事务与 Undo 膨胀：History list length 升高，Purge 追不上，快照读要沿更长版本链判断可见性。\n- 锁等待与死锁：连接堆积、超时、事务回滚，常见原因是访问顺序交叉、范围条件过大或索引缺失。\n- 页分裂与碎片：随机主键或频繁更新可变长字段会增加页移动、空间浪费和写放大。\n- Redo 压力：日志写入或 Checkpoint 受阻会让写事务等待，表现为吞吐下降和提交延迟抖动。\n- 崩溃恢复窗口变长：脏页多、Redo 待回放量大、未完成大事务多，会延长实例重启可用时间。",
+      "排查实践：生产环境定位 InnoDB 问题建议先建立证据链。\n\n1. 固化症状：记录时间窗口、SQL 样本、QPS、p95/p99、错误码、连接数、CPU、磁盘 I/O、复制延迟和实例版本。\n2. 看会话与锁：用 `SHOW PROCESSLIST`、`performance_schema.data_locks` 和 `data_lock_waits` 定位等待事务、被阻塞 SQL 和锁对象。\n3. 看 InnoDB 全局状态：用 `SHOW ENGINE INNODB STATUS\\G` 观察 `TRANSACTIONS`、`LATEST DETECTED DEADLOCK`、`History list length`、Buffer Pool、I/O 和 SEMAPHORES。\n4. 看 Buffer Pool：检查命中率、脏页、页读写、LRU 淘汰和热点表索引，确认低效扫描或内存不足。\n5. 看日志与刷盘：检查 Redo 写入、Checkpoint 推进、fsync 延迟、脏页比例和存储队列。\n6. 看 SQL 计划：用 `EXPLAIN ANALYZE` 校验扫描行数、索引、排序、临时表和实际耗时。\n7. 小步修复：缩短事务、补索引、拆批、限速、调整 Buffer Pool/Redo 参数、隔离报表负载，并用同一组指标复测。\n\n```sql\nSHOW ENGINE INNODB STATUS\\G\nSHOW PROCESSLIST;\n\nSELECT *\nFROM performance_schema.data_lock_waits\\G\n\nSELECT ENGINE_TRANSACTION_ID, THREAD_ID, EVENT_ID, OBJECT_SCHEMA, OBJECT_NAME,\n       INDEX_NAME, LOCK_TYPE, LOCK_MODE, LOCK_STATUS, LOCK_DATA\nFROM performance_schema.data_locks\\G\n\nSHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool%';\nSHOW GLOBAL STATUS LIKE 'Innodb_data%';\nSHOW GLOBAL STATUS LIKE 'Innodb_log%';\n\nSHOW VARIABLES LIKE 'innodb_buffer_pool_size';\nSHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit';\nSHOW VARIABLES LIKE 'innodb_redo_log_capacity';\n```",
+      "指标与命令速查：InnoDB 排障要把单点命令连成可复核证据。\n\n- `SHOW ENGINE INNODB STATUS\\G`：看死锁、锁等待、长事务、History list length、Buffer Pool、I/O 和后台线程状态。\n- `performance_schema.data_locks`：看锁类型、锁模式、索引名和锁数据。\n- `performance_schema.data_lock_waits`：看阻塞关系，适合构造等待链。\n- `Innodb_buffer_pool_read_requests` 与 `Innodb_buffer_pool_reads`：估算逻辑读和物理读差距。\n- `Innodb_buffer_pool_pages_dirty`：观察脏页规模和刷盘压力。\n- `Innodb_data_reads`、`Innodb_data_writes`、`Innodb_data_fsyncs`：观察 I/O 行为。\n- `innodb_flush_log_at_trx_commit`：控制 Redo 提交刷盘语义，影响持久性和延迟。\n- `innodb_redo_log_capacity`：控制 Redo 日志总容量，影响写入峰值与恢复窗口。",
+      "常见误区：InnoDB 的正确理解来自页、索引、事务和日志的组合。\n\n- 行锁锁定的是索引记录，索引选择决定锁范围。\n- 普通 `SELECT` 多数走一致性读，`SELECT ... FOR UPDATE` 和写语句走当前读。\n- 事务提交依赖日志先行，数据页可以稍后刷盘。\n- Buffer Pool 命中率高代表读路径更健康，仍要结合扫描行数、热点分布和脏页压力判断。\n- Redo 保证崩溃后重做已提交修改，Undo 支持回滚和旧版本读取。\n- 主键设计是存储结构设计，影响整行位置、二级索引体积、页分裂和写入局部性。",
+      "面试追问：InnoDB 题可以按“结构 -> 读写 -> 并发 -> 恢复 -> 排障 -> 取舍”回答。\n\n- InnoDB 为什么适合作为 MySQL 默认 OLTP 存储引擎？\n- InnoDB 的页、表空间、聚簇索引、二级索引之间是什么关系？\n- 一条普通 `SELECT` 在 InnoDB 中如何读取数据，Buffer Pool 和 MVCC 分别做什么？\n- 一条 `UPDATE` 从定位记录到提交，会产生哪些锁、Undo、Redo 和脏页？\n- Redo Log、Undo Log、Binlog 在职责上怎样区分？\n- Checkpoint、脏页刷盘和崩溃恢复之间有什么关系？\n- 长事务为什么会造成 Undo 积压和 History list length 升高？\n- 为什么索引缺失会放大锁等待和死锁概率？\n- `SHOW ENGINE INNODB STATUS` 里哪些字段最适合排查死锁、长事务、Buffer Pool 和 I/O？\n- 如何在强持久性、写入吞吐、恢复时间和硬件成本之间做取舍？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 InnoDB Storage Engine、Architecture、Buffer Pool、Physical Structure、Row Formats、Clustered and Secondary Indexes、Multi-Versioning、Consistent Nonlocking Reads、Undo Logs、Redo Log、Checkpoints、Doublewrite Buffer、Change Buffer、Transaction Model、Locking Reads 和 SHOW ENGINE 文档，并结合小林 coding 的 MySQL 索引与日志文章校准中文表达和面试路径。官方资料用于定义、结构、命令和边界，中文资料用于补充学习主线、机制串联和常见问法。"
+    ],
+    typicalProblems: [
+      "InnoDB 解决什么问题，为什么它适合作为 MySQL 默认事务型存储引擎？",
+      "InnoDB 的表空间、页、聚簇索引和二级索引如何组织一行数据？",
+      "一次普通 SELECT 如何经过执行计划、Buffer Pool、索引页和 MVCC 返回结果？",
+      "一次 UPDATE 如何产生 Undo、Redo、脏页、锁和提交动作？",
+      "Redo Log、Undo Log、Checkpoint、Doublewrite Buffer 分别承担什么职责？",
+      "Buffer Pool 命中率下降、脏页过多和 Redo 压力会造成哪些线上现象？",
+      "长事务为什么会导致 History list length 升高，Purge 变慢后如何验证？",
+      "为什么 InnoDB 行锁依赖索引，索引缺失会如何放大锁等待和死锁？",
+      "如何用 `SHOW ENGINE INNODB STATUS\\G`、Performance Schema 和 `SHOW GLOBAL STATUS` 排查 InnoDB 问题？",
+      "主键设计、事务范围、Buffer Pool 大小、Redo 容量和刷盘策略之间如何取舍？"
+    ],
+    commonCommands: [
+      "SHOW ENGINE INNODB STATUS\\G",
+      "SHOW PROCESSLIST",
+      "SELECT * FROM performance_schema.data_lock_waits\\G",
+      "SELECT * FROM performance_schema.data_locks\\G",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool%'",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_data%'",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_log%'",
+      "SHOW VARIABLES LIKE 'innodb_buffer_pool_size'",
+      "SHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit'",
+      "SHOW VARIABLES LIKE 'innodb_redo_log_capacity'",
+      "EXPLAIN ANALYZE <sql>"
+    ],
+    useCases: ["核心业务表", "高并发 OLTP", "事务一致性", "崩溃恢复", "慢 SQL 排查", "锁等待排查", "写入性能调优", "主键与索引设计"],
+    prerequisites: ["mysql-overview"],
+    related: ["transaction", "buffer-pool", "redo-log", "undo-log", "mvcc", "clustered-index", "row-lock", "crash-recovery"],
+    order: 20,
+  },
   /* <!-- KG_REVIEWED: 存储引擎 | 2026-05-24 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 存储引擎 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "storage-engine", zh: "存储引擎", en: "Storage Engine", area: "engine", difficulty: "medium", concept: "存储引擎负责数据存储、索引实现、锁和事务能力。", explanation: ["核心概念：存储引擎（Storage Engine）聚焦存储引擎负责数据存储、索引实现、锁和事务能力。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住InnoDB 页、Buffer Pool、脏页和检查点，再看输入、状态变化、输出结果和失败分支。","适用场景：存储引擎常用于引擎选型和能力差异分析。学习时把它放回MySQL链路中观察，并结合前置知识MySQL 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，存储引擎通常会和InnoDB一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认InnoDB 页、Buffer Pool、脏页和检查点是否仍然成立。","常见误区与注意点：实践中容易把存储引擎当成孤立概念处理，结果遗漏页分裂、刷盘抖动、Buffer Pool 污染和主键设计。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["存储引擎执行原理是什么","存储引擎如何影响性能或一致性","存储引擎线上问题怎么排查"], useCases: ["引擎选型","能力差异分析"], prerequisites: ["mysql-overview"], related: ["innodb"], order: 21 },
