@@ -3917,6 +3917,14 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Virtual File System",
     url: "https://docs.kernel.org/filesystems/vfs.html",
   },
+  "linux-kernel-ext4-journal": {
+    title: "Linux Kernel Documentation: Ext4 Journal",
+    url: "https://docs.kernel.org/filesystems/ext4/journal.html",
+  },
+  "linux-block-writeback-cache-control": {
+    title: "Linux Kernel Documentation: Explicit Volatile Write Back Cache Control",
+    url: "https://docs.kernel.org/block/writeback_cache_control.html",
+  },
   "linux-man-syscalls": {
     title: "Linux man-pages: syscalls(2)",
     url: "https://man7.org/linux/man-pages/man2/syscalls.2.html",
@@ -3968,6 +3976,46 @@ export const knowledgeSources = {
   "linux-man-pages-getrlimit": {
     title: "Linux man-pages: getrlimit(2)",
     url: "https://man7.org/linux/man-pages/man2/getrlimit.2.html",
+  },
+  "linux-man-pages-path-resolution": {
+    title: "Linux man-pages: path_resolution(7)",
+    url: "https://man7.org/linux/man-pages/man7/path_resolution.7.html",
+  },
+  "linux-man-pages-inode": {
+    title: "Linux man-pages: inode(7)",
+    url: "https://man7.org/linux/man-pages/man7/inode.7.html",
+  },
+  "linux-man-pages-open": {
+    title: "Linux man-pages: open(2)",
+    url: "https://man7.org/linux/man-pages/man2/open.2.html",
+  },
+  "linux-man-pages-read": {
+    title: "Linux man-pages: read(2)",
+    url: "https://man7.org/linux/man-pages/man2/read.2.html",
+  },
+  "linux-man-pages-write": {
+    title: "Linux man-pages: write(2)",
+    url: "https://man7.org/linux/man-pages/man2/write.2.html",
+  },
+  "linux-man-pages-fsync": {
+    title: "Linux man-pages: fsync(2)",
+    url: "https://man7.org/linux/man-pages/man2/fsync.2.html",
+  },
+  "linux-man-pages-statfs": {
+    title: "Linux man-pages: statfs(2)",
+    url: "https://man7.org/linux/man-pages/man2/statfs.2.html",
+  },
+  "linux-man-pages-unlink": {
+    title: "Linux man-pages: unlink(2)",
+    url: "https://man7.org/linux/man-pages/man2/unlink.2.html",
+  },
+  "linux-man-pages-rename": {
+    title: "Linux man-pages: rename(2)",
+    url: "https://man7.org/linux/man-pages/man2/rename.2.html",
+  },
+  "linux-man-pages-mount": {
+    title: "Linux man-pages: mount(8)",
+    url: "https://man7.org/linux/man-pages/man8/mount.8.html",
   },
   "linux-man-pages-mmap": {
     title: "Linux man-pages: mmap(2)",
@@ -4168,6 +4216,18 @@ export const knowledgeSources = {
   "ostep-vm-tlbs": {
     title: "Operating Systems: Three Easy Pieces - Paging: Faster Translations (TLBs)",
     url: "https://pages.cs.wisc.edu/~remzi/OSTEP/vm-tlbs.pdf",
+  },
+  "ostep-file-implementation": {
+    title: "Operating Systems: Three Easy Pieces - File System Implementation",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/file-implementation.pdf",
+  },
+  "ostep-file-ffs": {
+    title: "Operating Systems: Three Easy Pieces - Fast File System",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/file-ffs.pdf",
+  },
+  "ostep-file-journaling": {
+    title: "Operating Systems: Three Easy Pieces - Crash Consistency: FSCK and Journaling",
+    url: "https://pages.cs.wisc.edu/~remzi/OSTEP/file-journaling.pdf",
   },
   "ostep-processes": {
     title: "Operating Systems: Three Easy Pieces - The Abstraction: The Process",
