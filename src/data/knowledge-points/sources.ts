@@ -2249,6 +2249,10 @@ export const knowledgeSources = {
     title: "gRPC Docs: Core concepts, architecture and lifecycle",
     url: "https://grpc.io/docs/what-is-grpc/core-concepts/",
   },
+  "grpc-protocol-http2": {
+    title: "gRPC GitHub: gRPC over HTTP/2",
+    url: "https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md",
+  },
   "grpc-deadlines": {
     title: "gRPC Docs: Deadlines",
     url: "https://grpc.io/docs/guides/deadlines/",
@@ -2256,6 +2260,46 @@ export const knowledgeSources = {
   "grpc-error-handling": {
     title: "gRPC Docs: Error handling",
     url: "https://grpc.io/docs/guides/error/",
+  },
+  "grpc-metadata": {
+    title: "gRPC Docs: Metadata",
+    url: "https://grpc.io/docs/guides/metadata/",
+  },
+  "grpc-service-config": {
+    title: "gRPC Docs: Service Config",
+    url: "https://grpc.io/docs/guides/service-config/",
+  },
+  "grpc-health-checking": {
+    title: "gRPC Docs: Health Checking",
+    url: "https://grpc.io/docs/guides/health-checking/",
+  },
+  "grpc-keepalive": {
+    title: "gRPC Docs: Keepalive",
+    url: "https://grpc.io/docs/guides/keepalive/",
+  },
+  "grpc-auth": {
+    title: "gRPC Docs: Authentication",
+    url: "https://grpc.io/docs/guides/auth/",
+  },
+  "grpc-performance": {
+    title: "gRPC Docs: Performance Best Practices",
+    url: "https://grpc.io/docs/guides/performance/",
+  },
+  "grpc-debugging": {
+    title: "gRPC Docs: Debugging",
+    url: "https://grpc.io/docs/guides/debugging/",
+  },
+  "grpc-web-basics": {
+    title: "gRPC Docs: gRPC-Web Basics",
+    url: "https://grpc.io/docs/platforms/web/basics/",
+  },
+  "grpc-load-balancing-blog": {
+    title: "gRPC Blog: Load Balancing in gRPC",
+    url: "https://grpc.io/blog/grpc-load-balancing/",
+  },
+  "quant67-grpc-internals": {
+    title: "Quant67: gRPC 深度剖析",
+    url: "https://quant67.com/post/grpc/grpc.html",
   },
   "protobuf-overview": {
     title: "Protocol Buffers Documentation: Overview",
