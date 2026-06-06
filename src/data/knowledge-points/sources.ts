@@ -3885,6 +3885,10 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Page Tables",
     url: "https://docs.kernel.org/mm/page_tables.html",
   },
+  "linux-kernel-pagemap": {
+    title: "Linux Kernel Documentation: Examining Process Page Tables",
+    url: "https://docs.kernel.org/admin-guide/mm/pagemap.html",
+  },
   "linux-kernel-transparent-hugepage": {
     title: "Linux Kernel Documentation: Transparent Hugepage Support",
     url: "https://docs.kernel.org/admin-guide/mm/transhuge.html",
