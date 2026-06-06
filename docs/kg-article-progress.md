@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 72 | 377 |
+| 449 | 73 | 376 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 8 | 40 |
+| mysql | 48 | 9 | 39 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -232,7 +232,7 @@
 | 未开始 | `explain` | EXPLAIN | EXPLAIN | 2026-05-24 | 5 |
 | 未开始 | `access-type` | 访问类型 | Access Type | 2026-05-24 | 5 |
 | 未开始 | `slow-query-log` | 慢查询日志 | Slow Query Log | 2026-05-24 | 5 |
-| 未开始 | `join-order` | JOIN 顺序 | Join Order | 2026-05-24 | 5 |
+| 已优化 | `join-order` | JOIN 顺序 | Join Order | 2026-06-05 | 21 |
 | 未开始 | `replication` | 主从复制 | Replication | 2026-06-04 | 13 |
 | 未开始 | `read-write-splitting` | 读写分离 | Read Write Splitting | 2026-05-24 | 5 |
 | 未开始 | `replication-lag` | 复制延迟 | Replication Lag | 2026-06-04 | 12 |

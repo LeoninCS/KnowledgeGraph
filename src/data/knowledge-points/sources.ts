@@ -5553,6 +5553,26 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Block Nested-Loop and Batched Key Access Joins",
     url: "https://dev.mysql.com/doc/refman/8.4/en/bnl-bka-optimization.html",
   },
+  "mysql-condition-filtering": {
+    title: "MySQL Reference Manual: Condition Filtering",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/condition-filtering.html",
+  },
+  "mysql-controlling-optimizer": {
+    title: "MySQL Reference Manual: Controlling the Query Optimizer",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/controlling-optimizer.html",
+  },
+  "mysql-optimizer-hints": {
+    title: "MySQL Reference Manual: Optimizer Hints",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/optimizer-hints.html",
+  },
+  "mysql-optimizer-statistics": {
+    title: "MySQL Reference Manual: Optimizer Statistics",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/optimizer-statistics.html",
+  },
+  "mysql-optimizer-trace": {
+    title: "MySQL Reference Manual: Tracing the Optimizer",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/optimizer-tracing.html",
+  },
   "mysql-where-optimization": {
     title: "MySQL Reference Manual: WHERE Clause Optimization",
     url: "https://dev.mysql.com/doc/refman/8.4/en/where-optimization.html",
