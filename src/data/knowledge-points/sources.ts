@@ -3949,6 +3949,22 @@ export const knowledgeSources = {
     title: "Linux man-pages: signal(7)",
     url: "https://man7.org/linux/man-pages/man7/signal.7.html",
   },
+  "linux-man-pages-malloc": {
+    title: "Linux man-pages: malloc(3)",
+    url: "https://man7.org/linux/man-pages/man3/malloc.3.html",
+  },
+  "linux-man-pages-brk": {
+    title: "Linux man-pages: brk(2)",
+    url: "https://man7.org/linux/man-pages/man2/brk.2.html",
+  },
+  "linux-man-pages-mallopt": {
+    title: "Linux man-pages: mallopt(3)",
+    url: "https://man7.org/linux/man-pages/man3/mallopt.3.html",
+  },
+  "glibc-malloc-tunables": {
+    title: "GNU C Library Manual: Memory Allocation Tunables",
+    url: "https://sourceware.org/glibc/manual/latest/html_node/Memory-Allocation-Tunables.html",
+  },
   "linux-man-pages-getrlimit": {
     title: "Linux man-pages: getrlimit(2)",
     url: "https://man7.org/linux/man-pages/man2/getrlimit.2.html",
@@ -3984,6 +4000,10 @@ export const knowledgeSources = {
   "linux-man-pages-proc-pid-maps": {
     title: "Linux man-pages: proc_pid_maps(5)",
     url: "https://man7.org/linux/man-pages/man5/proc_pid_maps.5.html",
+  },
+  "linux-man-pages-proc-pid-limits": {
+    title: "Linux man-pages: proc_pid_limits(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_pid_limits.5.html",
   },
   "linux-man-pages-proc-meminfo": {
     title: "Linux man-pages: proc_meminfo(5)",

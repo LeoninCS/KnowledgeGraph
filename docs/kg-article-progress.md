@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 54 | 395 |
+| 449 | 55 | 394 |
 
 ## 分类进度
 
@@ -15,7 +15,7 @@
 | --- | --- | --- | --- |
 | go | 45 | 0 | 45 |
 | network | 28 | 28 | 0 |
-| os | 34 | 24 | 10 |
+| os | 34 | 25 | 9 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 0 | 48 |
 | redis | 44 | 0 | 44 |
@@ -136,7 +136,7 @@
 | 已优化 | `page-table` | 页表 | Page Table | 2026-06-05 | 23 |
 | 已优化 | `tlb` | TLB | Translation Lookaside Buffer | 2026-06-05 | 21 |
 | 已优化 | `page-fault` | 缺页异常 | Page Fault | 2026-06-05 | 24 |
-| 未开始 | `heap-stack` | 堆与栈 | Heap and Stack | 2026-05-24 | 7 |
+| 已优化 | `heap-stack` | 堆与栈 | Heap and Stack | 2026-06-05 | 28 |
 | 未开始 | `file-system` | 文件系统 | File System | 2026-05-24 | 7 |
 | 未开始 | `file-descriptor` | 文件描述符 | File Descriptor | 2026-05-24 | 7 |
 | 未开始 | `io` | I/O | Input Output | 2026-05-24 | 7 |
