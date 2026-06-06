@@ -5613,6 +5613,10 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Index Condition Pushdown Optimization",
     url: "https://dev.mysql.com/doc/refman/8.4/en/index-condition-pushdown-optimization.html",
   },
+  "mysql-index-extensions": {
+    title: "MySQL Reference Manual: Use of Index Extensions",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/index-extensions.html",
+  },
   "mysql-comparison-operators": {
     title: "MySQL Reference Manual: Comparison Functions and Operators",
     url: "https://dev.mysql.com/doc/refman/8.4/en/comparison-operators.html",
@@ -5816,6 +5820,10 @@ export const knowledgeSources = {
   "planetscale-btree-indexes": {
     title: "PlanetScale: B-trees and database indexes",
     url: "https://planetscale.com/learn/courses/mysql-for-developers/indexes/b-trees",
+  },
+  "planetscale-secondary-keys": {
+    title: "PlanetScale: Secondary keys",
+    url: "https://planetscale.com/learn/courses/mysql-for-developers/indexes/secondary-keys",
   },
   "oneuptime-mysql-btree-index": {
     title: "OneUptime: MySQL B-tree Indexes",

@@ -156,7 +156,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: B+ 树 | 2026-06-05 | source_count=19 --> */
   /* <!-- KG_EXPLAINED: B+ 树 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "b-plus-tree", zh: "B+ 树", en: "B+ Tree", area: "index", difficulty: "medium", concept: "B+ 树是 MySQL 常用索引结构，适合范围查询和排序。", explanation: ["核心概念：B+ 树（B+ Tree）聚焦B+ 树是 MySQL 常用索引结构，适合范围查询和排序。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住B+ 树、聚簇索引、二级索引和覆盖索引，再看输入、状态变化、输出结果和失败分支。","适用场景：B+ 树常用于范围查询、索引原理和磁盘页访问优化。学习时把它放回MySQL链路中观察，并结合前置知识索引判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，B+ 树通常会和聚簇索引和二级索引一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认B+ 树、聚簇索引、二级索引和覆盖索引是否仍然成立。","常见误区与注意点：实践中容易把B+ 树当成孤立概念处理，结果遗漏回表、最左前缀、范围条件、低选择性和写入成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["B+ 树执行原理是什么","B+ 树如何影响性能或一致性","B+ 树线上问题怎么排查"], useCases: ["范围查询","索引原理","磁盘页访问优化"], prerequisites: ["mysql-index"], related: ["clustered-index","secondary-index"], order: 28 },
-  /* <!-- KG_REVIEWED: 二级索引 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 二级索引 | 2026-06-05 | source_count=23 --> */
   /* <!-- KG_EXPLAINED: 二级索引 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "secondary-index", zh: "二级索引", en: "Secondary Index", area: "index", difficulty: "medium", concept: "二级索引叶子节点保存主键值，查询整行时可能需要回表。", explanation: ["核心概念：二级索引（Secondary Index）聚焦二级索引叶子节点保存主键值，查询整行时可能需要回表。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住B+ 树、聚簇索引、二级索引和覆盖索引，再看输入、状态变化、输出结果和失败分支。","适用场景：二级索引常用于非主键查询和多条件检索。学习时把它放回MySQL链路中观察，并结合前置知识聚簇索引判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，二级索引通常会和回表和覆盖索引一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认B+ 树、聚簇索引、二级索引和覆盖索引是否仍然成立。","常见误区与注意点：实践中容易把二级索引当成孤立概念处理，结果遗漏回表、最左前缀、范围条件、低选择性和写入成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["二级索引执行原理是什么","二级索引如何影响性能或一致性","二级索引线上问题怎么排查"], useCases: ["非主键查询","多条件检索"], prerequisites: ["clustered-index"], related: ["back-to-table","covering-index"], order: 29 },
   /* <!-- KG_REVIEWED: 回表 | 2026-05-24 | source_count=5 --> */
@@ -1225,14 +1225,74 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
   },
   "secondary-index": {
     sourceRefs: [
+      "mysql-how-mysql-uses-indexes",
+      "mysql-column-indexes",
+      "mysql-multiple-column-indexes",
       "mysql-innodb-index-types",
+      "mysql-innodb-physical-structure",
+      "mysql-innodb-best-practices",
+      "mysql-optimizing-innodb-storage-layout",
+      "mysql-range-optimization",
+      "mysql-index-condition-pushdown",
+      "mysql-index-extensions",
+      "mysql-innodb-change-buffer",
+      "mysql-innodb-locks-set",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "mysql-slow-query-log",
+      "mysql-performance-schema-statement-tables",
+      "mysql-show-index",
+      "jeremy-cole-innodb-btree",
+      "planetscale-secondary-keys",
+      "planetscale-covering-indexes",
       "solarwinds-mysql-indexes",
       "xiaolincoding-mysql-index",
-      "planetscale-covering-indexes",
-      "jeremy-cole-innodb-btree",
+      "javaguide-mysql-index",
     ],
+    concept:
+      "二级索引是 InnoDB 中除聚簇索引之外的索引结构，叶子记录保存二级键和主键值，用主键把非主键访问路径连接回聚簇索引。",
+    explanation: [
+      "概念定位：二级索引（Secondary Index）解决的是“业务按非主键字段查数据时怎样快速定位行”的问题。用户按 `email` 登录、订单按 `user_id + status + created_at` 列表分页、后台按 `tenant_id` 筛选、JOIN 按外键关联、慢 SQL 按条件收窄扫描范围，都依赖二级索引。\n\n在 InnoDB 中，聚簇索引按主键组织整行数据；二级索引是一棵独立 B+ 树，叶子记录保存二级索引列和对应主键值。查询命中二级索引后，返回列被索引覆盖时可直接返回；需要整行或更多字段时，再用主键值访问聚簇索引，这条额外访问路径就是回表。二级索引把读性能、主键设计、覆盖索引、锁范围、Change Buffer、写入放大和线上排查连接在一起。",
+      "准确定义：二级索引是 InnoDB 表中聚簇索引之外的索引，英文常见说法包括 `secondary index`、`secondary key`、`non-primary index`。它的核心特征如下。\n\n- `secondary key`：业务定义的索引列，例如 `email`、`user_id`、`status`、`created_at`。\n- `primary key payload`：每条二级索引记录都包含该行主键列，用于回到聚簇索引定位整行。\n- `clustered lookup`：根据二级索引拿到主键后访问 `PRIMARY` B+ 树的过程，中文常称回表。\n- `covering index`：查询所需列都在二级索引记录中，结果可从索引树直接返回。\n- `index extension`：InnoDB 自动把主键列追加到二级索引，优化器可利用追加主键做访问、排序、聚合和覆盖判断。\n- `Index Condition Pushdown`：ICP 让存储引擎在二级索引扫描阶段用索引列继续过滤，减少整行读取。\n- `change buffer`：特定配置下缓存二级索引页变更，延后合并，服务 I/O 受限的 DML 工作负载。",
+      "心智模型：把 InnoDB 表想成一份主档案和多份业务目录。\n\n- 主档案按 `id` 排序，目录项里放完整资料，这就是聚簇索引。\n- 业务目录按 `email`、`tenant_id`、`status`、`created_at` 排序，目录项里放业务键和档案编号，这就是二级索引。\n- 查目录里已有的信息，直接读目录即可返回。\n- 查目录里缺少的信息，先拿档案编号，再去主档案取完整资料。\n- 主键编号越长，每份业务目录都越厚；业务目录越多，每次写入要维护的结构也越多。\n\n这个模型能解释二级索引的关键取舍：它让非主键查询变快，同时把主键长度、返回列范围、写入频率和缓存命中率变成长期成本。",
+      "主流程机制：一次二级索引查询可以按“选索引 -> 读二级树 -> 判断覆盖 -> 回聚簇树 -> 验证证据”理解。\n\n1. SQL 层解析 `WHERE`、`ORDER BY`、`LIMIT` 和返回列，优化器根据统计信息、选择性、排序成本和回表成本选择候选二级索引。\n2. 执行器从二级索引根页进入 B+ 树，按二级键定位到叶子页；范围查询会沿叶子页顺序扫描。\n3. 叶子记录提供二级索引列和主键值，联合索引按字段顺序形成字典序，自动追加的主键也可参与优化器判断。\n4. 返回列全部来自二级索引时，执行器以覆盖索引方式返回，`EXPLAIN Extra` 常见 `Using index`。\n5. 返回列包含索引外字段时，执行器用主键值访问聚簇索引叶子页读取整行，形成回表。\n6. ICP 可在二级索引扫描阶段先判断可用索引列条件，减少后续整行读取，`EXPLAIN Extra` 常见 `Using index condition`。\n7. `SELECT ... FOR UPDATE`、`UPDATE`、`DELETE` 等锁定路径会锁住扫描到的索引记录；使用二级索引且需要排他锁时，还会访问并锁住对应聚簇索引记录。\n8. 慢查询日志、`EXPLAIN ANALYZE`、Performance Schema、Buffer Pool 读和锁等待共同证明这条路径的实际成本。\n\n二级索引优化的目标是让扫描范围、回表次数、排序成本和锁范围都落在业务可承受区间。",
+      "实践例子：下面用用户表展示二级索引、覆盖读取、回表和索引扩展。\n\n```sql\nCREATE TABLE users (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n  tenant_id BIGINT UNSIGNED NOT NULL,\n  email VARCHAR(191) NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  nickname VARCHAR(64) NOT NULL,\n  last_login_at DATETIME NULL,\n  created_at DATETIME NOT NULL,\n  PRIMARY KEY (id),\n  UNIQUE KEY uk_email (email),\n  KEY idx_tenant_status_created (tenant_id, status, created_at)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n\n-- 二级索引等值查找：uk_email 叶子记录给出 email 和 id，再按返回列判断读取路径\nEXPLAIN ANALYZE\nSELECT id, email\nFROM users\nWHERE email = 'alice@example.com';\n\n-- 返回 nickname 时，nickname 未在 uk_email 中，通常需要用 id 回到 PRIMARY\nEXPLAIN ANALYZE\nSELECT id, email, nickname\nFROM users\nWHERE email = 'alice@example.com';\n\n-- 联合二级索引范围扫描：过滤租户和状态，按创建时间取最近用户\nEXPLAIN FORMAT=TREE\nSELECT id, tenant_id, status, created_at\nFROM users\nWHERE tenant_id = 42 AND status = 'ACTIVE'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\n-- 优化器可把追加的主键 id 作为二级索引扩展的一部分参与排序和覆盖判断\nSHOW INDEX FROM users;\nSHOW SESSION STATUS LIKE 'Handler_read%';\n```\n\n第一条查询的返回列被 `uk_email` 与追加主键覆盖时，可从二级索引返回。第二条查询需要 `nickname`，通常会回到聚簇索引。第三条查询展示联合二级索引服务过滤、排序和分页；把稳定主键作为排序尾列能让分页顺序更可控。",
+      "深层细节：二级索引的性能来自有序定位，成本来自主键载荷和多棵 B+ 树维护。\n\n- 叶子记录：InnoDB 二级索引记录保存索引列和主键列，主键值是回到聚簇索引的定位入口。\n- 主键宽度：长字符串主键、UUID 主键和多列主键会复制到每个二级索引记录中，增加页数量、树高度、Buffer Pool 占用和备份体积。\n- 索引扩展：优化器默认考虑二级索引中追加的主键列，`key_len`、`ref`、`rows` 和 `Extra` 可能体现更精细的访问路径。\n- 覆盖读取：二级索引包含全部返回列时，查询可减少回表；覆盖列越多，写入成本、缓存占用和 DDL 成本也越高。\n- ICP：二级索引扫描中可用索引列先过滤候选记录，特别适合联合索引前缀定位后仍有索引列条件需要判断的场景。\n- Change Buffer：二级索引页未在 Buffer Pool 中时，变更可被缓存并延后合并；MySQL 8.4 默认 `innodb_change_buffering=none`，启用后要评估合并 I/O、Buffer Pool 占用和重启后的延续影响。\n- 写入放大：每个插入、删除和索引列更新都要维护对应二级索引页、Redo、Undo、锁和统计信息。\n- 锁路径：锁定读和写语句按扫描的索引范围加锁，二级索引排他锁路径还会涉及聚簇索引记录，范围越宽，锁等待和死锁概率越高。\n- 统计信息：基数、直方图、热点租户、状态分布和时间范围会影响优化器选择二级索引、全表扫描或其他路径。\n\n老手评审二级索引时会同时看四件事：这条索引服务哪些 SQL、能减少多少候选行、返回列是否覆盖、写入和锁成本是否可接受。",
+      "工程场景与取舍：二级索引要围绕访问模式设计。\n\n- 登录与幂等：`UNIQUE KEY uk_email(email)` 或租户内唯一键可以同时服务查找和约束检查。\n- 列表分页：`(tenant_id, status, created_at, id)` 适合租户内状态列表和时间排序，主键作为尾列可稳定分页顺序。\n- JOIN 关联：外键列和被驱动表关联列需要合适索引，减少嵌套循环中的重复扫描。\n- 覆盖列表：高频只读列表可把少量返回列放入联合二级索引，换取更低回表和更高缓存命中。\n- 状态筛选：低基数字段单独建索引收益有限，和租户、用户、时间、删除标记组合后常能形成有效路径。\n- 搜索接口：前缀匹配、函数索引、生成列索引和全文索引要按查询语义选择，普通二级索引更适合有序前缀和精确条件。\n- 写入密集表：索引数量、字段宽度、随机写入和在线建索引会放大写入延迟、复制延迟和 DDL 风险。\n- 大表治理：新增、合并或删除二级索引要比较执行计划、业务峰值、锁等待、空间增长和回滚脚本。",
+      "边界与故障模式：二级索引问题通常表现为慢 SQL、回表风暴、计划漂移、写入抖动和锁扩大。\n\n- 回表过多：二级索引筛出大量主键，再逐行访问聚簇索引，随机 I/O、Buffer Pool 压力和 p99 延迟都会上升。\n- 选择性偏低：布尔、状态、低基数字段在大范围查询中可能扫描大量叶子记录，联合条件和时间边界决定实际收益。\n- 主键过宽：二级索引记录携带主键，宽主键会放大所有二级索引的空间、缓存和写入成本。\n- 返回列过宽：为了覆盖查询把大量列放进索引，会降低页扇出并增加每次 DML 的维护成本。\n- 条件写法偏离索引：隐式类型转换、字符集差异、函数包裹列、前置通配符、跨列 `OR` 会让可定位范围变宽。\n- 统计信息漂移：数据倾斜、热点租户、批量导入和删除后，优化器估算可能偏离真实扫描量。\n- 锁范围扩大：锁定读、更新和删除使用二级索引范围扫描时，扫描到的索引记录和对应聚簇记录都可能参与锁等待。\n- Change Buffer 合并压力：大量二级索引变更积压后，后续合并 I/O 会影响磁盘受限查询。\n- 重复索引：单列索引和联合索引前缀重叠会持续增加维护成本，删除前要验证约束语义、执行计划和回滚路径。",
+      "排查实践：二级索引排查要把 SQL、索引定义、真实计划、运行指标和锁证据串起来。\n\n1. 固化现场：记录 SQL、绑定参数、返回列、排序、分页、事务范围、执行频率、耗时分布和返回行数。\n2. 看索引定义：用 `SHOW CREATE TABLE`、`SHOW INDEX` 查看主键、二级索引列顺序、唯一性、基数、可见性和字段类型。\n3. 看计划选择：用 `EXPLAIN FORMAT=TREE` 识别 index lookup、index range scan、covering index lookup、filter、sort 和回表迹象。\n4. 看真实执行：用 `EXPLAIN ANALYZE` 对比估算行数、实际行数、循环次数和每个迭代器耗时。\n5. 看扫描比例：慢查询日志的 `Rows_examined` / `Rows_sent`、Performance Schema 的 `SUM_ROWS_EXAMINED` / `SUM_ROWS_SENT` 能体现回表和扫描压力。\n6. 看缓存与锁：Buffer Pool 物理读、`SHOW ENGINE INNODB STATUS`、`data_locks`、锁等待事件和死锁日志要和慢 SQL 时间线对齐。\n7. 小步修复：收窄范围、调整联合索引顺序、补少量覆盖列、缩短主键、刷新统计信息、用 Invisible Index 灰度、分批写入并复测同一组参数。\n\n```sql\nSHOW CREATE TABLE users\\G\nSHOW INDEX FROM users;\n\nEXPLAIN FORMAT=TREE\nSELECT id, tenant_id, status, created_at\nFROM users\nWHERE tenant_id = 42 AND status = 'ACTIVE'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nEXPLAIN ANALYZE\nSELECT id, email, nickname\nFROM users\nWHERE email = 'alice@example.com';\n\nANALYZE TABLE users;\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nWHERE DIGEST_TEXT LIKE 'SELECT%USERS%'\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n\nSHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_read%';\nSHOW ENGINE INNODB STATUS\\G\n\nSELECT NAME, COUNT\nFROM information_schema.INNODB_METRICS\nWHERE NAME LIKE '%ibuf%';\n```\n\n有效修复通常体现为实际扫描行数下降、`Rows_examined` 收敛、回表减少、`Using filesort` 或临时表消失、Buffer Pool 物理读下降、锁等待收敛，以及写入和复制指标保持稳定。",
+      "指标与命令速查：二级索引质量要用可观测证据判断。\n\n- `SHOW INDEX`：看 `Key_name`、`Seq_in_index`、`Column_name`、`Non_unique`、`Cardinality`、`Visible`。\n- `EXPLAIN key`：实际选择的索引，确认是否命中目标二级索引。\n- `EXPLAIN key_len`：参与访问的索引字节长度，可辅助判断联合索引和追加主键利用情况。\n- `EXPLAIN rows` / `filtered`：估算扫描量和过滤比例，要和 `EXPLAIN ANALYZE` 校准。\n- `Extra=Using index`：覆盖索引信号，结果可从索引树读取。\n- `Extra=Using index condition`：ICP 信号，存储引擎在索引扫描阶段继续过滤候选。\n- 慢查询日志：`Rows_examined`、`Rows_sent`、`Query_time` 能体现扫描与返回比例。\n- Performance Schema：按 digest 聚合执行次数、耗时、扫描行和返回行，适合识别高频高成本 SQL。\n- `Handler_read%`：会话级或全局读计数可辅助观察索引访问行为。\n- `INNODB_METRICS` 中 `%ibuf%`：启用 Change Buffer 时观察合并与积压线索。\n- `data_locks` / `SHOW ENGINE INNODB STATUS`：确认二级索引路径引发的锁等待、死锁和锁范围。",
+      "常见误区：二级索引是访问路径，也是写入与空间成本。\n\n- 二级索引叶子记录保存二级键和主键值，整行数据由聚簇索引承载。\n- 主键设计会影响每一棵二级索引，短且稳定的主键能降低二级索引体积和回表成本。\n- 覆盖索引的价值来自减少回表，覆盖列数量要和写入成本、缓存占用、DDL 风险一起评估。\n- 低基数字段可以放入联合索引，关键是组合后的访问范围、排序能力和业务频率。\n- ICP 是减少整行读取的优化，`Using index condition` 和 `Using index` 表达的执行含义不同。\n- 二级索引优化要基于真实参数和生产指标，单次 `EXPLAIN` 只是证据链的一部分。\n- 删除索引要保护唯一约束、外键需求、高频 SQL、灰度观察和回滚路径。",
+      "面试追问：二级索引题适合按“定义 -> 叶子内容 -> 回表 -> 覆盖 -> 优化器 -> 写入成本 -> 排查证据”回答。\n\n- InnoDB 二级索引是什么，和聚簇索引的关系是什么？\n- 二级索引叶子记录保存哪些内容，为什么主键长度会影响所有二级索引？\n- 二级索引查询为什么会发生回表，覆盖索引怎样减少回表？\n- `Using index`、`Using index condition`、`key_len`、`rows` 分别说明什么？\n- 联合二级索引字段顺序如何影响过滤、排序、分页和覆盖能力？\n- 低基数字段、热点租户、时间范围和数据倾斜会怎样影响索引选择？\n- ICP、索引扩展和 Change Buffer 分别解决二级索引路径上的什么问题？\n- 锁定读或更新走二级索引时，为什么要关注扫描范围和聚簇索引记录锁？\n- 线上如何判断慢 SQL 来自缺索引、回表过多、统计信息偏差、Buffer Pool 缺页还是锁等待？\n- 大表新增、删除或合并二级索引时，如何评估写入、空间、复制延迟、DDL 和回滚风险？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Clustered and Secondary Indexes、How MySQL Uses Indexes、Column Indexes、Multiple-Column Indexes、Use of Index Extensions、Index Condition Pushdown、Change Buffer、Locks Set by Different SQL Statements、EXPLAIN、EXPLAIN Output、Slow Query Log、Performance Schema Statement Tables 和 SHOW INDEX 文档，并结合 PlanetScale Secondary Keys 与 Covering Indexes、Jeremy Cole 的 InnoDB B+Tree 页结构文章、小林 coding、JavaGuide 和 SolarWinds 的索引资料校准中文表达、案例和面试问法。官方资料用于定义、执行机制、限制、命令和锁行为，工程文章用于补充实践路径、回表直觉和索引治理经验。"
+    ],
+    typicalProblems: [
+      "InnoDB 二级索引解决什么问题，为什么非主键查询通常依赖它？",
+      "二级索引叶子记录保存哪些字段，主键值在其中承担什么角色？",
+      "为什么主键长度会放大所有二级索引的空间、缓存和写入成本？",
+      "二级索引查询的完整路径是什么，什么时候会回表，什么时候可以覆盖读取？",
+      "ICP、覆盖索引和索引扩展分别如何减少二级索引路径上的成本？",
+      "联合二级索引字段顺序如何影响等值过滤、范围扫描、排序分页和返回列覆盖？",
+      "如何用 `EXPLAIN FORMAT=TREE`、`EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 判断回表过多？",
+      "低基数字段、隐式转换、函数包裹列、前置通配符和数据倾斜分别会造成什么执行计划风险？",
+      "锁定读、更新和删除走二级索引时，为什么要关注扫描范围、间隙锁和聚簇索引记录锁？",
+      "大表新增、删除或合并二级索引时，需要评估哪些写入、空间、复制、DDL 和回滚问题？"
+    ],
+    commonCommands: [
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "EXPLAIN FORMAT=TREE <sql>",
+      "EXPLAIN ANALYZE <sql>",
+      "ANALYZE TABLE <table>",
+      "SHOW SESSION STATUS LIKE 'Handler_read%'",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_read%'",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10",
+      "SELECT NAME, COUNT FROM information_schema.INNODB_METRICS WHERE NAME LIKE '%ibuf%'"
+    ],
+    useCases: ["非主键等值查询", "租户内列表分页", "状态与时间范围筛选", "JOIN 关联优化", "唯一约束", "覆盖索引优化", "回表成本分析", "慢 SQL 排查", "锁范围控制", "大表索引治理"],
     prerequisites: ["mysql-index", "clustered-index"],
-    related: ["back-to-table", "covering-index"],
+    related: ["b-plus-tree", "clustered-index", "back-to-table", "covering-index", "composite-index", "leftmost-prefix", "range-query", "index-selectivity", "buffer-pool", "explain", "sql-optimization", "lock"],
   },
   "back-to-table": {
     prerequisites: ["secondary-index"],
