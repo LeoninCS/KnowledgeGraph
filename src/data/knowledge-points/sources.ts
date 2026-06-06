@@ -4029,6 +4029,42 @@ export const knowledgeSources = {
     title: "Linux man-pages: fsync(2)",
     url: "https://man7.org/linux/man-pages/man2/fsync.2.html",
   },
+  "linux-man-pages-lseek": {
+    title: "Linux man-pages: lseek(2)",
+    url: "https://man7.org/linux/man-pages/man2/lseek.2.html",
+  },
+  "linux-man-pages-pread": {
+    title: "Linux man-pages: pread(2) and pwrite(2)",
+    url: "https://man7.org/linux/man-pages/man2/pread.2.html",
+  },
+  "linux-man-pages-readv": {
+    title: "Linux man-pages: readv(2) and writev(2)",
+    url: "https://man7.org/linux/man-pages/man2/readv.2.html",
+  },
+  "linux-man-pages-sync": {
+    title: "Linux man-pages: sync(2)",
+    url: "https://man7.org/linux/man-pages/man2/sync.2.html",
+  },
+  "linux-man-pages-aio": {
+    title: "Linux man-pages: aio(7)",
+    url: "https://man7.org/linux/man-pages/man7/aio.7.html",
+  },
+  "linux-man-pages-io-uring": {
+    title: "Linux man-pages: io_uring(7)",
+    url: "https://man7.org/linux/man-pages/man7/io_uring.7.html",
+  },
+  "linux-man-pages-io-uring-setup": {
+    title: "Linux man-pages: io_uring_setup(2)",
+    url: "https://man7.org/linux/man-pages/man2/io_uring_setup.2.html",
+  },
+  "linux-man-pages-proc-pid-io": {
+    title: "Linux man-pages: proc_pid_io(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_pid_io.5.html",
+  },
+  "meituan-linux-io": {
+    title: "美团技术团队: Linux I/O 原理和 Zero-copy 技术全面揭秘",
+    url: "https://tech.meituan.com/2017/05/19/about-desk-io.html",
+  },
   "linux-man-pages-statfs": {
     title: "Linux man-pages: statfs(2)",
     url: "https://man7.org/linux/man-pages/man2/statfs.2.html",
