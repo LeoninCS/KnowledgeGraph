@@ -3901,6 +3901,10 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Transparent Hugepage Support",
     url: "https://docs.kernel.org/admin-guide/mm/transhuge.html",
   },
+  "linux-kernel-userfaultfd": {
+    title: "Linux Kernel Documentation: Userfaultfd",
+    url: "https://docs.kernel.org/admin-guide/mm/userfaultfd.html",
+  },
   "linux-kernel-overcommit-accounting": {
     title: "Linux Kernel Documentation: Overcommit Accounting",
     url: "https://docs.kernel.org/mm/overcommit-accounting.html",
@@ -3969,6 +3973,14 @@ export const knowledgeSources = {
     title: "Linux man-pages: mincore(2)",
     url: "https://man7.org/linux/man-pages/man2/mincore.2.html",
   },
+  "linux-man-pages-mlock": {
+    title: "Linux man-pages: mlock(2)",
+    url: "https://man7.org/linux/man-pages/man2/mlock.2.html",
+  },
+  "linux-man-pages-getrusage": {
+    title: "Linux man-pages: getrusage(2)",
+    url: "https://man7.org/linux/man-pages/man2/getrusage.2.html",
+  },
   "linux-man-pages-proc-pid-maps": {
     title: "Linux man-pages: proc_pid_maps(5)",
     url: "https://man7.org/linux/man-pages/man5/proc_pid_maps.5.html",
@@ -3980,6 +3992,10 @@ export const knowledgeSources = {
   "linux-man-pages-proc-vmstat": {
     title: "Linux man-pages: proc_vmstat(5)",
     url: "https://man7.org/linux/man-pages/man5/proc_vmstat.5.html",
+  },
+  "linux-man-pages-proc-pid-stat": {
+    title: "Linux man-pages: proc_pid_stat(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_pid_stat.5.html",
   },
   "linux-man-pages-proc-pid-status": {
     title: "Linux man-pages: proc_pid_status(5)",
