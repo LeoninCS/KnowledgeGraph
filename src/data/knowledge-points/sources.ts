@@ -4525,6 +4525,34 @@ export const knowledgeSources = {
     title: "Linux man-pages: proc_pid_status(5)",
     url: "https://man7.org/linux/man-pages/man5/proc_pid_status.5.html",
   },
+  "linux-kernel-genericirq": {
+    title: "Linux Kernel Documentation: Linux generic IRQ handling",
+    url: "https://docs.kernel.org/core-api/genericirq.html",
+  },
+  "linux-kernel-irq-affinity": {
+    title: "Linux Kernel Documentation: SMP IRQ affinity",
+    url: "https://docs.kernel.org/core-api/irq/irq-affinity.html",
+  },
+  "linux-kernel-networking-scaling": {
+    title: "Linux Kernel Documentation: Scaling in the Linux Networking Stack",
+    url: "https://docs.kernel.org/networking/scaling.html",
+  },
+  "linux-kernel-msi-howto": {
+    title: "Linux Kernel Documentation: The MSI Driver Guide HOWTO",
+    url: "https://docs.kernel.org/PCI/msi-howto.html",
+  },
+  "linux-kernel-hacking-softirqs": {
+    title: "Linux Kernel Documentation: Unreliable Guide To Hacking The Linux Kernel",
+    url: "https://docs.kernel.org/kernel-hacking/hacking.html",
+  },
+  "linux-kernel-per-cpu-kthreads": {
+    title: "Linux Kernel Documentation: Reducing OS jitter due to per-cpu kthreads",
+    url: "https://docs.kernel.org/admin-guide/kernel-per-CPU-kthreads.html",
+  },
+  "linux-kernel-labs-interrupts": {
+    title: "Linux Kernel Labs: Interrupts",
+    url: "https://linux-kernel-labs.github.io/refs/heads/master/lectures/interrupts.html",
+  },
   "linux-kernel-driver-basics": {
     title: "Linux Kernel Documentation: Driver Basics and Wait Queues",
     url: "https://docs.kernel.org/driver-api/basics.html",
@@ -4708,6 +4736,22 @@ export const knowledgeSources = {
   "microsoft-linux-performance-bottlenecks": {
     title: "Microsoft Learn: Troubleshoot Linux performance bottlenecks",
     url: "https://learn.microsoft.com/zh-cn/troubleshoot/azure/virtual-machines/linux/troubleshoot-performance-bottlenecks-linux",
+  },
+  "intel-sdm": {
+    title: "Intel 64 and IA-32 Architectures Software Developer Manuals",
+    url: "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
+  },
+  "redhat-rhel-irq-tuning": {
+    title: "Red Hat Enterprise Linux Performance Tuning Guide: IRQ tuning",
+    url: "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/single/performance_tuning_guide/sec-tuna-irq-tuning",
+  },
+  "meituan-redis-interrupt-optimization": {
+    title: "美团技术团队: Redis 高负载下的中断优化",
+    url: "https://tech.meituan.com/2018/03/16/redis-high-concurrency-optimization.html",
+  },
+  "arthurchiao-linux-net-stack-rx-tuning": {
+    title: "Arthur Chiao: Linux 网络栈接收数据（RX）配置调优",
+    url: "https://arthurchiao.art/blog/linux-net-stack-tuning-rx-zh/",
   },
   "ibm-linux-kernel-anatomy": {
     title: "IBM Developer: Anatomy of the Linux kernel",
