@@ -2665,9 +2665,57 @@ export const knowledgeSources = {
     title: "AWS VPC: Control traffic using security groups",
     url: "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html",
   },
+  "aws-security-group-connection-tracking": {
+    title: "Amazon EC2: Security group connection tracking",
+    url: "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html",
+  },
+  "aws-network-acls": {
+    title: "AWS VPC: Control subnet traffic with network ACLs",
+    url: "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html",
+  },
+  "aliyun-vpc-access-control": {
+    title: "阿里云 VPC：访问控制",
+    url: "https://help.aliyun.com/zh/vpc/access-control",
+  },
   "microsoft-windows-firewall": {
     title: "Microsoft Learn: Windows Firewall overview",
     url: "https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/",
+  },
+  "netfilter-docs": {
+    title: "netfilter/iptables project: Documentation",
+    url: "https://www.nftables.org/documentation/index.html",
+  },
+  "nftables-conntrack": {
+    title: "nftables wiki: Connection Tracking System",
+    url: "https://wiki.nftables.org/wiki-nftables/index.php/Connection_Tracking_System",
+  },
+  "nftables-netfilter-hooks": {
+    title: "nftables wiki: Netfilter hooks",
+    url: "https://wiki.nftables.org/wiki-nftables/index.php/Netfilter_hooks",
+  },
+  "debian-conntrack-manpage": {
+    title: "Debian Manpages: conntrack(8)",
+    url: "https://manpages.debian.org/testing/conntrack/conntrack.8.en.html",
+  },
+  "debian-nft-manpage": {
+    title: "Debian Manpages: nft(8)",
+    url: "https://manpages.debian.org/testing/nftables/nft.8.en.html",
+  },
+  "kubernetes-network-policies": {
+    title: "Kubernetes Docs: Network Policies",
+    url: "https://kubernetes.io/docs/concepts/services-networking/network-policies/",
+  },
+  "cloudflare-waf-docs": {
+    title: "Cloudflare Docs: Web Application Firewall",
+    url: "https://developers.cloudflare.com/waf/",
+  },
+  "tcpinfo-nf-conntrack-format": {
+    title: "TCP.info：nf_conntrack 格式详解",
+    url: "https://tcp.info/posts/2017-08/nf_conntrack-format/",
+  },
+  "thebyte-conntrack": {
+    title: "深入高可用系统原理与设计：连接跟踪模块 conntrack",
+    url: "https://www.thebyte.com.cn/network/conntrack.html",
   },
   "opentelemetry-observability-primer": {
     title: "OpenTelemetry Docs: Observability Primer",
