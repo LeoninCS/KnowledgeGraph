@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 68 | 381 |
+| 449 | 69 | 380 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 4 | 44 |
+| mysql | 48 | 5 | 43 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -194,7 +194,7 @@
 | 已优化 | `sql` | SQL | SQL | 2026-06-05 | 14 |
 | 已优化 | `schema-design` | 表结构设计 | Schema Design | 2026-06-05 | 14 |
 | 已优化 | `data-type` | 数据类型 | Data Type | 2026-06-05 | 17 |
-| 未开始 | `primary-key` | 主键 | Primary Key | 2026-05-24 | 5 |
+| 已优化 | `primary-key` | 主键 | Primary Key | 2026-06-05 | 17 |
 | 未开始 | `select` | SELECT 查询 | SELECT Query | 2026-05-24 | 5 |
 | 未开始 | `where` | WHERE 条件 | WHERE Clause | 2026-05-24 | 5 |
 | 未开始 | `join` | JOIN | JOIN | 2026-05-24 | 5 |

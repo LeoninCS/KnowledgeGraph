@@ -19,7 +19,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 数据类型 | 2026-06-05 | source_count=17 --> */
   /* <!-- KG_EXPLAINED: 数据类型 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "data-type", zh: "数据类型", en: "Data Type", area: "foundation", difficulty: "easy", concept: "数据类型决定字段存储方式、范围、比较规则和索引效率。", explanation: ["核心概念：数据类型（Data Type）聚焦数据类型决定字段存储方式、范围、比较规则和索引效率。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：数据类型常用于字段设计、空间优化和精度控制。学习时把它放回MySQL链路中观察，并结合前置知识表结构设计判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，数据类型通常会和varchar、datetime和decimal一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把数据类型当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["数据类型执行原理是什么","数据类型如何影响性能或一致性","数据类型线上问题怎么排查"], useCases: ["字段设计","空间优化","精度控制"], prerequisites: ["schema-design"], related: ["mysql-index","sql-optimization"], order: 6 },
-  /* <!-- KG_REVIEWED: 主键 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 主键 | 2026-06-05 | source_count=17 --> */
   /* <!-- KG_EXPLAINED: 主键 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "primary-key", zh: "主键", en: "Primary Key", area: "foundation", difficulty: "easy", concept: "主键唯一标识一行数据，InnoDB 中主键决定聚簇索引组织方式。", explanation: ["核心概念：主键（Primary Key）聚焦主键唯一标识一行数据，InnoDB 中主键决定聚簇索引组织方式。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：主键常用于业务实体标识、关联查询和数据去重。学习时把它放回MySQL链路中观察，并结合前置知识表结构设计判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，主键通常会和聚簇索引和自增 ID一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把主键当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["主键执行原理是什么","主键如何影响性能或一致性","主键线上问题怎么排查"], useCases: ["业务实体标识","关联查询","数据去重"], prerequisites: ["schema-design"], related: ["clustered-index","auto-increment"], order: 7 },
   /* <!-- KG_REVIEWED: 自增 ID | 2026-05-24 | source_count=5 --> */
@@ -485,8 +485,64 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["schema-design", "primary-key", "mysql-index", "sql-optimization", "explain", "online-ddl"],
   },
   "primary-key": {
+    sourceRefs: [
+      "mysql-create-table",
+      "mysql-constraint-primary-key",
+      "mysql-primary-key-optimization",
+      "mysql-innodb-index-types",
+      "mysql-innodb-best-practices",
+      "mysql-optimizing-innodb-storage-layout",
+      "mysql-innodb-auto-increment",
+      "mysql-generated-invisible-primary-keys",
+      "mysql-sql-require-primary-key",
+      "mysql-innodb-row-format",
+      "mysql-data-types",
+      "mysql-planetscale-primary-keys",
+      "mysql-planetscale-primary-key-data-types",
+      "mysql-alibaba-java-development-manual",
+      "xiaolincoding-mysql-index",
+      "javaguide-mysql-index",
+      "javaguide",
+    ],
+    concept:
+      "主键是表中稳定、唯一、非空的行标识；在 InnoDB 中它同时决定聚簇索引的数据组织方式、二级索引回表指针和大量读写性能成本。",
+    explanation: [
+      "概念定位：主键（Primary Key）解决的是“怎样在一张表中准确找到、约束、关联和更新一行数据”的问题。它出现在建表评审、订单号和用户 ID 设计、去重幂等、JOIN、二级索引回表、分库分表、数据修复和线上慢 SQL 排查中。\n\n从 SQL 视角看，主键是一组 `NOT NULL` 且唯一的列约束；从 InnoDB 视角看，主键索引就是聚簇索引（clustered index），叶子节点保存完整行记录。一个主键值短、稳定、递增、业务泄露风险低，会让行定位、索引体积、Buffer Pool 命中、页分裂、复制和排障都更可控。",
+      "准确定义：主键由一个或多个字段组成，用 `PRIMARY KEY` 声明，核心语义是非空、唯一和稳定标识。\n\n- 非空：主键列自动具备 `NOT NULL` 语义，每行都必须有可用标识。\n- 唯一：同一张表内主键值唯一，重复写入会触发约束错误。\n- 稳定：主键应在行生命周期内保持稳定，避免修改主键引发删除加插入式的存储移动和关联修复。\n- 聚簇组织：InnoDB 按主键 B+ 树组织表数据，主键叶子节点保存完整记录。\n- 回表指针：InnoDB 的二级索引叶子节点保存二级索引键和主键值，再通过主键回到聚簇索引取整行。\n\n主键和唯一索引都能表达唯一性；主键是表的首要行身份，并直接决定 InnoDB 表的物理访问入口。",
+      "心智模型：把主键看成仓库里每件货物的固定货位编号。\n\n- 入库时：数据库先确认编号存在、非空、唯一，再把记录放入主键 B+ 树。\n- 查找时：用编号能直接定位货位；二级索引像“按商品名的目录”，目录项最终仍指向主键编号。\n- 扩容时：短编号让目录更薄、页里能放更多项，缓存能容纳更多有效数据。\n- 排障时：主键值是锁等待、死锁日志、Binlog、修复脚本和审计链路里的核心证据。\n\n这个模型解释了自增整数主键常见的工程优势：值短、写入位置集中、比较快、回表指针小。它也解释了随机 UUID 的典型代价：键长、写入分散、页分裂和二级索引膨胀。",
+      "主流程机制：一条带主键的写入会穿过约束检查、聚簇索引插入和二级索引维护。\n\n1. 应用提交 `INSERT`，显式给出主键，或让 `AUTO_INCREMENT` 生成主键。\n2. MySQL 检查主键列是否满足类型、非空、唯一和约束语义。\n3. InnoDB 根据主键值在聚簇索引 B+ 树中定位叶子页，写入完整行记录。\n4. 每个二级索引写入对应条目，条目里包含二级索引列和该行主键值。\n5. 查询命中主键条件时直接走聚簇索引；查询命中二级索引且需要更多列时，先取主键值再回到聚簇索引。\n6. 更新主键值会改变聚簇索引位置，并牵动相关二级索引记录；生产设计中优先保持主键不可变。\n\n主键设计的输出是一套贯穿写入、查询、索引、关联、恢复和治理的行身份契约。",
+      "实践例子：下面是一张订单表的常见主键设计，内部主键服务于 InnoDB 和关联查询，业务订单号用唯一索引表达外部唯一性。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '内部主键，短且递增',\n  order_no VARCHAR(64) NOT NULL COMMENT '业务订单号，面向外部系统',\n  user_id BIGINT UNSIGNED NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  status TINYINT UNSIGNED NOT NULL DEFAULT 0,\n  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  PRIMARY KEY (id),\n  UNIQUE KEY uk_order_no (order_no),\n  KEY idx_user_created (user_id, created_at)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n```\n\n这份 DDL 把两类身份分开：`id` 是内部行定位和索引组织的主键，`order_no` 是业务唯一键，适合展示、对接和幂等校验。订单表、用户表、流水表通常采用这种模式；多租户或分库分表系统会再结合租户 ID、雪花 ID、路由键和公开 ID 策略做扩展。",
+      "深层细节：主键影响 InnoDB 的物理布局、缓存效率、写入放大和公开接口设计。\n\n- 主键长度：二级索引叶子会携带主键值，`BIGINT`、`CHAR(36)` UUID、复合主键在索引体积上的差异会被所有二级索引放大。\n- 写入局部性：自增或大体有序的主键更容易追加到右侧叶子页；随机主键会在 B+ 树多个位置插入，增加页分裂、随机 I/O 和缓存 churn。\n- 聚簇索引选择：InnoDB 表有显式主键时使用主键作为聚簇索引；表缺少显式主键时会选择合适的唯一非空索引，或使用隐藏行 ID。显式主键让数据身份和排障证据更清楚。\n- `AUTO_INCREMENT`：自增主键由 InnoDB 管理，`innodb_autoinc_lock_mode` 会影响并发插入、语句复制安全和批量插入分配方式。\n- 公开 ID：内部自增 ID 适合数据库组织；公开给外部用户时要评估枚举风险、业务泄露、灰度迁移和审计可追踪性。\n- 复合主键：适合强关系表、明细表和天然联合唯一场景；字段顺序会影响索引访问、外键引用、二级索引体积和未来变更。\n- 分布式 ID：雪花 ID、UUIDv7、ULID 等方案会在唯一性、时间有序性、跨节点生成、时钟回拨、可读性和索引局部性之间取舍。\n\n老手评审主键时会同时问：这个主键是否短、稳定、有序、可追踪、可迁移，并且能否支撑未来的索引和分片策略。",
+      "工程场景：不同主键方案适合不同系统压力和组织边界。\n\n- 单库 OLTP：`BIGINT UNSIGNED AUTO_INCREMENT` 常用于订单、用户、库存、支付流水等核心表，读写路径简单，二级索引成本低。\n- 业务幂等：内部主键搭配业务唯一键，例如 `uk_order_no`、`uk_request_id`、`uk_user_tenant`，既保留 InnoDB 友好主键，又能阻止业务重复。\n- 多租户表：主键可以保留内部 ID，查询索引用 `(tenant_id, id)` 或 `(tenant_id, created_at)`；强隔离场景会评估复合主键和租户路由。\n- 分库分表：主键和分片键要配合路由、全局唯一、范围查询、热点分布和迁移；雪花 ID 常用于跨节点生成有序唯一 ID。\n- 明细与关联表：`(order_id, sku_id)`、`(user_id, role_id)` 这类复合主键能表达天然关系，同时要评估字段宽度和查询顺序。\n- 对外接口：公开 ID 可以用业务单号、短码、UUID、雪花 ID 或单独的 `public_id`，内部主键继续服务数据库组织。",
+      "边界与故障模式：主键问题通常表现为重复写入、写入热点、索引膨胀、页分裂、排障困难和数据修复困难。\n\n- 重复主键：并发重放、幂等键设计缺失、导入脚本使用旧 ID、自增序列回退，会触发 `Duplicate entry`。\n- 主键耗尽：`INT` 自增在高增长表里会触顶，容量评审要结合增长速率、保留周期和未来分片。\n- 随机主键写入抖动：UUIDv4、随机字符串主键会放大页分裂和缓存压力，写入延迟和数据文件增长可能变得明显。\n- 长主键索引膨胀：每个二级索引携带主键值，长字符主键会让索引页变少、层级变深、回表成本上升。\n- 业务主键可变：手机号、邮箱、用户名、外部订单号等业务字段可能发生修正或兼容变化，作为主键会牵动关联表和历史数据。\n- 主键缺失：表身份依赖隐藏行 ID，备份恢复、复制、删除定位、在线变更和排障证据会变弱；部分托管数据库和运维规范会要求每张表有主键。\n- 对外暴露自增：公开连续 ID 会让对象枚举、业务规模推断和越权测试更容易，需要访问控制、公开 ID 或签名策略配合。",
+      "排查实践：主键相关线上问题要先把结构、索引、数据分布和运行证据串起来。\n\n1. 看结构：确认主键列、类型、是否自增、复合顺序、唯一键和二级索引数量。\n2. 看容量：确认自增当前值、类型上限、增长速度、历史归档和分库计划。\n3. 看重复：定位 `Duplicate entry` 的 SQL、参数、请求 ID、幂等键和重试链路。\n4. 看索引体积：对比主键长度、二级索引数量、表大小、Buffer Pool 命中和慢查询回表次数。\n5. 看写入形态：确认主键是否递增、是否批量导入、是否随机插入、是否集中打到单页或单分片。\n6. 看锁和回滚：结合 `SHOW ENGINE INNODB STATUS`、Performance Schema、慢日志、Binlog 和变更脚本确认影响范围。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\n\nSELECT AUTO_INCREMENT\nFROM INFORMATION_SCHEMA.TABLES\nWHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders';\n\nSELECT COLUMN_NAME, COLUMN_TYPE, EXTRA, COLUMN_KEY\nFROM INFORMATION_SCHEMA.COLUMNS\nWHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders'\nORDER BY ORDINAL_POSITION;\n\nSELECT id, COUNT(*)\nFROM orders\nGROUP BY id\nHAVING COUNT(*) > 1;\n\nEXPLAIN ANALYZE\nSELECT * FROM orders WHERE id = 123456789;\n\nEXPLAIN ANALYZE\nSELECT id, order_no, amount\nFROM orders\nWHERE order_no = '202606060001';\n```\n\n排查结论要落到事实：主键定义、真实数据增长、SQL 访问路径、索引体积、重复写入来源和修复脚本的影响范围。",
+      "常见误区：主键是数据库内部组织和业务身份治理的交叉点。\n\n- 主键优先表达稳定行身份，业务唯一性可以通过唯一索引表达。\n- 短主键能降低二级索引、回表、缓存和备份恢复成本。\n- 自增主键适合大量单库 OLTP 表，公开接口可以使用单独的业务 ID 或公开 ID。\n- UUID 和雪花 ID 适合跨节点生成场景，选型重点是有序性、长度、时钟、冲突概率和索引局部性。\n- 复合主键适合天然联合身份，字段顺序要贴合查询前缀和关联路径。\n- 主键变更属于高风险数据迁移，方案要包含应用兼容、回填、校验、双写、外键/引用修复和回滚。",
+      "面试追问：主键类问题适合按“定义、InnoDB 组织、索引成本、方案取舍、排障证据”回答。\n\n- 主键、唯一索引、外键分别解决什么问题？\n- InnoDB 为什么说表数据按主键组织，聚簇索引和主键是什么关系？\n- 二级索引叶子节点为什么保存主键值，这对主键长度有什么影响？\n- 自增主键、UUID、雪花 ID、业务单号作为主键分别有什么工程取舍？\n- 为什么主键字段要尽量短、稳定、递增？\n- 复合主键适合哪些场景，字段顺序如何影响查询？\n- 显式主键缺失的 InnoDB 表会怎样，线上运维为什么经常要求每张表有主键？\n- 主键冲突、主键耗尽、随机主键写入抖动分别怎么排查？\n- 分库分表系统如何设计主键和分片键？\n- 大表想更换主键或从业务主键切到代理主键，迁移方案如何设计？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 `CREATE TABLE`、`PRIMARY KEY`/`UNIQUE` 约束、Primary Key Optimization、InnoDB Clustered and Secondary Indexes、InnoDB Best Practices、InnoDB Storage Layout、`AUTO_INCREMENT` Handling、Generated Invisible Primary Keys 和 `sql_require_primary_key` 文档，并结合 PlanetScale 的 Primary keys、Primary key data types、小林 coding 的 MySQL 索引文章、JavaGuide 的 MySQL 索引讲解和阿里巴巴 Java 开发手册进行工程表达校准。官方资料用于定义、约束、聚簇索引和自增机制，工程资料用于补充主键选型、二级索引成本、排查路径和面试表达。"
+    ],
+    typicalProblems: [
+      "主键在 SQL 约束层和 InnoDB 存储层分别承担什么职责？",
+      "为什么 InnoDB 的主键会决定聚簇索引，二级索引为什么保存主键值？",
+      "主键字段为什么强调短、稳定、递增、非空、唯一？",
+      "自增主键、UUID、雪花 ID、业务单号作为主键分别适合哪些场景？",
+      "主键长度如何影响二级索引体积、Buffer Pool 命中和回表成本？",
+      "复合主键如何设计字段顺序，和联合索引最左前缀有什么关系？",
+      "显式主键缺失的 InnoDB 表会发生什么，`sql_require_primary_key` 和隐藏主键有什么意义？",
+      "线上遇到主键冲突、主键耗尽、随机主键写入抖动时如何排查？",
+      "分库分表、幂等写入、多租户和对外公开 ID 场景下如何设计主键？",
+      "大表更换主键时，应用兼容、在线 DDL、回填校验和回滚如何安排？"
+    ],
+    commonCommands: [
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '<table>'",
+      "SELECT COLUMN_NAME, COLUMN_TYPE, EXTRA, COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '<table>'",
+      "EXPLAIN ANALYZE SELECT * FROM <table> WHERE id = ?",
+      "SHOW ENGINE INNODB STATUS\\G"
+    ],
+    useCases: ["业务实体标识", "关联查询", "数据去重", "幂等写入", "聚簇索引设计", "分库分表 ID 设计", "慢 SQL 排查", "数据修复"],
     prerequisites: ["schema-design"],
-    related: ["clustered-index", "auto-increment"],
+    related: ["schema-design", "data-type", "clustered-index", "auto-increment", "unique-index", "secondary-index", "sharding", "snowflake-id"],
   },
   "select": {
     prerequisites: ["sql"],

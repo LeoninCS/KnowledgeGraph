@@ -5525,6 +5525,14 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: CREATE TABLE Statement",
     url: "https://dev.mysql.com/doc/refman/8.4/en/create-table.html",
   },
+  "mysql-primary-key-optimization": {
+    title: "MySQL Reference Manual: Primary Key Optimization",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/primary-key-optimization.html",
+  },
+  "mysql-constraint-primary-key": {
+    title: "MySQL Reference Manual: PRIMARY KEY and UNIQUE Index Constraints",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/constraint-primary-key.html",
+  },
   "mysql-data-types": {
     title: "MySQL Reference Manual: Data Types",
     url: "https://dev.mysql.com/doc/refman/8.4/en/data-types.html",
@@ -5589,6 +5597,26 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: InnoDB Row Formats",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-row-format.html",
   },
+  "mysql-innodb-best-practices": {
+    title: "MySQL Reference Manual: Best Practices for InnoDB Tables",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-best-practices.html",
+  },
+  "mysql-optimizing-innodb-storage-layout": {
+    title: "MySQL Reference Manual: Optimizing Storage Layout for InnoDB Tables",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/optimizing-innodb-storage-layout.html",
+  },
+  "mysql-innodb-auto-increment": {
+    title: "MySQL Reference Manual: AUTO_INCREMENT Handling in InnoDB",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-auto-increment-handling.html",
+  },
+  "mysql-generated-invisible-primary-keys": {
+    title: "MySQL Reference Manual: Generated Invisible Primary Keys",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/create-table-gipks.html",
+  },
+  "mysql-sql-require-primary-key": {
+    title: "MySQL Reference Manual: sql_require_primary_key System Variable",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_sql_require_primary_key",
+  },
   "mysql-optimization": {
     title: "MySQL Reference Manual: Optimization",
     url: "https://dev.mysql.com/doc/refman/8.4/en/optimization.html",
@@ -5621,13 +5649,21 @@ export const knowledgeSources = {
     title: "小林 coding: MySQL 索引",
     url: "https://xiaolincoding.com/mysql/index/index_interview.html",
   },
+  "javaguide-mysql-index": {
+    title: "JavaGuide: MySQL 索引详解",
+    url: "https://javaguide.cn/database/mysql/mysql-index.html",
+  },
   "mysql-planetscale-schema-recap": {
     title: "PlanetScale: Schema recap",
     url: "https://planetscale.com/learn/courses/mysql-for-developers/schema/recap",
   },
   "mysql-planetscale-primary-keys": {
     title: "PlanetScale: Primary keys",
-    url: "https://planetscale.com/learn/courses/mysql-for-developers/schema/primary-keys",
+    url: "https://planetscale.com/learn/courses/mysql-for-developers/indexes/primary-keys",
+  },
+  "mysql-planetscale-primary-key-data-types": {
+    title: "PlanetScale: Primary key data types",
+    url: "https://planetscale.com/learn/courses/mysql-for-developers/indexes/primary-key-data-types",
   },
   "mysql-planetscale-datetimes": {
     title: "PlanetScale: Datetimes versus timestamps in MySQL",
