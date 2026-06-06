@@ -43,7 +43,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: WHERE 条件 | 2026-06-05 | source_count=18 --> */
   /* <!-- KG_EXPLAINED: WHERE 条件 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "where", zh: "WHERE 条件", en: "WHERE Clause", area: "sql", difficulty: "easy", concept: "WHERE 用条件过滤行，条件设计影响索引使用和扫描范围。", explanation: ["核心概念：WHERE 条件（WHERE Clause）聚焦WHERE 用条件过滤行，条件设计影响索引使用和扫描范围。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住查询语言、过滤、关联、分组、排序和分页，再看输入、状态变化、输出结果和失败分支。","适用场景：WHERE 条件常用于按状态筛选、按时间查询和搜索过滤。学习时把它放回MySQL链路中观察，并结合前置知识SELECT 查询判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，WHERE 条件通常会和索引和范围查询一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认查询语言、过滤、关联、分组、排序和分页是否仍然成立。","常见误区与注意点：实践中容易把WHERE 条件当成孤立概念处理，结果遗漏隐式转换、NULL、深分页、临时表和排序成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["WHERE 条件执行原理是什么","WHERE 条件如何影响性能或一致性","WHERE 条件线上问题怎么排查"], useCases: ["按状态筛选","按时间查询","搜索过滤"], prerequisites: ["select"], related: ["mysql-index","range-query"], order: 14 },
-  /* <!-- KG_REVIEWED: JOIN | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: JOIN | 2026-06-05 | source_count=20 --> */
   /* <!-- KG_EXPLAINED: JOIN | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "join", zh: "JOIN", en: "JOIN", area: "sql", difficulty: "medium", concept: "JOIN 用于关联多张表，常见类型包括 INNER JOIN、LEFT JOIN。", explanation: ["核心概念：JOIN聚焦JOIN 用于关联多张表，常见类型包括 INNER JOIN、LEFT JOIN。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住查询语言、过滤、关联、分组、排序和分页，再看输入、状态变化、输出结果和失败分支。","适用场景：JOIN常用于订单关联用户、权限关联角色和多表报表。学习时把它放回MySQL链路中观察，并结合前置知识SELECT 查询和表结构设计判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，JOIN通常会和JOIN 顺序和SQL 优化一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认查询语言、过滤、关联、分组、排序和分页是否仍然成立。","常见误区与注意点：实践中容易把JOIN当成孤立概念处理，结果遗漏隐式转换、NULL、深分页、临时表和排序成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["JOIN执行原理是什么","JOIN如何影响性能或一致性","JOIN线上问题怎么排查"], useCases: ["订单关联用户","权限关联角色","多表报表"], prerequisites: ["select","schema-design"], related: ["join-order","sql-optimization"], order: 15 },
   /* <!-- KG_REVIEWED: GROUP BY | 2026-05-24 | source_count=5 --> */
@@ -669,8 +669,69 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["select", "mysql-index", "range-query", "composite-index", "leftmost-prefix", "index-selectivity", "explain", "slow-query-log"],
   },
   "join": {
-    prerequisites: ["select"],
-    related: ["sql-optimization", "composite-index"],
+    sourceRefs: [
+      "mysql-select-statement",
+      "mysql-join-clause",
+      "mysql-select-optimization",
+      "mysql-nested-loop-joins",
+      "mysql-nested-join-optimization",
+      "mysql-outer-join-optimization",
+      "mysql-outer-join-simplification",
+      "mysql-hash-join-optimization",
+      "mysql-bnl-bka-joins",
+      "mysql-how-mysql-uses-indexes",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "mysql-slow-query-log",
+      "mysql-performance-schema-statement-tables",
+      "planetscale-joins-overview",
+      "planetscale-indexing-joins",
+      "use-the-index-luke-sql-join",
+      "sqlbolt-sql-joins",
+      "itzhai-mysql-join-optimization",
+      "tencentcloud-mysql-join-principle",
+    ],
+    concept:
+      "JOIN 是 MySQL 中把多张表按关联条件合并成结果集的查询能力，核心质量取决于关系语义、驱动表选择、连接条件索引、JOIN 算法和执行计划证据。",
+    explanation: [
+      "概念定位：JOIN 解决的是“业务对象分散在多张表里，查询时如何按关系拼回完整结果”的问题。它常出现在订单关联用户、订单关联明细、角色权限、商品库存、报表宽表、后台检索和数据订正中。\n\n准确地说，JOIN 是 SQL 的表引用组合能力。MySQL 支持 `INNER JOIN`、`LEFT JOIN`、`RIGHT JOIN`、`CROSS JOIN`、逗号连接和带括号的嵌套连接写法；开发者用 `ON` 或 `USING` 描述行之间的匹配条件，优化器再选择表访问顺序、索引、连接算法和过滤下推方式。JOIN 的难点在于：语义上是多表关系，执行上会变成一系列表访问与中间结果扩张。",
+      "准确定义：JOIN 把两个或多个表表达式组合成一个结果集，关键组成包括：\n\n- 左表与右表：语法上的表引用，外连接中会影响保留行语义。\n- 连接条件：`ON a.user_id = u.id` 或 `USING (user_id)` 描述匹配关系。\n- 连接类型：`INNER JOIN` 只保留匹配行；`LEFT JOIN` 保留左表行；`RIGHT JOIN` 保留右表行；`CROSS JOIN` 形成笛卡尔组合。\n- 驱动表：物理执行中先访问、用于驱动下一张表查找的表。\n- 被驱动表：根据上游候选行和连接条件继续查找的表。\n- 结果列：同名列、空值补齐、重复行和聚合前中间结果都需要按业务语义处理。\n\n新手先掌握“用条件把表拼起来”；工程实践里要继续追踪“候选行从哪里来、每行会查几次下一张表、索引是否能定位”。",
+      "心智模型：把 JOIN 看成沿着业务关系图走边。\n\n- 表是节点，例如 `orders`、`users`、`order_items`。\n- 外键或业务键是边，例如 `orders.user_id = users.id`。\n- WHERE 是先缩小节点集合的过滤器，ON 是沿边匹配的规则。\n- 好的索引像给每条边建了路标，让一边的 key 能快速找到另一边的行。\n- 中间结果像逐层扩展的候选集合，任何一层膨胀都会放大后续扫描、排序、临时表和网络返回。\n\n这个模型能解释常见事故：单表查询很快，多表 JOIN 变慢，根因通常是上游候选行过多、连接列缺少索引、数据类型不一致、外连接限制了重排空间，或结果集在聚合排序前已经膨胀。",
+      "主流程机制：MySQL 执行 JOIN 通常经历 8 个阶段。\n\n1. 解析 SQL，建立表引用树，识别 `INNER`、`LEFT`、`RIGHT`、`CROSS`、`ON`、`USING`、括号嵌套和派生表。\n2. 预处理列名、权限、别名、同名列展开、外连接依赖关系和可下推条件。\n3. 优化器基于统计信息、索引、选择性和代价模型枚举可行 JOIN 顺序；外连接、半连接、派生表和子查询会限制或改变可选计划。\n4. 对每张表选择访问方法，例如 `const`、`eq_ref`、`ref`、`range`、`index`、`ALL`，并估算 `rows`、`filtered` 和成本。\n5. 执行器从驱动表取一批候选行，再按连接条件访问下一张表，典型路径是 Nested Loop Join。\n6. 连接列有高质量索引时，被驱动表可以做等值查找或范围查找；索引缺失时可能使用 JOIN buffer、Block Nested Loop、Batched Key Access 或 Hash Join 等策略。\n7. 外连接在匹配失败时补齐 `NULL`，随后执行 WHERE、GROUP BY、ORDER BY、LIMIT、投影和结果返回。\n8. `EXPLAIN`、`EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 记录访问顺序、访问类型、候选行、实际时间和等待事件。\n\nJOIN 优化的核心是控制每一层候选行数量，并让连接边走可定位索引。",
+      "实践例子：订单列表常需要关联用户和订单明细。下面的设计把过滤条件、连接条件和排序路径放到同一条证据链里。\n\n```sql\nCREATE TABLE users (\n  id BIGINT PRIMARY KEY,\n  name VARCHAR(64) NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  KEY idx_status_id (status, id)\n) ENGINE=InnoDB;\n\nCREATE TABLE orders (\n  id BIGINT PRIMARY KEY,\n  user_id BIGINT NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  created_at DATETIME NOT NULL,\n  KEY idx_user_created (user_id, created_at),\n  KEY idx_status_created_user (status, created_at, user_id)\n) ENGINE=InnoDB;\n\nEXPLAIN ANALYZE\nSELECT o.id, o.created_at, u.name\nFROM orders AS o\nJOIN users AS u ON u.id = o.user_id\nWHERE o.status = 'PAID'\n  AND o.created_at >= '2026-06-01 00:00:00'\n  AND o.created_at <  '2026-07-01 00:00:00'\nORDER BY o.created_at DESC\nLIMIT 20;\n```\n\n这条 SQL 的关键判断是：`orders` 上的 `idx_status_created_user` 先缩小已支付订单和时间范围，再用 `user_id` 连接 `users.id`；`users.id` 是主键，适合形成 `eq_ref`。如果 `orders.status` 选择性很低，优化器可能更偏好时间范围或其他路径，需要用 `EXPLAIN ANALYZE` 观察实际扫描行数。",
+      "JOIN 类型与语义边界：连接类型会影响结果集和优化空间。\n\n- `INNER JOIN`：只保留两边匹配的行，优化器通常有更多重排 JOIN 顺序的空间。\n- `LEFT JOIN`：保留左表所有候选行，右表匹配失败时补 `NULL`；右表过滤条件放在 `ON` 或 `WHERE` 会改变结果语义。\n- `RIGHT JOIN`：语义等价于换方向的 `LEFT JOIN`，工程上常改写成左连接便于阅读。\n- `CROSS JOIN`：表达笛卡尔组合，结果行数是两边候选行相乘，常用于小维表生成组合或测试数据。\n- 多表 JOIN：每新增一张表都会增加计划搜索、候选行扩张和索引维护要求。\n- 自连接：同一张表用不同别名表达层级、相邻版本或配对关系，别名和索引路径要清楚。\n\n外连接最容易出错的点是空值补齐。右表条件写进 `WHERE` 时，很多业务场景会把补齐后的空值行过滤掉；写在 `ON` 里则属于匹配规则的一部分。",
+      "深层细节：MySQL JOIN 性能来自算法、索引、统计信息和内存策略共同作用。\n\n- Nested Loop Join：外层每得到一行，就按连接条件访问内层表；内层连接列有索引时成本接近“外层行数 * 单次索引查找”。\n- JOIN buffer：内层缺少可用索引时，MySQL 可能把外层行放进连接缓冲区，批量和内层扫描匹配；这能减少重复扫描成本，也会消耗内存并放大 CPU 比较。\n- Batched Key Access：把一批外层 key 组织起来访问内层索引，改善随机 I/O 局部性，通常和 Multi-Range Read 思路配合。\n- Hash Join：MySQL 8.0 系列支持在合适场景构建哈希表做等值连接，常见于缺少可用索引或成本模型认为哈希更便宜的连接。\n- 外连接简化：当 WHERE 条件能证明外连接的空值补齐行会被过滤时，优化器可能把外连接简化为内连接，从而释放更多重排空间。\n- 数据类型与字符集：连接列类型、长度、字符集和 collation 要一致，隐式转换会增加比较成本并影响索引使用。\n- 统计信息：表大小、基数、直方图、参数分布和热点租户会影响驱动表选择，计划会随数据变化漂移。\n\n老手看 JOIN 计划时会先估算中间结果规模，再看每条连接边的访问类型和实际行数。",
+      "工程场景：JOIN 的使用策略取决于业务关系和系统边界。\n\n- OLTP 详情页：一到三张表的主键/外键关联通常适合 JOIN，重点是限制返回列、保证连接列索引、控制事务范围。\n- 后台检索：多条件筛选加多表关联容易形成大中间结果，先用高选择性条件缩小主表，再关联维表。\n- 权限模型：用户、角色、权限、资源多表查询要防止重复行和权限漏判，常配合 `DISTINCT`、半连接或预聚合。\n- 报表查询：大表 JOIN 常使用只读副本、离线宽表、预聚合或物化结果，避免影响主库延迟。\n- 分库分表：跨分片 JOIN 成本高，常通过冗余字段、服务层聚合、广播小表或离线同步控制复杂度。\n- 缓存回源：高频接口可以缓存 JOIN 后的读模型，但需要设计失效、重建和一致性窗口。\n\n生产设计的常用原则是：核心事务写入链路保持表结构清晰，高频读取链路用索引、缓存、宽表或异步投影降低 JOIN 压力。",
+      "边界与故障模式：JOIN 问题通常表现为慢查询、结果行膨胀、内存压力、锁范围扩大或计划漂移。\n\n- 缺少连接索引：`EXPLAIN` 中被驱动表出现 `ALL`、`Using join buffer`、大 `rows`，延迟随外层候选行放大。\n- 结果重复：一对多、多对多关系会放大结果集，分页、计数和权限判断容易被重复行影响。\n- 外连接语义偏差：右表条件位置改变保留行语义，`NULL` 补齐行需要在需求里明确。\n- 隐式转换：连接列类型、字符集或 collation 差异会改变比较方式和索引选择。\n- 排序聚合放大：JOIN 后再 `GROUP BY`、`ORDER BY`、`DISTINCT` 可能产生临时表和 filesort。\n- 锁与事务：锁定读、多表 UPDATE/DELETE 会按访问路径加锁，JOIN 顺序和索引范围会影响等待链。\n- 计划漂移：数据分布变化、统计信息陈旧、新索引上线、版本升级和参数偏斜会改变驱动表选择。\n\n处理 JOIN 故障时，把“每张表候选行数、每条连接边索引、最终返回行数、排序聚合成本”拆开验证。",
+      "排查实践：JOIN 慢查询建议按证据链定位。\n\n1. 固化现场：记录 SQL、绑定参数、返回行数、业务入口、事务范围、超时时间和实例角色。\n2. 看表结构：执行 `SHOW CREATE TABLE` 和 `SHOW INDEX`，确认连接列类型、字符集、主键、唯一键和联合索引顺序。\n3. 看计划：用 `EXPLAIN FORMAT=TREE` 观察 JOIN 顺序、访问类型、候选行和 `Extra`，再用 `EXPLAIN ANALYZE` 对比估算与实际。\n4. 看中间结果：分别计算驱动表过滤后行数、每条连接边命中比例、一对多扩张倍数和最终返回行数。\n5. 看运行证据：检查慢查询日志、Performance Schema 语句摘要、等待事件、临时表、排序、Buffer Pool、CPU、I/O 和复制延迟。\n6. 小步修复：补连接列索引、调整联合索引顺序、先过滤再 JOIN、改写外连接条件、预聚合一对多表、拆分大查询或落地读模型。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW CREATE TABLE users\\G\nSHOW INDEX FROM orders;\nSHOW INDEX FROM users;\n\nEXPLAIN FORMAT=TREE\nSELECT o.id, u.name\nFROM orders o\nJOIN users u ON u.id = o.user_id\nWHERE o.status = 'PAID'\n  AND o.created_at >= '2026-06-01';\n\nEXPLAIN ANALYZE\nSELECT o.id, u.name\nFROM orders o\nJOIN users u ON u.id = o.user_id\nWHERE o.status = 'PAID'\n  AND o.created_at >= '2026-06-01';\n\nSELECT COUNT(*) AS filtered_orders\nFROM orders\nWHERE status = 'PAID'\n  AND created_at >= '2026-06-01';\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_CREATED_TMP_TABLES, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nWHERE DIGEST_TEXT LIKE 'SELECT%JOIN%'\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n```\n\n有效优化会体现为访问类型改善、实际扫描行数下降、临时表减少、p95/p99 延迟收敛，并且业务结果行数保持稳定。",
+      "常见误区：成熟的 JOIN 判断来自语义、基数和证据。\n\n- JOIN 是关系查询能力，性能质量取决于候选行规模、连接列索引、数据分布和后续排序聚合。\n- 小表驱动大表只是经验入口，真正的驱动表选择来自过滤后行数、连接边索引和整体代价。\n- `LEFT JOIN` 的保留行语义由左表、`ON` 和 `WHERE` 共同决定，右表条件位置要和业务需求一致。\n- `Using join buffer` 表示优化器在用缓冲策略处理连接，排查时继续看内层索引、外层行数和实际耗时。\n- `SELECT *` 会扩大网络、临时表、回表和缓存压力，JOIN 查询更适合只取业务需要的列。\n- 多表查询优化要同时评估读性能、写入索引维护成本、发布风险和回滚路径。",
+      "面试追问：JOIN 题适合按“语义 -> 算法 -> 索引 -> 计划 -> 故障 -> 取舍”回答。\n\n- JOIN 解决什么问题，`INNER JOIN`、`LEFT JOIN`、`CROSS JOIN` 分别表达什么语义？\n- `ON` 和 `WHERE` 在外连接里如何影响结果？\n- MySQL 执行 JOIN 时，驱动表、被驱动表和 Nested Loop Join 如何协作？\n- 为什么连接列索引对 JOIN 性能影响很大？联合索引顺序如何设计？\n- `eq_ref`、`ref`、`ALL`、`Using join buffer`、`rows`、`filtered` 分别说明什么？\n- Hash Join、Block Nested Loop、Batched Key Access 分别适合哪些场景？\n- 一对多 JOIN 为什么会造成重复行、分页错觉或聚合成本？\n- 多表 JOIN 慢查询如何用 `EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 建立证据链？\n- 多表 UPDATE、锁定读和 JOIN 顺序如何影响锁范围与死锁概率？\n- 分库分表、读写分离和报表系统里，什么时候用 JOIN，什么时候用宽表、缓存或服务层聚合？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 SELECT、JOIN Clause、Optimizing SELECT Statements、Nested-Loop Join Algorithms、Nested Join Optimization、Outer Join Optimization、Outer Join Simplification、Hash Join Optimization、Block Nested-Loop and Batched Key Access Joins、How MySQL Uses Indexes、EXPLAIN、Slow Query Log 和 Performance Schema Statement Tables 文档，并结合 PlanetScale 的 JOIN 与索引课程、Use The Index, Luke 的 SQL Joins、SQLBolt 的多表查询教程、IT宅和腾讯云开发者社区的 JOIN 调优文章进行工程表达校准。官方资料用于语法、优化器和算法边界，工程文章用于补充索引设计、执行计划阅读、中文学习路径和排障经验。"
+    ],
+    typicalProblems: [
+      "JOIN 解决什么问题，常见连接类型分别表达什么语义？",
+      "`INNER JOIN`、`LEFT JOIN`、`RIGHT JOIN`、`CROSS JOIN` 的结果集如何判断？",
+      "`ON` 和 `WHERE` 在外连接中的条件位置会怎样影响保留行？",
+      "MySQL 执行 JOIN 时，驱动表、被驱动表、Nested Loop Join 和连接条件如何协作？",
+      "连接列索引、联合索引顺序和数据类型一致性如何影响 JOIN 性能？",
+      "`EXPLAIN` 中 `eq_ref`、`ref`、`ALL`、`Using join buffer`、`rows`、`filtered` 如何解读？",
+      "Hash Join、Block Nested Loop 和 Batched Key Access 的适用场景是什么？",
+      "一对多、多对多 JOIN 为什么会造成结果膨胀、分页异常和聚合成本？",
+      "线上 JOIN 慢查询如何用 `EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 排查？",
+      "分库分表、报表系统和高频读接口中，JOIN、宽表、缓存和服务层聚合如何取舍？"
+    ],
+    commonCommands: [
+      "EXPLAIN FORMAT=TREE <join_sql>",
+      "EXPLAIN ANALYZE <join_sql>",
+      "SHOW CREATE TABLE <left_table>\\G",
+      "SHOW CREATE TABLE <right_table>\\G",
+      "SHOW INDEX FROM <table>",
+      "SELECT COUNT(*) FROM <driver_table> WHERE <driver_filters>",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_CREATED_TMP_TABLES, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10"
+    ],
+    useCases: ["订单关联用户", "订单关联明细", "角色权限查询", "商品库存查询", "后台多条件检索", "报表维表关联", "数据订正校验", "慢查询治理"],
+    prerequisites: ["select", "where", "schema-design"],
+    related: ["join-order", "sql-optimization", "composite-index", "mysql-index", "explain", "slow-query-log"],
   },
   "limit-offset": {
     prerequisites: ["select"],

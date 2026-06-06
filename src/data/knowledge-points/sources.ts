@@ -5517,9 +5517,37 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: SELECT Statement",
     url: "https://dev.mysql.com/doc/refman/8.4/en/select.html",
   },
+  "mysql-join-clause": {
+    title: "MySQL Reference Manual: JOIN Clause",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/join.html",
+  },
   "mysql-select-optimization": {
     title: "MySQL Reference Manual: Optimizing SELECT Statements",
     url: "https://dev.mysql.com/doc/refman/8.4/en/select-optimization.html",
+  },
+  "mysql-nested-loop-joins": {
+    title: "MySQL Reference Manual: Nested-Loop Join Algorithms",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/nested-loop-joins.html",
+  },
+  "mysql-nested-join-optimization": {
+    title: "MySQL Reference Manual: Nested Join Optimization",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/nested-join-optimization.html",
+  },
+  "mysql-outer-join-optimization": {
+    title: "MySQL Reference Manual: Outer Join Optimization",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/outer-join-optimization.html",
+  },
+  "mysql-outer-join-simplification": {
+    title: "MySQL Reference Manual: Outer Join Simplification",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/outer-join-simplification.html",
+  },
+  "mysql-hash-join-optimization": {
+    title: "MySQL Reference Manual: Hash Join Optimization",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/hash-joins.html",
+  },
+  "mysql-bnl-bka-joins": {
+    title: "MySQL Reference Manual: Block Nested-Loop and Batched Key Access Joins",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/bnl-bka-optimization.html",
   },
   "mysql-where-optimization": {
     title: "MySQL Reference Manual: WHERE Clause Optimization",
@@ -5712,6 +5740,30 @@ export const knowledgeSources = {
   "planetscale-index-obfuscation": {
     title: "PlanetScale: Index obfuscation",
     url: "https://planetscale.com/learn/courses/mysql-for-developers/queries/index-obfuscation",
+  },
+  "planetscale-joins-overview": {
+    title: "PlanetScale: An overview of joins",
+    url: "https://planetscale.com/learn/courses/mysql-for-developers/queries/an-overview-of-joins",
+  },
+  "planetscale-indexing-joins": {
+    title: "PlanetScale: Indexing joins",
+    url: "https://planetscale.com/learn/courses/mysql-for-developers/queries/indexing-joins",
+  },
+  "use-the-index-luke-sql-join": {
+    title: "Use The Index, Luke: SQL Joins",
+    url: "https://use-the-index-luke.com/sql/join",
+  },
+  "sqlbolt-sql-joins": {
+    title: "SQLBolt: Multi-table queries with JOINs",
+    url: "https://sqlbolt.com/lesson/select_queries_with_joins",
+  },
+  "itzhai-mysql-join-optimization": {
+    title: "IT宅: 图解 MySQL join 调优原理",
+    url: "https://www.itzhai.com/columns/mysql/sql/join.html",
+  },
+  "tencentcloud-mysql-join-principle": {
+    title: "腾讯云开发者社区: MySQL 慢查询优化之联结原理",
+    url: "https://cloud.tencent.com/developer/article/1705502",
   },
   "mysql-planetscale-schema-recap": {
     title: "PlanetScale: Schema recap",
