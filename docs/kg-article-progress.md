@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 81 | 368 |
+| 449 | 82 | 367 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 17 | 31 |
+| mysql | 48 | 18 | 30 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -206,7 +206,7 @@
 | 已优化 | `b-plus-tree` | B+ 树 | B+ Tree | 2026-06-05 | 19 |
 | 已优化 | `secondary-index` | 二级索引 | Secondary Index | 2026-06-05 | 23 |
 | 已优化 | `back-to-table` | 回表 | Back to Table | 2026-06-05 | 23 |
-| 未开始 | `covering-index` | 覆盖索引 | Covering Index | 2026-05-24 | 5 |
+| 已优化 | `covering-index` | 覆盖索引 | Covering Index | 2026-06-05 | 28 |
 | 未开始 | `composite-index` | 联合索引 | Composite Index | 2026-05-24 | 5 |
 | 未开始 | `leftmost-prefix` | 最左前缀 | Leftmost Prefix | 2026-05-24 | 5 |
 | 未开始 | `range-query` | 范围查询 | Range Query | 2026-05-24 | 5 |

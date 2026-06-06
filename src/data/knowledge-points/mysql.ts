@@ -162,7 +162,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 回表 | 2026-06-05 | source_count=23 --> */
   /* <!-- KG_EXPLAINED: 回表 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "back-to-table", zh: "回表", en: "Back to Table", area: "index", difficulty: "medium", concept: "回表是通过二级索引找到主键后，再访问聚簇索引获取完整记录。", explanation: ["核心概念：回表（Back to Table）聚焦回表是通过二级索引找到主键后，再访问聚簇索引获取完整记录。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住B+ 树、聚簇索引、二级索引和覆盖索引，再看输入、状态变化、输出结果和失败分支。","适用场景：回表常用于查询优化和索引字段选择。学习时把它放回MySQL链路中观察，并结合前置知识二级索引判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，回表通常会和覆盖索引一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认B+ 树、聚簇索引、二级索引和覆盖索引是否仍然成立。","常见误区与注意点：实践中容易把回表当成孤立概念处理，结果遗漏回表、最左前缀、范围条件、低选择性和写入成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["回表执行原理是什么","回表如何影响性能或一致性","回表线上问题怎么排查"], useCases: ["查询优化","索引字段选择"], prerequisites: ["secondary-index"], related: ["covering-index"], order: 30 },
-  /* <!-- KG_REVIEWED: 覆盖索引 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 覆盖索引 | 2026-06-05 | source_count=28 --> */
   /* <!-- KG_EXPLAINED: 覆盖索引 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "covering-index", zh: "覆盖索引", en: "Covering Index", area: "index", difficulty: "medium", concept: "覆盖索引让查询所需字段都能从索引中获得，减少回表。", explanation: ["核心概念：覆盖索引（Covering Index）聚焦覆盖索引让查询所需字段都能从索引中获得，减少回表。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住B+ 树、聚簇索引、二级索引和覆盖索引，再看输入、状态变化、输出结果和失败分支。","适用场景：覆盖索引常用于列表查询优化和高频只读查询。学习时把它放回MySQL链路中观察，并结合前置知识二级索引判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，覆盖索引通常会和联合索引和SQL 优化一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认B+ 树、聚簇索引、二级索引和覆盖索引是否仍然成立。","常见误区与注意点：实践中容易把覆盖索引当成孤立概念处理，结果遗漏回表、最左前缀、范围条件、低选择性和写入成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["覆盖索引执行原理是什么","覆盖索引如何影响性能或一致性","覆盖索引线上问题怎么排查"], useCases: ["列表查询优化","高频只读查询"], prerequisites: ["secondary-index"], related: ["composite-index","sql-optimization"], order: 31 },
   /* <!-- KG_REVIEWED: 联合索引 | 2026-05-24 | source_count=5 --> */
@@ -1364,8 +1364,80 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["covering-index", "composite-index", "leftmost-prefix", "range-query", "index-selectivity", "explain", "slow-query-log", "sql-optimization", "buffer-pool", "lock"],
   },
   "covering-index": {
-    prerequisites: ["secondary-index"],
-    related: ["back-to-table", "composite-index"],
+    sourceRefs: [
+      "mysql-innodb-index-types",
+      "mysql-how-mysql-uses-indexes",
+      "mysql-column-indexes",
+      "mysql-multiple-column-indexes",
+      "mysql-index-extensions",
+      "mysql-index-condition-pushdown",
+      "mysql-range-optimization",
+      "mysql-order-by-optimization",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "mysql-slow-query-log",
+      "mysql-performance-schema-statement-tables",
+      "mysql-show-index",
+      "mysql-verifying-index-usage",
+      "mysql-analyze-table",
+      "mysql-optimizer-statistics",
+      "mysql-invisible-indexes",
+      "mysql-innodb-physical-structure",
+      "mysql-innodb-buffer-pool",
+      "mysql-innodb-multi-versioning",
+      "mysql-innodb-consistent-read",
+      "mysql-innodb-locks-set",
+      "mysql-innodb-locking-reads",
+      "jeremy-cole-innodb-btree",
+      "planetscale-secondary-keys",
+      "planetscale-covering-indexes",
+      "xiaolincoding-mysql-index",
+      "javaguide-mysql-index",
+    ],
+    concept:
+      "覆盖索引是查询所需列都能由同一条索引访问路径提供的执行形态，核心价值是减少聚簇索引读取、回表次数和页访问成本。",
+    explanation: [
+      "概念定位：覆盖索引（Covering Index / Index-only Access）解决的是“高频查询已经命中索引，结果列还能直接从索引返回”的问题。订单列表、消息列表、用户搜索、租户后台筛选、JOIN 被驱动表小字段读取、深分页延迟关联和慢 SQL 治理都会遇到它。\n\n在 InnoDB 中，二级索引叶子记录保存索引列和主键值，聚簇索引叶子记录保存整行。查询的过滤列、排序列和返回列都能从某棵索引中取得时，执行路径停留在索引树内，`EXPLAIN Extra` 常见 `Using index`，`EXPLAIN FORMAT=TREE` 可能显示 `Covering index lookup`。覆盖索引把字段裁剪、联合索引顺序、回表成本、Buffer Pool 命中、写入放大和线上可观测证据串在一起。",
+      "准确定义：覆盖索引描述的是 SQL 与索引之间的匹配关系。一个索引对某条 SQL 具有覆盖性，意味着该 SQL 需要读取的列可以由该索引记录提供。\n\n- `access columns`：用于 `WHERE`、`JOIN`、范围扫描、排序或分组的列。\n- `output columns`：`SELECT` 返回的列，以及执行阶段仍需读取的表达式输入列。\n- `primary key payload`：InnoDB 二级索引记录会携带主键列，`SELECT id` 常可被二级索引自然覆盖。\n- `Using index`：MySQL `EXPLAIN Extra` 中的覆盖读取信号，表示列信息来自索引树。\n- `Index Condition Pushdown`：ICP 在索引扫描阶段用索引列过滤候选；覆盖索引强调结果列也来自索引。\n- `index extension`：优化器会利用 InnoDB 追加到二级索引中的主键列做访问、排序、分组和覆盖判断。\n- `prefix index`：前缀索引只保存列前缀，返回完整列值时仍要读取行记录。\n\n覆盖性由具体 SQL、索引列顺序、主键、返回字段和优化器选择共同决定。",
+      "心智模型：把覆盖索引想成一张能直接回答问题的目录卡。\n\n- 普通二级索引像目录，只写分类、页码和书号；读者要正文时还要取书。\n- 覆盖索引像目录卡上同时写了读者需要的摘要字段；读者问摘要时目录卡即可回答。\n- 联合索引字段顺序决定目录如何排序，也决定从哪里开始定位、如何范围扫描、能否顺手排序。\n- 返回列越少，目录卡越容易覆盖；返回大字段越多，取整本书的概率越高。\n- 目录卡越厚，维护成本、缓存占用和写入成本也越高。\n\n这个模型帮助新手记住核心取舍：覆盖索引用更宽的索引记录换取更短的读取路径。",
+      "主流程机制：一次覆盖索引查询可以按“列需求分析 -> 索引选择 -> 索引树读取 -> 覆盖判断 -> 证据验证”理解。\n\n1. SQL 层解析 `WHERE`、`JOIN`、`ORDER BY`、`GROUP BY`、`LIMIT` 和 `SELECT` 列，形成访问列与返回列集合。\n2. 优化器根据统计信息、选择性、排序成本、回表成本和索引宽度比较候选索引。\n3. 执行器沿目标索引的 B+ 树定位起点；等值条件收窄前缀，范围条件决定叶子扫描区间。\n4. 叶子记录提供索引列和 InnoDB 追加主键；全部所需列都可获得时，执行器以索引记录返回结果。\n5. 覆盖读取通常减少聚簇索引 lookup、随机页访问、Buffer Pool 冷页读取和 `Rows_examined` 压力。\n6. ICP 可以先用索引列过滤候选，覆盖索引可以继续用同一条索引提供结果列，两者经常同时出现。\n7. MVCC 可见性、删除标记记录、锁定读和写语句会把执行语义带回事务与锁层面，真实行为要用 `EXPLAIN ANALYZE` 和锁证据确认。\n8. 发布后用慢查询日志、Performance Schema、Buffer Pool 读和复制延迟验证收益与副作用。",
+      "实践例子：下面的订单列表展示普通二级索引、覆盖读取和宽覆盖索引的取舍。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n  user_id BIGINT UNSIGNED NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  amount DECIMAL(12,2) NOT NULL,\n  title VARCHAR(128) NOT NULL,\n  address VARCHAR(255) NOT NULL,\n  created_at DATETIME NOT NULL,\n  PRIMARY KEY (id),\n  KEY idx_user_status_created_id (user_id, status, created_at, id),\n  KEY idx_cover_order_list (user_id, status, created_at, id, amount)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n\n-- 列表轻量字段：过滤列、排序列、返回列都来自 idx_user_status_created_id\nEXPLAIN FORMAT=TREE\nSELECT id, user_id, status, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\n-- 金额也成为高频列表字段时，可用更宽的覆盖索引减少聚簇索引读取\nEXPLAIN ANALYZE\nSELECT id, user_id, status, amount, created_at\nFROM orders FORCE INDEX (idx_cover_order_list)\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\n-- 地址属于低频宽字段，详情页按主键读取更适合\nEXPLAIN ANALYZE\nSELECT id, user_id, status, amount, title, address, created_at\nFROM orders\nWHERE id = 90001;\n```\n\n第一条是典型覆盖列表查询。第二条通过新增少量轻量字段换取少量聚簇索引读取。第三条把宽字段留给详情查询，保护列表索引的页密度和写入成本。",
+      "深层细节：覆盖索引的收益来自索引内完成读取，代价来自更宽的索引记录。\n\n- 叶子内容：InnoDB 二级索引叶子记录包含二级键和主键，覆盖查询可直接利用这些列。\n- 主键追加：二级索引隐含携带主键，主键可以参与覆盖、排序和分组判断；宽主键会放大每个二级索引记录。\n- 联合顺序：等值列放前面通常有利于快速定位，范围列决定扫描区间，排序列和返回列决定覆盖收益。\n- `SELECT *`：返回整行会把需求扩展到大量索引外字段，列表接口通常通过字段裁剪获得覆盖机会。\n- 前缀索引：只保存列前缀，适合前缀过滤；返回完整字符串时仍要读取行记录。\n- MVCC 边界：二级索引覆盖读取在干净记录上收益明显；遇到新版本、删除标记或可见性复核时，InnoDB 可能读取聚簇记录判断版本。\n- 锁语义：普通一致性读最容易获得索引内读取收益；`SELECT ... FOR UPDATE`、`UPDATE`、`DELETE` 走二级索引且需要排他锁时，InnoDB 会读取并锁定对应聚簇索引记录。\n- 写入放大：新增覆盖列会降低页扇出，增加索引页数量、Redo、Undo、Buffer Pool 占用、备份体积、在线 DDL 时间和复制压力。\n- 计划稳定性：统计信息、数据倾斜、热点租户和参数分布会影响优化器选择覆盖索引、其他索引或全表扫描。\n\n老手评审覆盖索引时会同时看四个量：索引扫描多少行、节省多少聚簇 lookup、索引记录变宽多少、写入链路增加多少成本。",
+      "工程场景与取舍：覆盖索引适合高频、字段少、选择性明确、排序稳定的读路径。\n\n- 订单和消息列表：`(user_id, status, created_at, id)` 覆盖 `id/status/created_at`，适合游标分页和最近记录展示。\n- 后台筛选：租户、状态、时间范围和主键尾列组成联合索引，返回少量展示字段，减少回表和排序。\n- JOIN 被驱动表：被反复 lookup 的小字段可以被索引覆盖，降低嵌套循环的内层读取成本。\n- 延迟关联：深分页先用覆盖索引取主键列表，再按主键回表读取少量详情，适合大 offset 迁移到稳定分页。\n- API 字段裁剪：列表接口只返回必要字段，详情页按主键读取宽字段，让索引服务最频繁路径。\n- 写多读少表：覆盖列选择要更克制，优先保护写入延迟、复制延迟和在线变更窗口。\n- 灰度治理：用 Invisible Index 评估删除或替换宽覆盖索引的计划影响，再观察慢 SQL 和写入指标。",
+      "边界与故障模式：覆盖索引问题常表现为计划漂移、索引膨胀、写入变慢和收益失真。\n\n- 扫描范围过宽：覆盖只减少聚簇读取，低选择性或大时间范围仍会扫描大量索引叶子记录。\n- 索引过宽：把大量展示列、长字符串和低频字段放进覆盖索引，会降低页扇出并挤压 Buffer Pool。\n- 排序字段错位：联合索引字段顺序和 `ORDER BY` 方向组合决定排序收益，计划里出现 `Using filesort` 要复核字段顺序。\n- 统计信息漂移：热点租户、状态倾斜、批量导入或删除后，优化器可能低估扫描行数，`ANALYZE TABLE` 能刷新统计线索。\n- 返回列扩张：产品迭代增加列表字段后，原有覆盖关系会变化，慢查询和 `EXPLAIN` 能快速发现。\n- MVCC 与锁定读：普通快照读、当前读和写语句的执行语义不同，覆盖计划在锁场景中的实际成本要结合锁表和事务日志判断。\n- 重复索引：为了覆盖多条相似 SQL 叠加多个宽索引，会长期增加写入、空间、备份和 DDL 成本。\n- 强制索引风险：`FORCE INDEX` 适合临时验证，长期使用要定期复核数据分布和版本变化。",
+      "排查实践：覆盖索引排查要把 SQL 形状、索引定义、真实计划和运行指标连成证据链。\n\n1. 固化 SQL：记录绑定参数、返回列、过滤条件、排序、分页、执行频率、p95/p99 和业务入口。\n2. 列出列需求：把 `WHERE`、`JOIN`、`ORDER BY`、`GROUP BY`、`SELECT` 涉及的列分开，确认目标索引是否能提供这些列。\n3. 查看索引定义：用 `SHOW CREATE TABLE`、`SHOW INDEX` 看列顺序、基数、可见性、前缀长度、主键宽度和重复索引。\n4. 查看计划：用 `EXPLAIN FORMAT=TREE`、`EXPLAIN` 观察 `key`、`key_len`、`rows`、`filtered`、`Extra=Using index`、排序和过滤位置。\n5. 查看真实执行：用 `EXPLAIN ANALYZE` 对比估算行数和实际行数，关注覆盖索引 lookup 的循环次数与耗时。\n6. 查看运行面：慢查询日志比较 `Rows_examined` / `Rows_sent`，Performance Schema 按 digest 汇总高频高扫描 SQL。\n7. 查看副作用：观察 Buffer Pool 物理读、Redo 写入、写入延迟、复制延迟、在线 DDL 时间和磁盘增长。\n8. 小步修复：字段裁剪、调整联合索引顺序、补少量轻量覆盖列、拆分详情查询、刷新统计信息、用 Invisible Index 灰度，并用同一批参数复测。\n\n```sql\nSHOW CREATE TABLE orders\\G\nSHOW INDEX FROM orders;\n\nEXPLAIN FORMAT=TREE\nSELECT id, user_id, status, amount, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nEXPLAIN ANALYZE\nSELECT id, user_id, status, amount, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC, id DESC\nLIMIT 20;\n\nANALYZE TABLE orders;\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT\nFROM performance_schema.events_statements_summary_by_digest\nWHERE DIGEST_TEXT LIKE 'SELECT%ORDERS%'\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n\nSHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_read%';\nALTER TABLE orders ALTER INDEX idx_cover_order_list INVISIBLE;\nALTER TABLE orders ALTER INDEX idx_cover_order_list VISIBLE;\n```\n\n有效优化通常体现为 `Using index` 出现、实际聚簇 lookup 减少、扫描返回比例收敛、排序或临时表减少、Buffer Pool 物理读下降，同时写入和复制指标保持稳定。",
+      "指标与命令速查：覆盖索引质量要用可观测信号判断。\n\n- `SHOW INDEX`：看 `Key_name`、`Seq_in_index`、`Column_name`、`Sub_part`、`Cardinality`、`Visible`。\n- `EXPLAIN key`：确认优化器选择目标索引。\n- `EXPLAIN key_len`：辅助判断联合索引实际参与访问的列范围。\n- `EXPLAIN rows` / `filtered`：估算扫描量和过滤比例。\n- `Extra=Using index`：覆盖读取信号，列信息来自索引树。\n- `Extra=Using index condition`：ICP 信号，索引扫描阶段仍有条件过滤。\n- `EXPLAIN FORMAT=TREE`：观察 `Covering index lookup`、排序、过滤和访问路径。\n- `EXPLAIN ANALYZE`：看真实行数、循环次数和每个迭代器耗时。\n- 慢查询日志：`Rows_examined`、`Rows_sent`、`Query_time` 体现扫描与返回比例。\n- Performance Schema：`SUM_ROWS_EXAMINED`、`SUM_ROWS_SENT`、`SUM_TIMER_WAIT` 按 SQL 指纹衡量影响面。\n- `Innodb_buffer_pool_read%`：观察物理读变化，评估减少聚簇读取后的缓存效果。\n- Invisible Index：灰度验证索引删除、替换或合并后的计划变化。",
+      "常见误区：覆盖索引是围绕具体 SQL 的访问路径优化。\n\n- 覆盖性按 SQL 判断，同一条索引可以覆盖轻量列表，也可以在详情查询中产生聚簇读取。\n- `Using index` 是覆盖读取信号，`Using index condition` 是索引条件下推信号，两者可以同时服务同一条 SQL。\n- 二级索引携带主键，返回主键列常能被自然覆盖；主键越宽，所有二级索引越厚。\n- 覆盖索引减少回表，低选择性范围扫描仍需要控制扫描行数。\n- 字段裁剪是覆盖索引设计的一部分，列表接口和详情接口分工越清楚，索引越容易保持轻量。\n- 宽覆盖索引会增加写入、缓存、空间、备份、DDL 和复制成本，收益要用生产频率与指标证明。\n- 前缀索引保存前缀值，完整列返回场景要结合执行计划验证读取路径。\n- 覆盖索引发布后要持续观察计划、统计信息、慢日志和写入指标。",
+      "面试追问：覆盖索引题适合按“定义 -> InnoDB 叶子记录 -> 执行计划 -> 回表减少 -> 边界 -> 取舍”回答。\n\n- 覆盖索引解决什么问题，为什么它能减少回表？\n- InnoDB 二级索引叶子记录保存哪些内容，主键为什么常能被覆盖？\n- `Using index`、`Using index condition`、`Covering index lookup` 分别说明什么？\n- 如何根据 `WHERE`、`ORDER BY`、`SELECT` 列设计一条覆盖联合索引？\n- 覆盖索引和联合索引、最左前缀、范围查询之间是什么关系？\n- `SELECT *`、宽字段、前缀索引和低选择性条件会怎样影响覆盖收益？\n- 覆盖索引在 MVCC、锁定读和写语句中有哪些边界？\n- 如何用 `EXPLAIN ANALYZE`、慢查询日志和 Performance Schema 证明回表减少？\n- 为了覆盖查询新增字段时，如何评估写入、空间、缓存、DDL 和复制延迟？\n- 线上出现计划漂移时，如何用统计刷新、Invisible Index、字段裁剪和索引合并治理？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 How MySQL Uses Indexes、Column Indexes、Multiple-Column Indexes、Clustered and Secondary Indexes、Use of Index Extensions、Index Condition Pushdown、Range Optimization、ORDER BY Optimization、Optimizer Statistics、ANALYZE TABLE、Invisible Indexes、EXPLAIN、EXPLAIN Output、Slow Query Log、Performance Schema Statement Tables、SHOW INDEX、InnoDB Physical Structure、Buffer Pool、Multi-Versioning、Consistent Reads、Locking Reads 和 Locks Set by Different SQL Statements，并结合 PlanetScale Secondary Keys 与 Covering Indexes、Jeremy Cole 的 InnoDB B+Tree 页结构文章、小林 coding 和 JavaGuide 的索引资料校准中文表达、案例和面试问法。官方资料用于定义、执行计划信号、优化器行为、MVCC 与锁边界，工程文章用于补充覆盖索引直觉、回表成本和索引治理取舍。"
+    ],
+    typicalProblems: [
+      "覆盖索引是什么，它解决 MySQL 二级索引路径上的哪个性能问题？",
+      "InnoDB 二级索引叶子记录保存哪些内容，为什么主键列常被自然覆盖？",
+      "如何从 `WHERE`、`ORDER BY`、`SELECT` 列判断某条 SQL 是否能被覆盖？",
+      "`Using index`、`Using index condition` 和 `Covering index lookup` 分别代表什么执行含义？",
+      "覆盖索引如何减少回表，减少的是哪些页访问和运行指标？",
+      "联合索引字段顺序、最左前缀、范围条件和排序方向如何影响覆盖索引设计？",
+      "`SELECT *`、宽字段、前缀索引、低选择性条件和热点租户分别会怎样影响覆盖收益？",
+      "MVCC、删除标记记录、锁定读和写语句会给覆盖索引带来哪些边界？",
+      "如何用 `EXPLAIN ANALYZE`、慢查询日志、Performance Schema 和 Buffer Pool 指标验证优化结果？",
+      "新增宽覆盖索引时，如何评估写入放大、空间增长、在线 DDL、复制延迟和回滚路径？"
+    ],
+    commonCommands: [
+      "SHOW CREATE TABLE <table>\\G",
+      "SHOW INDEX FROM <table>",
+      "EXPLAIN <sql>",
+      "EXPLAIN FORMAT=TREE <sql>",
+      "EXPLAIN ANALYZE <sql>",
+      "ANALYZE TABLE <table>",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT, SUM_TIMER_WAIT FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_read%'",
+      "ALTER TABLE <table> ALTER INDEX <index_name> INVISIBLE",
+      "ALTER TABLE <table> ALTER INDEX <index_name> VISIBLE"
+    ],
+    useCases: ["高频列表查询", "字段裁剪优化", "回表成本治理", "游标分页", "JOIN 被驱动表优化", "后台筛选", "慢 SQL 排查", "索引合并治理", "Buffer Pool 压力控制", "大表索引评审"],
+    prerequisites: ["secondary-index", "back-to-table"],
+    related: ["back-to-table", "composite-index", "leftmost-prefix", "range-query", "index-selectivity", "explain", "slow-query-log", "sql-optimization", "buffer-pool"],
   },
   "composite-index": {
     prerequisites: ["mysql-index"],
