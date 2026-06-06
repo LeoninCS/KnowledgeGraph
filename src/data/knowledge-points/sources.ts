@@ -4537,6 +4537,10 @@ export const knowledgeSources = {
     title: "Linux man-pages: sched(7)",
     url: "https://man7.org/linux/man-pages/man7/sched.7.html",
   },
+  "linux-man-pages-sched-rr-get-interval": {
+    title: "Linux man-pages: sched_rr_get_interval(2)",
+    url: "https://man7.org/linux/man-pages/man2/sched_rr_get_interval.2.html",
+  },
   "linux-man-proc-pid-task": {
     title: "Linux man-pages: proc_pid_task(5)",
     url: "https://man7.org/linux/man-pages/man5/proc_pid_task.5.html",
