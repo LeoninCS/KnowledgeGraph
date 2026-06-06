@@ -5,6 +5,30 @@ export const knowledgeSources = {
     title: "Go Documentation",
     url: "https://go.dev/doc/",
   },
+  "go-faq-goroutines": {
+    title: "Go FAQ: Why goroutines instead of threads?",
+    url: "https://go.dev/doc/faq#goroutines",
+  },
+  "go-runtime-hacking": {
+    title: "Go runtime: HACKING",
+    url: "https://go.dev/src/runtime/HACKING",
+  },
+  "cppreference-coroutines": {
+    title: "cppreference: Coroutines (C++20)",
+    url: "https://en.cppreference.com/cpp/language/coroutines",
+  },
+  "python-asyncio-tasks": {
+    title: "Python Docs: Coroutines and Tasks",
+    url: "https://docs.python.org/3/library/asyncio-task.html",
+  },
+  "libuv-design": {
+    title: "libuv Docs: Design overview",
+    url: "https://docs.libuv.org/en/v1.x/design.html",
+  },
+  "rust-async-book-execution": {
+    title: "Asynchronous Programming in Rust: Executing Futures and Tasks",
+    url: "https://rust-lang.github.io/async-book/02_execution/01_chapter.html",
+  },
   "go-command": {
     title: "cmd/go: go command",
     url: "https://pkg.go.dev/cmd/go",
