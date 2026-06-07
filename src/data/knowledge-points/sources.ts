@@ -5029,6 +5029,22 @@ export const knowledgeSources = {
     title: "Redis Docs: Lists",
     url: "https://redis.io/docs/latest/develop/data-types/lists/",
   },
+  "redis-lpush-command": {
+    title: "Redis Commands: LPUSH",
+    url: "https://redis.io/docs/latest/commands/lpush/",
+  },
+  "redis-rpush-command": {
+    title: "Redis Commands: RPUSH",
+    url: "https://redis.io/docs/latest/commands/rpush/",
+  },
+  "redis-lpop-command": {
+    title: "Redis Commands: LPOP",
+    url: "https://redis.io/docs/latest/commands/lpop/",
+  },
+  "redis-rpop-command": {
+    title: "Redis Commands: RPOP",
+    url: "https://redis.io/docs/latest/commands/rpop/",
+  },
   "redis-blpop-command": {
     title: "Redis Commands: BLPOP",
     url: "https://redis.io/docs/latest/commands/blpop/",
@@ -5040,6 +5056,30 @@ export const knowledgeSources = {
   "redis-ltrim-command": {
     title: "Redis Commands: LTRIM",
     url: "https://redis.io/docs/latest/commands/ltrim/",
+  },
+  "redis-llen-command": {
+    title: "Redis Commands: LLEN",
+    url: "https://redis.io/docs/latest/commands/llen/",
+  },
+  "redis-lmove-command": {
+    title: "Redis Commands: LMOVE",
+    url: "https://redis.io/docs/latest/commands/lmove/",
+  },
+  "redis-blmove-command": {
+    title: "Redis Commands: BLMOVE",
+    url: "https://redis.io/docs/latest/commands/blmove/",
+  },
+  "redis-lrem-command": {
+    title: "Redis Commands: LREM",
+    url: "https://redis.io/docs/latest/commands/lrem/",
+  },
+  "redis-quicklist-source": {
+    title: "Redis Source: quicklist.c",
+    url: "https://github.com/redis/redis/blob/unstable/src/quicklist.c",
+  },
+  "redis-listpack-source": {
+    title: "Redis Source: listpack.c",
+    url: "https://github.com/redis/redis/blob/unstable/src/listpack.c",
   },
   "redis-sets-docs": {
     title: "Redis Docs: Sets",

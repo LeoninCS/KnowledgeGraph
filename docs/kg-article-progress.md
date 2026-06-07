@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 118 | 331 |
+| 449 | 119 | 330 |
 
 ## 分类进度
 
@@ -18,7 +18,7 @@
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 48 | 0 |
-| redis | 44 | 6 | 38 |
+| redis | 44 | 7 | 37 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
 | docker | 41 | 2 | 39 |
@@ -249,7 +249,7 @@
 | 已优化 | `redis-data-types` | Redis 数据类型 | Redis Data Types | 2026-06-05 | 20 |
 | 已优化 | `redis-string` | String | String | 2026-06-05 | 17 |
 | 已优化 | `redis-hash` | Hash | Hash | 2026-06-05 | 15 |
-| 未开始 | `redis-list` | List | List | 2026-05-30 | 6 |
+| 已优化 | `redis-list` | List | List | 2026-06-05 | 18 |
 | 未开始 | `redis-set` | Set | Set | 2026-05-30 | 6 |
 | 未开始 | `redis-zset` | ZSet | Sorted Set | 2026-05-30 | 6 |
 | 未开始 | `redis-persistence` | 持久化 | Persistence | 2026-05-30 | 5 |
