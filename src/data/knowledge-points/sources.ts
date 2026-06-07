@@ -6125,9 +6125,25 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: InnoDB Locking Reads",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-locking-reads.html",
   },
+  "mysql-innodb-locking": {
+    title: "MySQL Reference Manual: InnoDB Locking",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-locking.html",
+  },
   "mysql-innodb-locks-set": {
     title: "MySQL Reference Manual: Locks Set by Different SQL Statements in InnoDB",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-locks-set.html",
+  },
+  "mysql-innodb-phantom-rows": {
+    title: "MySQL Reference Manual: Phantom Rows",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-next-key-locking.html",
+  },
+  "mysql-performance-schema-lock-tables": {
+    title: "MySQL Reference Manual: Performance Schema Lock Tables",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/performance-schema-lock-tables.html",
+  },
+  "xiaolincoding-mysql-locking": {
+    title: "小林 coding: MySQL 是怎么加锁的？",
+    url: "https://xiaolincoding.com/mysql/lock/how_to_lock.html",
   },
   "postgresql-monitoring-locks": {
     title: "PostgreSQL Docs: Monitoring Locks",

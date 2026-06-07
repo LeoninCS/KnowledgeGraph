@@ -195,7 +195,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 可重复读 | 2026-06-05 | source_count=13 --> */
   /* <!-- KG_EXPLAINED: 可重复读 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "repeatable-read", zh: "可重复读", en: "Repeatable Read", area: "transaction", difficulty: "medium", concept: "可重复读保证同一事务内多次一致性读看到相同快照，是 MySQL 默认隔离级别。", explanation: ["核心概念：可重复读（Repeatable Read）聚焦可重复读保证同一事务内多次一致性读看到相同快照，是 MySQL 默认隔离级别。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：可重复读常用于默认事务隔离和一致性读场景。学习时把它放回MySQL链路中观察，并结合前置知识隔离级别判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，可重复读通常会和MVCC和Next-Key Lock一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把可重复读当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["可重复读执行原理是什么","可重复读如何影响性能或一致性","可重复读线上问题怎么排查"], useCases: ["默认事务隔离","一致性读场景"], prerequisites: ["isolation-level"], related: ["mvcc","next-key-lock"], order: 41 },
-  /* <!-- KG_REVIEWED: 幻读 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 幻读 | 2026-06-05 | source_count=13 --> */
   /* <!-- KG_EXPLAINED: 幻读 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "phantom-read", zh: "幻读", en: "Phantom Read", area: "transaction", difficulty: "hard", concept: "幻读是同一事务中范围查询出现其他事务插入的新记录现象。", explanation: ["核心概念：幻读（Phantom Read）聚焦幻读是同一事务中范围查询出现其他事务插入的新记录现象。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：幻读常用于并发插入问题分析和范围锁理解。学习时把它放回MySQL链路中观察，并结合前置知识隔离级别判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，幻读通常会和Next-Key Lock和MVCC一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把幻读当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["幻读执行原理是什么","幻读如何影响性能或一致性","幻读线上问题怎么排查"], useCases: ["并发插入问题分析","范围锁理解"], prerequisites: ["isolation-level"], related: ["next-key-lock","mvcc"], order: 42 },
   /* <!-- KG_REVIEWED: MVCC | 2026-06-04 | source_count=7 --> */
@@ -1931,8 +1931,64 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["isolation-level", "read-committed", "mvcc", "read-view", "undo-log", "phantom-read", "gap-lock", "next-key-lock", "lock", "deadlock"],
   },
   "phantom-read": {
+    sourceRefs: [
+      "mysql-transaction-isolation-levels",
+      "mysql-innodb-phantom-rows",
+      "mysql-innodb-locking",
+      "mysql-innodb-locking-reads",
+      "mysql-innodb-locks-set",
+      "mysql-innodb-consistent-read",
+      "mysql-innodb-multi-versioning",
+      "mysql-innodb-undo-logs",
+      "mysql-performance-schema-lock-tables",
+      "mysql-innodb-deadlocks",
+      "xiaolincoding-mysql-mvcc",
+      "xiaolincoding-mysql-locking",
+      "javaguide-mysql-mvcc",
+    ],
+    concept:
+      "幻读是同一事务按范围再次读取时出现新插入记录的并发现象，InnoDB 通过 MVCC 稳定普通快照读，通过 Next-Key Lock 控制范围当前读和并发插入。",
+    explanation: [
+      "概念定位：幻读（Phantom Read）解决的是“一个事务已经按范围判断过一批行，另一个事务又插入了符合范围的新行，前一个事务后续按同一范围读取或写入时如何保持业务判断可靠”的问题。它常出现在库存区间校验、优惠券领取、任务队列扫描、排班冲突检测、资金流水补偿、后台批量修复、锁等待排查和 MySQL 面试题中。\n\n在 MySQL/InnoDB 里，幻读要分成两条路径理解：普通 `SELECT` 属于一致性非锁定读，依赖 MVCC、ReadView 和 Undo 版本链稳定快照；`UPDATE`、`DELETE`、`SELECT ... FOR UPDATE`、`SELECT ... FOR SHARE` 属于当前读或锁定读，会读取最新可锁版本并设置记录锁、间隙锁或 Next-Key Lock。工程上讨论幻读时，核心问题是范围判断、访问索引、锁模式和业务不变量是否对齐。",
+      "准确定义：幻读指同一事务再次执行范围查询时，看到了其他事务插入并提交的、满足原范围条件的新记录。SQL 标准把它列为隔离级别需要处理的并发现象之一；MySQL/InnoDB 的实现语义要结合隔离级别、读类型和锁类型判断。\n\n关键术语如下：\n\n- `phantom row`：后续范围读取中新出现的行。\n- `consistent read`：普通 `SELECT` 的快照读，根据 ReadView 返回可见版本。\n- `current read`：写语句和锁定读读取最新可锁版本，并尝试加锁。\n- `gap lock`：锁住索引记录之间的空隙，控制其他事务向这个空隙插入。\n- `next-key lock`：记录锁与前置间隙锁的组合，覆盖索引记录和相邻范围。\n- `range predicate`：`BETWEEN`、`>`、`<`、前缀范围和多列联合索引区间等范围条件。\n\n判断幻读时先问三个问题：这次读是快照读还是当前读，隔离级别是什么，SQL 走哪条索引范围。",
+      "心智模型：把范围查询想成在有序索引上圈出一段区域。\n\n- 普通快照读像拿着旧照片看这段区域，照片拍好后，新插入的记录进入现实世界，旧照片里仍然没有它。\n- 当前读像现场巡检这段区域，InnoDB 需要给已有记录和相邻空隙放锁，减少其他事务在巡检范围里插入新记录。\n- Next-Key Lock 像把“记录点”和“记录前的空位”一起围住，范围越准，围栏越小。\n- 索引缺失时，InnoDB 只能按更大的扫描路径巡检，锁范围也会随访问路径扩大。\n\n新手先抓住“幻读是范围里的新行”，老手进一步看“快照读靠版本，当前读靠索引范围锁”。",
+      "主流程机制：一次幻读相关并发可以按范围快照和范围当前读两条链路理解。\n\n1. 事务 A 开启，在 `REPEATABLE READ` 下首次普通范围 `SELECT` 创建 ReadView，后续普通范围查询复用这个快照。\n2. 事务 B 插入一行满足事务 A 范围条件的新记录并提交。\n3. 事务 A 再次执行普通范围 `SELECT` 时，ReadView 判断新记录对事务 A 不可见，所以普通快照读结果保持稳定。\n4. 事务 A 执行 `SELECT ... FOR UPDATE`、`UPDATE` 或 `DELETE` 时进入当前读路径，读取最新可锁版本，并按访问索引设置锁。\n5. 对范围当前读，InnoDB 在索引上设置记录锁、间隙锁或 Next-Key Lock，阻止其他事务向被锁范围插入冲突记录。\n6. 唯一索引等值命中通常锁定单条记录；非唯一索引范围、二级索引范围和缺索引扫描会形成更宽的锁范围。\n7. 事务提交后释放锁，其他事务才能继续插入被等待的范围；新事务的新 ReadView 可以看到已提交记录。\n8. 死锁检测、锁等待超时、Performance Schema 锁表和 InnoDB 状态共同提供排查证据。",
+      "实践例子：下面用两个会话复现“快照读稳定”和“当前读阻塞插入”的差异。\n\n```sql\nCREATE TABLE coupons (\n  id BIGINT PRIMARY KEY,\n  user_id BIGINT NOT NULL,\n  status VARCHAR(16) NOT NULL,\n  amount INT NOT NULL,\n  KEY idx_user_status_amount (user_id, status, amount)\n) ENGINE=InnoDB;\n\nINSERT INTO coupons VALUES\n  (1, 1001, 'NEW', 50),\n  (2, 1001, 'USED', 80);\n\n-- 会话 A：普通快照读\nSET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;\nSTART TRANSACTION;\nSELECT * FROM coupons\nWHERE user_id = 1001 AND status = 'NEW' AND amount BETWEEN 1 AND 100;\n\n-- 会话 B：插入范围内新行并提交\nSTART TRANSACTION;\nINSERT INTO coupons VALUES (3, 1001, 'NEW', 60);\nCOMMIT;\n\n-- 会话 A：普通读继续使用旧 ReadView，结果稳定\nSELECT * FROM coupons\nWHERE user_id = 1001 AND status = 'NEW' AND amount BETWEEN 1 AND 100;\nCOMMIT;\n```\n\n如果会话 A 用锁定读先圈定范围，会话 B 的插入会等待同一索引范围释放：\n\n```sql\n-- 会话 A\nSET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;\nSTART TRANSACTION;\nSELECT * FROM coupons\nWHERE user_id = 1001 AND status = 'NEW' AND amount BETWEEN 1 AND 100\nFOR UPDATE;\n\n-- 会话 B：命中 idx_user_status_amount 同一范围，可能进入锁等待\nINSERT INTO coupons VALUES (4, 1001, 'NEW', 60);\n```\n\n这个实验说明：普通读靠 MVCC 稳定结果，范围锁定读靠 Next-Key Lock 控制并发插入。",
+      "深层细节：幻读的难点在于“范围语义”和“索引锁范围”经常存在差异。\n\n- 隔离级别差异：`READ COMMITTED` 下普通一致性读通常每条语句创建新快照，后续普通范围读可能看到刚提交的新行；`REPEATABLE READ` 下普通一致性读复用事务快照。\n- 锁定读语义：`SELECT ... FOR UPDATE` 和 `FOR SHARE` 需要读取最新可锁版本，适合修改前确认、任务领取和并发写保护。\n- 锁对象位置：InnoDB 行锁实际加在索引记录上，二级索引命中后还可能涉及聚簇索引记录。\n- 间隙锁兼容性：间隙锁的核心目标是控制插入位置，多个事务的某些间隙锁模式可以共存；真正冲突出现在插入意图和范围锁交汇处。\n- 唯一索引例外：使用唯一索引并以完整唯一键等值查询一条已存在记录时，通常只需要记录锁；范围条件和部分唯一键仍会引入间隙。\n- 缺索引放大：条件无法走精准索引时，当前读可能扫描更多记录，锁范围、等待链和死锁概率一起上升。\n- 自增与热点范围：大量事务争抢相同尾部范围或状态队列时，Next-Key Lock 与插入意图锁可能造成吞吐下降。\n- 长事务成本：锁持有时间越长，等待堆积、死锁检测开销、Undo 保留和 DDL 等待风险越高。\n\n老手处理幻读，通常会把业务范围条件改造成稳定索引前缀，再用短事务和幂等约束兜底。",
+      "工程场景与取舍：幻读治理不是单纯提高隔离级别，它要服务业务不变量。\n\n- 唯一性保护：用户领取一次优惠券、订单幂等提交、业务单号去重，优先用唯一索引、幂等键和插入冲突处理。\n- 范围占位：排班、预约、库存区间和价格区间重叠检测，需要把范围条件设计成可锁定的索引路径，并控制事务长度。\n- 任务领取：用状态和时间组成联合索引，配合小批量 `FOR UPDATE` 或 `SKIP LOCKED` 类模式，降低同一范围竞争。\n- 批量更新：按主键或高选择性索引拆批，避免大范围当前读长时间持锁。\n- 报表读取：普通快照读适合稳定口径；长报表要关注 Undo、Purge、复制延迟和备份窗口。\n- 高并发写入：把业务范围切分到租户、分片键、状态或时间桶，减少热点间隙和尾部范围争抢。",
+      "边界与故障模式：幻读相关线上问题通常能从锁、索引、事务和业务约束四类证据定位。\n\n- 范围判断失效：代码用“先普通查再插入”保护唯一性，并发下仍可能产生重复业务记录；唯一索引和幂等键承担最终约束。\n- 锁等待扩大：锁定读或写语句缺少合适索引，扫描范围变大，`data_locks` 中出现大量 `GAP`、`REC_NOT_GAP` 或 `INSERT_INTENTION` 相关锁信息。\n- 死锁增多：多个事务以不同顺序扫描和更新重叠范围，记录锁、Next-Key Lock 与插入意图形成循环等待。\n- 吞吐下降：热点状态队列或尾部插入范围被长期事务圈住，应用线程堆积在 `Lock wait timeout exceeded` 或死锁重试上。\n- 快照口径差异：`READ COMMITTED` 与 `REPEATABLE READ` 在普通范围读中的可见性不同，报表和校验代码需要明确口径。\n- DDL 卡住：长事务持有快照和锁，元数据锁等待叠加后影响发布窗口。\n- 复制和备份压力：大事务和长事务放大 Undo、Redo、Binlog、备份一致性和副本追赶成本。",
+      "排查实践：排查幻读和范围锁问题时，用“SQL 范围 -> 访问路径 -> 锁对象 -> 等待链 -> 修复验证”建立证据链。\n\n1. 固化现场：记录隔离级别、事务开始时间、普通读与锁定读顺序、提交点、慢日志和业务请求 ID。\n2. 看访问路径：对锁定读、`UPDATE`、`DELETE` 执行 `EXPLAIN FORMAT=TREE`，确认是否命中预期联合索引。\n3. 查事务：从 `information_schema.innodb_trx` 找长事务、当前 SQL、隔离级别、锁行数和修改行数。\n4. 查锁对象：从 `performance_schema.data_locks` 观察 `OBJECT_NAME`、`INDEX_NAME`、`LOCK_TYPE`、`LOCK_MODE`、`LOCK_STATUS`、`LOCK_DATA`。\n5. 查等待链：用 `performance_schema.data_lock_waits` 连接阻塞方和等待方，确定哪个事务圈住了范围。\n6. 查死锁：用 `SHOW ENGINE INNODB STATUS\\G` 看最近死锁、锁模式、索引名和事务 SQL。\n7. 修复验证：补联合索引、改唯一约束或幂等键、改原子条件更新、缩短事务、拆批、固定访问顺序，并观察等待数量、死锁率、扫描行数和超时错误下降。\n\n```sql\nSELECT @@GLOBAL.transaction_isolation, @@SESSION.transaction_isolation;\n\nEXPLAIN FORMAT=TREE\nSELECT * FROM coupons\nWHERE user_id = 1001 AND status = 'NEW' AND amount BETWEEN 1 AND 100\nFOR UPDATE;\n\nSELECT trx_id, trx_state, trx_started, trx_mysql_thread_id,\n       trx_isolation_level, trx_query, trx_rows_locked, trx_rows_modified\nFROM information_schema.innodb_trx\nORDER BY trx_started\\G\n\nSELECT ENGINE_TRANSACTION_ID, OBJECT_SCHEMA, OBJECT_NAME,\n       INDEX_NAME, LOCK_TYPE, LOCK_MODE, LOCK_STATUS, LOCK_DATA\nFROM performance_schema.data_locks\nWHERE OBJECT_NAME = 'coupons'\\G\n\nSELECT * FROM performance_schema.data_lock_waits\\G\nSHOW ENGINE INNODB STATUS\\G\n```\n\n有效排查结论要能说清：业务范围对应哪个索引区间，当前事务锁住哪些记录和间隙，等待方准备插入或更新哪个位置，改动后扫描和等待是否收敛。",
+      "常见误区：幻读的正确心智模型是“范围新行 + 读类型 + 锁范围 + 业务约束”的组合。\n\n- 普通一致性读和当前读走不同路径，分析时先分类。\n- `REPEATABLE READ` 下普通范围读依靠快照稳定结果，范围当前读依靠锁控制并发插入。\n- 幻读关注范围内新增记录，单行值变化属于不可重复读语义。\n- 唯一性和幂等最终落在唯一索引、条件写入、状态机和幂等键上。\n- Next-Key Lock 的实际影响由索引路径决定，SQL 条件和索引设计需要一起评审。\n- 缩短事务、减少扫描范围和统一访问顺序，是治理幻读相关锁等待和死锁的核心动作。\n- 隔离级别属于会话状态，连接池和框架事务配置需要纳入排查。",
+      "面试追问：幻读题适合按“定义 -> 快照读 -> 当前读 -> Next-Key Lock -> 索引范围 -> 生产排查”组织答案。\n\n- 什么是幻读，如何用两个事务构造一个范围新增记录的例子？\n- 幻读和脏读、不可重复读分别关注什么并发现象？\n- `REPEATABLE READ` 下普通范围 `SELECT` 为什么通常看不到新插入记录？\n- `SELECT ... FOR UPDATE` 为什么需要讨论间隙锁和 Next-Key Lock？\n- InnoDB 的 Next-Key Lock 如何由记录锁和间隙锁组成？\n- 唯一索引等值查询、非唯一索引范围查询、缺索引查询的锁范围有什么差异？\n- 为什么“先查再插”需要唯一索引或幂等键保护？\n- `READ COMMITTED` 与 `REPEATABLE READ` 在幻读表现和锁影响上如何取舍？\n- 线上出现范围插入等待、死锁和锁超时时，如何用 `data_locks`、`data_lock_waits` 和 InnoDB 状态定位？\n- 设计任务领取、预约冲突检测和库存扣减时，如何避免幻读类并发漏洞？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Transaction Isolation Levels、Phantom Rows、InnoDB Locking、Locking Reads、Locks Set by Different SQL Statements、Consistent Nonlocking Reads、InnoDB Multi-Versioning、Undo Logs、Performance Schema Lock Tables 与 Deadlocks in InnoDB，并结合小林 coding 的 MVCC 与 MySQL 加锁实验、JavaGuide 的 MVCC 讲解校准中文表达、例子和面试问法。官方资料用于确定隔离级别、幻读定义、锁模式和排查表含义，中文资料用于补充实验路径和工程解释。"
+    ],
+    typicalProblems: [
+      "幻读是什么，它解决或暴露的是哪类范围并发问题？",
+      "幻读、脏读和不可重复读分别如何定义，业务影响有什么差异？",
+      "MySQL/InnoDB 在 `REPEATABLE READ` 下为什么普通范围读结果可以保持稳定？",
+      "普通快照读、当前读和锁定读在幻读分析中分别走什么机制？",
+      "Gap Lock 和 Next-Key Lock 如何控制范围当前读中的并发插入？",
+      "唯一索引等值查询、非唯一索引范围查询和缺索引查询对锁范围有什么影响？",
+      "为什么“先查再插”需要唯一约束、幂等键或锁定读配合？",
+      "`READ COMMITTED` 与 `REPEATABLE READ` 在幻读表现、锁等待和吞吐上如何权衡？",
+      "线上出现范围插入等待、锁超时或死锁时，如何用 `innodb_trx`、`data_locks`、`data_lock_waits` 和 InnoDB 状态排查？",
+      "任务领取、预约冲突、库存扣减和批量修复场景中，如何设计索引与事务边界来控制幻读风险？"
+    ],
+    commonCommands: [
+      "SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ",
+      "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED",
+      "START TRANSACTION",
+      "SELECT ... FOR UPDATE",
+      "SELECT ... FOR SHARE",
+      "EXPLAIN FORMAT=TREE <locking-read-or-write-sql>",
+      "SELECT * FROM information_schema.innodb_trx\\G",
+      "SELECT * FROM performance_schema.data_locks\\G",
+      "SELECT * FROM performance_schema.data_lock_waits\\G",
+      "SHOW ENGINE INNODB STATUS\\G"
+    ],
+    useCases: ["范围并发控制", "预约冲突检测", "优惠券领取", "任务队列领取", "库存区间校验", "批量状态修复", "锁等待排查", "死锁治理", "幂等设计", "事务隔离面试"],
     prerequisites: ["isolation-level"],
-    related: ["repeatable-read", "gap-lock", "next-key-lock"],
+    related: ["isolation-level", "repeatable-read", "read-committed", "mvcc", "read-view", "undo-log", "lock", "row-lock", "record-lock", "gap-lock", "next-key-lock", "deadlock", "sql-optimization"],
   },
   "mvcc": {
     sourceRefs: [
