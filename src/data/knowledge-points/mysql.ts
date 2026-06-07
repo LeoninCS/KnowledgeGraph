@@ -201,7 +201,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: MVCC | 2026-06-05 | source_count=12 --> */
   /* <!-- KG_EXPLAINED: MVCC | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "mvcc", zh: "MVCC", en: "MVCC", area: "transaction", difficulty: "hard", concept: "MVCC 通过版本链和 ReadView 实现一致性非锁定读。", explanation: ["核心概念：MVCC聚焦MVCC 通过版本链和 ReadView 实现一致性非锁定读。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：MVCC常用于并发读写优化和快照读理解。学习时把它放回MySQL链路中观察，并结合前置知识事务和Undo Log判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，MVCC通常会和ReadView和可重复读一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把MVCC当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["MVCC执行原理是什么","MVCC如何影响性能或一致性","MVCC线上问题怎么排查"], useCases: ["并发读写优化","快照读理解"], prerequisites: ["transaction","undo-log"], related: ["read-view","repeatable-read"], order: 43 },
-  /* <!-- KG_REVIEWED: ReadView | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: ReadView | 2026-06-05 | source_count=12 --> */
   /* <!-- KG_EXPLAINED: ReadView | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "read-view", zh: "ReadView", en: "ReadView", area: "transaction", difficulty: "hard", concept: "ReadView 定义当前事务可见的版本范围，是 MVCC 可见性判断核心。", explanation: ["核心概念：ReadView聚焦ReadView 定义当前事务可见的版本范围，是 MVCC 可见性判断核心。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：ReadView常用于快照读排查和隔离级别理解。学习时把它放回MySQL链路中观察，并结合前置知识MVCC判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，ReadView通常会和Undo Log一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把ReadView当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["ReadView执行原理是什么","ReadView如何影响性能或一致性","ReadView线上问题怎么排查"], useCases: ["快照读排查","隔离级别理解"], prerequisites: ["mvcc"], related: ["undo-log"], order: 44 },
   /* <!-- KG_REVIEWED: Redo Log | 2026-05-24 | source_count=5 --> */
@@ -2050,12 +2050,67 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     sourceRefs: [
       "mysql-innodb-consistent-read",
       "mysql-innodb-multi-versioning",
+      "mysql-readview-class",
+      "mysql-transaction-isolation-levels",
+      "mysql-innodb-undo-logs",
+      "mysql-information-schema-innodb-trx",
+      "percona-innodb-history-length",
+      "mydbops-innodb-undo-log",
       "sobyte-mysql-mvcc",
       "javaguide-mysql-mvcc",
       "xiaolincoding-mysql-mvcc",
+      "planetscale-database-transactions",
     ],
-    prerequisites: ["mvcc"],
-    related: ["read-committed", "undo-log"],
+    concept: "ReadView 是 InnoDB 一致性读的事务可见性快照，用活跃事务集合和事务 ID 边界决定普通 `SELECT` 应读取哪个行版本。",
+    explanation: [
+      "概念定位：ReadView 解决的是“普通查询在并发写入下应该看到哪个历史版本”的问题。它是 InnoDB MVCC 的可见性视图，常出现在 `REPEATABLE READ` 可重复读、`READ COMMITTED` 读已提交、普通 `SELECT` 快照读、长事务排查、Undo/Purge 压力分析和 MySQL 面试题里。\n\n真实系统里，一边有订单状态、账户余额、库存数量被不断更新，另一边有列表页、报表、校验逻辑和后台任务需要读到一致结果。ReadView 给每次一致性非锁定读一个明确的事务视角：哪些事务的修改已经可见，哪些事务在视图创建时仍活跃，哪些版本属于更晚的事务。",
+      "准确定义：ReadView 是 InnoDB 在一致性非锁定读（consistent nonlocking read）中创建或复用的快照对象。它自身保存事务 ID 边界和活跃事务列表；旧数据仍由 Undo Log 版本链提供。查询读取行记录时，再结合行版本上的 `DB_TRX_ID`、`DB_ROLL_PTR` 和 Undo Log 版本链判断可见版本。\n\n核心术语可以这样记：\n\n- `creator_trx_id`：创建这个 ReadView 的事务 ID，用于判断当前事务自己的修改。\n- `m_ids`：视图创建时仍活跃的读写事务 ID 集合。\n- `m_low_limit_id`：视图创建时系统即将分配的下一个事务 ID，事务 ID 大于等于它的版本来自未来事务。\n- `m_up_limit_id`：活跃事务集合里的最小事务 ID，小于它的版本通常已经在视图创建前提交。\n- `DB_TRX_ID`：聚簇索引记录中标记该版本最近修改事务的隐藏字段。\n- `DB_ROLL_PTR`：聚簇索引记录中指向 Undo 历史版本的隐藏回滚指针。\n\nReadView 的本质是“可见性规则”，Undo Log 的本质是“历史版本材料”。两者合在一起才构成普通快照读。",
+      "心智模型：把 ReadView 想成一张拍照时刻的“事务闸门表”。已经通过闸门的事务可以被看见，正在闸门口的事务需要隐藏，闸门之后才出现的事务也需要隐藏。普通 `SELECT` 读到一行最新版本时，先看这个版本的事务 ID 能否通过闸门；通过则返回，未通过就沿 Undo 版本链往回找上一版。\n\n这个模型抓住三个判断点：\n\n- 快照时刻：`READ COMMITTED` 通常每条一致性读语句创建一个新 ReadView；`REPEATABLE READ` 通常事务内第一次一致性读创建 ReadView，后续一致性读复用。\n- 读路径：普通 `SELECT` 使用 ReadView；`UPDATE`、`DELETE`、`SELECT ... FOR UPDATE`、`SELECT ... FOR SHARE` 读取当前版本并进入锁路径。\n- 生命周期：一个早期 ReadView 存活越久，越多旧版本需要保留，Purge 清理和 Undo 空间压力越明显。",
+      "主流程机制：一次 ReadView 可见性判断可以按“建视图 -> 取版本 -> 判事务 -> 回溯版本 -> 返回结果”理解。\n\n1. 事务执行普通一致性读，InnoDB 根据隔离级别创建或复用 ReadView。\n2. 存储引擎从聚簇索引读到行的当前版本，取出该版本的 `DB_TRX_ID`。\n3. 如果 `DB_TRX_ID` 等于当前事务自己的 ID，当前事务自己的修改对自己可见。\n4. 如果 `DB_TRX_ID` 小于 `m_up_limit_id`，该版本通常来自视图创建前已经提交的事务，可以直接可见。\n5. 如果 `DB_TRX_ID` 大于等于 `m_low_limit_id`，该版本来自视图创建后的未来事务，对当前 ReadView 隐藏。\n6. 如果 `DB_TRX_ID` 落在边界之间，继续检查它是否存在于 `m_ids`：存在表示创建视图时仍活跃，需要隐藏；不存在表示创建视图前已经提交，可以可见。\n7. 当前版本隐藏时，InnoDB 根据 `DB_ROLL_PTR` 找到 Undo Log 中的上一个历史版本，重复可见性判断。\n8. 找到第一个可见版本后返回给 SQL 层；版本链走完仍无可见版本时，这一行对当前查询不可见。\n\n```text\nReadView:\n  creator_trx_id = 101\n  m_ids          = [105, 108]\n  m_up_limit_id  = 105\n  m_low_limit_id = 112\n\nrow version chain:\n  v3: balance=120, DB_TRX_ID=108 -> 隐藏：创建视图时事务 108 活跃\n  v2: balance=110, DB_TRX_ID=103 -> 可见：落在边界内且不在 m_ids\n  v1: balance=100, DB_TRX_ID=90  -> 可见：早于 m_up_limit_id\n```\n\n这段判断解释了很多线上现象：同一行最新值已经提交，某个事务里的普通查询仍可能读到较旧版本，因为它正在按自己的 ReadView 寻找第一个可见版本。",
+      "实践例子：下面用两个会话观察 `READ COMMITTED` 和 `REPEATABLE READ` 的 ReadView 创建时机差异。\n\n```sql\nCREATE TABLE account_snapshot (\n  id BIGINT PRIMARY KEY,\n  balance INT NOT NULL\n) ENGINE=InnoDB;\n\nINSERT INTO account_snapshot VALUES (1, 100);\n\n-- Session A：可重复读，第一次普通 SELECT 创建 ReadView\nSET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;\nSTART TRANSACTION;\nSELECT balance FROM account_snapshot WHERE id = 1; -- 100\n\n-- Session B：提交新版本\nSTART TRANSACTION;\nUPDATE account_snapshot SET balance = 120 WHERE id = 1;\nCOMMIT;\n\n-- Session A：复用第一次 SELECT 的 ReadView\nSELECT balance FROM account_snapshot WHERE id = 1; -- 仍按快照读到 100\nCOMMIT;\n\n-- Session C：读已提交，每条普通 SELECT 创建新的 ReadView\nSET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;\nSTART TRANSACTION;\nSELECT balance FROM account_snapshot WHERE id = 1; -- 120，读取语句开始时已提交版本\nCOMMIT;\n```\n\n同一业务如果既要求事务内稳定视图，又要求读取最新提交数据，需要把隔离级别、事务边界和读类型写清楚。报表、分页遍历、批量校验偏向稳定快照；强依赖最新状态的状态流转通常使用条件更新、唯一约束或锁定读。",
+      "隔离级别与边界：ReadView 的行为由隔离级别、事务边界和 SQL 类型共同决定。\n\n- `READ COMMITTED`：每条一致性读语句拥有自己的 ReadView，语句之间可以看到其他事务新提交的版本，读新鲜度更高。\n- `REPEATABLE READ`：事务内一致性读复用同一个 ReadView，普通查询结果更稳定，是 MySQL InnoDB 的常用默认语义。\n- `START TRANSACTION WITH CONSISTENT SNAPSHOT`：事务开始时就建立一致性快照，适合明确需要开始时刻快照的场景。\n- 锁定读与写语句：`SELECT ... FOR UPDATE`、`UPDATE`、`DELETE` 走当前读路径，关注最新可锁版本、索引锁范围和冲突等待。\n- 自己写自己读：事务内自己的修改通常对自己可见，这由创建者事务和当前事务上下文共同处理。\n- DDL、隐式提交、连接池事务复用和框架事务传播会改变快照边界，排查时需要确认实际会话状态。",
+      "工程取舍：ReadView 让普通读避免大量锁等待，但它把成本转移到版本链、Undo 保留、Purge 清理和排查复杂度上。\n\n- 稳定性与新鲜度：`REPEATABLE READ` 提供事务内稳定普通读，`READ COMMITTED` 提供更接近语句时刻的新鲜视图。\n- 读性能与版本链：热点行频繁更新时，老 ReadView 可能沿 Undo 链回溯多个版本，查询延迟和 Buffer Pool 压力会上升。\n- 长事务成本：长事务持有早期 ReadView，旧版本需要继续保留，History list length、Undo 表空间和 Purge 延迟会放大。\n- 业务正确性：ReadView 只决定读可见性，写冲突、范围约束、唯一性、库存扣减和幂等还需要锁、唯一索引、条件更新和状态机保护。\n- 备份与复制：一致性备份依赖稳定快照，持续长事务会拉长 Undo 保留窗口，也可能影响复制延迟和恢复窗口。",
+      "排查实践：ReadView 相关问题常表现为“事务里读到旧值”“长事务拖住 Undo 清理”“History list length 长期升高”“快照查询越来越慢”。排查时按证据链推进。\n\n1. 确认 SQL 类型：普通 `SELECT`、锁定读、写语句、框架 ORM 懒加载各自可能走不同读路径。\n2. 确认隔离级别：查看 `@@SESSION.transaction_isolation`，判断每条语句新建 ReadView 还是事务内复用。\n3. 确认事务年龄：查 `information_schema.innodb_trx` 的 `trx_started`、`trx_state`、`trx_isolation_level`、`trx_query`。\n4. 确认 Undo/Purge 压力：查看 `SHOW ENGINE INNODB STATUS\\G` 的 `TRANSACTIONS` 区块、History list length、Purge 状态和等待事务。\n5. 确认热点 SQL：结合慢查询、`EXPLAIN FORMAT=TREE` 或 `EXPLAIN ANALYZE` 判断是否存在事务内慢查询、全表扫描、回表过多和批量更新。\n6. 执行治理动作：提交或终止异常长事务，缩短事务作用域，拆分批量更新，给当前读和写路径补索引，设置事务超时和连接池归还清理。\n7. 复核收敛：事务年龄下降，History list length 回落，Undo 空间稳定，慢查询减少，备份和复制延迟恢复。\n\n```sql\nSELECT @@GLOBAL.transaction_isolation, @@SESSION.transaction_isolation;\n\nSELECT trx_id, trx_state, trx_started, trx_mysql_thread_id,\n       trx_isolation_level, trx_query, trx_rows_locked, trx_rows_modified\nFROM information_schema.innodb_trx\nORDER BY trx_started\\G\n\nSHOW ENGINE INNODB STATUS\\G\n\nEXPLAIN FORMAT=TREE\nSELECT balance FROM account_snapshot WHERE id = 1;\n```\n\n一个可靠结论需要说明：哪个事务创建并持有早期快照，哪些写入生成了大量历史版本，Purge 为什么追不上，修复后哪些指标回落。",
+      "常见误区：ReadView 的正确心智模型是“它记录事务可见性边界，读取时按边界选择版本”。\n\n- ReadView 服务普通一致性读，锁定读和写语句重点看当前版本、索引访问路径和锁范围。\n- ReadView 保存事务 ID 边界与活跃事务集合，实际旧数据来自 Undo 版本链。\n- `REPEATABLE READ` 的普通读稳定来自事务内复用快照，`READ COMMITTED` 的普通读新鲜来自语句级快照。\n- 事务内读到旧值通常是快照语义的结果，排查时从事务开始时间、第一次一致性读和隔离级别入手。\n- ReadView 降低读写阻塞概率，线上吞吐仍受索引、长事务、锁等待、Undo、Purge 和 I/O 共同影响。",
+      "面试追问：ReadView 适合按“定义 -> 字段 -> 判断规则 -> 隔离级别 -> 当前读差异 -> 排查长事务”组织答案。\n\n- ReadView 是什么，它在 InnoDB MVCC 中解决什么问题？\n- ReadView 里的 `m_ids`、`m_up_limit_id`、`m_low_limit_id` 和 `creator_trx_id` 分别表示什么？\n- 一行记录的 `DB_TRX_ID` 如何与 ReadView 判断版本可见性？\n- `READ COMMITTED` 和 `REPEATABLE READ` 的 ReadView 创建时机有什么差异？\n- 普通 `SELECT` 和 `SELECT ... FOR UPDATE` 为什么可能读到不同版本？\n- 长事务持有 ReadView 会怎样影响 Undo Log、Purge 和 History list length？\n- 为什么二级索引查询在 MVCC 下可能需要回到聚簇索引判断版本？\n- 线上出现“事务里读到旧数据”时，如何用事务表、InnoDB 状态和执行计划建立证据？\n- ReadView 与 Gap Lock、Next-Key Lock 在处理幻读和范围约束时各自承担什么职责？\n- 什么时候选择 `READ COMMITTED`，什么时候保持 `REPEATABLE READ` 更合适？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Consistent Nonlocking Reads、InnoDB Multi-Versioning、Transaction Isolation Levels、Undo Logs 与 `INFORMATION_SCHEMA.INNODB_TRX` 表说明，并结合 MySQL 源码文档中的 `ReadView` 类字段和可见性边界校准机制细节。工程排查部分参考 Percona 的 History list length 长事务案例、Mydbops 的 Undo Log 介绍、SoByte、JavaGuide、小林 coding 和 PlanetScale 的事务/MVCC 文章，用于补充中文表达、实验路径、长事务治理和面试问法。"
+    ],
+    typicalProblems: [
+      "ReadView 是什么，它和 MVCC、Undo Log、普通一致性读之间是什么关系？",
+      "ReadView 的 `m_ids`、`m_up_limit_id`、`m_low_limit_id` 和 `creator_trx_id` 各自有什么作用？",
+      "InnoDB 如何用行版本的 `DB_TRX_ID` 和 ReadView 判断当前版本是否可见？",
+      "`READ COMMITTED` 与 `REPEATABLE READ` 下 ReadView 创建和复用规则有什么差异？",
+      "为什么同一事务里的普通 `SELECT` 和 `SELECT ... FOR UPDATE` 可能读到不同版本？",
+      "长事务持有早期 ReadView 会怎样影响 Undo 保留、Purge 和 History list length？",
+      "二级索引查询在一致性读下为什么可能需要回聚簇索引判断版本？",
+      "线上出现读到旧值、Undo 增长或快照读变慢时，应该收集哪些证据？",
+      "ReadView、Gap Lock、Next-Key Lock 和唯一约束在并发正确性中分别负责什么？",
+      "选择 `READ COMMITTED` 或 `REPEATABLE READ` 时需要权衡哪些业务和运维因素？"
+    ],
+    commonCommands: [
+      "SELECT @@GLOBAL.transaction_isolation, @@SESSION.transaction_isolation",
+      "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED",
+      "SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ",
+      "START TRANSACTION WITH CONSISTENT SNAPSHOT",
+      "SELECT ...",
+      "SELECT ... FOR UPDATE",
+      "SELECT trx_id, trx_state, trx_started, trx_isolation_level, trx_query FROM information_schema.innodb_trx\\G",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "EXPLAIN FORMAT=TREE <select-sql>"
+    ],
+    useCases: ["快照读排查", "事务隔离分析", "一致性备份", "长事务治理", "Undo 空间排查", "Purge 延迟排查", "读写并发优化", "事务面试题"],
+    prerequisites: ["mvcc", "undo-log", "isolation-level"],
+    related: [
+      "mvcc",
+      "read-committed",
+      "repeatable-read",
+      "undo-log",
+      "phantom-read",
+      "gap-lock",
+      "next-key-lock",
+      "lock",
+      "deadlock",
+    ],
   },
   "redo-log": {
     sourceRefs: [

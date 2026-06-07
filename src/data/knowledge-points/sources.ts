@@ -5929,6 +5929,10 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Consistent Nonlocking Reads",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-consistent-read.html",
   },
+  "mysql-readview-class": {
+    title: "MySQL Source Code Documentation: ReadView Class Reference",
+    url: "https://dev.mysql.com/doc/dev/mysql-server/latest/classReadView.html",
+  },
   "mysql-innodb-undo-logs": {
     title: "MySQL Reference Manual: Undo Logs",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-logs.html",
