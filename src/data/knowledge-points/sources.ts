@@ -5965,6 +5965,18 @@ export const knowledgeSources = {
     title: "Oracle MySQL Blog: Dynamic redo log sizing",
     url: "https://blogs.oracle.com/mysql/post/dynamic-innodb-redo-log-in-mysql-80",
   },
+  "mysql-innodb-startup-options": {
+    title: "MySQL Reference Manual: InnoDB Startup Options and System Variables",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-parameters.html",
+  },
+  "mysql-server-status-variables": {
+    title: "MySQL Reference Manual: Server Status Variables",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/server-status-variables.html",
+  },
+  "mysql-innodb-redo-log-archiving": {
+    title: "MySQL Reference Manual: Redo Log Archiving",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-redo-log-archiving.html",
+  },
   "percona-mysql-writing-process": {
     title: "Percona: MySQL with diagrams, the writing process",
     url: "https://www.percona.com/blog/mysql-with-diagrams-part-three-the-life-story-of-the-writing-process/",

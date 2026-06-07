@@ -204,7 +204,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: ReadView | 2026-06-05 | source_count=12 --> */
   /* <!-- KG_EXPLAINED: ReadView | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "read-view", zh: "ReadView", en: "ReadView", area: "transaction", difficulty: "hard", concept: "ReadView 定义当前事务可见的版本范围，是 MVCC 可见性判断核心。", explanation: ["核心概念：ReadView聚焦ReadView 定义当前事务可见的版本范围，是 MVCC 可见性判断核心。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：ReadView常用于快照读排查和隔离级别理解。学习时把它放回MySQL链路中观察，并结合前置知识MVCC判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，ReadView通常会和Undo Log一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把ReadView当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["ReadView执行原理是什么","ReadView如何影响性能或一致性","ReadView线上问题怎么排查"], useCases: ["快照读排查","隔离级别理解"], prerequisites: ["mvcc"], related: ["undo-log"], order: 44 },
-  /* <!-- KG_REVIEWED: Redo Log | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: Redo Log | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: Redo Log | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "redo-log", zh: "Redo Log", en: "Redo Log", area: "log", difficulty: "hard", concept: "Redo Log 记录物理修改，保证事务提交后的持久性和崩溃恢复。", explanation: ["核心概念：Redo Log聚焦Redo Log 记录物理修改，保证事务提交后的持久性和崩溃恢复。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住Redo、Undo、Binlog 和提交一致性，再看输入、状态变化、输出结果和失败分支。","适用场景：Redo Log常用于崩溃恢复和写入性能分析。学习时把它放回MySQL链路中观察，并结合前置知识InnoDB和ACID判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Redo Log通常会和Binlog和Checkpoint一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认Redo、Undo、Binlog 和提交一致性是否仍然成立。","常见误区与注意点：实践中容易把Redo Log当成孤立概念处理，结果遗漏刷盘策略、两阶段提交、日志空间和恢复窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Redo Log执行原理是什么","Redo Log如何影响性能或一致性","Redo Log线上问题怎么排查"], useCases: ["崩溃恢复","写入性能分析"], prerequisites: ["innodb","acid"], related: ["binlog","checkpoint"], order: 45 },
   /* <!-- KG_REVIEWED: Undo Log | 2026-06-04 | source_count=6 --> */
@@ -2116,12 +2116,60 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     sourceRefs: [
       "mysql-innodb-redo-log",
       "mysql-innodb-recovery",
+      "mysql-innodb-checkpoints",
+      "mysql-innodb-buffer-pool-flushing",
+      "mysql-innodb-startup-options",
+      "mysql-server-status-variables",
+      "mysql-show-engine",
+      "mysql-acid-model",
       "mysql-doxygen-redo-log",
       "oracle-mysql-dynamic-redo-log",
+      "mysql-innodb-redo-log-archiving",
+      "percona-mysql-writing-process",
+      "hackmysql-binary-log-group-commit",
       "xiaolincoding-mysql-log",
     ],
-    prerequisites: ["transaction"],
-    related: ["two-phase-commit", "crash-recovery"],
+    concept:
+      "Redo Log 是 InnoDB 的物理重做日志，用顺序写入和 WAL 机制记录页修改，支撑事务提交后的持久性、checkpoint 推进和崩溃恢复。",
+    explanation: [
+      "概念定位：Redo Log 解决的是“数据页可以晚点刷盘，已提交修改仍能在崩溃后恢复”的问题。它出现在订单写入、库存扣减、账户流水、批量导入、主库异常重启、磁盘写抖动、提交延迟升高和 MySQL 持久性面试题里，是 InnoDB 把随机数据页写入转化为顺序日志写入的核心机制。\n\n准确地说，Redo Log 是 InnoDB 存储引擎的物理重做日志（physical redo log）。事务修改页时，InnoDB 会先把页内修改对应的 redo record 写入 log buffer，并在提交、后台线程或检查点压力下写入 redo log file；崩溃恢复时再根据 redo 记录把数据页推进到已提交事务应有的状态。新手先记住“先记账，后搬货”；老手还要追踪 LSN、checkpoint、log buffer、flush policy、group commit、redo 容量和恢复时间。",
+      "准确定义：Redo Log 记录的是 InnoDB 页级物理变化，核心目标是持久性和崩溃恢复。它与 Undo Log、Binlog 的职责清晰分工。\n\n- `Redo Log`：记录页被如何重做，服务 crash recovery 和脏页延迟刷盘。\n- `Undo Log`：记录旧版本，服务事务回滚、MVCC 快照读和 Purge 清理。\n- `Binlog`：MySQL Server 层逻辑日志，服务复制、时间点恢复、审计和 CDC。\n- `LSN`（Log Sequence Number）：InnoDB 日志序号，描述 redo 写入、数据页版本和 checkpoint 位置。\n- `checkpoint`：表示早于某个 LSN 的脏页已经具备恢复安全性，崩溃恢复可以从 checkpoint 附近开始扫描 redo。\n- `log buffer`：内存中的 redo 缓冲区，事务提交和后台线程会推动它写入操作系统或刷到磁盘。\n\nRedo 的价值来自 WAL（Write-Ahead Logging）：在数据页落盘之前，描述修改的日志先具备恢复依据。",
+      "心智模型：把 InnoDB 写入看成仓库改货架和账本记账。\n\n- 数据页是货架，修改订单行或索引页就是改货架。\n- Buffer Pool 是前台操作区，页可以先在内存中变脏。\n- Redo Log 是顺序账本，每次货架变更先记下可重放的修改凭证。\n- Checkpoint 是账本结算点，表示这一点之前的修改对应脏页已经被妥善推进。\n- 崩溃恢复像重新对账：从安全结算点往后重放账本，把数据页补到一致状态。\n\n这个模型解释了写入性能和恢复能力的核心取舍：顺序写日志降低提交路径上的随机 I/O，后台刷脏页和 checkpoint 决定恢复扫描范围、redo 空间压力和写入抖动。",
+      "主流程机制：一次 `UPDATE` 的 Redo Log 路径可以按“改页 -> 记 redo -> 提交 -> 推 checkpoint -> 恢复”理解。\n\n1. 执行器定位要修改的聚簇索引记录和相关二级索引记录，InnoDB 把对应页加载到 Buffer Pool。\n2. 事务修改记录前生成 Undo，随后修改内存页，页变成 dirty page，并获得新的 page LSN。\n3. InnoDB 生成描述物理页修改的 redo record，写入 log buffer，分配连续递增的 LSN。\n4. 事务提交阶段根据 `innodb_flush_log_at_trx_commit` 推动 redo 从 log buffer 写到 redo log file，并可能执行 fsync；多事务可以被 group commit 合并写刷成本。\n5. 后台 page cleaner 刷脏页，checkpoint 推进，redo 空间被循环复用或由 MySQL 8 的 redo 容量管理机制调度。\n6. MySQL 异常退出后，InnoDB recovery 从 checkpoint 之后扫描 redo，重放已持久化日志中的页修改，再结合事务状态、Undo 和 Binlog 协调提交结果。\n\n```text\nUPDATE orders SET status = 'PAID' WHERE id = 1001\n  -> load clustered/index pages into Buffer Pool\n  -> create undo record for rollback/MVCC\n  -> modify page in memory, page_lsn = 8200\n  -> append redo record into log buffer, current_lsn = 8200\n  -> commit flush/write redo according to innodb_flush_log_at_trx_commit\n  -> later flush dirty page and advance checkpoint_lsn\n  -> crash recovery replays redo after checkpoint_lsn\n```\n\n主流程里最重要的不变量是：脏页可以滞后刷盘，redo 必须足以描述恢复所需修改。",
+      "实践例子：观察 Redo Log 时，先同时看配置、LSN、等待和 InnoDB 状态。\n\n```sql\nSHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit';\nSHOW VARIABLES LIKE 'innodb_redo_log_capacity';\nSHOW VARIABLES LIKE 'innodb_log_buffer_size';\nSHOW VARIABLES LIKE 'innodb_flush_method';\n\nSHOW GLOBAL STATUS LIKE 'Innodb_redo_log%';\nSHOW GLOBAL STATUS LIKE 'Innodb_log_waits';\nSHOW GLOBAL STATUS LIKE 'Innodb_os_log_written';\n\nSHOW ENGINE INNODB STATUS\\G\n```\n\n在 `SHOW ENGINE INNODB STATUS` 中，重点看 `Log sequence number`、`Log flushed up to`、`Pages flushed up to`、`Last checkpoint at` 之间的距离。距离持续扩大通常表示写入速度、刷日志、刷脏页或 checkpoint 推进之间出现失衡；`Innodb_log_waits` 增长表示 log buffer 或 redo 写入路径已经让事务等待。",
+      "配置与版本细节：Redo Log 的线上行为受容量、缓冲区、刷盘策略和版本特性共同影响。\n\n- `innodb_flush_log_at_trx_commit=1`：提交时写并刷 redo，持久性最强，fsync 压力最高。\n- `innodb_flush_log_at_trx_commit=2`：提交时写入日志文件，按周期刷盘，吞吐更高，OS 或机器故障时风险窗口增大。\n- `innodb_flush_log_at_trx_commit=0`：按周期写和刷，适合可容忍短窗口丢失的低风险场景。\n- `innodb_redo_log_capacity`：MySQL 8.0.30 之后用于配置 redo log 总容量，容量影响 checkpoint 压力、写入平滑度和崩溃恢复扫描范围。\n- `innodb_log_buffer_size`：大事务、批量导入和大 BLOB 更新可能需要更大的 log buffer，避免提交前频繁等待日志写入。\n- redo log archiving：适合配合备份工具保留恢复所需日志窗口，运维上要监控归档目录空间和归档延迟。\n\n容量调优的方向是把写入峰值、刷脏能力、恢复目标时间和磁盘空间放在一起评估。较大的 redo 容量能缓解 checkpoint 追赶压力，也会扩大崩溃恢复需要扫描和重放的日志范围。",
+      "工程取舍：Redo Log 让事务提交路径更快，也把风险集中到日志刷盘、磁盘延迟、checkpoint 和恢复时间上。\n\n- 持久性与延迟：强持久化适合资金、订单、库存、账务；吞吐优先场景可以在业务可承受的恢复窗口内调整刷盘策略。\n- 顺序写与随机写：Redo 把提交路径上的随机页写转化为顺序日志写，后台刷脏页仍然需要消化真实数据页 I/O。\n- 容量与恢复：容量过小会让 checkpoint 频繁追赶，写入抖动明显；容量过大提升峰值吸收能力，也提高恢复扫描成本。\n- 组提交与复制：Redo fsync、Binlog fsync 和两阶段提交共同决定提交延迟，group commit 能摊薄多个事务的同步成本。\n- 大事务成本：单个大事务会产生大量 redo、undo 和 binlog，可能拉高日志等待、复制延迟和恢复窗口。\n- 存储可靠性：文件系统、磁盘缓存、云盘语义和 fsync 延迟会直接影响 redo 持久性承诺。",
+      "边界与故障模式：Redo Log 问题通常表现为提交变慢、写入抖动、重启恢复耗时、日志空间压力或磁盘异常。\n\n- 提交延迟升高：`innodb_flush_log_at_trx_commit=1`、`sync_binlog=1`、云盘 fsync 抖动和 group commit 批量不足会放大单事务提交成本。\n- checkpoint 压力：写入峰值超过刷脏能力，`Log sequence number` 与 `Last checkpoint at` 距离扩大，后台刷盘和用户线程可能被迫参与。\n- log buffer 等待：大事务或日志缓冲区偏小会让 `Innodb_log_waits` 增长，事务在提交前等待 redo 空间。\n- 恢复时间变长：checkpoint 落后和 redo 容量较大时，异常重启后需要扫描/重放更多日志。\n- 磁盘空间风险：redo 文件、归档目录、数据目录和 Binlog 同时占用磁盘，空间耗尽会让实例写入失败。\n- 日志损坏或存储丢写：恢复路径可能报错，需要结合备份、Binlog、redo 归档和存储层日志判断恢复边界。",
+      "排查实践：Redo Log 相关线上问题建议按“提交延迟 -> 日志压力 -> checkpoint -> 存储 -> 恢复窗口”建立证据链。\n\n1. 确认症状：写接口 p95/p99、事务提交耗时、磁盘写延迟、fsync 次数、错误日志和重启恢复耗时。\n2. 看配置：记录 `innodb_flush_log_at_trx_commit`、`sync_binlog`、`innodb_redo_log_capacity`、`innodb_log_buffer_size`、`innodb_io_capacity`。\n3. 看 LSN 差距：从 `SHOW ENGINE INNODB STATUS\\G` 读取当前 LSN、已刷 LSN、page flush LSN 和 checkpoint LSN。\n4. 看等待指标：观察 `Innodb_log_waits`、`Innodb_os_log_written`、redo log 相关状态变量、磁盘 IOPS/吞吐/await。\n5. 看写入形态：定位大事务、批量导入、热点更新、索引过多、长事务、Binlog 大事务和复制延迟。\n6. 做收敛动作：分批提交大事务，降低单批行数，增加 redo 容量或 log buffer，提升刷脏能力，隔离批处理窗口，核查云盘性能和持久化参数。\n7. 复盘恢复目标：用演练测量异常重启恢复时间，并把 redo 容量、checkpoint 差距和 RTO 对齐。\n\n```sql\nSHOW VARIABLES WHERE Variable_name IN (\n  'innodb_flush_log_at_trx_commit',\n  'sync_binlog',\n  'innodb_redo_log_capacity',\n  'innodb_log_buffer_size',\n  'innodb_io_capacity'\n);\n\nSHOW GLOBAL STATUS WHERE Variable_name IN (\n  'Innodb_log_waits',\n  'Innodb_os_log_written'\n);\n\nSHOW ENGINE INNODB STATUS\\G\n```\n\n一个可靠结论需要包含：提交慢是否来自 redo fsync，checkpoint 是否追不上，log buffer 是否等待，大事务是否放大日志量，存储层延迟是否支撑当前持久化策略。",
+      "常见误区：Redo Log 的正确心智模型是“提交路径的恢复凭证”，数据页刷盘和事务提交属于不同节奏。\n\n- 提交成功主要依赖 redo 持久化和事务状态，数据页可以随后由后台刷盘。\n- Redo Log 记录 InnoDB 页物理修改，Binlog 记录 Server 层逻辑变更，二者通过两阶段提交协调一致。\n- Redo 容量影响 checkpoint 压力和恢复窗口，调大容量需要同时评估磁盘空间和 RTO。\n- 强持久化配置提升故障保护能力，写入延迟也会更受磁盘 fsync 质量影响。\n- 大事务、索引过多、批量更新和热点写入都会放大 redo 生成速度，优化方向要回到业务写入形态。",
+      "面试追问：Redo Log 题适合按“定义 -> WAL -> 提交流程 -> checkpoint -> 崩溃恢复 -> 配置取舍 -> 排查证据”回答。\n\n- Redo Log 是什么，它在 InnoDB 中解决什么问题？\n- 为什么数据库需要 WAL，数据页为什么可以晚于事务提交刷盘？\n- 一条 `UPDATE` 从修改 Buffer Pool 到事务提交，Redo Log 参与哪些步骤？\n- LSN、log buffer、redo log file、dirty page 和 checkpoint 之间是什么关系？\n- `innodb_flush_log_at_trx_commit` 的 0、1、2 分别有什么持久性和性能取舍？\n- Redo Log、Undo Log、Binlog 在事务中分别负责什么，和两阶段提交如何衔接？\n- redo 容量过小、log buffer 偏小、checkpoint 落后会出现哪些线上信号？\n- 如何用 `SHOW ENGINE INNODB STATUS` 和状态变量判断 redo 写入压力？\n- 大事务、批量导入、云盘 fsync 抖动会怎样影响提交延迟？\n- 崩溃恢复为什么需要 redo，恢复时间主要受哪些因素影响？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 InnoDB Redo Log、InnoDB Recovery、InnoDB Checkpoints、Buffer Pool Flushing、InnoDB Startup Options/System Variables、Server Status Variables、SHOW ENGINE、ACID Model 和 Redo Log Archiving 文档，并结合 MySQL Server Doxygen 的 InnoDB Redo Log 说明、Oracle MySQL Blog 的动态 redo log sizing、Percona 的 MySQL 写入流程图解、HackMySQL 的 Binary Log Group Commit 与小林 coding 的 MySQL 日志文章校准流程、配置、排查证据和中文面试表达。官方资料用于定义、参数和恢复边界，工程文章用于补足写入路径、组提交、容量调优和故障分析。"
+    ],
+    typicalProblems: [
+      "Redo Log 是什么，它如何支撑 InnoDB 事务持久性和崩溃恢复？",
+      "WAL 的核心思想是什么，为什么数据页可以晚于事务提交刷盘？",
+      "一条 UPDATE 修改行记录时，Redo Log、Undo Log、Buffer Pool 和脏页分别发生什么？",
+      "LSN、log buffer、redo log file、checkpoint 和 dirty page 之间如何协作？",
+      "`innodb_flush_log_at_trx_commit` 的 0、1、2 各自适合哪些风险边界？",
+      "Redo Log 与 Binlog 在内容、层级、用途和两阶段提交中的角色有什么差异？",
+      "redo 容量、log buffer、checkpoint 落后和大事务分别会造成哪些线上表现？",
+      "如何用 `SHOW ENGINE INNODB STATUS`、`Innodb_log_waits` 和磁盘指标排查提交变慢？",
+      "MySQL 8 的 `innodb_redo_log_capacity` 和动态 redo sizing 带来哪些运维变化？",
+      "崩溃恢复耗时主要受哪些因素影响，生产系统如何用演练验证 RTO？"
+    ],
+    commonCommands: [
+      "SHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit'",
+      "SHOW VARIABLES LIKE 'sync_binlog'",
+      "SHOW VARIABLES LIKE 'innodb_redo_log_capacity'",
+      "SHOW VARIABLES LIKE 'innodb_log_buffer_size'",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_redo_log%'",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_log_waits'",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_os_log_written'",
+      "SHOW ENGINE INNODB STATUS\\G"
+    ],
+    useCases: ["事务持久性", "崩溃恢复", "写入性能分析", "提交延迟排查", "Checkpoint 调优", "大事务治理", "容量规划", "数据库面试"],
+    prerequisites: ["transaction", "innodb", "acid", "buffer-pool"],
+    related: ["undo-log", "binlog", "two-phase-commit", "crash-recovery", "checkpoint", "dirty-page", "buffer-pool"],
   },
   "undo-log": {
     sourceRefs: [
