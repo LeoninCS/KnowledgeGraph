@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 115 | 334 |
+| 449 | 116 | 333 |
 
 ## 分类进度
 
@@ -18,7 +18,7 @@
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 48 | 0 |
-| redis | 44 | 3 | 41 |
+| redis | 44 | 4 | 40 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
 | docker | 41 | 2 | 39 |
@@ -246,7 +246,7 @@
 | 已优化 | `redis-overview` | Redis 概览 | Redis Overview | 2026-06-05 | 13 |
 | 已优化 | `redis-command` | Redis 常用命令 | Redis Commands | 2026-06-05 | 19 |
 | 已优化 | `redis-cli` | redis-cli | redis-cli | 2026-06-05 | 15 |
-| 未开始 | `redis-data-types` | Redis 数据类型 | Redis Data Types | 2026-05-30 | 5 |
+| 已优化 | `redis-data-types` | Redis 数据类型 | Redis Data Types | 2026-06-05 | 20 |
 | 未开始 | `redis-string` | String | String | 2026-05-30 | 6 |
 | 未开始 | `redis-hash` | Hash | Hash | 2026-05-30 | 6 |
 | 未开始 | `redis-list` | List | List | 2026-05-30 | 6 |
