@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 126 | 323 |
+| 449 | 127 | 322 |
 
 ## 分类进度
 
@@ -18,7 +18,7 @@
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 48 | 0 |
-| redis | 44 | 14 | 30 |
+| redis | 44 | 15 | 29 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
 | docker | 41 | 2 | 39 |
@@ -257,7 +257,7 @@
 | 已优化 | `aof` | AOF | Append Only File | 2026-06-05 | 14 |
 | 已优化 | `aof-rewrite` | AOF 重写 | AOF Rewrite | 2026-06-05 | 15 |
 | 已优化 | `fork-cow` | fork 与写时复制 | fork and Copy-on-Write | 2026-06-05 | 16 |
-| 未开始 | `expire-policy` | 过期策略 | Expiration Policy | 2026-05-30 | 7 |
+| 已优化 | `expire-policy` | 过期策略 | Expiration Policy | 2026-06-05 | 15 |
 | 未开始 | `lazy-expire` | 惰性删除 | Lazy Expiration | 2026-05-30 | 5 |
 | 未开始 | `active-expire` | 定期删除 | Active Expiration | 2026-05-30 | 5 |
 | 未开始 | `eviction-policy` | 淘汰策略 | Eviction Policy | 2026-05-30 | 5 |
