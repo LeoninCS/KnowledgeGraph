@@ -192,7 +192,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 读已提交 | 2026-05-24 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 读已提交 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "read-committed", zh: "读已提交", en: "Read Committed", area: "transaction", difficulty: "medium", concept: "读已提交只能读到其他事务已提交的数据，每次读可能看到不同版本。", explanation: ["核心概念：读已提交（Read Committed）聚焦读已提交只能读到其他事务已提交的数据，每次读可能看到不同版本。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：读已提交常用于Oracle 兼容场景和降低间隙锁影响。学习时把它放回MySQL链路中观察，并结合前置知识隔离级别判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，读已提交通常会和MVCC一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把读已提交当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["读已提交执行原理是什么","读已提交如何影响性能或一致性","读已提交线上问题怎么排查"], useCases: ["Oracle 兼容场景","降低间隙锁影响"], prerequisites: ["isolation-level"], related: ["mvcc"], order: 40 },
-  /* <!-- KG_REVIEWED: 可重复读 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 可重复读 | 2026-06-05 | source_count=13 --> */
   /* <!-- KG_EXPLAINED: 可重复读 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "repeatable-read", zh: "可重复读", en: "Repeatable Read", area: "transaction", difficulty: "medium", concept: "可重复读保证同一事务内多次一致性读看到相同快照，是 MySQL 默认隔离级别。", explanation: ["核心概念：可重复读（Repeatable Read）聚焦可重复读保证同一事务内多次一致性读看到相同快照，是 MySQL 默认隔离级别。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：可重复读常用于默认事务隔离和一致性读场景。学习时把它放回MySQL链路中观察，并结合前置知识隔离级别判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，可重复读通常会和MVCC和Next-Key Lock一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把可重复读当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["可重复读执行原理是什么","可重复读如何影响性能或一致性","可重复读线上问题怎么排查"], useCases: ["默认事务隔离","一致性读场景"], prerequisites: ["isolation-level"], related: ["mvcc","next-key-lock"], order: 41 },
   /* <!-- KG_REVIEWED: 幻读 | 2026-05-24 | source_count=5 --> */
@@ -1869,8 +1869,66 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["read-committed", "repeatable-read", "phantom-read", "mvcc", "read-view", "undo-log", "lock", "row-lock", "gap-lock", "next-key-lock", "deadlock", "sql-optimization"],
   },
   "repeatable-read": {
+    sourceRefs: [
+      "mysql-transaction-isolation-levels",
+      "mysql-innodb-consistent-read",
+      "mysql-innodb-multi-versioning",
+      "mysql-innodb-undo-logs",
+      "mysql-innodb-locking-reads",
+      "mysql-innodb-locks-set",
+      "mysql-innodb-transaction-model",
+      "mysql-commit-rollback",
+      "mysql-innodb-deadlocks",
+      "mysql-innodb-deadlocks-handling",
+      "percona-innodb-history-length",
+      "xiaolincoding-mysql-mvcc",
+      "javaguide-mysql-mvcc",
+    ],
+    concept:
+      "可重复读是 MySQL/InnoDB 默认隔离级别，让同一事务内普通一致性读复用同一个快照，并通过当前读与 Next-Key Lock 处理写冲突和范围并发。",
+    explanation: [
+      "概念定位：可重复读（Repeatable Read）解决的是“一个事务多次普通读取同一批数据时，如何保持结果稳定”的问题。它出现在订单状态确认、库存扣减前校验、资金流水核对、后台批量修复、报表一致性读取、锁等待排查和 MySQL 面试题中。\n\n在 MySQL/InnoDB 中，`REPEATABLE READ` 是默认隔离级别。普通 `SELECT` 走一致性非锁定读（consistent nonlocking read），事务首次一致性读创建 ReadView，后续一致性读复用这个快照；`UPDATE`、`DELETE`、`INSERT`、`SELECT ... FOR UPDATE`、`SELECT ... FOR SHARE` 走当前读或锁定读路径，会读取最新可锁版本并设置锁。掌握可重复读的关键，是同时区分快照读、当前读、ReadView、Undo 版本链、间隙锁和 Next-Key Lock。",
+      "准确定义：可重复读保证同一事务内的普通一致性读在同一个快照上判断行版本可见性。这个“可重复”针对一致性读结果，依赖 MVCC、ReadView 和 Undo 版本链完成。\n\n关键术语可以这样拆开：\n\n- `consistent read`：普通 `SELECT` 的快照读，读取符合 ReadView 可见性规则的历史版本。\n- `ReadView`：一致性读的可见性边界，记录创建快照时的活跃事务集合和事务 ID 范围。\n- `Undo` 版本链：记录被修改前的历史版本，用于回滚和快照读。\n- `current read`：写语句和锁定读读取最新可锁版本，并根据访问路径加锁。\n- `Next-Key Lock`：记录锁加间隙锁的组合，常用于 `REPEATABLE READ` 下的范围当前读和并发插入控制。\n\n读懂这组术语后，很多现象会变得清楚：同一事务内普通读稳定，当前读可能看到更新版本；长事务会保留旧版本；范围锁会随索引路径扩大或缩小。",
+      "心智模型：把可重复读看成事务启动后第一次普通读拍下的一张“数据库照片”。\n\n- 普通 `SELECT` 看照片，同一个事务后续继续看这张照片。\n- 写语句和 `FOR UPDATE` 走到现场看最新数据，并在需要的位置加锁。\n- Undo 版本链像照片背后的时间胶片，让 InnoDB 能沿着历史版本找到对当前事务可见的一行。\n- Next-Key Lock 像给索引记录和相邻空位一起放闸门，减少范围当前读和并发插入之间的冲突。\n- 事务持续越久，这张照片占用的历史版本窗口越久，Purge 清理越慢，线上治理成本越高。\n\n新手先记住“快照读稳定、当前读看最新”；工程排障时再追踪快照创建时间、事务年龄、访问索引和锁模式。",
+      "主流程机制：一个 `REPEATABLE READ` 事务的读写路径可以按状态变化理解。\n\n1. 会话设置或继承 `transaction_isolation=REPEATABLE-READ`，应用通过 `START TRANSACTION` 或框架事务开启事务。\n2. 事务首次普通一致性读执行时，InnoDB 创建 ReadView，记录当时活跃事务集合和可见性边界。\n3. 读取一行时，InnoDB 先看聚簇索引当前版本的事务 ID；当前版本对 ReadView 可见就返回。\n4. 当前版本对 ReadView 超出可见边界时，InnoDB 沿 Undo 版本链回溯，直到找到可见版本或确认这行对快照不可见。\n5. 同一事务后续普通一致性读复用首次 ReadView，所以已经提交的新修改对这些普通读保持不可见。\n6. `UPDATE`、`DELETE`、`SELECT ... FOR UPDATE` 和 `SELECT ... FOR SHARE` 进入当前读路径，读取最新已提交或本事务已修改的版本，并等待冲突锁释放。\n7. 范围当前读在索引上设置记录锁、间隙锁或 Next-Key Lock；唯一索引等值命中、非唯一索引范围扫描、缺索引扫描会形成不同锁范围。\n8. 事务提交后释放锁，其他事务的新 ReadView 能看到已提交版本；旧 ReadView 释放后，Purge 才能继续清理无用 Undo 版本。",
+      "实践例子：用两个会话观察可重复读下的快照稳定和当前读跳变。\n\n```sql\nCREATE TABLE account (\n  id BIGINT PRIMARY KEY,\n  balance INT NOT NULL,\n  KEY idx_balance (balance)\n) ENGINE=InnoDB;\n\nINSERT INTO account VALUES (1, 100), (2, 200);\n\n-- 会话 A\nSET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;\nSTART TRANSACTION;\nSELECT balance FROM account WHERE id = 1; -- 首次一致性读创建 ReadView，看到 100\n\n-- 会话 B\nSTART TRANSACTION;\nUPDATE account SET balance = 150 WHERE id = 1;\nCOMMIT;\n\n-- 会话 A\nSELECT balance FROM account WHERE id = 1; -- 继续复用快照，仍看到 100\nSELECT balance FROM account WHERE id = 1 FOR UPDATE; -- 当前读，看到 150，并对 id=1 加锁\nCOMMIT;\n```\n\n这个实验揭示了可重复读最重要的边界：普通一致性读复用快照，锁定读读取最新可锁版本。同一事务中混用两类读时，业务代码要明确自己是在做报表快照、状态校验，还是准备修改最新行。",
+      "范围当前读与幻读：InnoDB 在 `REPEATABLE READ` 下通过 MVCC 稳定普通范围查询结果，通过锁控制范围当前读和写入冲突。\n\n```sql\nCREATE TABLE orders (\n  id BIGINT PRIMARY KEY,\n  user_id BIGINT NOT NULL,\n  amount INT NOT NULL,\n  KEY idx_user_amount (user_id, amount)\n) ENGINE=InnoDB;\n\n-- 会话 A\nSET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;\nSTART TRANSACTION;\nSELECT * FROM orders\nWHERE user_id = 10 AND amount BETWEEN 100 AND 200\nFOR UPDATE;\n\n-- 会话 B：命中同一索引范围的插入可能等待\nINSERT INTO orders VALUES (101, 10, 150);\n```\n\n范围锁的实际边界由索引路径决定。`idx_user_amount` 让锁集中在用户 10 的金额范围；缺少合适索引时，当前读和写语句可能扫描更多记录并持有更大的锁范围。可重复读的工程重点，往往是让“范围语义”和“索引路径”对齐。",
+      "深层细节：可重复读的成本与收益集中在快照边界、锁边界和事务长度上。\n\n- ReadView 创建时机：事务开始本身通常只是建立事务上下文，首次普通一致性读才决定快照边界；显式锁定读走当前读路径。\n- 本事务写入可见：事务内自己修改过的数据对自己可见，普通读和当前读都要考虑本事务修改。\n- 快照与最新值差异：事务内先普通读再当前读时，结果可能从历史版本切到最新版本。\n- Undo 清理压力：长事务持有旧 ReadView，Purge 需要保留历史版本，`History list length` 可能持续升高。\n- 锁范围依赖索引：InnoDB 锁加在索引记录上，范围扫描、非唯一索引、回表、缺索引都会影响锁对象和等待链。\n- Next-Key Lock 代价：范围当前读能控制并发插入，同时会降低热点范围写入吞吐，并提高死锁概率。\n- DDL 与备份：长事务和旧快照会影响 Undo 清理、在线 DDL 等待、备份窗口和磁盘空间治理。\n- 框架影响：Spring、ORM 和连接池可能在事务传播、只读事务、会话复用中改变真实隔离配置，排查时要看连接上的实际变量。",
+      "工程场景与取舍：可重复读适合多数 MySQL OLTP 默认场景，但设计要围绕业务不变量落地。\n\n- 订单状态流转：用短事务、主键或唯一键定位、条件更新和影响行数检查，减少锁等待和重复提交。\n- 库存扣减：优先使用 `UPDATE stock SET qty = qty - ? WHERE sku_id = ? AND qty >= ?` 这类原子条件更新，再根据影响行数判断成功。\n- 报表快照：可重复读能让事务内普通查询口径稳定，长报表应考虑只读副本、离线快照或分批游标。\n- 任务领取：`SELECT ... FOR UPDATE` 或 `FOR UPDATE SKIP LOCKED` 类模式要配合明确索引和小批量提交。\n- 批量修复：按主键范围拆批，单批快速提交，控制 Undo、Redo、Binlog、锁范围和复制延迟。\n- 读写分离：事务内读己之写优先绑定主库或同一连接，副本读还要考虑复制延迟。",
+      "边界与故障模式：可重复读相关线上问题通常能归为几类证据。\n\n- 读到旧值：长事务复用旧 ReadView，普通 `SELECT` 持续看到事务首次一致性读时的快照。\n- 当前读跳变：同一事务中 `SELECT` 与 `SELECT ... FOR UPDATE` 返回不同版本，业务校验语义混乱。\n- 锁等待扩大：范围更新或锁定读缺少合适索引，扫描行数增加，锁对象和等待方一起变多。\n- 死锁上升：多个事务以不同顺序访问相同索引范围，Next-Key Lock 和记录锁形成循环等待。\n- Undo 积压：`information_schema.innodb_trx` 中存在长事务，`SHOW ENGINE INNODB STATUS` 的 History list length 持续增长。\n- DDL 卡住：长事务、元数据锁和旧快照让结构变更等待，应用连接数随后堆积。\n- 连接池污染：连接归还时事务未提交或隔离级别被修改，后续请求继承异常会话状态。\n- 业务幂等缺口：依赖“先查再插”的普通快照读做唯一性保护，最终仍需要唯一索引或锁定读兜底。",
+      "排查实践：排查可重复读问题时，先把事务、快照、锁和 SQL 路径串成一条证据链。\n\n1. 确认配置：记录 `@@SESSION.transaction_isolation`、框架事务注解、连接池初始化 SQL 和事务传播方式。\n2. 固化读写顺序：标出普通 `SELECT`、锁定读、`UPDATE`、`DELETE`、提交点和业务判断点。\n3. 查长事务：用 `information_schema.innodb_trx` 找事务年龄、隔离级别、当前 SQL、锁行数和修改行数。\n4. 查锁对象：用 `performance_schema.data_locks` 与 `data_lock_waits` 找索引、锁模式、等待方和阻塞方。\n5. 查引擎状态：用 `SHOW ENGINE INNODB STATUS\\G` 看 `TRANSACTIONS`、最近死锁和 History list length。\n6. 查访问路径：对锁定读和写语句执行 `EXPLAIN FORMAT=TREE`，确认是否使用预期索引和范围条件。\n7. 修复验证：缩短事务、补索引、固定访问顺序、改原子条件更新、拆批、清理连接池状态，并观察等待链、死锁率和 Undo 指标。\n\n```sql\nSHOW VARIABLES LIKE 'transaction_isolation';\nSELECT @@GLOBAL.transaction_isolation, @@SESSION.transaction_isolation;\n\nSELECT trx_id, trx_state, trx_started, trx_mysql_thread_id,\n       trx_isolation_level, trx_query, trx_rows_locked, trx_rows_modified\nFROM information_schema.innodb_trx\nORDER BY trx_started\\G\n\nSELECT ENGINE_TRANSACTION_ID, OBJECT_SCHEMA, OBJECT_NAME,\n       INDEX_NAME, LOCK_TYPE, LOCK_MODE, LOCK_STATUS, LOCK_DATA\nFROM performance_schema.data_locks\\G\n\nSELECT * FROM performance_schema.data_lock_waits\\G\nSHOW ENGINE INNODB STATUS\\G\nEXPLAIN FORMAT=TREE SELECT * FROM orders WHERE user_id = 10 AND amount BETWEEN 100 AND 200 FOR UPDATE;\n```\n\n有效结论要能回答四个问题：快照何时创建，当前读锁住了哪些索引范围，哪个事务阻塞了谁，修复后等待和扫描是否下降。",
+      "常见误区：可重复读的正确理解来自快照读、当前读、锁范围和业务约束的组合。\n\n- 可重复读主要保障普通一致性读的快照稳定性。\n- 当前读读取最新可锁版本，适合修改前确认和并发写保护。\n- 幻读分析要区分快照范围查询和范围当前读。\n- 唯一性、幂等和状态机最终依赖唯一约束、条件更新、锁定读或业务幂等键。\n- 索引设计决定锁范围，事务隔离决定基础语义。\n- 长事务的成本体现在 Undo 保留、锁持有、DDL 等待、复制延迟和恢复窗口。\n- 连接池中的隔离级别和事务状态属于生产配置的一部分，需要显式治理。",
+      "面试追问：可重复读题适合按“定义 -> ReadView -> MVCC -> 当前读 -> Next-Key Lock -> 生产排查”组织答案。\n\n- MySQL/InnoDB 的可重复读解决什么并发读问题？\n- `REPEATABLE READ` 下 ReadView 在什么时候创建，和 `READ COMMITTED` 有什么差异？\n- 普通一致性读如何通过 Undo 版本链找到可见版本？\n- 为什么同一事务里普通 `SELECT` 和 `SELECT ... FOR UPDATE` 可能看到不同结果？\n- 本事务已经修改过的数据，在快照读中如何表现？\n- Next-Key Lock 如何服务范围当前读和并发插入控制？\n- 为什么缺少索引会让可重复读下的锁等待范围变大？\n- 长事务对 Undo、Purge、History list length、DDL 和备份有什么影响？\n- 线上出现读旧值、锁等待、死锁或 DDL 卡住时，如何用 `innodb_trx`、`data_locks` 和 `SHOW ENGINE INNODB STATUS` 建立证据链？\n- 业务中什么时候保持默认可重复读，什么时候评估 `READ COMMITTED`？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Transaction Isolation Levels、Consistent Nonlocking Reads、InnoDB Multi-Versioning、Undo Logs、Locking Reads、Locks Set by Different SQL Statements、InnoDB Transaction Model、START TRANSACTION/COMMIT/ROLLBACK、Deadlocks in InnoDB 与死锁处理文档，并结合 Percona 对 History list length/长事务的排障文章、小林 coding 和 JavaGuide 的 MVCC/ReadView 讲解校准中文表达、实验路径和面试问法。官方资料用于确定 InnoDB 行为边界，工程文章用于补充长事务、锁等待和排查证据。"
+    ],
+    typicalProblems: [
+      "MySQL/InnoDB 的可重复读定义是什么，它主要保障哪类读取语义？",
+      "`REPEATABLE READ` 下普通一致性读的 ReadView 在什么时候创建，后续如何复用？",
+      "可重复读和读已提交在 ReadView 创建时机、读新鲜度和锁影响上有什么差异？",
+      "MVCC、Undo 版本链和 ReadView 如何共同实现事务内快照稳定？",
+      "为什么同一事务内普通 `SELECT` 和 `SELECT ... FOR UPDATE` 可能看到不同结果？",
+      "当前读、锁定读和普通快照读分别适合哪些业务场景？",
+      "InnoDB 在可重复读下如何通过 Next-Key Lock 处理范围当前读和并发插入？",
+      "索引路径如何影响可重复读下的记录锁、间隙锁和等待范围？",
+      "长事务为什么会造成 Undo 积压、History list length 升高、DDL 等待和备份压力？",
+      "线上出现读旧值、锁等待、死锁或 DDL 卡住时，如何建立可重复读相关证据链？"
+    ],
+    commonCommands: [
+      "SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ",
+      "SHOW VARIABLES LIKE 'transaction_isolation'",
+      "SELECT @@GLOBAL.transaction_isolation, @@SESSION.transaction_isolation",
+      "START TRANSACTION",
+      "SELECT ... FOR UPDATE",
+      "SELECT ... FOR SHARE",
+      "SELECT * FROM information_schema.innodb_trx\\G",
+      "SELECT * FROM performance_schema.data_locks\\G",
+      "SELECT * FROM performance_schema.data_lock_waits\\G",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "EXPLAIN FORMAT=TREE <locking-read-or-write-sql>"
+    ],
+    useCases: ["默认事务隔离", "一致性快照读取", "订单状态流转", "库存扣减", "资金校验", "报表口径稳定", "范围当前读", "锁等待排查", "死锁治理", "长事务治理"],
     prerequisites: ["isolation-level"],
-    related: ["mvcc", "phantom-read", "gap-lock"],
+    related: ["isolation-level", "read-committed", "mvcc", "read-view", "undo-log", "phantom-read", "gap-lock", "next-key-lock", "lock", "deadlock"],
   },
   "phantom-read": {
     prerequisites: ["isolation-level"],

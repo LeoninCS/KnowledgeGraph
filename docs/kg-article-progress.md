@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 88 | 361 |
+| 449 | 89 | 360 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 24 | 24 |
+| mysql | 48 | 25 | 23 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -213,7 +213,7 @@
 | 已优化 | `transaction` | 事务 | Transaction | 2026-06-05 | 19 |
 | 已优化 | `acid` | ACID | ACID | 2026-06-05 | 14 |
 | 已优化 | `isolation-level` | 隔离级别 | Isolation Level | 2026-06-05 | 15 |
-| 未开始 | `repeatable-read` | 可重复读 | Repeatable Read | 2026-05-24 | 5 |
+| 已优化 | `repeatable-read` | 可重复读 | Repeatable Read | 2026-06-05 | 13 |
 | 未开始 | `phantom-read` | 幻读 | Phantom Read | 2026-05-24 | 5 |
 | 未开始 | `mvcc` | MVCC | MVCC | 2026-06-04 | 7 |
 | 未开始 | `read-view` | ReadView | ReadView | 2026-05-24 | 5 |
