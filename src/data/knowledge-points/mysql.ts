@@ -183,7 +183,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 事务 | 2026-06-05 | source_count=19 --> */
   /* <!-- KG_EXPLAINED: 事务 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "transaction", zh: "事务", en: "Transaction", area: "transaction", difficulty: "medium", concept: "事务把多个操作组成一个逻辑单元，保证业务状态正确变化。", explanation: ["核心概念：事务（Transaction）聚焦事务把多个操作组成一个逻辑单元，保证业务状态正确变化。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：事务常用于订单支付、库存扣减和资金流水。学习时把它放回MySQL链路中观察，并结合前置知识InnoDB和DML判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，事务通常会和ACID、隔离级别和MVCC一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把事务当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["事务执行原理是什么","事务如何影响性能或一致性","事务线上问题怎么排查"], useCases: ["订单支付","库存扣减","资金流水"], prerequisites: ["innodb","dml"], related: ["acid","isolation-level","mvcc"], order: 37 },
-  /* <!-- KG_REVIEWED: ACID | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: ACID | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: ACID | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "acid", zh: "ACID", en: "ACID", area: "transaction", difficulty: "medium", concept: "ACID 描述事务的原子性、一致性、隔离性和持久性。", explanation: ["核心概念：ACID聚焦ACID 描述事务的原子性、一致性、隔离性和持久性。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：ACID常用于事务语义理解和一致性设计。学习时把它放回MySQL链路中观察，并结合前置知识事务判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，ACID通常会和Redo Log和Undo Log一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把ACID当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["ACID执行原理是什么","ACID如何影响性能或一致性","ACID线上问题怎么排查"], useCases: ["事务语义理解","一致性设计"], prerequisites: ["transaction"], related: ["redo-log","undo-log"], order: 38 },
   /* <!-- KG_REVIEWED: 隔离级别 | 2026-05-24 | source_count=5 --> */
@@ -1740,8 +1740,67 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["acid", "isolation-level", "mvcc", "read-view", "undo-log", "redo-log", "binlog", "lock", "row-lock", "deadlock", "two-phase-commit"],
   },
   "acid": {
+    sourceRefs: [
+      "mysql-acid-model",
+      "mysql-innodb-transaction-model",
+      "mysql-commit-rollback",
+      "mysql-transaction-isolation-levels",
+      "mysql-innodb-multi-versioning",
+      "mysql-innodb-consistent-read",
+      "mysql-innodb-undo-logs",
+      "mysql-innodb-redo-log",
+      "mysql-binary-log",
+      "mysql-innodb-locking-reads",
+      "mysql-innodb-locks-set",
+      "ibm-acid-properties",
+      "planetscale-database-transactions",
+      "xiaolincoding-mysql-mvcc",
+    ],
+    concept:
+      "ACID 是事务可靠性的四个目标：原子性保证成组操作整体提交或撤销，一致性保证业务不变量持续成立，隔离性控制并发可见性，持久性保证提交结果可恢复。",
+    explanation: [
+      "概念定位：ACID 是理解事务可靠性的核心框架，回答的是“数据库怎样让一组读写在并发、失败和重启之后仍然保持业务语义正确”的问题。订单支付、库存扣减、余额转账、优惠券核销、状态机流转和后台批量修复都需要用 ACID 判断事务边界是否可靠。\n\n在 MySQL/InnoDB 中，ACID 贯穿 SQL 事务语义、约束检查、隔离级别、MVCC、锁、Undo Log、Redo Log、Binlog 和刷盘策略。新手先掌握四个字母各自解决的问题；有经验的工程师要继续追问每个性质由哪些机制承担、哪些配置会改变风险窗口、线上证据在哪里。",
+      "准确定义：ACID 由四个事务性质组成。\n\n- `Atomicity` 原子性：事务内的操作作为一个逻辑单元推进，提交时整体生效，回滚时通过 Undo 撤销已做修改。\n- `Consistency` 一致性：事务执行前后数据库满足约束和业务不变量，例如唯一键、外键、余额非负、库存非负和状态机合法迁移。\n- `Isolation` 隔离性：并发事务之间的数据可见性由隔离级别、MVCC 和锁控制，避免中间状态被其他事务按错误方式观察。\n- `Durability` 持久性：事务提交成功后，即使数据库进程或主机崩溃，也能通过 Redo、Binlog 和存储系统恢复提交结果。\n\nACID 是目标集合；InnoDB 的日志、锁、版本链、约束和恢复流程是落地机制。",
+      "心智模型：把 ACID 看成事务的四道工程护栏。\n\n- 原子性管“这一组动作如何一起完成或一起撤销”。\n- 一致性管“完成以后业务规则是否仍成立”。\n- 隔离性管“并发的人能看到什么、会等待什么”。\n- 持久性管“系统重启以后提交结果还能否找回”。\n\n以转账为例，扣 A 账户、加 B 账户、写流水组成同一个事务。原子性保证三步同进退，一致性保证总金额和账户规则成立，隔离性保证其他事务看到可解释的状态，持久性保证 `COMMIT` 返回后的结果能从日志恢复。",
+      "主流程机制：一次符合 ACID 目标的 InnoDB 事务可以按以下路径理解。\n\n1. 进入事务边界：客户端执行 `START TRANSACTION`，或在 `autocommit=1` 下让单条 DML 自动成为短事务。\n2. 读取数据：普通快照读通过 MVCC 和 ReadView 读取可见版本；锁定读和写语句走当前读路径。\n3. 修改数据：InnoDB 按索引定位记录，生成 Undo 旧版本，修改 Buffer Pool 中的数据页，并写入 Redo 记录。\n4. 维护约束：唯一键、外键、非空、检查条件和应用侧状态机共同守住一致性。\n5. 控制并发：隔离级别决定可见性，记录锁、间隙锁、Next-Key Lock 和锁定读决定写冲突与范围保护。\n6. 提交事务：提交路径把事务状态、Redo 和 Binlog 推进到一致顺序，释放锁，让后续事务看到提交结果。\n7. 崩溃恢复：数据库重启时根据 Redo 重放已提交修改，并结合 Undo 清理未提交状态。\n8. 后台清理：Purge 在线程确认旧 ReadView 释放后清理 Undo 历史版本。",
+      "实践例子：余额转账可以把 ACID 的四个性质落到具体 SQL 和约束上。\n\n```sql\nCREATE TABLE account (\n  id BIGINT PRIMARY KEY,\n  balance DECIMAL(18,2) NOT NULL,\n  CHECK (balance >= 0)\n) ENGINE=InnoDB;\n\nCREATE TABLE transfer_log (\n  id BIGINT PRIMARY KEY,\n  request_id VARCHAR(64) NOT NULL,\n  from_account BIGINT NOT NULL,\n  to_account BIGINT NOT NULL,\n  amount DECIMAL(18,2) NOT NULL,\n  created_at DATETIME NOT NULL,\n  UNIQUE KEY uk_request_id (request_id)\n) ENGINE=InnoDB;\n\nSTART TRANSACTION;\n\nSELECT id, balance\nFROM account\nWHERE id IN (1001, 2002)\nORDER BY id\nFOR UPDATE;\n\nUPDATE account\nSET balance = balance - 100.00\nWHERE id = 1001\n  AND balance >= 100.00;\n\nUPDATE account\nSET balance = balance + 100.00\nWHERE id = 2002;\n\nINSERT INTO transfer_log(id, request_id, from_account, to_account, amount, created_at)\nVALUES (90001, 'transfer-20260605-001', 1001, 2002, 100.00, NOW());\n\nCOMMIT;\n```\n\n这段流程里，`FOR UPDATE` 和固定顺序锁定账户降低并发冲突概率，`balance >= 100.00` 与 `CHECK` 保证业务不变量，`uk_request_id` 负责幂等，`COMMIT` 后结果进入持久化与复制链路。应用层要检查每个 `UPDATE` 的影响行数，并把死锁、锁等待超时和唯一键冲突映射成明确的重试或业务返回。",
+      "四个性质的 InnoDB 落地：ACID 需要数据库机制和应用语义一起完成。\n\n- 原子性：Undo Log 记录旧值，回滚时按反向修改撤销；事务状态决定哪些修改进入提交结果。\n- 一致性：数据库约束提供底线，应用代码负责跨表、跨服务和领域规则；事务只负责在边界内保护这些规则的执行。\n- 隔离性：MVCC 服务普通一致性读，锁服务当前读和写冲突；`READ COMMITTED`、`REPEATABLE READ`、`SERIALIZABLE` 改变 ReadView 创建时机、锁范围和并发代价。\n- 持久性：Redo Log 服务崩溃恢复，Binlog 服务复制与时间点恢复；`innodb_flush_log_at_trx_commit`、`sync_binlog`、存储 fsync 和组提交共同影响提交延迟和故障窗口。\n\n工程判断的关键是把每个业务风险映射到具体机制：资金不变量看约束和事务边界，读写冲突看锁与隔离级别，重启恢复看 Redo 和 Binlog，同步复制看提交链路与副本延迟。",
+      "工程场景与取舍：ACID 强度越高，系统越容易解释状态变化，同时也会付出锁、日志和等待成本。\n\n- 资金与资产：优先使用短本地事务、强约束、幂等键、审计流水和明确重试策略。\n- 库存与秒杀：热点行写入要固定资源访问顺序，使用条件更新和限时重试，必要时用分桶库存或异步削峰。\n- 状态机流转：用 `WHERE status = 'PENDING'` 这类前置条件守住合法迁移，再检查影响行数。\n- 批量修复：按主键或时间窗口分批提交，记录游标，控制每批修改行数和 Binlog 体积。\n- 读写分离：事务内读己之写适合走主库或同一连接，副本读要纳入复制延迟判断。\n- 跨服务一致性：本地 ACID 适合保护单库状态，跨消息、缓存、HTTP 和文件系统的副作用需要幂等消息、事务外盒、Saga 或补偿流程。",
+      "边界与故障模式：ACID 失效感通常来自事务边界过大、隔离理解偏差、持久化配置取舍和应用副作用。\n\n- 原子性风险：异常被框架吞掉、事务传播配置出错、连接池归还前事务未结束，会让真实边界偏离业务预期。\n- 一致性风险：缺少唯一键、检查条件、影响行数判断或状态机前置条件，会让并发写入突破业务不变量。\n- 隔离性风险：长事务保留旧 ReadView，热点更新扩大锁等待，缺少索引的锁定读会扫描并锁住更大范围。\n- 持久性风险：刷盘策略偏向吞吐时，崩溃窗口要通过业务容忍度、复制策略和恢复演练确认。\n- DDL 与隐式提交：结构变更、部分管理语句和上线脚本会影响事务边界，生产变更要单独评审。\n- 外部副作用：数据库回滚无法撤销已经发出的 MQ、HTTP、缓存删除和文件写入，事件发布要设计可重放、可去重和可补偿。",
+      "排查实践：ACID 问题要把业务现象拆到四个性质，再用 MySQL 现场证据验证。\n\n1. 定位性质：重复扣款优先看原子性和幂等；余额为负优先看一致性约束；读到异常中间态优先看隔离级别和读路径；重启后数据缺失优先看持久化和复制。\n2. 查事务边界：确认 `autocommit`、`START TRANSACTION`、`COMMIT`、`ROLLBACK`、框架传播行为和异常回滚规则。\n3. 查隔离配置：确认全局与会话 `transaction_isolation`，区分普通快照读、当前读和锁定读。\n4. 查活跃事务：用 `information_schema.innodb_trx` 找长事务、事务年龄、等待状态和当前 SQL。\n5. 查锁与等待：用 `performance_schema.data_locks`、`data_lock_waits` 和 `SHOW ENGINE INNODB STATUS` 找阻塞链、锁模式、索引名和最近死锁。\n6. 查日志与提交：确认 `innodb_flush_log_at_trx_commit`、`sync_binlog`、磁盘 fsync、Redo 容量、Binlog 体积和复制延迟。\n7. 查 SQL 路径：对锁定读、`UPDATE`、`DELETE` 跑 `EXPLAIN`，确认索引命中、扫描行数和锁范围。\n8. 修复并复测：缩短事务、补约束、补索引、固定访问顺序、设置超时、补幂等重试，并观察锁等待、死锁率、提交耗时和业务错误率。\n\n```sql\nSHOW VARIABLES LIKE 'autocommit';\nSHOW VARIABLES LIKE 'transaction_isolation';\nSHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit';\nSHOW VARIABLES LIKE 'sync_binlog';\n\nSELECT trx_id, trx_state, trx_started, trx_mysql_thread_id,\n       trx_query, trx_rows_locked, trx_rows_modified\nFROM information_schema.innodb_trx\nORDER BY trx_started\\G\n\nSELECT ENGINE_TRANSACTION_ID, OBJECT_SCHEMA, OBJECT_NAME,\n       INDEX_NAME, LOCK_TYPE, LOCK_MODE, LOCK_STATUS, LOCK_DATA\nFROM performance_schema.data_locks\\G\n\nSELECT * FROM performance_schema.data_lock_waits\\G\nSHOW ENGINE INNODB STATUS\\G\nEXPLAIN FORMAT=TREE UPDATE account SET balance = balance - 100 WHERE id = 1001;\n```",
+      "常见误区：ACID 的正确用法是围绕业务不变量设计最小可靠事务边界。\n\n- 一致性需要数据库约束、应用校验、事务边界和补偿流程共同维护。\n- 隔离级别决定并发可见性，也决定锁、等待和吞吐的取舍。\n- 持久性有配置强度，刷盘频率、Binlog 同步和存储可靠性要匹配业务恢复目标。\n- 长事务会增加锁持有、Undo 保留、History list length、DDL 等待和复制压力。\n- 唯一键、条件更新、影响行数检查和幂等重试是 ACID 落地的一部分。\n- 本地事务保护单库内部状态，跨服务副作用需要事件表、消息确认、去重表、补偿任务和人工审计兜底。",
+      "面试追问：ACID 可以按“定义 -> InnoDB 机制 -> 场景 -> 故障证据 -> 取舍”组织答案。\n\n- ACID 四个字母分别是什么，各自解决什么问题？\n- 原子性和持久性在 InnoDB 中分别依赖 Undo Log、Redo Log 和事务状态的哪些能力？\n- 一致性由数据库负责哪些部分，应用需要负责哪些业务不变量？\n- 隔离级别、MVCC、ReadView 和锁如何共同实现隔离性？\n- `READ COMMITTED` 和 `REPEATABLE READ` 下 ReadView 创建时机有什么差异？\n- `innodb_flush_log_at_trx_commit` 和 `sync_binlog` 如何影响提交延迟与恢复窗口？\n- 转账、库存、状态机和批量修复分别如何设计事务边界？\n- 如何排查长事务导致的锁等待、Undo 积压和 DDL 阻塞？\n- 死锁、锁等待超时和唯一键冲突在应用层应该如何重试？\n- 本地 ACID 事务和事务外盒、Saga、补偿事务分别解决哪些一致性问题？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 InnoDB and the ACID Model、InnoDB Transaction Model、START TRANSACTION/COMMIT/ROLLBACK、Transaction Isolation Levels、Multi-Versioning、Consistent Nonlocking Reads、Undo Logs、Redo Log、Binary Log、Locking Reads 和 Locks Set by Different SQL Statements 文档，并结合 IBM 的 ACID properties、PlanetScale 的 Database Transactions、小林 coding 的 MySQL 事务隔离资料校准定义、例子、刷盘取舍、并发可见性和中文面试表达。官方资料用于确定 MySQL/InnoDB 机制边界，工程文章用于补充业务建模、排查路径和实践取舍。"
+    ],
+    typicalProblems: [
+      "ACID 四个性质分别是什么，各自解决事务里的哪类可靠性问题？",
+      "InnoDB 如何用 Undo Log、Redo Log、锁、MVCC、约束和 Binlog 支撑 ACID？",
+      "原子性和持久性有什么区别，回滚恢复和崩溃恢复分别依赖什么？",
+      "一致性为什么需要数据库约束和应用业务不变量共同维护？",
+      "隔离级别如何影响脏读、不可重复读、幻读、锁范围和吞吐？",
+      "资金转账、库存扣减和状态机流转如何用 ACID 设计事务边界？",
+      "长事务怎样影响 Undo Purge、History list length、DDL、锁等待和复制？",
+      "`innodb_flush_log_at_trx_commit` 与 `sync_binlog` 如何影响提交延迟和故障窗口？",
+      "线上出现重复扣款、余额异常、锁等待或重启后数据异常时如何按 ACID 拆解排查？",
+      "本地 ACID 事务、事务外盒、Saga 和补偿任务分别适合哪些一致性边界？"
+    ],
+    commonCommands: [
+      "START TRANSACTION",
+      "COMMIT",
+      "ROLLBACK",
+      "SHOW VARIABLES LIKE 'autocommit'",
+      "SHOW VARIABLES LIKE 'transaction_isolation'",
+      "SHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit'",
+      "SHOW VARIABLES LIKE 'sync_binlog'",
+      "SELECT * FROM information_schema.innodb_trx\\G",
+      "SELECT * FROM performance_schema.data_locks\\G",
+      "SELECT * FROM performance_schema.data_lock_waits\\G",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "EXPLAIN FORMAT=TREE <sql>"
+    ],
+    useCases: ["资金转账", "库存扣减", "订单支付", "状态机流转", "幂等写入", "批量修复", "锁等待排查", "长事务治理", "崩溃恢复评估", "跨服务一致性设计"],
     prerequisites: ["transaction"],
-    related: ["redo-log", "undo-log", "binlog"],
+    related: ["isolation-level", "mvcc", "read-view", "undo-log", "redo-log", "binlog", "lock", "row-lock", "deadlock", "two-phase-commit"],
   },
   "isolation-level": {
     prerequisites: ["transaction"],

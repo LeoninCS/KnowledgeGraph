@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 86 | 363 |
+| 449 | 87 | 362 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 22 | 26 |
+| mysql | 48 | 23 | 25 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -211,7 +211,7 @@
 | 已优化 | `leftmost-prefix` | 最左前缀 | Leftmost Prefix | 2026-06-05 | 28 |
 | 已优化 | `range-query` | 范围查询 | Range Query | 2026-06-05 | 26 |
 | 已优化 | `transaction` | 事务 | Transaction | 2026-06-05 | 19 |
-| 未开始 | `acid` | ACID | ACID | 2026-05-24 | 5 |
+| 已优化 | `acid` | ACID | ACID | 2026-06-05 | 14 |
 | 未开始 | `isolation-level` | 隔离级别 | Isolation Level | 2026-05-24 | 5 |
 | 未开始 | `repeatable-read` | 可重复读 | Repeatable Read | 2026-05-24 | 5 |
 | 未开始 | `phantom-read` | 幻读 | Phantom Read | 2026-05-24 | 5 |
