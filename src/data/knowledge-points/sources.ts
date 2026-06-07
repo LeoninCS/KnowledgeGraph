@@ -5345,6 +5345,14 @@ export const knowledgeSources = {
     title: "Redis Commands: CONFIG SET",
     url: "https://redis.io/docs/latest/commands/config-set/",
   },
+  "redis-source-aof": {
+    title: "Redis Source: aof.c",
+    url: "https://github.com/redis/redis/blob/unstable/src/aof.c",
+  },
+  "redis-source-check-aof": {
+    title: "Redis Source: redis-check-aof.c",
+    url: "https://github.com/redis/redis/blob/unstable/src/redis-check-aof.c",
+  },
   "redisbook-aof": {
     title: "Redis Design and Implementation: AOF",
     url: "https://redisbook.readthedocs.io/en/latest/internal/aof.html",
