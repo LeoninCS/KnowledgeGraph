@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 129 | 320 |
+| 449 | 130 | 319 |
 
 ## 分类进度
 
@@ -18,7 +18,7 @@
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 48 | 0 |
-| redis | 44 | 17 | 27 |
+| redis | 44 | 18 | 26 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
 | docker | 41 | 2 | 39 |
@@ -260,7 +260,7 @@
 | 已优化 | `expire-policy` | 过期策略 | Expiration Policy | 2026-06-05 | 15 |
 | 已优化 | `lazy-expire` | 惰性删除 | Lazy Expiration | 2026-06-05 | 13 |
 | 已优化 | `active-expire` | 定期删除 | Active Expiration | 2026-06-05 | 15 |
-| 未开始 | `eviction-policy` | 淘汰策略 | Eviction Policy | 2026-05-30 | 5 |
+| 已优化 | `eviction-policy` | 淘汰策略 | Eviction Policy | 2026-06-05 | 17 |
 | 未开始 | `redis-memory` | Redis 内存管理 | Redis Memory Management | 2026-05-30 | 7 |
 | 未开始 | `big-key` | 大 Key | Big Key | 2026-05-30 | 7 |
 | 未开始 | `hot-key` | 热 Key | Hot Key | 2026-05-30 | 7 |
