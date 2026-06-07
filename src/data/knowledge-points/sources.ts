@@ -5805,6 +5805,30 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: The Slow Query Log",
     url: "https://dev.mysql.com/doc/refman/8.4/en/slow-query-log.html",
   },
+  "mysql-log-destinations": {
+    title: "MySQL Reference Manual: Selecting General Query Log and Slow Query Log Output Destinations",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/log-destinations.html",
+  },
+  "mysql-server-system-variables": {
+    title: "MySQL Reference Manual: Server System Variables",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html",
+  },
+  "mysql-log-file-maintenance": {
+    title: "MySQL Reference Manual: Server Log Maintenance",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/log-file-maintenance.html",
+  },
+  "mysql-mysqldumpslow": {
+    title: "MySQL Reference Manual: mysqldumpslow",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/mysqldumpslow.html",
+  },
+  "mysql-sys-statement-analysis": {
+    title: "MySQL Reference Manual: The statement_analysis and x$statement_analysis Views",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/sys-statement-analysis.html",
+  },
+  "percona-pt-query-digest": {
+    title: "Percona Toolkit: pt-query-digest",
+    url: "https://docs.percona.com/percona-toolkit/pt-query-digest.html",
+  },
   "mysql-backup-recovery": {
     title: "MySQL Reference Manual: Backup and Recovery",
     url: "https://dev.mysql.com/doc/refman/8.4/en/backup-and-recovery.html",

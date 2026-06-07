@@ -910,9 +910,61 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 临时表 | 2026-05-24 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 临时表 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "temporary-table", zh: "临时表", en: "Temporary Table", area: "optimization", difficulty: "medium", concept: "临时表用于处理中间结果，常出现在复杂排序、分组和去重场景。", explanation: ["核心概念：临时表（Temporary Table）聚焦临时表用于处理中间结果，常出现在复杂排序、分组和去重场景。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住执行计划、索引选择、SQL 改写和统计信息，再看输入、状态变化、输出结果和失败分支。","适用场景：临时表常用于聚合查询优化和报表查询排查。学习时把它放回MySQL链路中观察，并结合前置知识GROUP BY和Extra 信息判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，临时表通常会和SQL 优化一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认执行计划、索引选择、SQL 改写和统计信息是否仍然成立。","常见误区与注意点：实践中容易把临时表当成孤立概念处理，结果遗漏filesort、临时表、扫描行数、Join 顺序和参数偏斜。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["临时表执行原理是什么","临时表如何影响性能或一致性","临时表线上问题怎么排查"], useCases: ["聚合查询优化","报表查询排查"], prerequisites: ["group-by","extra"], related: ["sql-optimization"], order: 62 },
-  /* <!-- KG_REVIEWED: 慢查询日志 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 慢查询日志 | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: 慢查询日志 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "slow-query-log", zh: "慢查询日志", en: "Slow Query Log", area: "optimization", difficulty: "easy", concept: "慢查询日志记录执行时间超过阈值的 SQL，用于定位性能问题。", explanation: ["核心概念：慢查询日志（Slow Query Log）聚焦慢查询日志记录执行时间超过阈值的 SQL，用于定位性能问题。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住执行计划、索引选择、SQL 改写和统计信息，再看输入、状态变化、输出结果和失败分支。","适用场景：慢查询日志常用于慢 SQL 收集、性能巡检和优化看板。学习时把它放回MySQL链路中观察，并结合前置知识SQL 优化判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，慢查询日志通常会和EXPLAIN和Performance Schema一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点适合先掌握主流程。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认执行计划、索引选择、SQL 改写和统计信息是否仍然成立。","常见误区与注意点：实践中容易把慢查询日志当成孤立概念处理，结果遗漏filesort、临时表、扫描行数、Join 顺序和参数偏斜。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["慢查询日志执行原理是什么","慢查询日志如何影响性能或一致性","慢查询日志线上问题怎么排查"], useCases: ["慢 SQL 收集","性能巡检","优化看板"], prerequisites: ["sql-optimization"], related: ["explain","performance-schema"], order: 63 },
+  {
+    sourceRefs: [
+      "mysql-slow-query-log",
+      "mysql-log-destinations",
+      "mysql-server-system-variables",
+      "mysql-log-file-maintenance",
+      "mysql-mysqldumpslow",
+      "percona-pt-query-digest",
+      "mysql-performance-schema-statement-tables",
+      "mysql-sys-statement-analysis",
+      "mysql-explain-statement",
+      "mysql-explain-output",
+      "mysql-select-optimization",
+      "mysql-optimizer-statistics",
+      "javaguide-mysql-explain",
+      "xiaolincoding-mysql-select",
+    ],
+    id: "slow-query-log",
+    zh: "慢查询日志",
+    en: "Slow Query Log",
+    area: "optimization",
+    difficulty: "easy",
+    concept: "慢查询日志记录超过阈值或命中特定采集条件的 SQL 样本，是慢 SQL 治理的事实入口。",
+    explanation: [
+      "概念定位：慢查询日志（Slow Query Log）解决的是“哪些 SQL 在真实执行中消耗了过多时间或扫描了过多数据”的问题。它常出现在接口 p95/p99 抖动、CPU/I/O 飙升、连接池排队、复制延迟、报表拖垮实例、索引评审和性能面试里。\n\nMySQL 会在语句执行完成后，把满足条件的语句写入慢查询日志。日志里通常包含执行时间、锁等待时间、返回行数、扫描行数、用户、主机、线程、时间戳和 SQL 文本。新手先用它找到慢 SQL 样本；有经验的工程师会把它和 `EXPLAIN ANALYZE`、Performance Schema、锁等待、表结构、索引基数和业务 Trace 组合成证据链。",
+      "准确定义：慢查询日志是一种语句级采集日志，核心采集条件由 `slow_query_log`、`long_query_time`、`min_examined_row_limit`、`log_queries_not_using_indexes`、`log_slow_admin_statements` 等变量控制。\n\n关键配置含义：\n\n- `slow_query_log`：控制慢查询日志采集开关。\n- `slow_query_log_file`：控制文件输出路径。\n- `log_output`：控制输出到 `FILE`、`TABLE` 或组合目的地。\n- `long_query_time`：语句执行时间阈值，默认常见值为 10 秒，生产治理常按业务 SLA 调低到毫秒到秒级窗口。\n- `min_examined_row_limit`：扫描行数门槛，适合过滤少量行但耗时略高的低价值样本。\n- `log_queries_not_using_indexes`：采集缺少索引路径的查询，适合短时间巡检索引风险。\n- `log_throttle_queries_not_using_indexes`：限制无索引查询日志量，保护磁盘和分析链路。\n- `log_slow_extra`：在支持的版本里为慢日志文件增加更多执行细节字段，便于识别临时表、排序、全扫描和发送字节数。\n\n慢查询日志的价值在于保存“真实跑过的 SQL 样本”，后续优化要继续解释它为什么慢、影响面多大、修复是否有效。",
+      "心智模型：把慢查询日志看成数据库的“慢动作回放索引”。应用说接口慢时，它帮你从大量请求里挑出耗时、扫描、锁等待或索引路径异常的 SQL 片段。\n\n一条慢日志样本通常回答五个问题：\n\n- 谁执行：用户、主机、线程和默认库。\n- 何时执行：记录时间和语句时间戳。\n- 花了多久：`Query_time` 和 `Lock_time`。\n- 读写规模：`Rows_sent`、`Rows_examined`，扩展字段还能看到临时表、排序和扫描信号。\n- 执行内容：标准化前的 SQL 文本，能还原真实参数、分页位置和时间范围。\n\n慢日志适合保留现场，Performance Schema 适合按 SQL 指纹聚合排序，`EXPLAIN` 适合解释访问路径。三者结合后，慢 SQL 分析从“猜索引”进入“用证据改计划”。",
+      "主流程机制：一次慢查询采集与治理可以按“配置 -> 记录 -> 聚合 -> 解释 -> 修复 -> 验证”推进。\n\n1. 配置采集：打开 `slow_query_log`，设置符合业务 SLA 的 `long_query_time`，选择 `FILE` 或 `TABLE` 输出目的地。\n2. 控制样本：通过 `min_examined_row_limit`、`log_queries_not_using_indexes` 和节流参数减少噪声，事故窗口可短时间降低阈值扩大样本。\n3. 写入日志：MySQL 在语句执行完成后写入日志；官方文档说明日志顺序以完成时间为准，长语句可能晚于后启动的短语句出现。\n4. 聚合排名：用 `mysqldumpslow`、`pt-query-digest` 或日志平台按 SQL 指纹聚合，优先看总耗时、次数、平均耗时、p95、扫描行数和返回行数比例。\n5. 解释计划：对代表性参数执行 `EXPLAIN FORMAT=TREE`、`EXPLAIN ANALYZE`，确认访问类型、索引、估算行、真实行、排序、临时表和回表。\n6. 设计改动：选择补联合索引、改写谓词、游标分页、拆批、归档冷热数据、刷新统计信息或调整业务调用。\n7. 验证回归：对比优化前后的慢日志数量、`Rows_examined`、`Query_time`、Performance Schema 摘要、接口延迟、锁等待和复制延迟。\n\n这个流程的产出是可复盘的优化证据包，而日志本身只是入口。",
+      "实践例子：下面是一组常见生产配置和排查命令，适合在变更窗口或短期巡检中使用。\n\n```sql\n-- 查看当前慢查询配置\nSHOW VARIABLES LIKE 'slow_query_log';\nSHOW VARIABLES LIKE 'slow_query_log_file';\nSHOW VARIABLES LIKE 'long_query_time';\nSHOW VARIABLES LIKE 'log_output';\nSHOW VARIABLES LIKE 'min_examined_row_limit';\nSHOW VARIABLES LIKE 'log_queries_not_using_indexes';\n\n-- 事故窗口短时间采集，结束后恢复到基线值\nSET GLOBAL slow_query_log = 'ON';\nSET GLOBAL log_output = 'FILE';\nSET GLOBAL long_query_time = 0.5;\nSET GLOBAL min_examined_row_limit = 1000;\n\n-- 聚合 Performance Schema 中的语句摘要，和慢日志样本互相校验\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_ROWS_EXAMINED, SUM_ROWS_SENT,\n       ROUND(SUM_TIMER_WAIT / 1000000000000, 2) AS total_seconds,\n       ROUND(AVG_TIMER_WAIT / 1000000000, 2) AS avg_ms\nFROM performance_schema.events_statements_summary_by_digest\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n\n-- 对慢日志里的代表性 SQL 做计划解释\nEXPLAIN FORMAT=TREE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC\nLIMIT 100000, 20;\n\nEXPLAIN ANALYZE\nSELECT id, amount, created_at\nFROM orders\nWHERE user_id = 1001 AND status = 'PAID'\nORDER BY created_at DESC\nLIMIT 100000, 20;\n```\n\n如果慢日志显示 `Rows_examined=800000`、`Rows_sent=20`、`Query_time=3.8s`，而 `EXPLAIN` 显示 `type=range` 但 `Extra=Using filesort`，常见改法是把等值条件、排序列和平局列放入联合索引，并把深分页改成游标分页。",
+      "深层细节：慢查询日志的判断价值来自字段细读和上下文还原。\n\n- `Query_time` 展示语句耗时，和应用端耗时存在网络传输、连接池排队、序列化、重试和下游调用差异。\n- `Lock_time` 能暴露初始锁等待线索；InnoDB 行锁、元数据锁和业务事务边界仍要结合 Performance Schema 锁表、`SHOW ENGINE INNODB STATUS` 和应用 Trace 判断。\n- `Rows_examined / Rows_sent` 比例能衡量扫描放大，列表页、报表和低选择性索引常在这里暴露问题。\n- 日志按语句完成时写入，长事务内的慢语句可能延后出现；事故复盘要按时间窗口和线程串联。\n- `log_queries_not_using_indexes` 在小表、临时巡检和低峰分析中很有用，在高并发线上实例会产生大量样本，配合节流和短窗口使用更稳。\n- `TABLE` 输出便于 SQL 查询，但会把日志写入 `mysql.slow_log` 表；高吞吐环境通常选择 `FILE` 输出给日志系统采集。\n- 日志文本可能包含业务参数、手机号、邮箱、Token 或订单号，采集、传输、归档和共享时要做权限控制与脱敏。\n- 新增索引降低读耗时，也会增加写入维护、磁盘、Buffer Pool 和复制压力，慢日志收益要和写路径成本一起评估。",
+      "边界与故障模式：慢查询日志排查常见问题集中在采集口径、日志量和证据关联。\n\n- 采集为空：优先检查 `slow_query_log`、`long_query_time`、实例角色、日志目录权限和是否查看了正确实例。\n- 样本过多：阈值过低、全量打开无索引查询采集、报表高峰和批处理会迅速放大日志量。\n- 样本排序异常：慢日志按完成时间落盘，开始时间接近的语句会因执行时长不同呈现交错顺序。\n- 高耗时低扫描：常见原因包括锁等待、磁盘抖动、网络发送慢、大结果集、临时表落盘、函数计算和外部存储压力。\n- 高扫描低耗时：当前缓存命中好，数据量增长或缓存失效后可能变成风险 SQL，应按扫描放大提前治理。\n- 慢写语句：`UPDATE`、`DELETE`、`INSERT ... SELECT` 的慢日志要继续看锁范围、事务长度、Binlog 写入和复制延迟。\n- 聚合误差：字面 SQL 参数不同但指纹相同，热点租户、大时间范围和深分页参数会把同一模板拆成多个风险层级。",
+      "排查实践：慢 SQL 治理建议把慢日志样本转换为固定证据包。\n\n1. 定位窗口：确定业务故障时间、实例、库名、调用入口和慢日志文件。\n2. 聚合模板：用 `mysqldumpslow` 或 `pt-query-digest` 按指纹排名，先看总耗时、执行次数、平均耗时、扫描行数和锁等待。\n3. 还原参数：挑选代表性 SQL，保留真实租户、时间范围、分页位置、状态值和返回列。\n4. 补齐结构：导出 `SHOW CREATE TABLE`、`SHOW INDEX`、字段类型、字符集、索引基数、表行数和统计信息更新时间。\n5. 解释计划：执行 `EXPLAIN FORMAT=TREE` 和 `EXPLAIN ANALYZE`，对比估算行与真实行，定位全扫、宽范围、回表、排序、临时表和 JOIN 放大。\n6. 查运行影响：对照 Performance Schema、锁等待、CPU、I/O、Buffer Pool、临时表、连接池和复制延迟。\n7. 小步修复：选择最小可解释改动，灰度验证后观察慢日志数量和接口延迟是否收敛。\n\n```bash\n# MySQL 自带聚合工具，适合快速看慢 SQL 模板\nmysqldumpslow -s t -t 10 /var/lib/mysql/mysql-slow.log\nmysqldumpslow -s c -t 10 /var/lib/mysql/mysql-slow.log\n\n# Percona Toolkit，适合输出更完整的指纹、分位数和样本信息\npt-query-digest /var/lib/mysql/mysql-slow.log > slow-report.txt\n```\n\n可靠结论应包含：慢日志样本、SQL 指纹排名、代表性参数、原执行计划、成本来源、改动方案、新计划、线上指标变化和回滚路径。",
+      "常见误区：慢查询日志的正确心智模型是“事实样本入口 + 优化证据起点”。\n\n- 慢日志里的 SQL 需要继续用计划、索引、统计信息和运行指标解释原因。\n- `long_query_time` 要按业务 SLA、实例负载和巡检目的调整，接口型 OLTP 常用更低阈值短窗口采集。\n- `Rows_examined` 是扫描放大的核心信号，低延迟高扫描的 SQL 也值得进入容量治理清单。\n- `log_queries_not_using_indexes` 适合巡检和低峰窗口，线上常配合节流和日志容量保护。\n- 慢日志与 Performance Schema 是互补视角：一个保留样本，一个聚合影响面。\n- SQL 文本属于敏感数据，日志平台、工单、复盘文档和外发材料都要遵守脱敏和最小权限。",
+      "面试追问：慢查询日志题适合按“采集口径 -> 字段解释 -> 聚合分析 -> 执行计划 -> 线上治理 -> 风险取舍”回答。\n\n- 慢查询日志解决什么问题，和 Performance Schema 的语句摘要分别适合什么场景？\n- `slow_query_log`、`long_query_time`、`min_examined_row_limit`、`log_queries_not_using_indexes` 如何影响采集结果？\n- 一条慢日志中的 `Query_time`、`Lock_time`、`Rows_sent`、`Rows_examined` 应该如何解读？\n- 慢日志按完成时间写入会给事故复盘带来什么影响？\n- 如何用 `mysqldumpslow` 或 `pt-query-digest` 从日志中找出最值得优化的 SQL 模板？\n- `Rows_examined` 很高但耗时暂时可接受时，为什么仍然要纳入容量治理？\n- 慢查询来自锁等待、filesort、临时表、回表、JOIN 顺序或深分页时，排查证据分别是什么？\n- 打开无索引查询采集、降低 `long_query_time`、输出到 `TABLE` 会带来哪些开销？\n- 线上慢 SQL 优化上线前后要对比哪些指标，如何设计回滚？\n- 慢写语句如何影响行锁、Binlog、复制延迟和连接池排队？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Slow Query Log、Log Destinations、Server System Variables、Server Log Maintenance、`mysqldumpslow`、Performance Schema Statement Tables、sys `statement_analysis`、`EXPLAIN` 与 EXPLAIN Output 文档，并结合 Percona Toolkit `pt-query-digest` 文档、JavaGuide 的 EXPLAIN 讲解和小林 coding 的 SELECT 执行流程校准中文表达。官方资料用于参数语义、日志字段和输出机制，工具文档用于聚合分析方法，中文资料用于补足学习路径、排查步骤和面试问法。"
+    ],
+    typicalProblems: [
+      "慢查询日志记录什么内容，为什么它是慢 SQL 治理的事实入口？",
+      "`slow_query_log`、`long_query_time`、`min_examined_row_limit` 和 `log_queries_not_using_indexes` 分别如何影响采集口径？",
+      "慢日志中的 `Query_time`、`Lock_time`、`Rows_examined`、`Rows_sent` 如何判断 SQL 成本来源？",
+      "慢查询日志、Performance Schema、`EXPLAIN ANALYZE` 在慢 SQL 排查中如何分工？",
+      "如何用 `mysqldumpslow` 和 `pt-query-digest` 聚合慢日志并选择优先优化对象？",
+      "日志按完成时间写入会怎样影响事故时间线还原？",
+      "打开无索引查询采集或降低阈值时，如何控制日志量和实例开销？",
+      "慢查询来自锁等待、深分页、JOIN 放大、临时表、filesort 或统计信息偏差时，证据链怎么建立？",
+      "慢写语句的慢日志如何联动分析锁等待、复制延迟和连接池排队？",
+      "慢 SQL 优化上线后应该对比哪些指标证明收益成立？"
+    ],
+    useCases: ["慢 SQL 收集", "性能巡检", "优化看板", "接口延迟治理", "索引评审", "报表治理", "复制延迟排查", "容量规划", "面试准备"],
+    prerequisites: ["sql-optimization"],
+    related: ["sql-optimization", "explain", "access-type", "extra", "mysql-index", "composite-index", "join-order", "performance-schema", "replication-lag", "connection-pool"],
+    order: 63,
+  },
   /* <!-- KG_REVIEWED: JOIN 顺序 | 2026-06-05 | source_count=21 --> */
   /* <!-- KG_EXPLAINED: JOIN 顺序 | 2026-05-23 | source_count=5 --> */
   {
