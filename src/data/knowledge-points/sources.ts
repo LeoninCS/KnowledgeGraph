@@ -6189,6 +6189,26 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: GTID Auto-Positioning",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replication-gtids-auto-positioning.html",
   },
+  "mysql-replication-gtid-howto": {
+    title: "MySQL Reference Manual: Setting Up Replication Using GTIDs",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-gtids-howto.html",
+  },
+  "mysql-replication-gtid-failover": {
+    title: "MySQL Reference Manual: Using GTIDs for Failover and Scaleout",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-gtids-failover.html",
+  },
+  "mysql-replication-gtid-restrictions": {
+    title: "MySQL Reference Manual: Restrictions on Replication with GTIDs",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-gtids-restrictions.html",
+  },
+  "mysql-replication-gtid-options": {
+    title: "MySQL Reference Manual: Global Transaction ID System Variables",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-options-gtids.html",
+  },
+  "mysql-gtid-functions": {
+    title: "MySQL Reference Manual: Functions Used with Global Transaction Identifiers",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/gtid-functions.html",
+  },
   "oracle-mysql-ha-solutions-gtid": {
     title: "Oracle MySQL HA Solutions: GTID failover diagrams",
     url: "https://www.slideshare.net/matkeep/mysql-ha-solutions",
@@ -6196,6 +6216,10 @@ export const knowledgeSources = {
   "hackmysql-gtid-missing-writes": {
     title: "HackMySQL: MySQL GTID Missing Writes",
     url: "https://hackmysql.com/mysql-gtid-missing-writes/",
+  },
+  "percona-errant-gtids": {
+    title: "Percona: Errant GTIDs Breaking Replication",
+    url: "https://www.percona.com/resource/errant-gtids-breaking-replication-how-detect-and-avoid-them/",
   },
   "mysql-workbench-visual-explain": {
     title: "MySQL Workbench Manual: Tutorial: Using Explain to Improve Query Performance",

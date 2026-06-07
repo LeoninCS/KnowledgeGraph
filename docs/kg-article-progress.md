@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 110 | 339 |
+| 449 | 111 | 338 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 46 | 2 |
+| mysql | 48 | 47 | 1 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -236,7 +236,7 @@
 | 已优化 | `replication` | 主从复制 | Replication | 2026-06-05 | 20 |
 | 已优化 | `read-write-splitting` | 读写分离 | Read Write Splitting | 2026-06-05 | 20 |
 | 已优化 | `replication-lag` | 复制延迟 | Replication Lag | 2026-06-05 | 18 |
-| 未开始 | `gtid` | GTID | Global Transaction Identifier | 2026-06-04 | 12 |
+| 已优化 | `gtid` | GTID | Global Transaction Identifier | 2026-06-05 | 26 |
 | 未开始 | `connection-pool` | 连接池 | Connection Pool | 2026-05-24 | 5 |
 
 ## redis
