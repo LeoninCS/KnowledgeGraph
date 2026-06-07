@@ -6093,6 +6093,14 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Replication Threads",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replication-threads.html",
   },
+  "mysql-replication-threads-monitor-main": {
+    title: "MySQL Reference Manual: Monitoring Replication Main Threads",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-threads-monitor-main.html",
+  },
+  "mysql-replication-options-replica": {
+    title: "MySQL Reference Manual: Replica Server Options and Variables",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-options-replica.html",
+  },
   "mysql-replication-setup-replicas": {
     title: "MySQL Reference Manual: Setting Up Replicas",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replication-setup-replicas.html",
@@ -6156,6 +6164,18 @@ export const knowledgeSources = {
   "mysql-replication-delayed": {
     title: "MySQL Reference Manual: Delayed Replication",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replication-delayed.html",
+  },
+  "percona-mysql-replication-lag": {
+    title: "Percona: How to identify and cure MySQL replication slave lag",
+    url: "https://www.percona.com/blog/how-to-identify-and-cure-mysql-replication-slave-lag/",
+  },
+  "percona-pt-heartbeat": {
+    title: "Percona Toolkit Documentation: pt-heartbeat",
+    url: "https://docs.percona.com/percona-toolkit/pt-heartbeat.html",
+  },
+  "google-cloudsql-mysql-replication-lag": {
+    title: "Google Cloud SQL for MySQL: Replication lag",
+    url: "https://docs.cloud.google.com/sql/docs/mysql/replication/replication-lag",
   },
   "mysql-replication-gtid-lifecycle": {
     title: "MySQL Reference Manual: The GTID Life Cycle",
