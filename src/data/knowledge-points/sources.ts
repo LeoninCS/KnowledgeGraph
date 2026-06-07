@@ -4993,9 +4993,37 @@ export const knowledgeSources = {
     title: "Redis Commands: HSET",
     url: "https://redis.io/docs/latest/commands/hset/",
   },
+  "redis-hget-command": {
+    title: "Redis Commands: HGET",
+    url: "https://redis.io/docs/latest/commands/hget/",
+  },
+  "redis-hmget-command": {
+    title: "Redis Commands: HMGET",
+    url: "https://redis.io/docs/latest/commands/hmget/",
+  },
+  "redis-hgetall-command": {
+    title: "Redis Commands: HGETALL",
+    url: "https://redis.io/docs/latest/commands/hgetall/",
+  },
+  "redis-hlen-command": {
+    title: "Redis Commands: HLEN",
+    url: "https://redis.io/docs/latest/commands/hlen/",
+  },
+  "redis-hincrby-command": {
+    title: "Redis Commands: HINCRBY",
+    url: "https://redis.io/docs/latest/commands/hincrby/",
+  },
   "redis-hscan-command": {
     title: "Redis Commands: HSCAN",
     url: "https://redis.io/docs/latest/commands/hscan/",
+  },
+  "redis-hexpire-command": {
+    title: "Redis Commands: HEXPIRE",
+    url: "https://redis.io/docs/latest/commands/hexpire/",
+  },
+  "redis-hsetex-command": {
+    title: "Redis Commands: HSETEX",
+    url: "https://redis.io/docs/latest/commands/hsetex/",
   },
   "redis-lists-docs": {
     title: "Redis Docs: Lists",
