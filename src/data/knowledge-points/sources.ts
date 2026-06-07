@@ -6093,6 +6093,22 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Replication Threads",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replication-threads.html",
   },
+  "mysql-replication-setup-replicas": {
+    title: "MySQL Reference Manual: Setting Up Replicas",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-setup-replicas.html",
+  },
+  "mysql-replication-source-options": {
+    title: "MySQL Reference Manual: Replication Source Options and Variables",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-options-source.html",
+  },
+  "mysql-change-replication-source-to": {
+    title: "MySQL Reference Manual: CHANGE REPLICATION SOURCE TO Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/change-replication-source-to.html",
+  },
+  "mysql-start-replica": {
+    title: "MySQL Reference Manual: START REPLICA Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/start-replica.html",
+  },
   "mysql-replica-logs-status": {
     title: "MySQL Reference Manual: Replica Logs and Status",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replica-logs.html",
@@ -6100,6 +6116,10 @@ export const knowledgeSources = {
   "mysql-show-replica-status": {
     title: "MySQL Reference Manual: SHOW REPLICA STATUS Statement",
     url: "https://dev.mysql.com/doc/refman/8.4/en/show-replica-status.html",
+  },
+  "mysql-performance-schema-replication-tables": {
+    title: "MySQL Reference Manual: Performance Schema Replication Tables",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/performance-schema-replication-tables.html",
   },
   "mysql-replication-delayed": {
     title: "MySQL Reference Manual: Delayed Replication",
