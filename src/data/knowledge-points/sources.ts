@@ -6121,6 +6121,38 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Performance Schema Replication Tables",
     url: "https://dev.mysql.com/doc/refman/8.4/en/performance-schema-replication-tables.html",
   },
+  "mysql-replication-scaleout": {
+    title: "MySQL Reference Manual: Using Replication for Scale-Out",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-solutions-scaleout.html",
+  },
+  "mysql-router-read-write-splitting": {
+    title: "MySQL Router Manual: Read/Write Splitting",
+    url: "https://dev.mysql.com/doc/mysql-router/8.4/en/router-read-write-splitting.html",
+  },
+  "mysql-router-read-write-splitting-config": {
+    title: "MySQL Router Manual: Configuring Read/Write Splitting",
+    url: "https://dev.mysql.com/doc/mysql-router/8.4/en/router-read-write-splitting-configuration.html",
+  },
+  "mysql-server-variable-read-only": {
+    title: "MySQL Reference Manual: read_only System Variable",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_read_only",
+  },
+  "mysql-server-variable-super-read-only": {
+    title: "MySQL Reference Manual: super_read_only System Variable",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html#sysvar_super_read_only",
+  },
+  "shardingsphere-readwrite-splitting": {
+    title: "Apache ShardingSphere Docs: 读写分离",
+    url: "https://shardingsphere.apache.org/document/current/cn/features/readwrite-splitting/",
+  },
+  "proxysql-read-write-split": {
+    title: "ProxySQL Documentation: Read/Write Split HowTo",
+    url: "https://proxysql.com/documentation/proxysql-read-write-split-howto/",
+  },
+  "proxysql-monitor-module": {
+    title: "ProxySQL Documentation: MySQL Monitor Module",
+    url: "https://proxysql.com/documentation/backend-monitoring/",
+  },
   "mysql-replication-delayed": {
     title: "MySQL Reference Manual: Delayed Replication",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replication-delayed.html",
