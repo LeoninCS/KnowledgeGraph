@@ -186,7 +186,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: ACID | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: ACID | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "acid", zh: "ACID", en: "ACID", area: "transaction", difficulty: "medium", concept: "ACID 描述事务的原子性、一致性、隔离性和持久性。", explanation: ["核心概念：ACID聚焦ACID 描述事务的原子性、一致性、隔离性和持久性。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：ACID常用于事务语义理解和一致性设计。学习时把它放回MySQL链路中观察，并结合前置知识事务判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，ACID通常会和Redo Log和Undo Log一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把ACID当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["ACID执行原理是什么","ACID如何影响性能或一致性","ACID线上问题怎么排查"], useCases: ["事务语义理解","一致性设计"], prerequisites: ["transaction"], related: ["redo-log","undo-log"], order: 38 },
-  /* <!-- KG_REVIEWED: 隔离级别 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 隔离级别 | 2026-06-05 | source_count=15 --> */
   /* <!-- KG_EXPLAINED: 隔离级别 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "isolation-level", zh: "隔离级别", en: "Isolation Level", area: "transaction", difficulty: "hard", concept: "隔离级别控制并发事务之间的数据可见性。", explanation: ["核心概念：隔离级别（Isolation Level）聚焦隔离级别控制并发事务之间的数据可见性。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：隔离级别常用于并发问题排查和一致性与性能权衡。学习时把它放回MySQL链路中观察，并结合前置知识事务判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，隔离级别通常会和读已提交、可重复读和幻读一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把隔离级别当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["隔离级别执行原理是什么","隔离级别如何影响性能或一致性","隔离级别线上问题怎么排查"], useCases: ["并发问题排查","一致性与性能权衡"], prerequisites: ["transaction"], related: ["read-committed","repeatable-read","phantom-read"], order: 39 },
   /* <!-- KG_REVIEWED: 读已提交 | 2026-05-24 | source_count=5 --> */
@@ -1803,8 +1803,70 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     related: ["isolation-level", "mvcc", "read-view", "undo-log", "redo-log", "binlog", "lock", "row-lock", "deadlock", "two-phase-commit"],
   },
   "isolation-level": {
+    sourceRefs: [
+      "mysql-transaction-isolation-levels",
+      "mysql-innodb-consistent-read",
+      "mysql-innodb-multi-versioning",
+      "mysql-innodb-undo-logs",
+      "mysql-innodb-locking-reads",
+      "mysql-innodb-locks-set",
+      "mysql-innodb-transaction-model",
+      "mysql-commit-rollback",
+      "mysql-innodb-deadlocks",
+      "mysql-innodb-deadlocks-handling",
+      "planetscale-database-transactions",
+      "postgresql-transaction-isolation",
+      "xiaolincoding-mysql-mvcc",
+      "javaguide-mysql-mvcc",
+      "sobyte-mysql-mvcc",
+    ],
+    concept:
+      "隔离级别定义并发事务之间的可见性、锁范围和等待行为，是在一致性、吞吐和排障复杂度之间做工程取舍的核心开关。",
+    explanation: [
+      "概念定位：隔离级别（Isolation Level）解决的是“多个事务同时读写同一批数据时，每个事务能看到什么、会等待什么、会承担多少锁成本”的问题。库存扣减、账户余额、订单状态、后台批量修复、读写分离一致性、慢 SQL 锁等待和死锁排查都会落到隔离级别上。\n\n在 MySQL/InnoDB 中，隔离级别同时影响普通一致性读（consistent read）、锁定读（locking read）、当前读、ReadView、Undo 版本链、记录锁、间隙锁和 Next-Key Lock。新手先掌握四档隔离级别的现象差异；有经验的工程师要继续追踪 ReadView 创建时机、索引访问路径、锁范围、长事务和线上证据。",
+      "准确定义：MySQL/InnoDB 支持四个 SQL 事务隔离级别。\n\n- `READ UNCOMMITTED`：普通读可能看到其他事务尚未提交的修改，也就是脏读。\n- `READ COMMITTED`：普通一致性读每次语句读取已经提交的最新快照，同一事务内多次读可能看到不同提交版本。\n- `REPEATABLE READ`：InnoDB 默认级别；同一事务内首次普通一致性读建立快照，后续普通一致性读复用该快照。\n- `SERIALIZABLE`：把并发读写推进到更强的锁语义，普通 `SELECT` 在显式事务中会按共享锁读取，吞吐代价更高。\n\n关键术语要一起理解：\n- `dirty read` 脏读：读取到其他事务未提交修改。\n- `non-repeatable read` 不可重复读：同一事务两次读取同一行，结果随其他事务提交而变化。\n- `phantom read` 幻读：同一事务范围查询中出现其他事务提交的新行。\n- `consistent read` 一致性读：普通快照读，依靠 MVCC、ReadView 和 Undo 版本链返回可见版本。\n- `current read` 当前读：写语句、`SELECT ... FOR UPDATE`、`SELECT ... FOR SHARE` 读取最新可锁版本并设置锁。",
+      "心智模型：把隔离级别看成事务的“并发观察镜”和“锁闸门”。\n\n- 观察镜决定普通 `SELECT` 看到哪个历史版本。\n- 锁闸门决定写入、锁定读和范围访问会拦住哪些并发事务。\n- `READ COMMITTED` 像每次语句都换一副新眼镜，看到语句开始时已提交的数据。\n- `REPEATABLE READ` 像事务第一次普通读时定格一张照片，后续普通读继续看同一张照片。\n- 当前读像走到柜台检查最新实物，并为接下来的修改占住位置。\n\n这个模型能解释很多线上现象：同一个事务里普通读和当前读看到不同结果，长事务一直看旧快照，范围更新因索引和隔离级别扩大锁影响面。",
+      "主流程机制：一次 InnoDB 读写在隔离级别下可以按以下路径理解。\n\n1. 会话进入事务，继承全局或会话级 `transaction_isolation`，显式事务由 `START TRANSACTION` 开始。\n2. 普通 `SELECT` 进入一致性读路径，InnoDB 根据隔离级别创建或复用 ReadView。\n3. ReadView 根据活跃事务集合、事务 ID 和 Undo 版本链判断哪一个行版本对当前事务可见。\n4. `READ COMMITTED` 每条一致性读语句生成新的 ReadView。\n5. `REPEATABLE READ` 在事务首次一致性读时生成 ReadView，并在后续一致性读中复用。\n6. 写语句和锁定读进入当前读路径，读取最新已提交版本，并按访问路径设置记录锁、间隙锁或 Next-Key Lock。\n7. 范围条件、唯一索引命中、普通索引扫描和全表扫描会产生不同锁范围，索引质量直接影响等待链长度。\n8. 提交事务后，修改对新 ReadView 和当前读可见；回滚事务时，Undo 撤销未提交修改。\n9. 后台 Purge 在线程确认旧 ReadView 释放后清理历史版本；长事务会延长这个窗口。",
+      "四档语义速查：隔离级别的差异可以落到可见性、锁和典型用途上。\n\n- `READ UNCOMMITTED`：读取延迟低，业务语义弱，适合临时诊断和低可靠读场景。\n- `READ COMMITTED`：每条语句看到最新已提交快照，读新鲜度高；InnoDB 在搜索和索引扫描中使用更少间隙锁，适合降低范围锁影响、兼容 Oracle 语义和高并发 OLTP。\n- `REPEATABLE READ`：同一事务普通读保持稳定快照，是 MySQL/InnoDB 默认选择；结合 Next-Key Lock 处理范围当前读和写冲突，适合多数业务事务。\n- `SERIALIZABLE`：通过更强锁语义让并发执行更接近串行顺序，适合小范围、高价值、低并发的强约束读写。\n\n工程选择要看业务不变量：读新鲜度、重复读取稳定性、范围插入保护、锁等待、死锁概率、长事务成本和框架默认行为都要一起评估。",
+      "实践例子：下面用两个会话观察快照读、当前读和 ReadView 时机。\n\n```sql\nCREATE TABLE account (\n  id BIGINT PRIMARY KEY,\n  balance INT NOT NULL,\n  KEY idx_balance (balance)\n) ENGINE=InnoDB;\n\nINSERT INTO account VALUES (1, 100), (2, 200);\n\n-- 会话 A：开启事务并修改余额，先保持未提交\nSET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;\nSTART TRANSACTION;\nUPDATE account SET balance = 150 WHERE id = 1;\n\n-- 会话 B：分别切换 READ COMMITTED 和 REPEATABLE READ 观察普通一致性读\nSET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;\nSTART TRANSACTION;\nSELECT balance FROM account WHERE id = 1;\n-- 会话 A COMMIT 后，再执行一次 SELECT，会话 B 在 READ COMMITTED 下读取新的已提交版本\nSELECT balance FROM account WHERE id = 1;\nCOMMIT;\n\nSET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;\nSTART TRANSACTION;\nSELECT balance FROM account WHERE id = 1;\n-- 会话 A 后续再提交修改，会话 B 的普通一致性读仍复用首次快照\nSELECT balance FROM account WHERE id = 1;\n\n-- 当前读读取最新可锁版本，并可能等待其他事务释放锁\nSELECT balance FROM account WHERE id = 1 FOR UPDATE;\nCOMMIT;\n```\n\n这个实验的重点是三条线：`READ COMMITTED` 每次普通读创建新快照，`REPEATABLE READ` 复用事务内首次快照，`FOR UPDATE` 走当前读和加锁路径。",
+      "深层细节：隔离级别的真实行为由 MVCC、锁和访问路径共同决定。\n\n- ReadView 时机：`READ COMMITTED` 以语句为单位，`REPEATABLE READ` 以事务首次一致性读为单位。\n- 版本链成本：长事务保留旧 ReadView，Undo 版本清理延后，`History list length` 升高，备份、DDL 和空间回收都会受影响。\n- 快照读与当前读：普通 `SELECT` 看可见历史版本，写语句和锁定读看最新可锁版本，同一事务内混用时要明确语义。\n- 锁范围：InnoDB 行锁落在索引记录上；范围扫描会带来记录锁、间隙锁或 Next-Key Lock，缺少合适索引会扩大影响面。\n- 唯一命中：唯一索引等值命中通常锁住目标记录；范围条件和非唯一索引需要额外关注间隙。\n- `READ COMMITTED` 锁行为：InnoDB 在该级别下减少搜索和索引扫描中的间隙锁，外键检查和重复键检查仍会用到必要间隙锁。\n- `SERIALIZABLE` 代价：显式事务中的普通读会获取共享锁，读多写多场景的等待和死锁概率会上升。\n- 复制与框架：应用连接池、ORM、Spring 事务传播和读写分离路由会影响真实隔离语义，事务内读己之写优先绑定同一连接或主库。",
+      "工程场景与取舍：隔离级别选择要从业务风险和线上成本出发。\n\n- 订单状态流转：`REPEATABLE READ` 配合条件更新、唯一键和短事务，可以提供稳定快照和明确写冲突。\n- 高并发列表与后台查询：`READ COMMITTED` 提供更及时的已提交视图，范围锁影响更小，适合部分读写冲突敏感场景。\n- 资金与库存扣减：关键写路径用短事务、固定锁顺序、条件更新和影响行数检查，隔离级别与索引设计一起评审。\n- 报表与导出：长时间一致性读会持有旧快照，适合放到只读副本、离线快照或分批游标读取。\n- 批量修复：按主键或时间窗口拆批提交，控制每批扫描、锁定、Undo、Redo 和 Binlog 体积。\n- 强串行语义：`SERIALIZABLE` 适合小范围关键校验，发布前用压测确认等待链、死锁率和吞吐。",
+      "边界与故障模式：隔离级别问题通常表现为读到旧版本、锁等待扩大、死锁和长事务积压。\n\n- 快照陈旧：`REPEATABLE READ` 长事务持续读取首次快照，业务误以为数据没有变化。\n- 语句间变化：`READ COMMITTED` 同一事务多次普通读可能看到其他事务刚提交的版本，报表口径需要额外稳定边界。\n- 当前读跳变：事务内先普通读再 `FOR UPDATE`，结果可能从历史版本切到最新可锁版本。\n- 范围锁扩大：锁定读、`UPDATE`、`DELETE` 的条件缺少合适索引时，扫描范围和锁范围会同时放大。\n- 幻读语义：普通一致性读由快照稳定结果，当前读和写入依靠锁范围处理并发插入。\n- 长事务积压：活跃事务年龄过长会推高 Undo 历史版本、History list length、DDL 等待和备份时间。\n- 连接池污染：连接归还前保留事务或隔离级别修改，后续请求继承意外会话状态。\n- DDL 与管理语句：部分语句会触发隐式提交，发布脚本要单独评审事务边界。",
+      "排查实践：隔离级别排查要把业务现象、会话变量、读路径和锁证据串起来。\n\n1. 固化现场：记录业务入口、Trace ID、SQL、绑定参数、事务开始时间、隔离级别、读写顺序和错误码。\n2. 确认隔离配置：查看全局与会话 `transaction_isolation`，检查连接池初始化 SQL 和框架事务声明。\n3. 区分快照读与当前读：标记普通 `SELECT`、`FOR UPDATE`、`FOR SHARE`、`UPDATE`、`DELETE` 和 DDL。\n4. 查活跃事务：用 `information_schema.innodb_trx` 找长事务、事务年龄、当前 SQL 和等待状态。\n5. 查锁关系：用 `performance_schema.data_locks` 与 `data_lock_waits` 观察锁对象、索引、锁模式、等待方和阻塞方。\n6. 查 InnoDB 状态：用 `SHOW ENGINE INNODB STATUS\\G` 查看 `TRANSACTIONS`、最近死锁和 History list length。\n7. 查访问路径：对锁定读和写语句跑 `EXPLAIN` 或 `EXPLAIN ANALYZE`，确认索引、扫描行数和范围条件。\n8. 修复并复测：缩短事务、补索引、固定访问顺序、拆批、调整隔离级别、设置事务超时，并用同一组指标复核。\n\n```sql\nSHOW VARIABLES LIKE 'transaction_isolation';\nSELECT @@GLOBAL.transaction_isolation, @@SESSION.transaction_isolation;\n\nSELECT trx_id, trx_state, trx_started, trx_mysql_thread_id,\n       trx_isolation_level, trx_query, trx_rows_locked, trx_rows_modified\nFROM information_schema.innodb_trx\nORDER BY trx_started\\G\n\nSELECT ENGINE_TRANSACTION_ID, THREAD_ID, OBJECT_SCHEMA, OBJECT_NAME,\n       INDEX_NAME, LOCK_TYPE, LOCK_MODE, LOCK_STATUS, LOCK_DATA\nFROM performance_schema.data_locks\\G\n\nSELECT *\nFROM performance_schema.data_lock_waits\\G\n\nSHOW ENGINE INNODB STATUS\\G\nEXPLAIN FORMAT=TREE SELECT * FROM account WHERE balance BETWEEN 100 AND 200 FOR UPDATE;\n```\n\n有效修复通常体现为事务年龄下降、锁等待链缩短、History list length 回落、死锁频率下降、扫描行数减少和业务读写语义稳定。",
+      "指标与命令速查：隔离级别的线上健康度要同时看配置、事务、锁和 SQL 路径。\n\n- `@@SESSION.transaction_isolation`：确认当前连接真实隔离级别。\n- `information_schema.innodb_trx.trx_isolation_level`：确认活跃事务的隔离级别。\n- `trx_started`：判断事务年龄和长事务风险。\n- `trx_rows_locked` / `trx_rows_modified`：观察锁定规模和写入规模。\n- `performance_schema.data_locks`：查看锁对象、索引、锁模式、锁状态和锁数据。\n- `performance_schema.data_lock_waits`：构造阻塞链。\n- `SHOW ENGINE INNODB STATUS`：观察事务、死锁、History list length 和锁等待。\n- `EXPLAIN` / `EXPLAIN ANALYZE`：确认访问路径是否扩大范围锁。\n- 慢查询日志 `Rows_examined`、`Lock_time`、应用超时和死锁错误码：判断业务影响面。",
+      "常见误区：隔离级别的正确理解来自“读视图、当前读、锁范围和事务长度”的组合。\n\n- 普通一致性读读取 MVCC 可见版本，当前读读取最新可锁版本。\n- `READ COMMITTED` 强调每条语句的新快照，`REPEATABLE READ` 强调事务内普通读的稳定快照。\n- 幻读分析要区分快照范围查询和当前读范围锁。\n- 索引设计会决定锁的实际范围，隔离级别只决定基础规则。\n- 长事务的主要成本体现在旧版本保留、锁持有、DDL 等待、备份和复制压力。\n- 隔离级别属于会话状态，连接池需要在借出连接时设置并在归还前恢复。\n- 事务内读己之写、读副本和跨服务调用要放进同一套一致性设计里。",
+      "面试追问：隔离级别题适合按“定义 -> 四档语义 -> MVCC -> 锁 -> 场景 -> 排查证据 -> 取舍”组织答案。\n\n- MySQL 的四个隔离级别分别是什么，各自解决哪些并发现象？\n- 脏读、不可重复读和幻读分别如何定义，如何用两个会话复现？\n- InnoDB 在 `READ COMMITTED` 和 `REPEATABLE READ` 下 ReadView 创建时机有什么差异？\n- 普通快照读、当前读、锁定读分别走什么路径？\n- 为什么同一事务里普通读和 `SELECT ... FOR UPDATE` 可能看到不同结果？\n- MySQL 默认 `REPEATABLE READ` 如何配合 Next-Key Lock 处理范围当前读？\n- `READ COMMITTED` 为什么常被用于降低范围锁影响，它会带来哪些读口径变化？\n- `SERIALIZABLE` 会带来哪些锁等待和吞吐代价？\n- 长事务如何影响 Undo、History list length、DDL、备份和复制？\n- 线上出现锁等待、死锁、读到旧数据或报表口径漂移时，如何用 `innodb_trx`、`data_locks` 和 `SHOW ENGINE INNODB STATUS` 排查？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Transaction Isolation Levels、Consistent Nonlocking Reads、InnoDB Multi-Versioning、Undo Logs、Locking Reads、Locks Set by Different SQL Statements、InnoDB Transaction Model、START TRANSACTION/COMMIT/ROLLBACK、Deadlocks in InnoDB 与死锁处理文档，并结合 PlanetScale 的 Database Transactions、PostgreSQL Transaction Isolation、小林 coding、JavaGuide 和 SoByte 的 MVCC/隔离级别资料校准定义、实验、ReadView 时机、锁边界和中文面试表达。官方资料用于确定 MySQL/InnoDB 行为边界，工程文章用于补充实践路径、排障证据和取舍经验。"
+    ],
+    typicalProblems: [
+      "隔离级别解决并发事务中的哪个核心问题？",
+      "MySQL 的 `READ UNCOMMITTED`、`READ COMMITTED`、`REPEATABLE READ`、`SERIALIZABLE` 分别有什么可见性语义？",
+      "脏读、不可重复读和幻读分别如何定义，如何用两个会话复现？",
+      "`READ COMMITTED` 和 `REPEATABLE READ` 的 ReadView 创建时机有什么差异？",
+      "普通快照读、当前读和锁定读在可见性、加锁和等待上有什么差异？",
+      "为什么同一事务中普通 `SELECT` 和 `SELECT ... FOR UPDATE` 可能读取到不同版本？",
+      "InnoDB 默认可重复读下，Next-Key Lock 如何服务范围当前读和并发插入控制？",
+      "隔离级别、索引访问路径、锁范围、死锁和吞吐之间如何取舍？",
+      "长事务为什么会导致 Undo 历史版本积压、History list length 升高和 DDL 等待？",
+      "线上如何用 `transaction_isolation`、`innodb_trx`、`data_locks`、`data_lock_waits` 和 `SHOW ENGINE INNODB STATUS` 排查隔离级别相关问题？"
+    ],
+    commonCommands: [
+      "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED",
+      "SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ",
+      "SHOW VARIABLES LIKE 'transaction_isolation'",
+      "SELECT @@GLOBAL.transaction_isolation, @@SESSION.transaction_isolation",
+      "START TRANSACTION",
+      "SELECT ... FOR UPDATE",
+      "SELECT ... FOR SHARE",
+      "SELECT * FROM information_schema.innodb_trx\\G",
+      "SELECT * FROM performance_schema.data_locks\\G",
+      "SELECT * FROM performance_schema.data_lock_waits\\G",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "EXPLAIN FORMAT=TREE <locking-read-or-write-sql>"
+    ],
+    useCases: ["并发读写控制", "订单状态流转", "库存扣减", "资金事务", "报表一致性", "读写分离一致性", "锁等待排查", "死锁治理", "长事务治理", "框架事务配置"],
     prerequisites: ["transaction"],
-    related: ["repeatable-read", "mvcc"],
+    related: ["read-committed", "repeatable-read", "phantom-read", "mvcc", "read-view", "undo-log", "lock", "row-lock", "gap-lock", "next-key-lock", "deadlock", "sql-optimization"],
   },
   "repeatable-read": {
     prerequisites: ["isolation-level"],
