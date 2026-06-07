@@ -5085,13 +5085,53 @@ export const knowledgeSources = {
     title: "Redis Docs: Sets",
     url: "https://redis.io/docs/latest/develop/data-types/sets/",
   },
+  "redis-sadd-command": {
+    title: "Redis Commands: SADD",
+    url: "https://redis.io/docs/latest/commands/sadd/",
+  },
+  "redis-srem-command": {
+    title: "Redis Commands: SREM",
+    url: "https://redis.io/docs/latest/commands/srem/",
+  },
+  "redis-sismember-command": {
+    title: "Redis Commands: SISMEMBER",
+    url: "https://redis.io/docs/latest/commands/sismember/",
+  },
+  "redis-scard-command": {
+    title: "Redis Commands: SCARD",
+    url: "https://redis.io/docs/latest/commands/scard/",
+  },
+  "redis-smembers-command": {
+    title: "Redis Commands: SMEMBERS",
+    url: "https://redis.io/docs/latest/commands/smembers/",
+  },
   "redis-sinter-command": {
     title: "Redis Commands: SINTER",
     url: "https://redis.io/docs/latest/commands/sinter/",
   },
+  "redis-sintercard-command": {
+    title: "Redis Commands: SINTERCARD",
+    url: "https://redis.io/docs/latest/commands/sintercard/",
+  },
+  "redis-sunion-command": {
+    title: "Redis Commands: SUNION",
+    url: "https://redis.io/docs/latest/commands/sunion/",
+  },
+  "redis-sdiff-command": {
+    title: "Redis Commands: SDIFF",
+    url: "https://redis.io/docs/latest/commands/sdiff/",
+  },
   "redis-sscan-command": {
     title: "Redis Commands: SSCAN",
     url: "https://redis.io/docs/latest/commands/sscan/",
+  },
+  "redis-srandmember-command": {
+    title: "Redis Commands: SRANDMEMBER",
+    url: "https://redis.io/docs/latest/commands/srandmember/",
+  },
+  "redis-spop-command": {
+    title: "Redis Commands: SPOP",
+    url: "https://redis.io/docs/latest/commands/spop/",
   },
   "redis-sorted-sets-docs": {
     title: "Redis Docs: Sorted sets",
@@ -5396,6 +5436,10 @@ export const knowledgeSources = {
   "redis-object-freq-command": {
     title: "Redis Commands: OBJECT FREQ",
     url: "https://redis.io/docs/latest/commands/object-freq/",
+  },
+  "redis-object-encoding-command": {
+    title: "Redis Commands: OBJECT ENCODING",
+    url: "https://redis.io/docs/latest/commands/object-encoding/",
   },
   "redis-unlink-command": {
     title: "Redis Commands: UNLINK",
