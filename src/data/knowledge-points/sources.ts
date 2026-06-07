@@ -4965,6 +4965,18 @@ export const knowledgeSources = {
     title: "Redis Docs: Strings",
     url: "https://redis.io/docs/latest/develop/data-types/strings/",
   },
+  "redis-sds-internals": {
+    title: "Redis Docs: String internals",
+    url: "https://redis.io/docs/latest/operate/oss_and_stack/reference/internals/internals-sds/",
+  },
+  "redisbook-sds": {
+    title: "Redis 设计与实现: 简单动态字符串",
+    url: "https://redisbook.readthedocs.io/en/latest/internal-datastruct/sds.html",
+  },
+  "javaguide-redis-data-structures": {
+    title: "JavaGuide: Redis 5 种基本数据类型详解",
+    url: "https://javaguide.cn/database/redis/redis-data-structures-01.html",
+  },
   "redis-set-command": {
     title: "Redis Commands: SET",
     url: "https://redis.io/docs/latest/commands/set/",
