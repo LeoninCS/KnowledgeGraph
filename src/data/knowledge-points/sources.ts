@@ -5145,6 +5145,10 @@ export const knowledgeSources = {
     title: "Redis Commands: ZADD",
     url: "https://redis.io/docs/latest/commands/zadd/",
   },
+  "redis-zincrby-command": {
+    title: "Redis Commands: ZINCRBY",
+    url: "https://redis.io/docs/latest/commands/zincrby/",
+  },
   "redis-zremrangebyscore-command": {
     title: "Redis Commands: ZREMRANGEBYSCORE",
     url: "https://redis.io/docs/latest/commands/zremrangebyscore/",
@@ -5153,6 +5157,10 @@ export const knowledgeSources = {
     title: "Redis Commands: ZCARD",
     url: "https://redis.io/docs/latest/commands/zcard/",
   },
+  "redis-zcount-command": {
+    title: "Redis Commands: ZCOUNT",
+    url: "https://redis.io/docs/latest/commands/zcount/",
+  },
   "redis-rate-limiting-dotnet": {
     title: "Redis Tutorial: Rate limiting in .NET with Redis",
     url: "https://redis.io/tutorials/rate-limiting-in-dotnet-with-redis/",
@@ -5160,6 +5168,34 @@ export const knowledgeSources = {
   "redis-zrange-command": {
     title: "Redis Commands: ZRANGE",
     url: "https://redis.io/docs/latest/commands/zrange/",
+  },
+  "redis-zrank-command": {
+    title: "Redis Commands: ZRANK",
+    url: "https://redis.io/docs/latest/commands/zrank/",
+  },
+  "redis-zrevrank-command": {
+    title: "Redis Commands: ZREVRANK",
+    url: "https://redis.io/docs/latest/commands/zrevrank/",
+  },
+  "redis-zscore-command": {
+    title: "Redis Commands: ZSCORE",
+    url: "https://redis.io/docs/latest/commands/zscore/",
+  },
+  "redis-zrem-command": {
+    title: "Redis Commands: ZREM",
+    url: "https://redis.io/docs/latest/commands/zrem/",
+  },
+  "redis-zscan-command": {
+    title: "Redis Commands: ZSCAN",
+    url: "https://redis.io/docs/latest/commands/zscan/",
+  },
+  "redis-zpopmin-command": {
+    title: "Redis Commands: ZPOPMIN",
+    url: "https://redis.io/docs/latest/commands/zpopmin/",
+  },
+  "redis-source-t-zset": {
+    title: "Redis source: t_zset.c",
+    url: "https://github.com/redis/redis/blob/7.2/src/t_zset.c",
   },
   "redis-bitmaps-docs": {
     title: "Redis Docs: Bitmaps",
