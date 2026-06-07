@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 90 | 359 |
+| 449 | 91 | 358 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 26 | 22 |
+| mysql | 48 | 27 | 21 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -215,7 +215,7 @@
 | 已优化 | `isolation-level` | 隔离级别 | Isolation Level | 2026-06-05 | 15 |
 | 已优化 | `repeatable-read` | 可重复读 | Repeatable Read | 2026-06-05 | 13 |
 | 已优化 | `phantom-read` | 幻读 | Phantom Read | 2026-06-05 | 13 |
-| 未开始 | `mvcc` | MVCC | MVCC | 2026-06-04 | 7 |
+| 已优化 | `mvcc` | MVCC | MVCC | 2026-06-05 | 12 |
 | 未开始 | `read-view` | ReadView | ReadView | 2026-05-24 | 5 |
 | 未开始 | `redo-log` | Redo Log | Redo Log | 2026-05-24 | 5 |
 | 未开始 | `undo-log` | Undo Log | Undo Log | 2026-06-04 | 6 |

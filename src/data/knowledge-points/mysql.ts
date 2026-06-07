@@ -198,7 +198,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 幻读 | 2026-06-05 | source_count=13 --> */
   /* <!-- KG_EXPLAINED: 幻读 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "phantom-read", zh: "幻读", en: "Phantom Read", area: "transaction", difficulty: "hard", concept: "幻读是同一事务中范围查询出现其他事务插入的新记录现象。", explanation: ["核心概念：幻读（Phantom Read）聚焦幻读是同一事务中范围查询出现其他事务插入的新记录现象。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：幻读常用于并发插入问题分析和范围锁理解。学习时把它放回MySQL链路中观察，并结合前置知识隔离级别判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，幻读通常会和Next-Key Lock和MVCC一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把幻读当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["幻读执行原理是什么","幻读如何影响性能或一致性","幻读线上问题怎么排查"], useCases: ["并发插入问题分析","范围锁理解"], prerequisites: ["isolation-level"], related: ["next-key-lock","mvcc"], order: 42 },
-  /* <!-- KG_REVIEWED: MVCC | 2026-06-04 | source_count=7 --> */
+  /* <!-- KG_REVIEWED: MVCC | 2026-06-05 | source_count=12 --> */
   /* <!-- KG_EXPLAINED: MVCC | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "mvcc", zh: "MVCC", en: "MVCC", area: "transaction", difficulty: "hard", concept: "MVCC 通过版本链和 ReadView 实现一致性非锁定读。", explanation: ["核心概念：MVCC聚焦MVCC 通过版本链和 ReadView 实现一致性非锁定读。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住ACID、隔离级别、MVCC 和 ReadView，再看输入、状态变化、输出结果和失败分支。","适用场景：MVCC常用于并发读写优化和快照读理解。学习时把它放回MySQL链路中观察，并结合前置知识事务和Undo Log判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，MVCC通常会和ReadView和可重复读一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认ACID、隔离级别、MVCC 和 ReadView是否仍然成立。","常见误区与注意点：实践中容易把MVCC当成孤立概念处理，结果遗漏幻读、脏读、长事务、版本链膨胀和锁等待。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["MVCC执行原理是什么","MVCC如何影响性能或一致性","MVCC线上问题怎么排查"], useCases: ["并发读写优化","快照读理解"], prerequisites: ["transaction","undo-log"], related: ["read-view","repeatable-read"], order: 43 },
   /* <!-- KG_REVIEWED: ReadView | 2026-05-24 | source_count=5 --> */
@@ -1995,13 +1995,56 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
       "mysql-innodb-multi-versioning",
       "mysql-innodb-consistent-read",
       "mysql-innodb-undo-logs",
+      "mysql-transaction-isolation-levels",
+      "mysql-innodb-locking-reads",
+      "mysql-information-schema-innodb-trx",
+      "percona-innodb-history-length",
       "sobyte-mysql-mvcc",
       "javaguide-mysql-mvcc",
       "planetscale-database-transactions",
       "xiaolincoding-mysql-mvcc",
+      "mydbops-innodb-undo-log",
     ],
+    concept: "MVCC 用版本链、Undo Log 和 ReadView 让普通读在并发写入下读取一致性快照。",
+    explanation: [
+      "概念定位：MVCC（Multi-Version Concurrency Control，多版本并发控制）解决的是“读写并发时如何保持一致性读”的问题。MySQL InnoDB 在一行数据被修改时保留可追溯的旧版本，普通 `SELECT` 可以按事务视角读取某个历史版本，写事务继续修改当前版本。\n\n它在真实系统里经常出现在这些场景：\n\n- 订单详情、账户余额、报表查询和后台列表在高并发写入下仍要读到稳定结果。\n- `REPEATABLE READ` 下同一事务多次普通查询需要看到同一份快照。\n- `READ COMMITTED` 下每条语句需要看到语句开始时已提交的数据。\n- 线上出现长事务、Undo 膨胀、History list length 升高、Purge 追赶慢和快照读异常变慢时，需要沿 MVCC 链路排查。",
+      "准确定义：InnoDB 的 MVCC 通过行隐藏字段、Undo Log 历史版本和一致性非锁定读（consistent nonlocking read）实现快照读。关键术语可以这样记：\n\n- `DB_TRX_ID`：最近一次修改该行版本的事务 ID，用来判断版本归属。\n- `DB_ROLL_PTR`：回滚指针，指向 Undo Log 中的旧版本记录。\n- Undo Log：保存旧值，既服务事务回滚，也服务 MVCC 快照读。\n- ReadView：一致性读创建的可见性视图，记录哪些事务版本对当前读可见。\n- Consistent Read：普通 `SELECT` 常用的快照读路径，读取满足 ReadView 的行版本。\n- Current Read：`SELECT ... FOR UPDATE`、`SELECT ... FOR SHARE`、`UPDATE`、`DELETE` 读取并处理当前最新版本，通常伴随锁语义。\n\n一句精确表达是：MVCC 让读操作按可见性规则选择版本，锁机制负责保护当前版本上的写入、锁定读和范围约束。",
+      "心智模型：把一行数据想成一条“当前值 + 历史票据链”。表里展示的是最新值，Undo Log 像票据链一样保存旧值；事务发起普通查询时拿到一张 ReadView，之后沿着版本链寻找第一张对自己可见的票据。\n\n这个模型有三个判断点：\n\n- 读的是快照还是当前：普通 `SELECT` 走快照读，锁定读和写操作走当前读。\n- 快照何时创建：`READ COMMITTED` 通常每条一致性读语句创建新快照，`REPEATABLE READ` 通常事务内第一次一致性读创建快照并复用。\n- 历史能否清理：仍被活跃 ReadView 需要的旧版本会保留，长事务会延迟 Purge 清理 Undo 历史。",
+      "主流程机制：一次普通一致性读大致按“生成视图 -> 读当前版本 -> 判断可见性 -> 沿 Undo 回溯 -> 返回结果”运转。\n\n1. 写事务修改行时，InnoDB 在聚簇索引记录上写入新的隐藏事务 ID，并把旧值写入 Undo Log，`DB_ROLL_PTR` 指向上一个版本。\n2. 普通 `SELECT` 开始时，InnoDB 根据隔离级别创建或复用 ReadView。\n3. 读取一行的最新版本后，比较该版本 `DB_TRX_ID` 和 ReadView 中的活跃事务范围。\n4. 当前版本可见时直接返回；当前版本属于未来事务或当时活跃未提交事务时，通过 `DB_ROLL_PTR` 找到上一个 Undo 版本。\n5. 重复可见性判断，直到找到对当前 ReadView 可见的版本，或确认这一行对当前读不可见。\n6. 查询结果由这些可见版本组成，业务看到的是一个逻辑一致的快照。\n\n```text\nclustered record: value=120, DB_TRX_ID=105, DB_ROLL_PTR -> undo(v100, trx=98)\nundo record     : value=100, DB_TRX_ID=98,  DB_ROLL_PTR -> undo(v80, trx=73)\nReadView        : 事务 105 在视图创建时仍活跃\n结果            : 跳过 trx=105 版本，读取 trx=98 版本\n```\n\n二级索引查询也要回到聚簇索引确认行版本。二级索引项本身承载的信息有限，涉及快照可见性、回表和旧版本判断时，聚簇记录与 Undo 链是核心证据。",
+      "例子场景：下面用两条会话观察 `REPEATABLE READ` 下快照复用和当前读差异。新手可以用它理解 MVCC，老手可以用它定位“普通读稳定、当前读变化”的线上现象。\n\n```sql\nCREATE TABLE accounts (\n  id BIGINT PRIMARY KEY,\n  balance INT NOT NULL,\n  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP\n) ENGINE=InnoDB;\n\nINSERT INTO accounts(id, balance) VALUES (1, 100);\n\n-- Session A\nSET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;\nSTART TRANSACTION;\nSELECT balance FROM accounts WHERE id = 1; -- 100，创建一致性快照\n\n-- Session B\nSTART TRANSACTION;\nUPDATE accounts SET balance = 120 WHERE id = 1;\nCOMMIT;\n\n-- Session A\nSELECT balance FROM accounts WHERE id = 1;            -- 仍是 100，读取快照版本\nSELECT balance FROM accounts WHERE id = 1 FOR UPDATE; -- 读取当前版本并加锁，看到 120\nCOMMIT;\n```\n\n同一个事务里两种读法的结果差异来自读路径：普通读按 ReadView 找历史版本，锁定读面向当前最新版本并参与锁冲突。",
+      "隔离级别与边界：MVCC 的表现由隔离级别、读类型和事务生命周期共同决定。\n\n- `READ COMMITTED`：每条一致性读语句创建自己的 ReadView，连续两次普通 `SELECT` 可能看到其他事务新提交的版本。\n- `REPEATABLE READ`：事务内第一次一致性读建立快照，后续普通一致性读复用该视图，适合需要事务内稳定读取的业务。\n- `SERIALIZABLE`：读写冲突控制更强，吞吐和锁等待成本也更高。\n- 普通读依赖 MVCC，锁定读与写操作读取当前版本，分析问题时先标记 SQL 类型。\n- DDL、隐式提交、连接池复用会影响事务边界，排查时需要确认框架事务传播和会话隔离级别。\n- 超长事务会让旧版本长期保留，快照读、Purge、Undo 空间和 Buffer Pool 压力一起变化。\n\n工程判断的核心是：用 MVCC 保持读一致性，用锁和约束保护写正确性，用短事务控制历史版本成本。",
+      "性能与工程取舍：MVCC 提高读写并发，但成本落在版本维护、Undo 空间、Purge 线程、回表和可见性判断上。\n\n- 读多写多表：普通读减少锁等待，写入仍要维护 Undo 和索引版本。\n- 长事务：保留早期 ReadView，会拖住 Purge，导致 History list length 升高、Undo 表空间增长、旧版本链变长。\n- 大批量更新：短时间产生大量 Undo，快照读可能需要沿长链回溯，Buffer Pool 和 IO 压力上升。\n- 热点行频繁更新：版本链变化快，锁等待、死锁和快照回溯成本可能叠加。\n- 二级索引查询：快照判断可能需要回聚簇索引取隐藏字段和历史版本，覆盖索引收益需要结合一致性读语义评估。\n- 复制与备份：长事务会影响一致性备份窗口、复制应用延迟和恢复窗口，需要和业务低峰、批量大小、事务超时一起设计。\n\n常用治理动作是缩短事务、拆分批量更新、减少交互式事务、避免事务内慢查询、给锁定读和写 SQL 补合适索引，并持续观察 Undo 与事务年龄指标。",
+      "故障模式与排查实践：MVCC 相关线上问题通常表现为查询变慢、Undo 空间增长、History list length 长期升高、Purge 落后、备份窗口拉长或事务读到“旧数据”。排查时按“现象 -> 事务 -> 版本历史 -> SQL 路径 -> 修复验证”建立证据链。\n\n1. 确认会话隔离级别和读类型，区分普通 `SELECT`、锁定读、写操作和框架事务边界。\n2. 查长事务，重点看 `trx_started`、`trx_state`、`trx_isolation_level`、`trx_query`、`trx_rows_locked`、`trx_rows_modified`。\n3. 查 InnoDB 状态，关注 `TRANSACTIONS` 区块、History list length、Purge 进度、最近死锁和等待事务。\n4. 查慢 SQL 和执行计划，定位事务内慢查询、全表扫描、回表过多和批量更新。\n5. 对业务现象复盘 ReadView 创建时间，确认“读到旧值”是否来自事务内快照复用。\n6. 执行修复：提交或终止异常长事务、拆批、补索引、缩短事务作用域、调整连接池事务清理、设置合理超时。\n7. 验证结果：事务年龄下降、History list length 回落、Undo 空间稳定、慢查询减少、备份和复制延迟恢复。\n\n```sql\nSELECT @@GLOBAL.transaction_isolation, @@SESSION.transaction_isolation;\n\nSELECT trx_id, trx_state, trx_started, trx_mysql_thread_id,\n       trx_isolation_level, trx_query, trx_rows_locked, trx_rows_modified\nFROM information_schema.innodb_trx\nORDER BY trx_started\\G\n\nSHOW ENGINE INNODB STATUS\\G\n\nEXPLAIN FORMAT=TREE\nSELECT balance FROM accounts WHERE id = 1;\n```\n\n有效排查结论需要能说清：哪个事务持有旧 ReadView，哪些 SQL 产生大量版本，Purge 被什么拖住，修复后哪些指标收敛。",
+      "常见误区：MVCC 的正确理解是“读版本、写当前、锁保护写、约束保护业务不变量”。\n\n- MVCC 主要服务一致性非锁定读，写写冲突仍由锁、唯一约束和事务提交顺序处理。\n- `REPEATABLE READ` 的普通读稳定来自快照复用，锁定读会看到当前最新版本并参与锁冲突。\n- Undo Log 同时服务回滚和快照读，长事务会扩大它的保留压力。\n- ReadView 是可见性规则，业务一致性还需要唯一索引、条件更新、状态机和幂等设计。\n- “读到旧数据”经常是事务快照的正常结果，排查时先找事务开始时间和第一次一致性读时间。\n- MVCC 降低读写互相阻塞的概率，系统吞吐仍受索引、事务长度、锁等待、IO 和 Purge 能力影响。",
+      "面试追问：MVCC 适合按“为什么需要 -> 版本链 -> ReadView -> 隔离级别 -> 当前读差异 -> 长事务排查”组织答案。\n\n- MVCC 解决了 MySQL 事务并发中的什么问题？\n- InnoDB 行记录里的 `DB_TRX_ID` 和 `DB_ROLL_PTR` 分别有什么作用？\n- Undo Log 在回滚和 MVCC 中分别承担什么职责？\n- ReadView 如何判断一个版本对当前事务可见？\n- `READ COMMITTED` 和 `REPEATABLE READ` 下 ReadView 创建时机有什么差异？\n- 普通 `SELECT` 与 `SELECT ... FOR UPDATE` 为什么可能读到不同结果？\n- 长事务为什么会导致 History list length 升高和 Undo 清理延迟？\n- 二级索引查询在 MVCC 下为什么可能需要回聚簇索引判断版本？\n- 如何排查线上“查询读到旧数据”“Undo 暴涨”“Purge 落后”的问题？\n- MVCC、间隙锁和 Next-Key Lock 在解决幻读问题时分别承担什么角色？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 InnoDB Multi-Versioning、Consistent Nonlocking Reads、Undo Logs、Transaction Isolation Levels 与 `INFORMATION_SCHEMA.INNODB_TRX` 表说明，并结合 Percona 的 History list length 长事务案例、Mydbops 的 Undo Log 介绍、SoByte、JavaGuide、PlanetScale 和小林 coding 的 MVCC 文章校准中文表达、实验例子和面试问法。官方资料用于确定隐藏字段、快照读、隔离级别和排查表语义，工程文章用于补充长事务、Undo/Purge 和线上治理经验。"
+    ],
+    typicalProblems: [
+      "MVCC 是什么，它在 InnoDB 中解决了哪类读写并发问题？",
+      "InnoDB 的隐藏事务 ID、回滚指针、Undo Log 和 ReadView 如何组成版本链？",
+      "ReadView 的可见性判断流程如何影响普通 `SELECT` 的结果？",
+      "`READ COMMITTED` 与 `REPEATABLE READ` 下 ReadView 创建时机和读结果有什么差异？",
+      "普通快照读、当前读和锁定读在 MVCC 中分别走什么路径？",
+      "Undo Log 为什么同时服务事务回滚和快照读？",
+      "长事务如何拖慢 Purge、推高 History list length 并扩大 Undo 空间？",
+      "二级索引查询在一致性读下为什么可能需要回聚簇索引判断版本？",
+      "线上出现查询读到旧值、Undo 暴涨或快照读变慢时，如何用 `innodb_trx` 和 InnoDB 状态排查？",
+      "MVCC、Gap Lock、Next-Key Lock 和唯一约束在并发正确性中各自承担什么职责？"
+    ],
+    commonCommands: [
+      "SELECT @@GLOBAL.transaction_isolation, @@SESSION.transaction_isolation",
+      "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED",
+      "SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ",
+      "START TRANSACTION",
+      "SELECT ...",
+      "SELECT ... FOR UPDATE",
+      "SELECT trx_id, trx_state, trx_started, trx_isolation_level, trx_query FROM information_schema.innodb_trx\\G",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "EXPLAIN FORMAT=TREE <select-sql>"
+    ],
+    useCases: ["一致性非锁定读", "事务隔离分析", "长事务治理", "Undo 空间排查", "Purge 延迟排查", "读写并发优化", "快照读复现", "面试机制题"],
     prerequisites: ["isolation-level", "undo-log"],
-    related: ["read-view", "repeatable-read"],
+    related: ["read-view", "repeatable-read", "read-committed", "undo-log", "phantom-read", "gap-lock", "next-key-lock", "lock", "deadlock"],
   },
   "read-view": {
     sourceRefs: [

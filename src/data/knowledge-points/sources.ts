@@ -5933,6 +5933,10 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Undo Logs",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-logs.html",
   },
+  "mysql-information-schema-innodb-trx": {
+    title: "MySQL Reference Manual: The INFORMATION_SCHEMA INNODB_TRX Table",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/information-schema-innodb-trx-table.html",
+  },
   "mydbops-innodb-undo-log": {
     title: "Mydbops: An Overview to InnoDB Undo Log",
     url: "https://www.mydbops.com/blog/an-overview-to-innodb-undo-log",
