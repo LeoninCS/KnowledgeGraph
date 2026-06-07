@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 100 | 349 |
+| 449 | 101 | 348 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 36 | 12 |
+| mysql | 48 | 37 | 11 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -225,7 +225,7 @@
 | 已优化 | `lock` | 锁 | Lock | 2026-06-05 | 13 |
 | 已优化 | `row-lock` | 行锁 | Row Lock | 2026-06-05 | 13 |
 | 已优化 | `record-lock` | 记录锁 | Record Lock | 2026-06-05 | 11 |
-| 未开始 | `gap-lock` | 间隙锁 | Gap Lock | 2026-05-24 | 5 |
+| 已优化 | `gap-lock` | 间隙锁 | Gap Lock | 2026-06-05 | 11 |
 | 未开始 | `next-key-lock` | Next-Key Lock | Next-Key Lock | 2026-05-24 | 5 |
 | 未开始 | `deadlock` | 死锁 | Deadlock | 2026-06-04 | 7 |
 | 未开始 | `sql-optimization` | SQL 优化 | SQL Optimization | 2026-05-24 | 5 |
