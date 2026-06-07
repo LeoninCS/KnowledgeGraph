@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 124 | 325 |
+| 449 | 125 | 324 |
 
 ## 分类进度
 
@@ -18,7 +18,7 @@
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 48 | 0 |
-| redis | 44 | 12 | 32 |
+| redis | 44 | 13 | 31 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
 | docker | 41 | 2 | 39 |
@@ -255,7 +255,7 @@
 | 已优化 | `redis-persistence` | 持久化 | Persistence | 2026-06-05 | 15 |
 | 已优化 | `rdb` | RDB | RDB Snapshot | 2026-06-05 | 14 |
 | 已优化 | `aof` | AOF | Append Only File | 2026-06-05 | 14 |
-| 未开始 | `aof-rewrite` | AOF 重写 | AOF Rewrite | 2026-06-04 | 8 |
+| 已优化 | `aof-rewrite` | AOF 重写 | AOF Rewrite | 2026-06-05 | 15 |
 | 未开始 | `fork-cow` | fork 与写时复制 | fork and Copy-on-Write | 2026-06-04 | 7 |
 | 未开始 | `expire-policy` | 过期策略 | Expiration Policy | 2026-05-30 | 7 |
 | 未开始 | `lazy-expire` | 惰性删除 | Lazy Expiration | 2026-05-30 | 5 |
