@@ -5301,6 +5301,10 @@ export const knowledgeSources = {
     title: "Redis Learn: Persistence and durability",
     url: "https://redis.io/learn/operate/redis-at-scale/persistence-and-durability",
   },
+  "redis-configuration-docs": {
+    title: "Redis Docs: Redis configuration",
+    url: "https://redis.io/docs/latest/operate/oss_and_stack/management/config/",
+  },
   "oneuptime-redis-rdb": {
     title: "OneUptime: Redis RDB Snapshots Step by Step",
     url: "https://oneuptime.com/blog/post/2026-03-31-redis-rdb-snapshots-step-by-step/view",
@@ -5313,9 +5317,25 @@ export const knowledgeSources = {
     title: "Redis Commands: BGSAVE",
     url: "https://redis.io/docs/latest/commands/bgsave/",
   },
+  "redis-save-command": {
+    title: "Redis Commands: SAVE",
+    url: "https://redis.io/docs/latest/commands/save/",
+  },
+  "redis-lastsave-command": {
+    title: "Redis Commands: LASTSAVE",
+    url: "https://redis.io/docs/latest/commands/lastsave/",
+  },
   "redis-bgrewriteaof-command": {
     title: "Redis Commands: BGREWRITEAOF",
     url: "https://redis.io/docs/latest/commands/bgrewriteaof/",
+  },
+  "redis-config-get-command": {
+    title: "Redis Commands: CONFIG GET",
+    url: "https://redis.io/docs/latest/commands/config-get/",
+  },
+  "redis-config-set-command": {
+    title: "Redis Commands: CONFIG SET",
+    url: "https://redis.io/docs/latest/commands/config-set/",
   },
   "redisbook-aof": {
     title: "Redis Design and Implementation: AOF",
