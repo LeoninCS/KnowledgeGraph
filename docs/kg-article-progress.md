@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 95 | 354 |
+| 449 | 96 | 353 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 31 | 17 |
+| mysql | 48 | 32 | 16 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -220,7 +220,7 @@
 | 已优化 | `redo-log` | Redo Log | Redo Log | 2026-06-05 | 14 |
 | 已优化 | `undo-log` | Undo Log | Undo Log | 2026-06-05 | 14 |
 | 已优化 | `binlog` | Binlog | Binary Log | 2026-06-05 | 16 |
-| 未开始 | `two-phase-commit` | 两阶段提交 | Two-phase Commit | 2026-06-04 | 6 |
+| 已优化 | `two-phase-commit` | 两阶段提交 | Two-phase Commit | 2026-06-05 | 13 |
 | 未开始 | `crash-recovery` | 崩溃恢复 | Crash Recovery | 2026-06-04 | 8 |
 | 未开始 | `lock` | 锁 | Lock | 2026-05-24 | 5 |
 | 未开始 | `row-lock` | 行锁 | Row Lock | 2026-05-24 | 5 |

@@ -213,7 +213,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: Binlog | 2026-06-05 | source_count=16 --> */
   /* <!-- KG_EXPLAINED: Binlog | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "binlog", zh: "Binlog", en: "Binary Log", area: "log", difficulty: "medium", concept: "Binlog 记录逻辑变更，用于复制、恢复和数据同步。", explanation: ["核心概念：Binlog（Binary Log）聚焦Binlog 记录逻辑变更，用于复制、恢复和数据同步。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住Redo、Undo、Binlog 和提交一致性，再看输入、状态变化、输出结果和失败分支。","适用场景：Binlog常用于主从复制、数据恢复和CDC 同步。学习时把它放回MySQL链路中观察，并结合前置知识MySQL 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Binlog通常会和主从复制和两阶段提交一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认Redo、Undo、Binlog 和提交一致性是否仍然成立。","常见误区与注意点：实践中容易把Binlog当成孤立概念处理，结果遗漏刷盘策略、两阶段提交、日志空间和恢复窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Binlog执行原理是什么","Binlog如何影响性能或一致性","Binlog线上问题怎么排查"], useCases: ["主从复制","数据恢复","CDC 同步"], prerequisites: ["mysql-overview"], related: ["replication","two-phase-commit"], order: 47 },
-  /* <!-- KG_REVIEWED: 两阶段提交 | 2026-06-04 | source_count=6 --> */
+  /* <!-- KG_REVIEWED: 两阶段提交 | 2026-06-05 | source_count=13 --> */
   /* <!-- KG_EXPLAINED: 两阶段提交 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "two-phase-commit", zh: "两阶段提交", en: "Two-phase Commit", area: "log", difficulty: "hard", concept: "两阶段提交协调 Redo Log 和 Binlog，保证事务提交和复制日志一致。", explanation: ["核心概念：两阶段提交（Two-phase Commit）聚焦两阶段提交协调 Redo Log 和 Binlog，保证事务提交和复制日志一致。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住Redo、Undo、Binlog 和提交一致性，再看输入、状态变化、输出结果和失败分支。","适用场景：两阶段提交常用于主从一致性理解和崩溃恢复分析。学习时把它放回MySQL链路中观察，并结合前置知识Redo Log和Binlog判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，两阶段提交通常会和崩溃恢复一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认Redo、Undo、Binlog 和提交一致性是否仍然成立。","常见误区与注意点：实践中容易把两阶段提交当成孤立概念处理，结果遗漏刷盘策略、两阶段提交、日志空间和恢复窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["两阶段提交执行原理是什么","两阶段提交如何影响性能或一致性","两阶段提交线上问题怎么排查"], useCases: ["主从一致性理解","崩溃恢复分析"], prerequisites: ["redo-log","binlog"], related: ["crash-recovery"], order: 48 },
   /* <!-- KG_REVIEWED: 崩溃恢复 | 2026-06-04 | source_count=8 --> */
@@ -2297,13 +2297,61 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     sourceRefs: [
       "mysql-replication-implementation",
       "mysql-binary-log",
+      "mysql-binary-log-options",
       "mysql-binary-log-transaction-dependency",
       "mysql-innodb-redo-log",
+      "mysql-innodb-recovery",
+      "mysql-innodb-startup-options",
+      "mysql-commit-rollback",
+      "mysql-xa-transactions",
+      "mysql-doxygen-binary-log",
       "hackmysql-binary-log-group-commit",
+      "percona-mysql-writing-process",
       "xiaolincoding-mysql-log",
     ],
-    prerequisites: ["redo-log", "binlog"],
-    related: ["crash-recovery"],
+    concept:
+      "两阶段提交是 MySQL 内部协调 InnoDB Redo Log 与 Server 层 Binlog 的提交协议，用 prepare、写 Binlog、commit 三段结果保证本机崩溃恢复、复制和时间点恢复看到同一个事务结论。",
+    explanation: [
+      "概念定位：两阶段提交解决的是“同一笔事务既修改了 InnoDB 数据页，又写入了外部可复制的 Binlog，系统崩溃后两边怎样保持同一个提交结果”的问题。它出现在订单写入、主从复制、CDC、时间点恢复、异常重启、提交延迟抖动、Redo/Binlog 刷盘参数取舍和 MySQL 面试题里。\n\nMySQL 有两套关键日志：InnoDB 的 `Redo Log` 负责本机崩溃恢复，Server 层的 `Binlog` 负责复制、恢复和 CDC。两阶段提交把这两套日志放进同一个事务提交链路：先让 InnoDB 把事务进入 `prepare` 状态，再写 Binlog，最后让 InnoDB `commit`。新手要抓住“先准备，再公开，最后确认”；经验工程师还要看崩溃点判定、XID 对账、组提交、刷盘策略、下游一致性和恢复窗口。",
+      "准确定义：MySQL 内部两阶段提交（internal two-phase commit）是 Server 层与支持事务的存储引擎之间的提交协调机制。对 InnoDB 事务，核心目标是让 Redo Log 中的事务状态和 Binlog 中的事务事件具备可恢复的一致关系。\n\n几个术语需要放在一起理解：\n\n- `prepare`：InnoDB 已经把事务修改写入 Redo，并标记事务处于可提交准备状态。\n- `Binlog write/fsync`：Server 层把事务事件写入二进制日志，`sync_binlog` 决定刷盘节奏。\n- `commit`：InnoDB 把事务从 prepared 推进为 committed，事务对外完成提交。\n- `XID`：事务提交标识，恢复时用于把 prepared Redo 与 Binlog 事件对应起来。\n- `innodb_flush_log_at_trx_commit`：控制 InnoDB 提交阶段 Redo 写入与刷盘语义。\n- `group commit`：多个事务共享 Binlog 写入、同步和提交阶段，降低高并发下的 fsync 成本。\n\n它的工程本质是事务提交协议，服务 MySQL 内部 Redo/Binlog 原子性，与跨系统分布式事务里的业务级 2PC 属于同类思想的不同落点。",
+      "心智模型：把一次 MySQL 提交想成银行柜台办业务。InnoDB 先把内部账本改好并盖“待确认”章，这就是 Redo prepare；柜台再把这笔业务写进对外流水，这就是 Binlog；流水写好后，内部账本盖“已确认”章，这就是 InnoDB commit。\n\n这个模型有三个关键判断：\n\n- Redo prepare 说明 InnoDB 可以在崩溃恢复时重新找到这笔事务。\n- Binlog 存在说明外部复制、PITR 和 CDC 应该看到这笔事务。\n- 恢复时只要 Redo 处于 prepared，就用 Binlog 里是否存在对应 XID 来决定提交或回滚。\n\n因此，两阶段提交的核心价值是让“本机数据是否生效”和“外部日志是否传播”保持同一个结论。",
+      "主流程机制：一条 InnoDB 事务从 `COMMIT` 到完成，主路径可以按下面顺序理解。\n\n1. 客户端执行 DML 并提交；Server 层进入事务提交流程，InnoDB 已经在执行过程中产生 Undo、修改 Buffer Pool 脏页并生成 Redo record。\n2. 第一阶段：Server 要求 InnoDB `prepare`，InnoDB 把事务 Redo 写到可恢复位置，并把事务状态标记为 prepared。\n3. 第二阶段前半段：Server 生成并写入 Binlog 事件，包括 GTID、行事件或语句事件、XID/commit 边界等。\n4. Binlog 根据 `sync_binlog` 和组提交策略写入文件并可能执行 fsync；此时复制和 CDC 有了外部可消费的事件来源。\n5. 第二阶段后半段：Server 通知 InnoDB `commit`，InnoDB 把 prepared 事务标记为 committed，释放锁，事务对客户端完成。\n6. 后台刷脏页和 checkpoint 继续推进，数据页可以晚于提交落盘；异常重启时由 Redo、Undo 和 Binlog 协同恢复。\n\n```text\nCOMMIT\n  -> InnoDB prepare: redo durable enough, transaction = PREPARED\n  -> Server write binlog: events + XID + commit boundary\n  -> optional fsync binlog: controlled by sync_binlog/group commit\n  -> InnoDB commit: transaction = COMMITTED, locks released\n  -> crash recovery: prepared redo + binlog XID decide commit/rollback\n```\n\n这条链路里的关键顺序是 Redo prepare 先于 Binlog 提交记录，Binlog 完成后再推进 InnoDB commit。",
+      "崩溃点判定：两阶段提交最重要的考点是不同崩溃点如何恢复。可以把崩溃发生位置拆成三类。\n\n```text\nA. Redo prepare 之前崩溃\n   Redo 中没有完整 prepared 事务，恢复时按未完成事务回滚。\n\nB. Redo prepared 之后、Binlog 写完之前崩溃\n   Redo 有 prepared 事务，Binlog 中找不到对应 XID，恢复时回滚。\n\nC. Binlog 写完之后、InnoDB commit 之前崩溃\n   Redo 有 prepared 事务，Binlog 中能找到对应 XID，恢复时提交。\n```\n\n这个判定让两套日志保持同一个外部结论：Binlog 没有事务，恢复后的数据也回滚；Binlog 已经记录事务，恢复后的数据也提交。复制、CDC 和时间点恢复因此能以 Binlog 为外部事实来源，本机数据恢复结果与它对齐。",
+      "实践例子：下面的订单写入可以用来观察提交链路中的关键配置、日志位点和恢复相关证据。\n\n```sql\nCREATE TABLE order_commit_demo (\n  id BIGINT PRIMARY KEY,\n  status VARCHAR(16) NOT NULL,\n  amount DECIMAL(10,2) NOT NULL,\n  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP\n) ENGINE=InnoDB;\n\nSTART TRANSACTION;\nINSERT INTO order_commit_demo(id, status, amount) VALUES (1001, 'PAID', 99.90);\nCOMMIT;\n\nSHOW VARIABLES WHERE Variable_name IN (\n  'log_bin',\n  'sync_binlog',\n  'binlog_format',\n  'binlog_order_commits',\n  'innodb_flush_log_at_trx_commit'\n);\n\nSHOW BINARY LOG STATUS;\nSHOW ENGINE INNODB STATUS\\G\n```\n\n```bash\nmysqlbinlog --base64-output=DECODE-ROWS -vv \\\n  --start-position=120 --stop-position=1200 \\\n  /var/lib/mysql/binlog.000123 | less\n```\n\n排查时把 `COMMIT` 时间、Binlog 文件与 position、Redo/LSN 状态、错误日志、客户端返回结果、副本位点和 CDC offset 放到同一条时间线里。",
+      "组提交与性能：高并发写入下，每个事务都单独 fsync Binlog 和 Redo 会让提交延迟被磁盘同步放大。MySQL 的 Binary Log Group Commit 把多个事务组织成批次，通常经历 collect、flush、sync、commit 等阶段，让一批事务共享 Binlog 写入和同步成本，并保持提交顺序与复制可见顺序。\n\n工程上需要关注这些取舍：\n\n- `sync_binlog=1` 提高 Binlog 崩溃持久性，也让提交路径更依赖 fsync 延迟。\n- `innodb_flush_log_at_trx_commit=1` 提高 Redo 持久性，也会增加每次提交的刷盘压力。\n- 组提交能降低平均 fsync 成本，写入峰值、大事务、慢盘和半同步复制仍会拉高尾延迟。\n- `binlog_order_commits` 影响事务按 Binlog 顺序提交的行为，通常服务复制一致性和下游顺序理解。\n- `binlog_transaction_dependency_tracking` 影响副本并行复制依赖判断，提交顺序、写集合和下游回放能力需要一起评估。\n\n强一致交易系统通常优先选择更强刷盘语义；可重放、批处理或异步导入场景可以结合业务补偿能力和恢复目标做参数评估。",
+      "工程场景：两阶段提交是多个 MySQL 能力的共同底座。\n\n- 主从复制：副本按照主库 Binlog 复制事务，两阶段提交保证主库崩溃恢复后的数据结论与 Binlog 事件一致。\n- 时间点恢复：全量备份加连续 Binlog 回放需要信任 Binlog 中的事务边界。\n- CDC：Debezium、Canal 和 Flink CDC 依赖 Binlog 事务边界、顺序和行事件语义。\n- 高可用切换：新主选择、GTID 集合和故障窗口判断都依赖已提交事务是否进入 Binlog。\n- 写入性能排查：提交慢常与 Binlog fsync、Redo fsync、组提交批次、大事务、半同步等待和磁盘队列有关。\n- 异常重启复盘：prepared 事务、错误日志、Binlog XID、LSN 和复制位点共同决定数据恢复解释。",
+      "边界与故障模式：两阶段提交的故障通常表现为提交变慢、异常重启后事务结果需要解释、复制/CDC 断点判断困难或主从数据差异。\n\n- Binlog 刷盘慢：`sync_binlog=1`、磁盘 fsync 抖动、文件系统压力或备份抢 I/O 会提高 `COMMIT` p99。\n- Redo 刷盘慢：`innodb_flush_log_at_trx_commit=1`、Redo 容量压力、Checkpoint 追赶或存储写延迟会影响提交。\n- 大事务：单个事务的 Redo、Binlog 和行事件都变大，组提交批次、复制回放和 CDC 消费都会被拖慢。\n- 半同步复制：主库提交可能等待副本确认 Binlog 接收，网络与副本 I/O 会进入提交路径。\n- 磁盘空间风险：Binlog、Redo、Undo 和临时文件同时增长时，写入可能停顿，恢复窗口也会变复杂。\n- 崩溃恢复争议：客户端超时或断连时，需要用 Binlog、Redo 恢复结果和业务幂等键判断事务最终状态。\n\n生产处置要先保护证据：保留错误日志、Binlog、实例启动日志、备份元数据、复制状态和业务请求 ID。",
+      "排查实践：两阶段提交排查建议按“客户端现象 -> 提交路径 -> 日志持久化 -> 下游位点 -> 崩溃恢复结论”建立证据链。\n\n1. 固定时间窗：记录业务错误、客户端超时、`COMMIT` p95/p99、主机重启时间、磁盘告警和复制延迟。\n2. 查提交配置：确认 `sync_binlog`、`innodb_flush_log_at_trx_commit`、`binlog_order_commits`、半同步复制和 Binlog 格式。\n3. 查 Binlog 位点：用 `SHOW BINARY LOG STATUS`、`SHOW BINARY LOGS` 和 `mysqlbinlog -vv` 确认目标事务是否进入 Binlog。\n4. 查 InnoDB 状态：看 `SHOW ENGINE INNODB STATUS\\G` 中的 Log sequence number、flush 位置、checkpoint 和事务列表。\n5. 查系统 I/O：关联磁盘 await、fsync 延迟、文件系统错误、备份任务和云盘突增延迟。\n6. 查下游：副本 `SHOW REPLICA STATUS\\G`、Relay Log 位点、GTID 集合、CDC offset 和消费错误。\n7. 对崩溃点下结论：prepared 事务在 Binlog 中有 XID 则按提交解释，缺少 XID 则按回滚解释，再用业务幂等记录核对客户端返回。\n\n```sql\nSHOW VARIABLES WHERE Variable_name IN (\n  'sync_binlog',\n  'innodb_flush_log_at_trx_commit',\n  'binlog_order_commits',\n  'binlog_transaction_dependency_tracking'\n);\n\nSHOW BINARY LOG STATUS;\nSHOW BINARY LOGS;\nSHOW ENGINE INNODB STATUS\\G\nSHOW REPLICA STATUS\\G\n```\n\n可靠复盘需要给出事务 ID 或业务主键、Binlog 文件和 position、崩溃时间点、实例恢复日志、下游消费位点和最终数据校验结果。",
+      "常见误区：两阶段提交的正确心智模型是“协调同一 MySQL 实例内两套日志的事务结论”。\n\n- Redo 面向 InnoDB 本机恢复，Binlog 面向复制、PITR 和 CDC，两阶段提交负责让两边的提交结论一致。\n- prepare 状态是可恢复中间态，崩溃恢复会结合 Binlog XID 决定提交或回滚。\n- 客户端收到超时需要继续查数据库事实，最终状态以恢复后的数据、Binlog 和业务幂等记录为准。\n- 组提交提升吞吐，提交尾延迟仍然受 fsync、大事务、半同步复制和存储抖动影响。\n- 两阶段提交保障日志协调，业务跨服务一致性还需要幂等、事务消息、Outbox、Saga 或分布式事务方案承接。",
+      "面试追问：两阶段提交适合按“为什么需要 -> 两套日志职责 -> prepare/binlog/commit -> 崩溃点 -> 组提交 -> 参数取舍 -> 排查证据”组织答案。\n\n- MySQL 为什么需要用两阶段提交协调 Redo Log 和 Binlog？\n- Redo Log、Binlog、Undo Log 在事务提交和恢复中分别承担什么职责？\n- 一条 `UPDATE ... COMMIT` 从 InnoDB prepare 到 Binlog 写入再到 InnoDB commit 的步骤是什么？\n- 崩溃发生在 Redo prepare 前、Binlog 写入前、Binlog 写入后，恢复结论分别是什么？\n- 恢复时为什么可以用 Binlog 中是否存在 XID 来决定 prepared 事务提交或回滚？\n- `sync_binlog` 与 `innodb_flush_log_at_trx_commit` 如何影响性能、持久性和故障窗口？\n- Binary Log Group Commit 怎样降低 fsync 成本，它对复制顺序有什么影响？\n- 大事务、半同步复制、磁盘抖动为什么会放大提交延迟？\n- 客户端提交超时后，如何判断这笔业务最终提交成功还是回滚？\n- 两阶段提交和业务分布式事务、事务消息、Outbox/Saga 的边界如何划分？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Replication Implementation、Binary Log、Binary Logging Options and Variables、InnoDB Redo Log、InnoDB Recovery、InnoDB Startup Options/System Variables、COMMIT/ROLLBACK 与 XA Transactions 文档，并结合 MySQL Server Doxygen Binary Log、HackMySQL Binary Log Group Commit、Percona 写入流程文章和小林 coding MySQL 日志文章校准内部提交链路、崩溃点判定、组提交、刷盘参数、排查命令和中文面试表达。官方资料用于确定日志语义、配置和恢复边界，工程资料用于补充性能与生产排障判断。"
+    ],
+    typicalProblems: [
+      "MySQL 两阶段提交解决什么问题？为什么 Redo Log 和 Binlog 需要提交协调？",
+      "Redo Log、Binlog、Undo Log 在一次事务写入中的层级、内容和恢复用途有什么区别？",
+      "InnoDB prepare、Server 写 Binlog、InnoDB commit 三个阶段分别做了什么？",
+      "崩溃发生在 Redo prepare 前、Binlog 写入前、Binlog 写入后，恢复时如何判断提交或回滚？",
+      "恢复时 Binlog XID 与 prepared Redo 怎样对应？为什么这个判断能保护复制和 PITR 一致性？",
+      "`sync_binlog`、`innodb_flush_log_at_trx_commit` 和组提交如何影响提交延迟、吞吐和故障窗口？",
+      "Binary Log Group Commit 的 collect、flush、sync、commit 思路如何降低 fsync 成本？",
+      "大事务、半同步复制、磁盘 fsync 抖动和 Redo/Checkpoint 压力分别怎样影响 `COMMIT` p99？",
+      "客户端提交超时或主库异常重启后，如何用 Binlog、InnoDB 状态、错误日志和业务幂等键判断最终结果？",
+      "两阶段提交和分布式事务、事务消息、Outbox、Saga 的边界与取舍是什么？"
+    ],
+    commonCommands: [
+      "SHOW VARIABLES LIKE 'sync_binlog'",
+      "SHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit'",
+      "SHOW VARIABLES LIKE 'binlog_order_commits'",
+      "SHOW VARIABLES LIKE 'binlog_transaction_dependency_tracking'",
+      "SHOW BINARY LOG STATUS",
+      "SHOW BINARY LOGS",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "SHOW REPLICA STATUS\\G",
+      "mysqlbinlog --base64-output=DECODE-ROWS -vv binlog.000001"
+    ],
+    useCases: ["主从一致性理解", "崩溃恢复分析", "提交延迟排查", "复制与 CDC 位点判断", "时间点恢复", "高可用切换复盘", "强持久性参数评估", "数据库面试"],
+    prerequisites: ["transaction", "redo-log", "binlog", "crash-recovery"],
+    related: ["replication", "replication-lag", "gtid", "point-in-time-recovery", "binlog", "redo-log", "crash-recovery"],
   },
   "crash-recovery": {
     sourceRefs: [

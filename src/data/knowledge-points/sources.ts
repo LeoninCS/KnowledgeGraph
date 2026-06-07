@@ -5997,6 +5997,10 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: The Binary Log",
     url: "https://dev.mysql.com/doc/refman/8.4/en/binary-log.html",
   },
+  "mysql-xa-transactions": {
+    title: "MySQL Reference Manual: XA Transactions",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/xa.html",
+  },
   "mysql-binary-log-options": {
     title: "MySQL Reference Manual: Binary Logging Options and Variables",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html",
@@ -6052,6 +6056,10 @@ export const knowledgeSources = {
   "hackmysql-binary-log-group-commit": {
     title: "HackMySQL: MySQL Binary Log Group Commit",
     url: "https://hackmysql.com/book-4/",
+  },
+  "mysql-doxygen-binary-log": {
+    title: "MySQL Server Doxygen: Binary Log",
+    url: "https://dev.mysql.com/doc/dev/mysql-server/8.4.9/group__Binary__Log.html",
   },
   "mysql-binary-log-transaction-dependency": {
     title: "MySQL Reference Manual: Binary Log Transaction Dependency Tracking",
