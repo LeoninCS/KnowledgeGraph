@@ -219,9 +219,77 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 崩溃恢复 | 2026-06-05 | source_count=16 --> */
   /* <!-- KG_EXPLAINED: 崩溃恢复 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "crash-recovery", zh: "崩溃恢复", en: "Crash Recovery", area: "log", difficulty: "hard", concept: "崩溃恢复通过 Redo Log、Undo Log 和 Binlog 恢复到一致状态。", explanation: ["核心概念：崩溃恢复（Crash Recovery）聚焦崩溃恢复通过 Redo Log、Undo Log 和 Binlog 恢复到一致状态。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住Redo、Undo、Binlog 和提交一致性，再看输入、状态变化、输出结果和失败分支。","适用场景：崩溃恢复常用于异常重启恢复和故障演练。学习时把它放回MySQL链路中观察，并结合前置知识Redo Log和Undo Log判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，崩溃恢复通常会和Checkpoint一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认Redo、Undo、Binlog 和提交一致性是否仍然成立。","常见误区与注意点：实践中容易把崩溃恢复当成孤立概念处理，结果遗漏刷盘策略、两阶段提交、日志空间和恢复窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["崩溃恢复执行原理是什么","崩溃恢复如何影响性能或一致性","崩溃恢复线上问题怎么排查"], useCases: ["异常重启恢复","故障演练"], prerequisites: ["redo-log","undo-log"], related: ["checkpoint"], order: 49 },
-  /* <!-- KG_REVIEWED: 锁 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 锁 | 2026-06-05 | source_count=13 --> */
   /* <!-- KG_EXPLAINED: 锁 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "lock", zh: "锁", en: "Lock", area: "lock", difficulty: "medium", concept: "锁用于协调并发访问，保证数据修改的正确性。", explanation: ["核心概念：锁（Lock）聚焦锁用于协调并发访问，保证数据修改的正确性。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住行锁、间隙锁、Next-Key Lock 和死锁，再看输入、状态变化、输出结果和失败分支。","适用场景：锁常用于并发更新、库存扣减和事务冲突分析。学习时把它放回MySQL链路中观察，并结合前置知识事务判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，锁通常会和行锁、间隙锁和死锁一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认行锁、间隙锁、Next-Key Lock 和死锁是否仍然成立。","常见误区与注意点：实践中容易把锁当成孤立概念处理，结果遗漏索引失效导致锁扩大、死锁回滚和长事务阻塞。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["锁执行原理是什么","锁如何影响性能或一致性","锁线上问题怎么排查"], useCases: ["并发更新","库存扣减","事务冲突分析"], prerequisites: ["transaction"], related: ["row-lock","gap-lock","deadlock"], order: 50 },
+  {
+    sourceRefs: [
+      "mysql-innodb-locking",
+      "mysql-innodb-locking-reads",
+      "mysql-innodb-locks-set",
+      "mysql-innodb-phantom-rows",
+      "mysql-performance-schema-lock-tables",
+      "mysql-information-schema-innodb-trx",
+      "mysql-innodb-transaction-model",
+      "mysql-transaction-isolation-levels",
+      "mysql-innodb-deadlocks",
+      "mysql-innodb-deadlocks-handling",
+      "xiaolincoding-mysql-locking",
+      "javaguide-mysql-mvcc",
+      "oneuptime-mysql-locks",
+    ],
+    id: "lock",
+    zh: "锁",
+    en: "Lock",
+    area: "lock",
+    difficulty: "medium",
+    concept:
+      "MySQL/InnoDB 锁用共享、排他、意向、记录、间隙和 Next-Key 等锁模式协调并发读写，让事务在正确性、吞吐和等待成本之间取得平衡。",
+    explanation: [
+      "概念定位：锁（Lock）解决的是“多个事务同时读写同一批数据时，如何保护业务不变量并让冲突按可解释的顺序发生”的问题。它出现在库存扣减、订单状态流转、任务领取、余额更新、唯一性保护、在线 DDL、慢 SQL 治理、锁等待排查、死锁分析和 MySQL 面试题中。\n\n在 MySQL/InnoDB 中，普通 `SELECT` 多数情况下走 MVCC 一致性读；写语句和锁定读会读取最新可锁版本，并在索引记录、索引间隙、表意向层或特殊资源上设置锁。理解锁的关键，是把“业务要保护什么”“SQL 走哪条索引”“隔离级别是什么”“锁何时释放”“等待证据在哪里”连成一条链路。",
+      "准确定义：锁是数据库并发控制机制的一部分。InnoDB 通过锁和多版本机制共同实现事务隔离：MVCC 服务普通一致性读，锁服务当前读、写入、范围保护和冲突串行化。\n\n常见锁术语如下：\n\n- `S lock`：共享锁，允许其他事务继续读同一资源，常见于 `SELECT ... FOR SHARE`。\n- `X lock`：排他锁，保护即将修改或已修改的资源，常见于 `UPDATE`、`DELETE`、`SELECT ... FOR UPDATE`。\n- `IS/IX lock`：意向共享锁和意向排他锁，标记事务准备在表内某些行上加共享或排他锁，让表级锁和行级锁快速做兼容判断。\n- `record lock`：锁住某个索引记录；InnoDB 的行锁实际落在索引记录上。\n- `gap lock`：锁住索引记录之间的间隙，控制向该间隙插入新记录。\n- `next-key lock`：记录锁加前置间隙锁的组合，常用于 `REPEATABLE READ` 下范围当前读。\n- `insert intention lock`：插入前设置的间隙锁类型，用来表达即将插入的位置。\n- `AUTO-INC lock`：服务自增列分配的特殊表级锁，受 `innodb_autoinc_lock_mode` 影响。\n- `MDL`：元数据锁，保护表结构和对象定义，常在 DDL 与长事务问题里出现。",
+      "心智模型：把 InnoDB 锁看成“在有序索引路线上设置路障”。\n\n- 主键或唯一索引等值命中，路障通常集中在一条索引记录上。\n- 非唯一索引、范围条件和排序扫描会沿一段索引区间放置路障。\n- 缺少合适索引时，扫描路径变长，路障数量和等待范围一起扩大。\n- 意向锁像表门口的告示牌，说明表内已有事务准备锁某些行。\n- MVCC 像读旧照片，锁像现场管控；读旧照片减少读写互相阻塞，现场管控保护正在修改的事实。\n\n新手先记住“锁跟着索引走”；老手排查时继续追踪执行计划、锁模式、等待链和事务生命周期。",
+      "主流程机制：一次写入或锁定读的锁生命周期可以按顺序拆开。\n\n1. 应用开启事务，连接继承会话隔离级别，例如 `REPEATABLE READ` 或 `READ COMMITTED`。\n2. SQL 优化器选择访问路径，InnoDB 按这条索引路径读取记录或范围。\n3. 语句进入当前读路径：`UPDATE`、`DELETE`、`INSERT`、`SELECT ... FOR UPDATE` 需要排他语义，`SELECT ... FOR SHARE` 需要共享语义。\n4. InnoDB 在表层设置意向锁，在索引层设置记录锁、间隙锁、Next-Key Lock 或插入意向锁。\n5. 锁兼容时语句继续执行；锁冲突时事务进入等待，直到阻塞事务提交、回滚、被 kill、等待超时或死锁检测介入。\n6. 修改生成 Undo、Redo 和 Binlog 相关状态，事务继续持有需要保留到提交阶段的锁。\n7. 两阶段锁协议让事务在提交或回滚时统一释放行级锁，其他等待事务随后重新检查条件并继续执行。\n8. Performance Schema、`information_schema.innodb_trx`、InnoDB 状态和错误日志记录可观测证据，供排查等待链和死锁原因。",
+      "实践例子：下面用两个会话观察行锁、范围锁和等待证据。\n\n```sql\nCREATE TABLE inventory (\n  sku_id BIGINT PRIMARY KEY,\n  warehouse_id BIGINT NOT NULL,\n  qty INT NOT NULL,\n  KEY idx_warehouse_qty (warehouse_id, qty)\n) ENGINE=InnoDB;\n\nINSERT INTO inventory VALUES (1, 10, 100), (2, 10, 200), (3, 20, 100);\n\n-- 会话 A：主键等值更新，对 sku_id=1 对应索引记录加 X 锁\nSET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;\nSTART TRANSACTION;\nUPDATE inventory SET qty = qty - 1 WHERE sku_id = 1 AND qty > 0;\n\n-- 会话 B：等待同一主键记录的 X 锁\nSTART TRANSACTION;\nUPDATE inventory SET qty = qty - 1 WHERE sku_id = 1 AND qty > 0;\n\n-- 观察等待链\nSELECT trx_id, trx_state, trx_started, trx_mysql_thread_id,\n       trx_query, trx_rows_locked, trx_rows_modified\nFROM information_schema.innodb_trx\\G\n\nSELECT ENGINE_TRANSACTION_ID, OBJECT_SCHEMA, OBJECT_NAME,\n       INDEX_NAME, LOCK_TYPE, LOCK_MODE, LOCK_STATUS, LOCK_DATA\nFROM performance_schema.data_locks\nWHERE OBJECT_NAME = 'inventory'\\G\n\nSELECT * FROM performance_schema.data_lock_waits\\G\n```\n\n如果把语句改成范围锁定读，锁范围会跟随 `idx_warehouse_qty`：\n\n```sql\nSTART TRANSACTION;\nSELECT * FROM inventory\nWHERE warehouse_id = 10 AND qty BETWEEN 50 AND 150\nFOR UPDATE;\n```\n\n这个例子说明：同样是“锁”，单点更新、范围锁定读、缺索引扫描的影响面差异很大。",
+      "锁类型与兼容性：工程上常用一张小表先判断冲突方向。\n\n| 层级 | 锁模式 | 常见触发 | 重点判断 |\n| --- | --- | --- | --- |\n| 表层 | `IS` / `IX` | 行级共享或排他锁前置声明 | 与表级锁兼容性 |\n| 行层 | `S` | `SELECT ... FOR SHARE` | 读读兼容，和排他修改冲突 |\n| 行层 | `X` | `UPDATE`、`DELETE`、`SELECT ... FOR UPDATE` | 保护修改，冲突最多 |\n| 索引记录 | `REC_NOT_GAP` | 唯一键等值命中、记录更新 | 单条记录冲突 |\n| 索引间隙 | `GAP` | 范围扫描、范围锁定读 | 插入位置控制 |\n| 组合范围 | `next-key` | `REPEATABLE READ` 范围当前读 | 记录和前置间隙一起保护 |\n| 插入路径 | `INSERT_INTENTION` | `INSERT` 进入某个间隙 | 与范围锁交汇时等待 |\n| 自增分配 | `AUTO-INC` | 自增列批量插入 | 分配顺序与吞吐取舍 |\n\n线上分析时，把 `LOCK_MODE`、`INDEX_NAME`、`LOCK_DATA` 和 SQL 执行计划放在一起看，才能判断锁住的是业务行、索引范围还是插入位置。",
+      "深层细节：锁的难点集中在索引路径、隔离级别和事务长度。\n\n- 锁跟随索引：InnoDB 行锁锁住索引记录；二级索引命中后，修改主键记录时还会涉及聚簇索引记录。\n- 隔离级别影响范围锁：`REPEATABLE READ` 下范围当前读常见 Next-Key Lock；`READ COMMITTED` 下间隙锁使用范围收缩到外键检查、重复键检查等必要场景。\n- 唯一键命中更精准：完整唯一索引等值命中通常只需要记录锁；范围条件、部分联合唯一键和未命中边界会扩大锁范围。\n- 锁等待是正常背压：短事务等待常是串行化成本，长事务等待会演变成线程堆积、连接耗尽和级联超时。\n- 死锁是并发执行结果：多个事务以不同顺序访问资源时，等待环形成；MySQL 会选择一个事务回滚并返回错误。\n- `NOWAIT` 与 `SKIP LOCKED` 改变等待语义：任务队列和抢占式处理可以用它们减少阻塞，但业务要接受跳过锁定行或立即失败。\n- 外键与唯一检查也会加锁：看起来无关的父表、唯一索引和插入冲突检查可能成为等待源。\n- MDL 影响发布：普通事务访问表会持有元数据锁，DDL 需要等待兼容窗口，长事务和慢查询会拖住结构变更。",
+      "工程场景与取舍：锁设计的目标是用最小冲突范围保护最重要的不变量。\n\n- 库存扣减：用主键或唯一业务键做原子条件更新，例如 `UPDATE stock SET qty = qty - ? WHERE sku_id = ? AND qty >= ?`，再检查影响行数。\n- 订单状态机：用 `WHERE id = ? AND status = ?` 固定状态转移，减少“先查再改”窗口。\n- 任务领取：用状态、优先级和时间组成联合索引，配合小批量 `FOR UPDATE SKIP LOCKED`，每批快速提交。\n- 唯一性保护：业务单号、幂等键、用户领取资格等最终落在唯一索引或条件写入上。\n- 批量修复：按主键范围拆批，固定访问顺序，控制单事务锁数量、Undo、Redo、Binlog 和复制延迟。\n- 在线 DDL：发布前清理长事务，观察 MDL 等待和连接堆积，把大表变更放入低峰或使用在线变更工具。",
+      "边界与故障模式：锁问题通常表现为等待、超时、死锁、吞吐下降和发布阻塞。\n\n- 锁范围扩大：SQL 条件缺少合适索引，`EXPLAIN` 显示扫描行数大，`data_locks` 中同一事务持有大量记录或范围锁。\n- 长事务阻塞：`innodb_trx.trx_started` 很早，`trx_rows_locked` 或 `trx_query` 指向老请求，等待方越来越多。\n- 死锁回滚：应用收到 deadlock 错误，InnoDB 状态的最近死锁包含两个事务、锁模式、索引和 SQL。\n- 锁等待超时：应用收到 `Lock wait timeout exceeded`，数据库未必自动回滚整个事务，业务代码需要明确回滚和重试策略。\n- DDL 卡住：`ALTER TABLE` 等待 MDL，后续读写请求排队，连接池和应用线程一起上涨。\n- 热点行争抢：余额、库存、计数器、全局配置等单行被高频更新，TPS 受单行串行化限制。\n- 插入热点：自增尾部、状态队列和相邻范围竞争形成插入意向锁等待或页级热点。\n- 连接池污染：事务未提交、隔离级别被改、会话变量残留，会让后续请求继承锁和隔离状态。",
+      "排查实践：锁等待排查要把“谁等谁、等哪个索引、为什么扫到这里、怎么缩短等待”说清楚。\n\n1. 先确认症状：记录错误码、慢 SQL、业务请求 ID、连接数、线程状态、等待时长和发生时间。\n2. 查事务年龄：用 `information_schema.innodb_trx` 找最早事务、当前 SQL、隔离级别、锁行数和修改行数。\n3. 查锁对象：用 `performance_schema.data_locks` 查看表名、索引名、锁模式、锁状态和锁数据。\n4. 查等待链：用 `performance_schema.data_lock_waits` 连接阻塞事务和等待事务，定位首个阻塞者。\n5. 查执行计划：对阻塞 SQL 和等待 SQL 执行 `EXPLAIN FORMAT=TREE`，确认访问路径与锁范围。\n6. 查死锁证据：用 `SHOW ENGINE INNODB STATUS\\G` 读取最近死锁、锁模式、索引名和回滚事务。\n7. 采取动作：短期 kill 明确的异常长事务，长期补索引、缩短事务、拆批、统一访问顺序、改原子条件更新、增加重试和幂等保护。\n8. 验证修复：观察等待链数量、死锁率、P95/P99 延迟、扫描行数、连接池等待和业务失败率。\n\n```sql\nSHOW VARIABLES LIKE 'transaction_isolation';\nSHOW VARIABLES LIKE 'innodb_lock_wait_timeout';\n\nSELECT trx_id, trx_state, trx_started, trx_mysql_thread_id,\n       trx_isolation_level, trx_query, trx_rows_locked, trx_rows_modified\nFROM information_schema.innodb_trx\nORDER BY trx_started\\G\n\nSELECT ENGINE_TRANSACTION_ID, OBJECT_SCHEMA, OBJECT_NAME,\n       INDEX_NAME, LOCK_TYPE, LOCK_MODE, LOCK_STATUS, LOCK_DATA\nFROM performance_schema.data_locks\\G\n\nSELECT * FROM performance_schema.data_lock_waits\\G\nSHOW ENGINE INNODB STATUS\\G\nEXPLAIN FORMAT=TREE UPDATE inventory SET qty = qty - 1 WHERE sku_id = 1 AND qty > 0;\n```\n\n一个高质量排查结论应该包含阻塞事务 ID、等待事务 ID、锁住的索引与范围、触发 SQL、业务请求、修复动作和验证指标。",
+      "常见误区：锁的正确理解来自“读类型、访问路径、锁模式、事务边界”的组合。\n\n- 普通一致性读主要依赖 MVCC，写语句和锁定读进入锁竞争路径。\n- InnoDB 行锁落在索引记录上，索引设计决定锁的精准度。\n- 事务越长，锁持有、Undo 保留、DDL 等待和故障恢复成本越高。\n- 死锁可以通过统一访问顺序、缩短事务、精准索引和幂等重试降低影响。\n- 锁等待超时后的业务事务状态需要应用明确处理。\n- `SKIP LOCKED` 适合任务领取等可跳过场景，业务公平性和遗漏重扫需要单独设计。\n- DDL 发布要把 MDL、长事务和连接池容量一起评估。",
+      "面试追问：MySQL 锁题适合按“为什么要锁 -> 锁类型 -> 索引路径 -> 隔离级别 -> 等待排查 -> 设计取舍”组织答案。\n\n- MySQL/InnoDB 为什么同时需要 MVCC 和锁？\n- `S` 锁、`X` 锁、`IS` 锁、`IX` 锁分别解决什么问题？\n- InnoDB 行锁为什么说是加在索引记录上？\n- 记录锁、间隙锁和 Next-Key Lock 的差异是什么？\n- `SELECT ... FOR UPDATE`、`SELECT ... FOR SHARE`、`UPDATE` 分别会触发哪些锁语义？\n- 隔离级别如何影响间隙锁和范围锁？\n- 为什么缺索引会导致锁等待范围扩大？\n- `NOWAIT`、`SKIP LOCKED` 适合哪些业务场景？\n- 线上锁等待、死锁、DDL 卡住分别如何用 `innodb_trx`、`data_locks`、`data_lock_waits` 和 InnoDB 状态排查？\n- 库存扣减、任务领取、订单状态流转如何设计锁粒度和重试策略？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 InnoDB Locking、Locking Reads、Locks Set by Different SQL Statements、Phantom Rows、Performance Schema Lock Tables、InnoDB INFORMATION_SCHEMA Transaction and Locking Information、InnoDB Transaction Model、Transaction Isolation Levels、Deadlocks in InnoDB 与死锁处理文档，并结合小林 coding 的 MySQL 加锁实验、JavaGuide 的 MVCC/事务讲解和 OneUptime 的锁排查文章校准中文表达、实验路径和工程场景。官方资料用于确定锁模式、锁定读语义、诊断表和隔离边界，技术文章用于补充实战排查和面试表达。"
+    ],
+    typicalProblems: [
+      "MySQL/InnoDB 锁解决什么并发问题，它和 MVCC 如何分工？",
+      "共享锁、排他锁、意向共享锁、意向排他锁分别有什么作用？",
+      "InnoDB 的行锁为什么加在索引记录上，执行计划如何影响锁范围？",
+      "记录锁、间隙锁、Next-Key Lock、插入意向锁和自增锁分别在什么场景出现？",
+      "`SELECT ... FOR UPDATE`、`SELECT ... FOR SHARE`、`UPDATE`、`DELETE` 的锁语义有什么差异？",
+      "`REPEATABLE READ` 和 `READ COMMITTED` 对范围锁和间隙锁有什么影响？",
+      "为什么缺少索引、范围查询和长事务会放大锁等待与死锁概率？",
+      "线上锁等待如何用 `innodb_trx`、`data_locks`、`data_lock_waits` 和 `SHOW ENGINE INNODB STATUS` 定位？",
+      "锁等待超时和死锁回滚后，应用事务、重试和幂等应该如何设计？",
+      "库存扣减、任务领取、订单状态机和在线 DDL 中如何选择锁粒度、索引和事务边界？"
+    ],
+    commonCommands: [
+      "SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ",
+      "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED",
+      "SELECT ... FOR UPDATE",
+      "SELECT ... FOR SHARE",
+      "SELECT ... FOR UPDATE NOWAIT",
+      "SELECT ... FOR UPDATE SKIP LOCKED",
+      "SHOW VARIABLES LIKE 'innodb_lock_wait_timeout'",
+      "SELECT * FROM information_schema.innodb_trx\\G",
+      "SELECT * FROM performance_schema.data_locks\\G",
+      "SELECT * FROM performance_schema.data_lock_waits\\G",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "EXPLAIN FORMAT=TREE <locking-read-or-write-sql>"
+    ],
+    useCases: ["并发更新", "库存扣减", "订单状态流转", "任务领取", "唯一性保护", "范围并发控制", "锁等待排查", "死锁治理", "在线 DDL 发布", "长事务治理"],
+    prerequisites: ["transaction", "isolation-level", "mysql-index"],
+    related: ["row-lock", "record-lock", "gap-lock", "next-key-lock", "deadlock", "phantom-read", "repeatable-read", "mvcc", "sql-optimization", "metadata-lock"],
+    order: 50,
+  },
   /* <!-- KG_REVIEWED: 行锁 | 2026-05-24 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: 行锁 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "row-lock", zh: "行锁", en: "Row Lock", area: "lock", difficulty: "medium", concept: "行锁锁定索引记录，减少并发冲突范围。", explanation: ["核心概念：行锁（Row Lock）聚焦行锁锁定索引记录，减少并发冲突范围。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住行锁、间隙锁、Next-Key Lock 和死锁，再看输入、状态变化、输出结果和失败分支。","适用场景：行锁常用于高并发更新和单行状态流转。学习时把它放回MySQL链路中观察，并结合前置知识锁和索引判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，行锁通常会和记录锁和Next-Key Lock一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认行锁、间隙锁、Next-Key Lock 和死锁是否仍然成立。","常见误区与注意点：实践中容易把行锁当成孤立概念处理，结果遗漏索引失效导致锁扩大、死锁回滚和长事务阻塞。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["行锁执行原理是什么","行锁如何影响性能或一致性","行锁线上问题怎么排查"], useCases: ["高并发更新","单行状态流转"], prerequisites: ["lock","mysql-index"], related: ["record-lock","next-key-lock"], order: 51 },

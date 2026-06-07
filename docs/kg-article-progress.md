@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 97 | 352 |
+| 449 | 98 | 351 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 33 | 15 |
+| mysql | 48 | 34 | 14 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -222,7 +222,7 @@
 | 已优化 | `binlog` | Binlog | Binary Log | 2026-06-05 | 16 |
 | 已优化 | `two-phase-commit` | 两阶段提交 | Two-phase Commit | 2026-06-05 | 13 |
 | 已优化 | `crash-recovery` | 崩溃恢复 | Crash Recovery | 2026-06-05 | 16 |
-| 未开始 | `lock` | 锁 | Lock | 2026-05-24 | 5 |
+| 已优化 | `lock` | 锁 | Lock | 2026-06-05 | 13 |
 | 未开始 | `row-lock` | 行锁 | Row Lock | 2026-05-24 | 5 |
 | 未开始 | `record-lock` | 记录锁 | Record Lock | 2026-05-24 | 5 |
 | 未开始 | `gap-lock` | 间隙锁 | Gap Lock | 2026-05-24 | 5 |
