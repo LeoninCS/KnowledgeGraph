@@ -5305,6 +5305,14 @@ export const knowledgeSources = {
     title: "Redis Docs: Redis configuration",
     url: "https://redis.io/docs/latest/operate/oss_and_stack/management/config/",
   },
+  "redis-misconf-rdb-kb": {
+    title: "Redis KB: Fix MISCONF Redis is configured to save RDB snapshots",
+    url: "https://redis.io/kb/doc/296s7bo3im/",
+  },
+  "redis-source-rdb": {
+    title: "Redis Source: rdb.c",
+    url: "https://github.com/redis/redis/blob/unstable/src/rdb.c",
+  },
   "oneuptime-redis-rdb": {
     title: "OneUptime: Redis RDB Snapshots Step by Step",
     url: "https://oneuptime.com/blog/post/2026-03-31-redis-rdb-snapshots-step-by-step/view",
