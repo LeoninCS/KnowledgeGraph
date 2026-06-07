@@ -5937,6 +5937,14 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Undo Logs",
     url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-logs.html",
   },
+  "mysql-innodb-undo-tablespaces": {
+    title: "MySQL Reference Manual: Undo Tablespaces",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-tablespaces.html",
+  },
+  "mysql-innodb-purge-configuration": {
+    title: "MySQL Reference Manual: Purge Configuration",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/innodb-purge-configuration.html",
+  },
   "mysql-information-schema-innodb-trx": {
     title: "MySQL Reference Manual: The INFORMATION_SCHEMA INNODB_TRX Table",
     url: "https://dev.mysql.com/doc/refman/8.4/en/information-schema-innodb-trx-table.html",

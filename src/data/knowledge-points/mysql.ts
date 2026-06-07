@@ -207,7 +207,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: Redo Log | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: Redo Log | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "redo-log", zh: "Redo Log", en: "Redo Log", area: "log", difficulty: "hard", concept: "Redo Log 记录物理修改，保证事务提交后的持久性和崩溃恢复。", explanation: ["核心概念：Redo Log聚焦Redo Log 记录物理修改，保证事务提交后的持久性和崩溃恢复。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住Redo、Undo、Binlog 和提交一致性，再看输入、状态变化、输出结果和失败分支。","适用场景：Redo Log常用于崩溃恢复和写入性能分析。学习时把它放回MySQL链路中观察，并结合前置知识InnoDB和ACID判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Redo Log通常会和Binlog和Checkpoint一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认Redo、Undo、Binlog 和提交一致性是否仍然成立。","常见误区与注意点：实践中容易把Redo Log当成孤立概念处理，结果遗漏刷盘策略、两阶段提交、日志空间和恢复窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Redo Log执行原理是什么","Redo Log如何影响性能或一致性","Redo Log线上问题怎么排查"], useCases: ["崩溃恢复","写入性能分析"], prerequisites: ["innodb","acid"], related: ["binlog","checkpoint"], order: 45 },
-  /* <!-- KG_REVIEWED: Undo Log | 2026-06-04 | source_count=6 --> */
+  /* <!-- KG_REVIEWED: Undo Log | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: Undo Log | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "undo-log", zh: "Undo Log", en: "Undo Log", area: "log", difficulty: "hard", concept: "Undo Log 保存旧版本数据，用于事务回滚和 MVCC 快照读。", explanation: ["核心概念：Undo Log聚焦Undo Log 保存旧版本数据，用于事务回滚和 MVCC 快照读。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住Redo、Undo、Binlog 和提交一致性，再看输入、状态变化、输出结果和失败分支。","适用场景：Undo Log常用于事务回滚和版本链分析。学习时把它放回MySQL链路中观察，并结合前置知识事务判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Undo Log通常会和MVCC和ReadView一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认Redo、Undo、Binlog 和提交一致性是否仍然成立。","常见误区与注意点：实践中容易把Undo Log当成孤立概念处理，结果遗漏刷盘策略、两阶段提交、日志空间和恢复窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Undo Log执行原理是什么","Undo Log如何影响性能或一致性","Undo Log线上问题怎么排查"], useCases: ["事务回滚","版本链分析"], prerequisites: ["transaction"], related: ["mvcc","read-view"], order: 46 },
   /* <!-- KG_REVIEWED: Binlog | 2026-06-04 | source_count=6 --> */
@@ -2174,14 +2174,60 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
   "undo-log": {
     sourceRefs: [
       "mysql-innodb-undo-logs",
+      "mysql-innodb-undo-tablespaces",
+      "mysql-innodb-purge-configuration",
       "mysql-innodb-multi-versioning",
+      "mysql-innodb-consistent-read",
+      "mysql-information-schema-innodb-trx",
+      "mysql-innodb-transaction-model",
+      "mysql-commit-rollback",
+      "mysql-innodb-recovery",
+      "mysql-innodb-startup-options",
+      "mysql-show-engine",
       "mydbops-innodb-undo-log",
       "percona-innodb-history-length",
-      "sobyte-mysql-mvcc",
-      "javaguide-mysql-mvcc",
+      "xiaolincoding-mysql-mvcc",
     ],
-    prerequisites: ["transaction"],
-    related: ["mvcc", "read-view", "crash-recovery"],
+    concept:
+      "Undo Log 是 InnoDB 的撤销日志和历史版本材料，用于事务回滚、MVCC 快照读、崩溃恢复中的未提交事务撤销，以及 Purge 清理。",
+    explanation: [
+      "概念定位：Undo Log 解决的是“事务修改已经发生，系统仍能回滚、快照读仍能看到旧版本”的问题。它出现在转账回滚、库存扣减失败、普通 `SELECT` 读取一致性快照、长事务拖慢 Purge、Undo 表空间膨胀、DDL 被事务阻塞和 MySQL 事务面试题里，是 InnoDB 把可恢复性、隔离性和历史版本治理串起来的核心日志。\n\n准确地说，Undo Log 是 InnoDB 为行修改生成的撤销记录（undo records）。`UPDATE`、`DELETE` 和 `INSERT` 会产生可用于反向操作的记录；这些记录先服务事务回滚，随后可能继续服务 MVCC 旧版本读取，等所有活跃 ReadView 都用完后再由 Purge 清理。新手先抓住“改一笔，留一张反向凭证”；老手还要追踪回滚段、Undo 表空间、隐藏列、History list length、Purge 能力和长事务治理。",
+      "准确定义：Undo Log 是事务旧版本与反向操作信息的集合，保存在 Undo 表空间中的回滚段（rollback segments）里。它和 Redo Log、Binlog、ReadView 的职责分工可以这样记：\n\n- `Undo Log`：记录回滚所需信息，也提供 MVCC 读取旧版本的材料。\n- `Redo Log`：记录页级物理重做信息，服务崩溃恢复和持久性。\n- `Binlog`：记录 Server 层逻辑变更，服务复制、时间点恢复和 CDC。\n- `DB_TRX_ID`：聚簇索引记录中的隐藏事务 ID，标记该版本最近被哪个事务修改。\n- `DB_ROLL_PTR`：聚簇索引记录中的隐藏回滚指针，指向 Undo 版本链。\n- `ReadView`：一致性非锁定读的可见性规则，决定沿 Undo 链回溯到哪个版本。\n- `Purge`：后台清理已经无活跃事务需要的历史 Undo 记录和被删除记录。\n\nUndo 的本质是“旧版本材料 + 撤销凭证”。它让事务可以撤销自己的修改，也让读操作按快照规则选择历史版本。",
+      "心智模型：把一行数据想成“当前纸面 + 历史凭条链”。表上的聚簇索引记录是当前纸面；每次修改都会把旧内容写成凭条，`DB_ROLL_PTR` 把当前纸面连到上一张凭条；读事务拿着 ReadView 沿链回看，直到找到对自己可见的版本。\n\n这个模型有三个关键判断：\n\n- 回滚看事务自己产生的 Undo，按反向操作恢复修改前状态。\n- 快照读看 ReadView 与版本链，普通 `SELECT` 可能读取旧版本。\n- 清理看最老活跃事务，长事务持有旧 ReadView 会让历史凭条继续保留。\n\n因此，Undo Log 的线上代价主要来自历史版本保留时间和写入产生速度之间的差距。",
+      "主流程机制：一次 `UPDATE` 产生和消费 Undo Log 的路径可以按“生成 -> 链接 -> 提交/回滚 -> 快照读取 -> Purge”理解。\n\n1. 事务定位聚簇索引记录，InnoDB 准备修改行，并把修改前的值写入 Undo 记录。\n2. 当前记录更新隐藏列，`DB_TRX_ID` 写入当前事务 ID，`DB_ROLL_PTR` 指向新的 Undo 记录。\n3. 修改后的数据页、Undo 页和相关索引页进入 Buffer Pool 脏页路径，同时 Redo Log 记录页修改以支持崩溃恢复。\n4. 事务提交时，Undo 记录先保留，因为其他活跃一致性读可能还需要旧版本；事务回滚时，InnoDB 根据 Undo 记录执行反向修改。\n5. 普通一致性读读取当前记录后，用 ReadView 判断版本可见性；当前版本隐藏时，通过 `DB_ROLL_PTR` 沿 Undo 链回溯旧版本。\n6. 所有活跃事务都越过这些历史版本后，Purge 线程清理无用 Undo 记录和删除标记记录，Undo 表空间获得复用或截断机会。\n\n```text\nT100: UPDATE account SET balance = 80 WHERE id = 1\n\nclustered record after update:\n  balance=80, DB_TRX_ID=100, DB_ROLL_PTR -> undo(balance=100, trx=72)\n\nReadView created while T100 is active:\n  sees trx 100 as invisible\n  follows DB_ROLL_PTR\n  returns balance=100\n\nT100 rollback:\n  applies undo record\n  restores balance=100\n```\n\n这条流程说明了 Undo 同时服务回滚和 MVCC。提交只改变事务状态，历史版本能否清理取决于是否仍被活跃快照引用。",
+      "实践例子：用两个会话可以直观看到 Undo、ReadView 和长事务之间的关系。\n\n```sql\n-- Session A\nCREATE TABLE account (\n  id BIGINT PRIMARY KEY,\n  balance INT NOT NULL\n) ENGINE=InnoDB;\nINSERT INTO account VALUES (1, 100);\n\nSTART TRANSACTION;\nSELECT * FROM account WHERE id = 1; -- 创建或复用一致性读快照\n\n-- Session B\nSTART TRANSACTION;\nUPDATE account SET balance = 80 WHERE id = 1;\nCOMMIT;\n\n-- Session A\nSELECT * FROM account WHERE id = 1; -- REPEATABLE READ 下仍可看到旧版本 100\nCOMMIT;\n```\n\n排查时再观察事务表和 InnoDB 状态：\n\n```sql\nSELECT trx_id, trx_state, trx_started, trx_query, trx_rows_modified\nFROM information_schema.innodb_trx\nORDER BY trx_started;\n\nSHOW ENGINE INNODB STATUS\\G\nSHOW VARIABLES LIKE 'innodb_undo_log_truncate';\nSHOW VARIABLES LIKE 'innodb_purge_threads';\n```\n\n`SHOW ENGINE INNODB STATUS` 里的 `History list length`、活跃事务开始时间、锁等待和最近 SQL，是判断 Undo 积压与长事务关系的关键证据。",
+      "Undo 表空间与回滚段：MySQL 8 的 Undo 记录存放在 Undo 表空间中，InnoDB 通过回滚段组织事务的 Undo 链。工程上要关注三类空间行为。\n\n- 复用：Purge 清理后，Undo 页可以被后续事务复用。\n- 截断：开启 `innodb_undo_log_truncate` 后，空闲 Undo 表空间达到条件时可以被截断，释放文件空间。\n- 保留：长事务、长快照、复制或备份压力会延迟历史版本清理，让 Undo 空间持续增长。\n- 恢复：崩溃恢复时，InnoDB 会结合 Redo 与 Undo 处理已提交和未提交事务状态。\n- DDL 影响：持有旧快照的事务会让旧版本与元数据相关资源保留，影响大表变更、清理和空间回收节奏。\n\nUndo 空间问题的判断重点是“增长原因、清理速度、最老事务、是否可复用、是否具备截断条件”。单看文件大小容易误判，因为文件已增长时，后续可能先复用，再在满足条件后截断。",
+      "深层细节：Undo Log 是 InnoDB 内部事务版本机制的一部分，它的生命周期由事务、MVCC 和 Purge 共同决定。\n\n- `INSERT` 的 Undo 通常只需要支持本事务回滚，提交后在可见性上保留压力较小。\n- `UPDATE` 和 `DELETE` 的 Undo 会形成旧版本链，可能被其他一致性读继续使用。\n- 二级索引读取在 MVCC 下可能需要回到聚簇索引记录，借助隐藏列和 Undo 链判断版本可见性。\n- 删除通常经历 delete-mark 和后续 Purge 物理清理，索引空间回收与后台清理节奏有关。\n- 大事务会一次性产生大量 Undo、Redo 和 Binlog，回滚耗时可能接近或超过正向执行耗时。\n- `READ COMMITTED` 通常每条一致性读创建新 ReadView，`REPEATABLE READ` 通常在事务内复用快照，影响旧版本保留时长。\n- Crash recovery 中，已写入但未提交的事务需要通过 Undo 撤销，已提交页修改由 Redo 补齐。\n\n经验判断是：Undo 的成本来自写入量、版本链长度、最老快照年龄和 Purge 吞吐。高并发写入下，长事务是最常见的放大器。",
+      "工程取舍：Undo Log 提供回滚和快照读能力，也带来空间、清理、回滚时间和读路径成本。\n\n- 隔离性与资源：长时间稳定快照方便一致性读取，也会延迟 Undo 清理。\n- 大事务与恢复：单批修改太大会放大 Undo、Redo、锁持有、复制延迟和失败回滚成本。\n- 读写并发与版本链：MVCC 减少普通读写阻塞，版本链过长会增加旧版本回溯和 Purge 压力。\n- 空间与截断：Undo 表空间要预留峰值空间，截断能力依赖清理进度和配置条件。\n- 事务边界与业务语义：短事务、批量分页提交、幂等重试和状态机设计能控制 Undo 保留窗口。\n- 运维窗口与批处理：大批量修复、归档删除和导入任务适合按主键范围分批提交，并持续观察 History list length。",
+      "边界与故障模式：Undo Log 问题通常表现为 Undo 表空间膨胀、Purge 落后、查询读到旧版本、大事务回滚慢、DDL 卡住或恢复时间变长。\n\n- 长事务持有 ReadView：`information_schema.innodb_trx` 中最早事务持续存在，`History list length` 长时间升高。\n- 批量更新过大：Undo、Redo、锁等待和 Binlog 同时放大，失败后回滚耗时明显。\n- Purge 跟不上写入：历史版本清理速度低于产生速度，删除标记记录和 Undo 历史堆积。\n- 空间回收滞后：Undo 文件增长后先进入复用阶段，截断需要满足空闲、配置和内部调度条件。\n- 事务里读到旧数据：隔离级别和 ReadView 创建时机决定普通读结果，当前读路径会看到当前版本并参与锁冲突。\n- 崩溃恢复耗时：未提交事务越大，恢复时借助 Undo 撤销的成本越高。\n\n生产处置优先控制新增压力：结束异常长事务，拆分批处理，降低单事务行数，再观察 Purge 和空间是否回落。",
+      "排查实践：Undo 相关问题建议按“现象 -> 长事务 -> 版本历史 -> 空间 -> 写入形态 -> 收敛动作”建立证据链。\n\n1. 确认现象：Undo 表空间增长、磁盘空间告警、DDL 等待、查询旧版本、回滚耗时或实例重启恢复慢。\n2. 查最老事务：用 `information_schema.innodb_trx` 找 `trx_started` 最早、`trx_state` 异常、`trx_query` 仍在运行或空闲事务。\n3. 查历史长度：用 `SHOW ENGINE INNODB STATUS\\G` 观察 `History list length`、Purge 状态、锁等待和事务列表。\n4. 查写入来源：定位批量更新、归档删除、热点表、缺索引更新、长时间导出和备份任务。\n5. 查空间策略：记录 `innodb_undo_log_truncate`、`innodb_purge_threads`、数据目录空间和 Undo 表空间文件大小变化。\n6. 执行收敛：提交或回滚异常事务，缩小批量任务，按主键分页，给长查询设置超时，提升 Purge 线程配置前先确认 CPU/I/O 余量。\n7. 验证结果：观察 History list length 下降、Undo 文件进入复用或截断、锁等待解除、业务 p95/p99 恢复。\n\n```sql\nSELECT trx_id, trx_state, trx_started, trx_mysql_thread_id,\n       trx_rows_locked, trx_rows_modified, trx_query\nFROM information_schema.innodb_trx\nORDER BY trx_started\\G\n\nSHOW ENGINE INNODB STATUS\\G\n\nSHOW VARIABLES WHERE Variable_name IN (\n  'innodb_undo_log_truncate',\n  'innodb_purge_threads',\n  'transaction_isolation'\n);\n```\n\n可靠结论需要同时说明：哪个事务持有最老快照，Undo 历史是否继续增长，Purge 是否在推进，写入任务是否持续产生新历史版本。",
+      "常见误区：Undo Log 的正确心智模型是“事务撤销凭证与 MVCC 历史版本材料”。\n\n- Undo Log 同时参与回滚、快照读和崩溃恢复中的未提交事务撤销。\n- 提交后的 Undo 记录仍可能继续保留，因为活跃 ReadView 可能需要读取旧版本。\n- 长事务的主要危害是延迟历史版本清理，进而放大空间、Purge、DDL 和读路径成本。\n- `READ COMMITTED` 和 `REPEATABLE READ` 的差异会改变 ReadView 创建时机，也会改变旧版本保留压力。\n- 大事务的回滚成本需要纳入发布和批处理方案，分批提交通常更容易控制风险。",
+      "面试追问：Undo Log 适合按“定义 -> 回滚 -> MVCC -> Purge -> 空间 -> 排查 -> 取舍”组织答案。\n\n- Undo Log 是什么，它在 InnoDB 事务中解决什么问题？\n- 一条 `UPDATE` 如何生成 Undo 记录，`DB_TRX_ID` 和 `DB_ROLL_PTR` 如何连接版本链？\n- Undo Log 在事务回滚和 MVCC 快照读中的职责分别是什么？\n- `READ COMMITTED` 与 `REPEATABLE READ` 下，Undo 历史版本保留压力有什么差异？\n- Purge 线程什么时候可以清理 Undo 历史，长事务为什么会阻塞清理？\n- Undo 表空间为什么会膨胀，如何判断它是在继续增长、复用还是等待截断？\n- 大事务回滚慢时，应该观察哪些事务表、InnoDB 状态和业务写入形态？\n- Undo Log、Redo Log、Binlog 在内容、层级、用途和恢复流程中分别承担什么职责？\n- 线上出现查询读到旧数据时，如何区分快照读、当前读和应用缓存问题？\n- 批量修复、归档删除和数据迁移怎样设计事务边界来控制 Undo 风险？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Undo Logs、Undo Tablespaces、Purge Configuration、InnoDB Multi-Versioning、Consistent Nonlocking Reads、`INFORMATION_SCHEMA.INNODB_TRX`、InnoDB Transaction Model、COMMIT/ROLLBACK、InnoDB Recovery、InnoDB Startup Options/System Variables 与 SHOW ENGINE 文档，并结合 Mydbops 的 Undo Log 介绍、Percona 的 History list length 长事务案例和小林 coding 的 MVCC/ReadView 文章校准中文表达、实验路径、长事务治理和面试问法。官方资料用于确定结构、参数和恢复边界，工程文章用于补充空间膨胀、Purge 延迟和生产排查经验。"
+    ],
+    typicalProblems: [
+      "Undo Log 是什么，它如何同时支撑事务回滚和 MVCC 快照读？",
+      "一条 UPDATE 产生 Undo 记录时，聚簇索引隐藏列和版本链如何变化？",
+      "Undo Log、Redo Log、Binlog 在事务写入和恢复中分别承担什么职责？",
+      "ReadView 如何借助 Undo 版本链找到对当前事务可见的历史版本？",
+      "为什么提交后的 Undo 记录仍可能继续保留，Purge 清理依赖哪些条件？",
+      "长事务如何导致 History list length 升高、Undo 表空间膨胀和 DDL 阻塞？",
+      "大事务回滚慢、批量删除卡顿和 Undo 空间告警分别怎么排查？",
+      "`READ COMMITTED` 与 `REPEATABLE READ` 如何影响 Undo 历史版本保留？",
+      "如何用 `information_schema.innodb_trx` 和 `SHOW ENGINE INNODB STATUS` 建立排查证据？",
+      "生产批量修复或归档删除如何设计事务边界来控制 Undo、锁和复制延迟？"
+    ],
+    commonCommands: [
+      "SELECT * FROM information_schema.innodb_trx\\G",
+      "SHOW ENGINE INNODB STATUS\\G",
+      "SHOW VARIABLES LIKE 'transaction_isolation'",
+      "SHOW VARIABLES LIKE 'innodb_undo_log_truncate'",
+      "SHOW VARIABLES LIKE 'innodb_purge_threads'",
+      "SHOW VARIABLES LIKE 'innodb_rollback_segments'"
+    ],
+    useCases: ["事务回滚", "MVCC 快照读", "长事务治理", "Undo 空间排查", "Purge 延迟排查", "批量更新治理", "崩溃恢复分析", "数据库面试"],
+    prerequisites: ["transaction", "innodb", "acid", "mvcc"],
+    related: ["redo-log", "binlog", "mvcc", "read-view", "repeatable-read", "read-committed", "crash-recovery", "lock"],
   },
   "binlog": {
     sourceRefs: [

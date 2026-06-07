@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 93 | 356 |
+| 449 | 94 | 355 |
 
 ## 分类进度
 
@@ -17,7 +17,7 @@
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
-| mysql | 48 | 29 | 19 |
+| mysql | 48 | 30 | 18 |
 | redis | 44 | 0 | 44 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
@@ -218,7 +218,7 @@
 | 已优化 | `mvcc` | MVCC | MVCC | 2026-06-05 | 12 |
 | 已优化 | `read-view` | ReadView | ReadView | 2026-06-05 | 12 |
 | 已优化 | `redo-log` | Redo Log | Redo Log | 2026-06-05 | 14 |
-| 未开始 | `undo-log` | Undo Log | Undo Log | 2026-06-04 | 6 |
+| 已优化 | `undo-log` | Undo Log | Undo Log | 2026-06-05 | 14 |
 | 未开始 | `binlog` | Binlog | Binary Log | 2026-06-04 | 6 |
 | 未开始 | `two-phase-commit` | 两阶段提交 | Two-phase Commit | 2026-06-04 | 6 |
 | 未开始 | `crash-recovery` | 崩溃恢复 | Crash Recovery | 2026-06-04 | 8 |
