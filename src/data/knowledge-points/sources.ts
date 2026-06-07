@@ -5329,6 +5329,10 @@ export const knowledgeSources = {
     title: "Redis Docs: Observability and monitoring guidance",
     url: "https://redis.io/docs/latest/operate/rs/monitoring/observability/",
   },
+  "redis-security-docs": {
+    title: "Redis Docs: Security",
+    url: "https://redis.io/docs/latest/operate/oss_and_stack/management/security/",
+  },
   "redis-cache-aside-docs": {
     title: "Redis Docs: Cache-aside",
     url: "https://redis.io/docs/latest/develop/use-cases/cache-aside/",

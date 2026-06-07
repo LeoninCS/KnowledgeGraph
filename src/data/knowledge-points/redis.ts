@@ -1,31 +1,52 @@
 import type { GraphKnowledgePoint } from "./types.ts";
 
 const redisKnowledgePointBase = [
-  /* <!-- KG_REVIEWED: Redis 概览 | 2026-05-30 | source_count=6 --> */
+  /* <!-- KG_REVIEWED: Redis 概览 | 2026-06-05 | source_count=13 --> */
   /* <!-- KG_EXPLAINED: Redis 概览 | 2026-05-23 | source_count=5 --> */
   {
-    sourceRefs: ["redis-about", "redis-data-types-docs", "redis-persistence-docs", "redis-replication-docs", "redis-commands", "xiaolin-redis"],
+    sourceRefs: [
+      "redis-about",
+      "redis-data-types-docs",
+      "redis-commands",
+      "redis-persistence-docs",
+      "redis-replication-docs",
+      "redis-cluster-docs",
+      "redis-key-eviction-docs",
+      "redis-latency-docs",
+      "redis-info-command",
+      "redis-observability-docs",
+      "redis-security-docs",
+      "xiaolin-redis",
+      "javaguide",
+    ],
     id: "redis-overview",
     zh: "Redis 概览",
     en: "Redis Overview",
     area: "foundation",
     difficulty: "easy",
-    summary: "Redis 是以内存数据结构为核心的高性能数据服务，常用于缓存、计数、排行榜、会话和轻量消息场景。",
+    summary: "Redis 是以内存数据结构为核心的低延迟数据服务，用数据类型、过期、淘汰、持久化、复制和集群能力支撑缓存、计数、排行榜、会话与实时消息场景。",
     explanation: [
-      "核心概念：Redis 是内存优先的数据结构服务器，客户端通过命令读写 String、Hash、List、Set、Sorted Set、Stream、Bitmap、HyperLogLog、Geo 等结构。它的优势来自内存访问、紧凑数据结构和事件驱动执行模型。",
-      "典型场景：Redis 常用于热点缓存、计数器、限流、排行榜、会话存储、分布式锁、简单队列、延迟任务和实时统计。选择场景时要同时看访问模式、数据规模、过期策略、一致性要求和恢复成本。",
-      "运行模型：Redis 接收客户端命令后在服务器内更新内存数据，并按配置写入 AOF 或 RDB 以支持恢复。主从复制、哨兵和集群分别解决读扩展、故障切换和水平分片问题。",
-      "边界情况：Redis 把热点数据放在内存中，容量、Big Key、Hot Key、慢命令、网络抖动、客户端连接数和持久化开销都会影响延迟。写入成功和落盘成功之间存在策略差异，需要根据业务容忍度选择持久化配置。",
-      "工程治理：生产使用要限制危险命令、设置内存上限和淘汰策略、规划 key 命名与 TTL、监控慢查询和延迟、演练备份恢复与故障切换。缓存场景还要处理穿透、击穿、雪崩和数据库一致性。",
-      "参考来源：Redis 定位和基础能力参考官方 About Redis；数据结构参考官方 Data types；持久化和复制参考官方 Persistence 与 Replication；命令语义参考 Redis Commands；中文面试与工程案例参考小林 coding。"
+      "概念定位：Redis（Remote Dictionary Server）是一个内存优先的 data structure server。它把常用数据结构、命令执行、过期控制、内存淘汰、持久化、复制和集群能力放在同一个服务里，常见位置是应用和数据库之间的低延迟数据层。\n\n它解决的问题是：让热点数据、计数状态、排序结果、会话状态和轻量事件流在毫秒级路径内完成读写，同时把访问压力从数据库、搜索引擎和下游服务上移开。",
+      "准确定义：Redis 的核心对象是 `key -> value`，value 可以是 String、Hash、List、Set、Sorted Set、Stream、Bitmap、HyperLogLog、Geo、JSON、Time series 等数据类型。客户端通过 RESP 协议发送命令，服务端按命令语义修改内存数据，并按配置决定过期、淘汰、落盘和复制行为。\n\n学习 Redis 要同时掌握四条线：\n- 数据建模：用合适的数据类型表达业务访问模式。\n- 执行模型：理解命令复杂度、单实例事件循环、网络往返和返回结果大小。\n- 可靠性：用 RDB、AOF、复制、哨兵或集群匹配业务恢复目标。\n- 运维治理：用内存上限、淘汰策略、慢日志、延迟监控、ACL 和备份演练控制风险。",
+      "心智模型：可以把 Redis 想成一个“带数据结构和运维策略的高速共享内存”。\n\n- `key` 是定位入口，命名和 TTL 决定治理难度。\n- 数据类型是业务模型，决定命令集合、时间复杂度和内存结构。\n- 命令是唯一操作入口，复杂度和返回量决定单次执行成本。\n- 内存是主战场，`maxmemory`、淘汰策略、Big Key 和 Hot Key 决定容量与尾延迟。\n- RDB/AOF、复制、哨兵和集群是可靠性与扩展层，决定故障后的恢复方式和一致性窗口。",
+      "主流程机制：一次 Redis 访问通常按下面的链路完成：\n\n1. 应用从连接池取连接，发送 `GET user:42`、`ZADD leaderboard 100 u1` 或 `XREADGROUP` 等命令。\n2. Redis 事件循环读取命令，解析 key、参数、ACL 权限、数据库编号和目标数据类型。\n3. 服务端在内存字典中定位 key，按数据类型执行对应命令，更新对象、过期字典、统计计数和复制/AOF 缓冲。\n4. 写命令根据配置进入 AOF、RDB 快照周期和复制 backlog；读命令直接组织响应。\n5. 客户端收到结果，业务继续执行命中路径、回源路径、重试路径或降级路径。\n\n常用观察命令：\n\n```bash\nredis-cli INFO memory\nredis-cli INFO stats\nredis-cli INFO replication\nredis-cli SLOWLOG GET 10\nredis-cli --latency -h 127.0.0.1 -p 6379\nredis-cli MEMORY USAGE user:42\n```\n\n这些命令分别帮助确认内存、水位、命令统计、复制状态、慢命令、端到端延迟和单 key 大小。",
+      "典型场景：Redis 最常见的收益来自“高频、轻量、可用 key 精确定位”的数据。\n\n- 缓存：商品详情、用户权限、配置、查询结果，重点看 TTL、命中率、回源保护和缓存一致性。\n- 计数与限流：`INCR`、`EXPIRE`、Lua 和 Sorted Set 支撑窗口计数、滑动窗口和令牌桶近似实现。\n- 排行榜：Sorted Set 用 score 表示分数，用 `ZRANGE`、`ZREVRANGE` 和 `ZADD` 维护排名。\n- 会话与状态：登录态、验证码、幂等 token，重点看过期、持久化和跨机房访问路径。\n- 轻量消息：List、Stream、Pub/Sub 支撑队列、消费组和广播，重点看确认语义、积压和重放能力。\n\n选型时先写出访问模式：读写比例、单 key 大小、返回范围、过期窗口、恢复目标、峰值 QPS、允许的数据陈旧时间。",
+      "深层细节：Redis 的低延迟来自内存访问、紧凑数据结构、命令粒度和事件驱动执行；尾延迟则常常来自系统层和运维层。\n\n关键判断点：\n- 命令复杂度：`O(N)`、大范围返回、多 key 聚合会占用执行时间和网络带宽。\n- 内存压力：`used_memory`、`mem_fragmentation_ratio`、fork 写时复制、淘汰策略共同影响容量。\n- 持久化取舍：RDB 适合快照与备份，AOF 适合按写命令重放，`appendfsync everysec` 常见于性能和恢复窗口的折中。\n- 复制窗口：Redis 复制默认偏异步，主从延迟、故障切换和客户端路由会影响读到的数据版本。\n- 集群分片：Redis Cluster 用 hash slot 分散 key，多 key 操作需要关注 hash tag、MOVED/ASK 重定向和 slot 迁移。\n- 安全边界：Redis 官方安全模型假设可信环境，生产应通过内网隔离、防火墙、TLS、ACL、最小权限账号和危险命令管控保护实例。",
+      "边界与故障：Redis 线上问题通常有清晰证据链，排查时先区分容量、命令、网络、持久化、复制和客户端行为。\n\n- Big Key：单 key 过大导致读取、删除、迁移和网络输出放大，可用 `MEMORY USAGE`、`--bigkeys` 和业务 key 采样确认。\n- Hot Key：请求集中在少数 key，表现为单实例 CPU 或出方向带宽升高，可用客户端埋点、代理统计和云厂商热点分析确认。\n- 慢命令：`SLOWLOG GET`、`LATENCY DOCTOR`、命令复杂度和返回量共同定位阻塞点。\n- 持久化抖动：`BGSAVE`、AOF rewrite、磁盘 fsync、fork 和写时复制可能拉高延迟。\n- 内存打满：`maxmemory`、淘汰策略、过期 key 分布和数据增长速度决定是命中率下降、写入失败还是延迟抖动。\n- 复制与切换：主从延迟、全量同步、replication backlog 不足和 failover 会影响读一致性与可用性。\n- 缓存故障：穿透、击穿、雪崩、回源风暴和双写竞态会把压力传导到数据库。",
+      "排查实践：线上 Redis 延迟升高时按证据优先级推进，避免只看单个指标。\n\n1. 看应用侧：超时比例、p95/p99、连接池等待、重试次数、命令名和 key 模式。\n2. 看实例侧：`INFO stats` 的 `instantaneous_ops_per_sec`、`rejected_connections`、`expired_keys`、`evicted_keys`。\n3. 看内存侧：`INFO memory` 的 `used_memory`、`maxmemory`、碎片率、key 数量和 Big Key 分布。\n4. 看命令侧：`SLOWLOG GET`、命令复杂度、返回字节数、pipeline 使用和 Lua 执行时间。\n5. 看系统侧：CPU、网卡出入流量、磁盘 fsync、fork 耗时、透明大页、swap 和宿主机抖动。\n6. 看可靠性侧：`INFO replication`、主从 offset、AOF/RDB 状态、集群 slot 状态和故障切换日志。\n\n常用排查片段：\n\n```bash\nredis-cli INFO commandstats | sort\nredis-cli INFO persistence\nredis-cli INFO replication\nredis-cli LATENCY LATEST\nredis-cli LATENCY DOCTOR\nredis-cli CLIENT LIST\n```\n\n把 Redis 指标与业务日志、数据库 QPS、网关错误率放在同一时间轴上，才能确认 Redis 是起因、放大器还是受害者。",
+      "常见误区：Redis 的正确使用方式来自业务目标和故障成本。\n\n- 把 key 设计当成接口设计：稳定前缀、业务维度、TTL 规则和迁移方案会长期影响排障效率。\n- 把命令复杂度当成容量指标：同样的 QPS 下，大范围读取和高返回字节数会制造更高尾延迟。\n- 把持久化当成恢复策略的一部分：RDB/AOF、备份、恢复演练和故障切换日志共同决定可恢复性。\n- 把缓存一致性当成业务协议：先定义允许陈旧多久、允许丢失哪些状态，再选择删除缓存、延迟双删、消息订阅或 CDC 同步。\n- 把高可用当成客户端协作：哨兵和集群需要客户端正确发现拓扑、处理重定向、重连和重试。",
+      "面试追问：Redis 概览题通常考察候选人能否把性能、数据结构和生产风险连起来回答。\n\n- Redis 为什么快？回答内存、事件驱动、紧凑数据结构、命令粒度、网络往返和慢命令边界。\n- Redis 常见数据类型怎么选？按对象字段、队列、集合关系、排序、近似计数、消息流和返回范围选择。\n- Redis 做缓存有哪些故障模式？覆盖穿透、击穿、雪崩、回源风暴、双写竞态、Big Key 和 Hot Key。\n- RDB、AOF、复制、哨兵、集群各解决什么问题？按恢复、可用性、读扩展、故障切换和水平分片回答。\n- 线上 Redis 变慢怎么排查？从应用、命令、内存、持久化、网络、系统和复制链路给证据。\n- Redis 安全怎么做？说明内网隔离、ACL、TLS、危险命令治理、最小权限和审计。",
+      "参考来源：本文主要参考 Redis 官方 About Redis、Data types、Commands、Persistence、Replication、Cluster、Key eviction、Latency diagnosis、INFO、Observability 与 Security 文档；中文学习和面试表达参考小林 coding Redis 与 JavaGuide。"
     ],
     typicalProblems: [
-      "Redis 适合解决哪些高频访问问题",
-      "Redis 为什么能提供很低的访问延迟",
-      "Redis 常见数据类型如何影响建模选择",
-      "RDB、AOF、复制、哨兵和集群分别解决什么问题",
-      "Redis 用作缓存时有哪些一致性和雪崩风险",
-      "线上 Redis 延迟升高应该先看哪些指标",
+      "Redis 解决了哪些低延迟数据访问问题，常见业务场景有哪些",
+      "Redis 为什么快，命令复杂度、返回结果大小和事件循环如何影响尾延迟",
+      "Redis 常见数据类型如何影响缓存、计数、队列、排行榜和消息建模",
+      "RDB、AOF、复制、哨兵和集群分别支撑哪些可靠性与扩展目标",
+      "Redis 用作缓存时如何处理穿透、击穿、雪崩、回源风暴和双写一致性",
+      "Big Key、Hot Key、慢命令、内存打满和持久化抖动分别有哪些证据",
+      "线上 Redis 延迟升高时如何按应用、命令、内存、系统和复制链路排查",
+      "Redis 安全治理要覆盖哪些网络、认证、ACL、TLS 和危险命令控制点",
     ],
     useCases: ["缓存", "计数器", "排行榜", "分布式协调"],
     prerequisites: [],
