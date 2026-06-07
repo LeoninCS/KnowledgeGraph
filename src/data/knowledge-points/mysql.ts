@@ -216,7 +216,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 两阶段提交 | 2026-06-05 | source_count=13 --> */
   /* <!-- KG_EXPLAINED: 两阶段提交 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "two-phase-commit", zh: "两阶段提交", en: "Two-phase Commit", area: "log", difficulty: "hard", concept: "两阶段提交协调 Redo Log 和 Binlog，保证事务提交和复制日志一致。", explanation: ["核心概念：两阶段提交（Two-phase Commit）聚焦两阶段提交协调 Redo Log 和 Binlog，保证事务提交和复制日志一致。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住Redo、Undo、Binlog 和提交一致性，再看输入、状态变化、输出结果和失败分支。","适用场景：两阶段提交常用于主从一致性理解和崩溃恢复分析。学习时把它放回MySQL链路中观察，并结合前置知识Redo Log和Binlog判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，两阶段提交通常会和崩溃恢复一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认Redo、Undo、Binlog 和提交一致性是否仍然成立。","常见误区与注意点：实践中容易把两阶段提交当成孤立概念处理，结果遗漏刷盘策略、两阶段提交、日志空间和恢复窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["两阶段提交执行原理是什么","两阶段提交如何影响性能或一致性","两阶段提交线上问题怎么排查"], useCases: ["主从一致性理解","崩溃恢复分析"], prerequisites: ["redo-log","binlog"], related: ["crash-recovery"], order: 48 },
-  /* <!-- KG_REVIEWED: 崩溃恢复 | 2026-06-04 | source_count=8 --> */
+  /* <!-- KG_REVIEWED: 崩溃恢复 | 2026-06-05 | source_count=16 --> */
   /* <!-- KG_EXPLAINED: 崩溃恢复 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "crash-recovery", zh: "崩溃恢复", en: "Crash Recovery", area: "log", difficulty: "hard", concept: "崩溃恢复通过 Redo Log、Undo Log 和 Binlog 恢复到一致状态。", explanation: ["核心概念：崩溃恢复（Crash Recovery）聚焦崩溃恢复通过 Redo Log、Undo Log 和 Binlog 恢复到一致状态。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住Redo、Undo、Binlog 和提交一致性，再看输入、状态变化、输出结果和失败分支。","适用场景：崩溃恢复常用于异常重启恢复和故障演练。学习时把它放回MySQL链路中观察，并结合前置知识Redo Log和Undo Log判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，崩溃恢复通常会和Checkpoint一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认Redo、Undo、Binlog 和提交一致性是否仍然成立。","常见误区与注意点：实践中容易把崩溃恢复当成孤立概念处理，结果遗漏刷盘策略、两阶段提交、日志空间和恢复窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["崩溃恢复执行原理是什么","崩溃恢复如何影响性能或一致性","崩溃恢复线上问题怎么排查"], useCases: ["异常重启恢复","故障演练"], prerequisites: ["redo-log","undo-log"], related: ["checkpoint"], order: 49 },
   /* <!-- KG_REVIEWED: 锁 | 2026-05-24 | source_count=5 --> */
@@ -2359,18 +2359,71 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
       "mysql-innodb-recovery",
       "mysql-innodb-redo-log",
       "mysql-innodb-undo-logs",
+      "mysql-innodb-checkpoints",
+      "mysql-innodb-buffer-pool-flushing",
+      "mysql-innodb-change-buffer",
+      "mysql-innodb-doublewrite-buffer",
+      "mysql-innodb-startup-options",
+      "mysql-show-engine",
+      "mysql-server-status-variables",
       "mysql-binary-log",
       "mysql-replication-implementation",
+      "mysql-backup-recovery",
       "percona-mysql-writing-process",
       "xiaolincoding-mysql-log",
     ],
+    concept:
+      "崩溃恢复是 MySQL/InnoDB 在异常退出后用 Redo、Undo、Checkpoint、Binlog 和事务状态把实例恢复到可继续服务的一致状态的自动恢复流程。",
+    explanation: [
+      "概念定位：崩溃恢复（Crash Recovery）解决的是“数据库进程、主机或存储突然中断后，已提交事务如何保留，进行中事务如何清理，实例如何回到可继续服务状态”的问题。它出现在主库异常重启、云主机故障、容器被杀、磁盘掉电、复制切换、备份恢复演练、客户端提交超时和 MySQL 持久性面试题里。\n\n准确地说，InnoDB Crash Recovery 是启动阶段自动执行的恢复流程。InnoDB 根据 checkpoint 之后的 redo log 重放页修改，把数据页推进到日志记录的状态；再根据事务状态和 undo log 回滚未完成事务；同时完成 change buffer merge、purge 等后台修复工作。涉及 Binlog 的事务还需要用两阶段提交和 XID 对账，让本机恢复结果与复制、PITR 和 CDC 可见的事务边界一致。",
+      "心智模型：把崩溃恢复看成一次断电后的账本复盘。\n\n- `Checkpoint` 是上一次确认过的结算点，表示更早的脏页已经具备恢复安全性。\n- `Redo Log` 是结算点之后的重做账本，负责把数据页补到应有状态。\n- `Undo Log` 是撤销凭证，负责清理事务中断时留下的半成品。\n- `Binlog` 是对外流水，复制、时间点恢复和 CDC 以它作为已提交变更来源。\n- `LSN` 是账本页码，连接 redo、数据页、flush 位置和 checkpoint 位置。\n\n新手记住“先重做、再撤销、最后继续清理”；经验工程师还要追踪 checkpoint 距离、事务状态、XID、长事务回滚、存储一致性、恢复耗时和业务幂等补偿。",
+      "准确定义：崩溃恢复是 InnoDB 在实例启动时执行的自动恢复算法，目标是保证事务原子性、持久性和数据页一致性。它把多个组件放进同一个恢复闭环。\n\n- `Redo phase`：扫描 checkpoint 之后的 redo，重放已记录的页修改。\n- `Undo/Rollback phase`：识别未提交或需要回滚的事务，按 undo 记录撤销修改。\n- `Prepared transaction`：两阶段提交中的可恢复中间态，需要结合 Binlog XID 决定提交或回滚。\n- `Doublewrite buffer`：帮助识别和修复部分页写入，降低 torn page 风险。\n- `Change buffer merge`：恢复后继续把二级索引变更合并到目标页。\n- `Purge`：清理无需保留的历史 undo 和 delete-marked 记录。\n- `innodb_force_recovery`：严重损坏场景的只读抢救开关，用于导出数据和缩小损坏影响面。",
+      "主流程机制：一次异常重启后的 InnoDB 恢复可以按下面路径理解。\n\n1. MySQL 启动，InnoDB 打开系统表空间、undo 表空间、redo log、数据字典和独立表空间，并确认实例上一次关闭状态。\n2. InnoDB 从 checkpoint LSN 附近开始扫描 redo log，找到需要重放的日志记录和受影响的数据页。\n3. 对数据页进行一致性校验，必要时利用 doublewrite buffer 修复部分写入页，再把 redo record 应用到页上。\n4. 恢复事务系统，识别 committed、prepared、active 或需要回滚的事务状态。\n5. 对普通未完成事务执行 undo rollback；对 prepared 事务结合 Binlog/XID 判断事务最终提交或回滚。\n6. 打开服务能力后，后台继续处理长事务回滚、change buffer merge、purge、脏页刷盘和 checkpoint 推进。\n7. 复制、CDC、应用读写和备份工具基于恢复后的数据、Binlog 位点和 GTID 集合继续推进。\n\n```text\nmysqld restart\n  -> read checkpoint_lsn\n  -> scan redo after checkpoint_lsn\n  -> repair/read pages, apply redo records\n  -> rebuild transaction states\n  -> rollback active transactions through undo\n  -> resolve prepared transactions with binlog XID\n  -> continue purge/change-buffer-merge/checkpoint in background\n```",
+      "实践例子：一台主库异常重启后，先把启动日志、LSN、事务回滚和 Binlog 位点放进同一条证据链。\n\n```sql\nSHOW ENGINE INNODB STATUS\\G\n\nSHOW VARIABLES WHERE Variable_name IN (\n  'innodb_flush_log_at_trx_commit',\n  'sync_binlog',\n  'innodb_redo_log_capacity',\n  'innodb_log_buffer_size',\n  'innodb_force_recovery'\n);\n\nSHOW GLOBAL STATUS WHERE Variable_name IN (\n  'Innodb_log_waits',\n  'Innodb_os_log_written',\n  'Innodb_data_fsyncs',\n  'Innodb_buffer_pool_pages_dirty'\n);\n\nSHOW BINARY LOG STATUS;\nSHOW BINARY LOGS;\nSHOW REPLICA STATUS\\G\n```\n\n```bash\n# 查看 mysqld 启动和 InnoDB 恢复日志，路径以实际发行版为准\njournalctl -u mysqld --since '2026-06-07 10:00:00'\ntail -n 200 /var/log/mysql/error.log\n\n# 核对目标事务是否进入 Binlog\nmysqlbinlog --base64-output=DECODE-ROWS -vv /var/lib/mysql/binlog.000123 | less\n```\n\n有效结论要同时说明：实例恢复开始和结束时间、checkpoint 与 redo 扫描范围、是否存在长事务回滚、目标业务事务是否进入 Binlog、副本或 CDC 消费到了哪个位点。",
+      "Redo、Undo 与 Binlog 协同：崩溃恢复的难点在于“本机数据页、事务状态、对外日志”三者要得出同一个事务结论。\n\n- 已提交事务：redo 中有足够记录时，恢复会重做页修改，即使数据页原本还停留在 Buffer Pool 脏页状态。\n- 活跃事务：崩溃时仍在执行或尚未提交的事务，会通过 undo 执行回滚，相关锁和中间状态被清理。\n- Prepared 事务：InnoDB 已经进入 prepare 状态时，恢复流程用 Binlog 中是否存在对应 XID 判断事务结果。\n- Binlog 已写事务：恢复后本机数据按提交处理，复制、PITR 和 CDC 能看到同一笔事务。\n- Binlog 缺少事务：恢复后本机数据按回滚处理，下游事件流也保持相同边界。\n\n这就是两阶段提交在恢复阶段的价值：Binlog 是外部事实来源，Redo/Undo 负责把 InnoDB 内部状态对齐到这个事实。",
+      "恢复耗时与性能：崩溃恢复时间主要由日志距离、脏页状态、事务规模和存储质量共同决定。\n\n- Checkpoint 距离：`Log sequence number` 与 `Last checkpoint at` 距离越大，需要扫描和重放的 redo 越多。\n- Redo 容量：更大的 redo 容量能缓解写入高峰，也可能扩大恢复扫描窗口。\n- 脏页与刷盘：刷脏页滞后会提高恢复重放压力，后台 page cleaner 和 I/O capacity 影响 checkpoint 推进。\n- 大事务：单个大事务产生大量 redo、undo 和 binlog，崩溃后回滚或提交解释都更耗时。\n- 长事务：旧 ReadView 会延迟 purge，恢复后后台清理压力继续存在。\n- Doublewrite 与存储：部分页写入、磁盘缓存、云盘 fsync 抖动和文件系统错误都会影响恢复路径。\n- Change buffer：二级索引变更合并可能在恢复后继续进行，业务恢复初期 I/O 仍会较高。",
+      "工程场景：崩溃恢复的判断重点取决于故障目标和业务链路。\n\n- 主库异常重启：先确认实例启动完成、业务写入是否恢复、提交超时事务最终状态和 Binlog 位点。\n- 复制切换：用 GTID 集合、Binlog 文件/position、半同步确认和副本回放进度判断可提升节点。\n- 客户端提交超时：用业务幂等键、恢复后数据、Binlog XID 和错误日志确认事务最终结果。\n- 备份恢复演练：把全量备份恢复时间、Binlog 回放窗口、redo 恢复耗时和校验脚本一起记录。\n- 磁盘空间耗尽：同时关注 redo、undo、binlog、临时文件和归档目录，先保护可恢复性证据。\n- 容器或云盘故障：恢复后要核对存储事件、fsync 延迟、数据校验、只读切换和下游一致性。",
+      "边界与故障模式：崩溃恢复问题通常表现为启动耗时过长、实例只读抢救、部分表空间损坏、事务结果争议或下游位点不一致。\n\n- 恢复扫描时间长：checkpoint 落后、redo 容量大、写入高峰后异常退出，都会拉长启动阶段。\n- 大事务回滚慢：批量删除、导入、更新在崩溃前中断，恢复后 rollback 可能继续占用 I/O 和 CPU。\n- 表空间缺失：独立表空间文件、undo 表空间或 redo 文件异常，会导致启动失败或对象不可访问。\n- 页损坏：doublewrite 能处理部分页写入，真正的数据损坏需要结合备份、校验和抢救级别处理。\n- Binlog 缺口：`sync_binlog` 和存储故障窗口会影响对外日志持久性，恢复后要核对复制和 PITR 边界。\n- 强制恢复：`innodb_force_recovery` 适合导出数据和定位损坏范围，生产修复应尽快回到干净实例与备份恢复路径。",
+      "排查实践：生产异常重启建议按“保护证据 -> 判断恢复状态 -> 核对事务事实 -> 收敛风险”推进。\n\n1. 保护现场：保存错误日志、启动日志、主机重启记录、磁盘告警、Binlog 文件、备份元数据、业务请求 ID 和副本状态。\n2. 判断恢复状态：确认 MySQL 是否完成启动，错误日志中是否出现 redo scan、rollback、purge、table space、page corruption 等信号。\n3. 读取 InnoDB 状态：用 `SHOW ENGINE INNODB STATUS\\G` 观察 LSN、checkpoint、history list、active transactions、I/O 和 Buffer Pool。\n4. 核对提交事实：对超时或争议事务查询业务表、幂等表、Binlog XID/GTID、复制位点和 CDC offset。\n5. 评估下游影响：检查副本延迟、Relay Log、GTID 集合、读写分离路由、缓存回源和消息补偿。\n6. 处理损坏场景：优先从备份恢复；需要抢救时设置最低可行 `innodb_force_recovery` 级别导出数据，再重建干净实例。\n7. 复盘恢复目标：记录 RTO、RPO、恢复耗时、数据校验结果和后续参数调整，例如 redo 容量、刷盘策略、备份频率和大事务治理。\n\n```ini\n# 仅用于抢救导出，级别从 1 开始逐级评估\n[mysqld]\ninnodb_force_recovery=1\n```\n\n```bash\nmysqldump --single-transaction --all-databases > rescue.sql\n```\n\n抢救动作的优先级是保留证据、导出数据、重建干净实例、回放可验证日志、完成业务校验。",
+      "常见误区：崩溃恢复的正确心智模型是“自动恢复加证据核对”。\n\n- 事务提交成功的核心证据来自恢复后的数据、事务日志状态、Binlog 边界和业务幂等记录。\n- 数据页落盘时间可以晚于事务提交，Redo 提供恢复依据，Checkpoint 决定恢复扫描范围。\n- Undo 在恢复阶段负责清理未完成事务，也会在长事务和历史版本场景继续产生后台压力。\n- Binlog 与 Redo 的协调决定复制、PITR、CDC 和本机数据的一致边界。\n- 强制恢复参数服务数据抢救，长期方案依赖备份、Binlog、校验、演练和干净实例重建。",
+      "面试追问：崩溃恢复题适合按“为什么需要 -> WAL/Checkpoint -> Redo/Undo -> Binlog/XID -> 故障排查 -> 工程取舍”回答。\n\n- MySQL/InnoDB 崩溃恢复解决什么问题？\n- WAL、Redo Log、脏页和 Checkpoint 在恢复里分别承担什么角色？\n- 启动恢复时为什么从 checkpoint 之后扫描 redo？\n- 已提交事务、未提交事务、prepared 事务的恢复结论分别如何判断？\n- Undo Log 在回滚和 MVCC 中的作用如何影响恢复后后台清理？\n- Binlog XID 为什么能帮助 prepared 事务做提交或回滚判定？\n- `innodb_flush_log_at_trx_commit` 和 `sync_binlog` 如何影响持久性窗口与恢复解释？\n- checkpoint 落后、大事务、长事务和 redo 容量分别怎样影响 RTO？\n- 异常重启后如何判断客户端提交超时的事务最终成功还是回滚？\n- 页损坏或实例无法启动时，备份恢复与 `innodb_force_recovery` 应如何取舍？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 InnoDB Architecture、InnoDB Recovery、InnoDB Redo Log、Undo Logs、InnoDB Checkpoints、Buffer Pool Flushing、Change Buffer、Doublewrite Buffer、InnoDB Startup Options/System Variables、SHOW ENGINE、Server Status Variables、Binary Log、Replication Implementation、Backup and Recovery 文档，并结合 Percona 的 MySQL 写入流程图解和小林 coding 的 MySQL 日志文章校准恢复流程、提交协调、排查证据和中文面试表达。官方资料用于定义、恢复边界、参数和命令语义，工程资料用于补足故障复盘、性能取舍和排查路径。"
+    ],
+    typicalProblems: [
+      "MySQL/InnoDB 崩溃恢复解决什么问题，和普通备份恢复有什么区别？",
+      "Redo Log、Undo Log、Checkpoint、Binlog 在恢复阶段分别负责什么？",
+      "异常重启后 InnoDB 为什么从 checkpoint LSN 之后扫描 redo？",
+      "已提交事务、未提交事务和 prepared 事务在恢复时如何判定提交或回滚？",
+      "Binlog XID 与两阶段提交如何保证本机数据、复制和 PITR 的事务边界一致？",
+      "`innodb_flush_log_at_trx_commit`、`sync_binlog`、redo 容量和 checkpoint 距离如何影响恢复窗口？",
+      "长事务、大事务、change buffer、purge 和 doublewrite 分别会带来哪些恢复后现象？",
+      "线上异常重启后，如何用错误日志、`SHOW ENGINE INNODB STATUS`、Binlog 和业务幂等键判断事务最终状态？",
+      "实例启动失败或页损坏时，`innodb_force_recovery`、备份恢复和数据导出如何取舍？",
+      "生产系统如何通过演练验证 MySQL 的 RTO、RPO、备份可用性和 Binlog 连续性？"
+    ],
+    commonCommands: [
+      "SHOW ENGINE INNODB STATUS\\G",
+      "SHOW VARIABLES LIKE 'innodb_force_recovery'",
+      "SHOW VARIABLES LIKE 'innodb_flush_log_at_trx_commit'",
+      "SHOW VARIABLES LIKE 'sync_binlog'",
+      "SHOW VARIABLES LIKE 'innodb_redo_log_capacity'",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_log_waits'",
+      "SHOW GLOBAL STATUS LIKE 'Innodb_os_log_written'",
+      "SHOW BINARY LOG STATUS",
+      "SHOW BINARY LOGS",
+      "SHOW REPLICA STATUS\\G",
+      "mysqlbinlog --base64-output=DECODE-ROWS -vv binlog.000001",
+      "journalctl -u mysqld --since '<time>'",
+      "mysqldump --single-transaction --all-databases > rescue.sql"
+    ],
+    useCases: ["异常重启恢复", "故障演练", "提交超时事务核对", "主从切换复盘", "备份恢复验证", "PITR 边界判断", "页损坏抢救", "RTO/RPO 评估", "数据库面试"],
     internalTags: [
       "ai-visualized:2026-06-04",
       "visual-source:mysql-innodb-architecture",
       "visual-source:mysql-innodb-recovery",
     ],
-    prerequisites: ["redo-log", "undo-log", "binlog"],
-    related: ["checkpoint"],
+    prerequisites: ["redo-log", "undo-log", "binlog", "two-phase-commit", "checkpoint"],
+    related: ["redo-log", "undo-log", "binlog", "two-phase-commit", "replication", "point-in-time-recovery", "backup-restore", "show-engine-innodb-status"],
   },
   "lock": {
     prerequisites: ["transaction"],
