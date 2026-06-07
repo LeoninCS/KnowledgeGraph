@@ -210,7 +210,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: Undo Log | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: Undo Log | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "undo-log", zh: "Undo Log", en: "Undo Log", area: "log", difficulty: "hard", concept: "Undo Log 保存旧版本数据，用于事务回滚和 MVCC 快照读。", explanation: ["核心概念：Undo Log聚焦Undo Log 保存旧版本数据，用于事务回滚和 MVCC 快照读。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住Redo、Undo、Binlog 和提交一致性，再看输入、状态变化、输出结果和失败分支。","适用场景：Undo Log常用于事务回滚和版本链分析。学习时把它放回MySQL链路中观察，并结合前置知识事务判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Undo Log通常会和MVCC和ReadView一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认Redo、Undo、Binlog 和提交一致性是否仍然成立。","常见误区与注意点：实践中容易把Undo Log当成孤立概念处理，结果遗漏刷盘策略、两阶段提交、日志空间和恢复窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Undo Log执行原理是什么","Undo Log如何影响性能或一致性","Undo Log线上问题怎么排查"], useCases: ["事务回滚","版本链分析"], prerequisites: ["transaction"], related: ["mvcc","read-view"], order: 46 },
-  /* <!-- KG_REVIEWED: Binlog | 2026-06-04 | source_count=6 --> */
+  /* <!-- KG_REVIEWED: Binlog | 2026-06-05 | source_count=16 --> */
   /* <!-- KG_EXPLAINED: Binlog | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "binlog", zh: "Binlog", en: "Binary Log", area: "log", difficulty: "medium", concept: "Binlog 记录逻辑变更，用于复制、恢复和数据同步。", explanation: ["核心概念：Binlog（Binary Log）聚焦Binlog 记录逻辑变更，用于复制、恢复和数据同步。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住Redo、Undo、Binlog 和提交一致性，再看输入、状态变化、输出结果和失败分支。","适用场景：Binlog常用于主从复制、数据恢复和CDC 同步。学习时把它放回MySQL链路中观察，并结合前置知识MySQL 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Binlog通常会和主从复制和两阶段提交一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认Redo、Undo、Binlog 和提交一致性是否仍然成立。","常见误区与注意点：实践中容易把Binlog当成孤立概念处理，结果遗漏刷盘策略、两阶段提交、日志空间和恢复窗口。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Binlog执行原理是什么","Binlog如何影响性能或一致性","Binlog线上问题怎么排查"], useCases: ["主从复制","数据恢复","CDC 同步"], prerequisites: ["mysql-overview"], related: ["replication","two-phase-commit"], order: 47 },
   /* <!-- KG_REVIEWED: 两阶段提交 | 2026-06-04 | source_count=6 --> */
@@ -2232,14 +2232,66 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
   "binlog": {
     sourceRefs: [
       "mysql-binary-log",
+      "mysql-binary-log-options",
+      "mysql-mysqlbinlog",
+      "mysql-mysqlbinlog-backup",
+      "mysql-point-in-time-recovery-binlog",
+      "mysql-show-binary-log-status",
+      "mysql-show-binary-logs",
+      "mysql-purge-binary-logs",
       "mysql-replication-implementation",
-      "mysql-semisync-replication",
       "mysql-replication-formats",
+      "mysql-binary-log-transaction-compression",
+      "mysql-binary-log-transaction-dependency",
+      "mysql-semisync-replication",
       "hackmysql-binary-log-group-commit",
+      "debezium-mysql-connector",
       "xiaolincoding-mysql-log",
     ],
-    prerequisites: ["transaction"],
-    related: ["two-phase-commit", "replication"],
+    concept:
+      "Binlog 是 MySQL Server 层的二进制变更日志，按提交顺序记录数据变更和部分元数据事件，服务复制、时间点恢复、CDC、审计回放和跨系统数据同步。",
+    explanation: [
+      "概念定位：Binlog 解决的是“数据库已经接受一笔变更，下游系统如何按同一顺序知道、复制和恢复这笔变更”的问题。它出现在主从复制、读写分离、误删恢复、数据订阅、Canal/Debezium CDC、跨机房同步、两阶段提交、写入性能抖动和数据库面试里，是 MySQL 把本机事务提交结果传播给外部世界的核心日志。\n\n准确地说，Binary Log 是 MySQL Server 层维护的二进制事件序列。它记录会修改数据的语句或行变更事件，也记录日志轮转、GTID、DDL、事务边界等事件；副本、`mysqlbinlog`、备份恢复工具和 CDC 程序都以它作为变更来源。新手先抓住“提交后的变更流水账”；老手还要追踪日志格式、提交顺序、fsync 策略、组提交、PITR 边界、CDC 行镜像、保留策略和下游消费进度。",
+      "准确定义：Binlog 是 Server 层的逻辑变更日志，文件名通常类似 `binlog.000123`，当前位置由文件名加字节偏移组成。它和 InnoDB 内部日志的职责可以这样区分：\n\n- `Binlog`：记录提交给外部消费的变更事件，服务复制、时间点恢复、CDC 和跨系统同步。\n- `Redo Log`：InnoDB 物理重做日志，服务崩溃恢复和事务持久性。\n- `Undo Log`：InnoDB 撤销日志，服务回滚和 MVCC 历史版本。\n- `Relay Log`：副本本地接收主库 Binlog 后写入的中继日志，供 SQL 线程或 applier 回放。\n- `GTID`：全局事务标识，用于更稳地定位复制和恢复进度。\n- `mysqlbinlog`：解析、导出和回放 Binlog 的官方命令行工具。\n\nBinlog 的关键价值是“有序、可传输、可重放”。它把数据库内部提交结果转成外部系统能追踪的事件流。",
+      "心智模型：把 MySQL 主库想成账务系统，InnoDB 数据页是账本正本，Redo 是本机保险箱里的恢复记录，Binlog 是盖章后发给分行、审计和恢复团队的变更流水。业务写入成功后，其他系统靠这份流水继续同步状态。\n\n这个模型有三个判断点：\n\n- 顺序：下游按 Binlog 文件和 position，或按 GTID，理解事务提交顺序。\n- 内容：`STATEMENT` 记录 SQL，`ROW` 记录行变更，`MIXED` 在两者之间切换。\n- 边界：Binlog 写入、Redo 提交、刷盘和下游消费共同决定一致性、延迟和恢复窗口。\n\n因此，Binlog 的工程问题通常体现在“记录了什么、是否持久化、下游读到哪里、是否还保留、能否安全回放”。",
+      "主流程机制：一次事务写入 Binlog 的主路径可以按“执行 -> 生成事件 -> 提交协调 -> 持久化 -> 下游消费”理解。\n\n1. 客户端执行 `INSERT`、`UPDATE`、`DELETE` 或 DDL，Server 层解析优化，存储引擎执行真实修改。\n2. Server 根据 `binlog_format` 生成事件：语句事件、行事件、表映射事件、GTID 事件、XID/commit 事件等。\n3. 对 InnoDB 事务，MySQL 通过提交协调让 Redo 与 Binlog 的事务结果保持一致，后续两阶段提交会专门展开。\n4. 事务提交阶段把 Binlog 事件写入当前日志文件；`sync_binlog` 决定事务组何时调用 fsync 把 Binlog 刷到磁盘。\n5. 日志达到大小或执行 `FLUSH BINARY LOGS` 等操作时发生轮转，新的文件继续记录后续事件。\n6. 副本 I/O 线程、备份工具、`mysqlbinlog` 或 CDC 连接读取 Binlog，把事件写入 Relay Log、导出 SQL 或转换成消息流。\n7. 保留时间或清理命令触发后，旧 Binlog 被删除；删除前需要确认备份、PITR、复制和 CDC 都已经消费到安全位置。\n\n```text\nclient COMMIT\n  -> InnoDB prepare redo\n  -> Server write binlog events\n  -> fsync binlog according to sync_binlog/group commit\n  -> InnoDB commit redo\n  -> replica / CDC / mysqlbinlog consume binlog\n```\n\n这条链路说明 Binlog 位于 Server 层提交路径上，也位于所有下游数据链路的起点。",
+      "日志格式与事件内容：Binlog 的可用性很大程度取决于格式选择。\n\n- `STATEMENT`：记录原始 SQL，日志体积通常较小，依赖 SQL 在下游重放时仍具备确定性。\n- `ROW`：记录每行变更前后值或必要列，复制和 CDC 的确定性更强，日志体积可能明显变大。\n- `MIXED`：默认使用语句格式，遇到容易产生差异的语句时切到行格式。\n- `binlog_row_image=FULL`：记录完整行镜像，CDC 和问题回放信息最充分，日志量更大。\n- `binlog_row_image=MINIMAL`：只记录必要列，能减小日志体积，CDC、审计和回滚构造需要更明确的表结构与主键假设。\n- `binlog_transaction_compression`：可压缩事务 payload，降低网络和磁盘压力，也增加 CPU 与排查复杂度。\n\n行格式下常见事件包括 `Table_map`、`Write_rows`、`Update_rows`、`Delete_rows` 和事务提交事件。排查 CDC 字段缺失、复制不一致或大事务日志膨胀时，优先确认格式、row image、主键、DDL 历史和工具解析能力。",
+      "实践例子：下面这组命令可以完成 Binlog 状态确认、事件查看和简单时间点恢复演练。\n\n```sql\nSHOW VARIABLES WHERE Variable_name IN (\n  'log_bin',\n  'binlog_format',\n  'binlog_row_image',\n  'sync_binlog',\n  'binlog_expire_logs_seconds',\n  'max_binlog_size',\n  'binlog_transaction_compression'\n);\n\nSHOW BINARY LOG STATUS;\nSHOW BINARY LOGS;\nSHOW REPLICA STATUS\\G\n```\n\n```bash\n# 查看事件边界、GTID、position 和行事件伪 SQL\nmysqlbinlog --base64-output=DECODE-ROWS -vv \\\n  --start-position=154 --stop-position=2048 \\\n  /var/lib/mysql/binlog.000123\n\n# 按时间截取并回放到临时恢复库，常用于 PITR 演练\nmysqlbinlog --start-datetime='2026-06-07 10:00:00' \\\n  --stop-datetime='2026-06-07 10:30:00' \\\n  /backup/binlog.000123 | mysql -h restore-host -u root -p\n```\n\n真实恢复流程通常是“恢复全量备份到临时实例 -> 应用目标时间前的 Binlog -> 校验数据 -> 导出修复数据 -> 回写生产”。误删恢复要避开错误语句所在位置或时间点，并在临时环境完成验证。",
+      "工程场景：Binlog 的价值会随着系统规模放大。\n\n- 主从复制：副本读取主库 Binlog，写入 Relay Log，再按顺序或并行回放，是读写分离和高可用的基础。\n- 时间点恢复：全量备份提供基线，Binlog 补齐备份之后到目标时刻的增量变更。\n- CDC：Debezium、Canal、Flink CDC 等工具读取 Binlog，把数据库变更转换成 Kafka、消息队列或搜索索引更新。\n- 数据迁移：双写切换、灰度迁移和异构同步常用 Binlog 追平增量。\n- 审计与追责：Binlog 能帮助还原部分变更顺序和内容，审计需求还要配合账号、SQL 审计和业务日志。\n- 故障切换：GTID、Binlog position、Relay Log 进度和半同步状态决定新主选择和数据丢失窗口。\n\n业务越依赖 Binlog，下游消费位点、日志保留、DDL 兼容、主键完整性和恢复演练越需要纳入发布流程。",
+      "深层细节：Binlog 处在事务提交、复制调度和外部数据流之间，几个细节会影响一致性和性能。\n\n- 事务顺序以提交顺序进入 Binlog；复制和 CDC 通常把这个顺序作为下游变更顺序基准。\n- 组提交把多个事务的 Binlog 写入和 fsync 合并，能显著降低 `sync_binlog=1` 下的同步成本。\n- `sync_binlog=1` 强化 Binlog 持久化语义；更大的值提升吞吐，也扩大操作系统崩溃时 Binlog 丢失窗口。\n- InnoDB 事务提交依赖 Redo 与 Binlog 协调，避免本机恢复结果和外部复制日志产生分歧。\n- 大事务会形成大 Binlog 事件组，副本和 CDC 需要等完整事务边界，延迟和内存压力都会上升。\n- DDL、隐式提交和非事务表会改变事务边界，恢复和复制分析要把它们单独标出来。\n- 语句格式对非确定性函数、触发器、副作用语句和数据依赖更敏感；行格式更适合高一致性复制和 CDC。\n- Binlog 删除会同时影响 PITR、延迟副本、CDC 补偿和审计回溯，清理策略要服务最慢消费者。",
+      "性能、安全与保留取舍：Binlog 配置本质是在持久性、吞吐、恢复能力、下游完整性和存储成本之间做选择。\n\n- 持久性：`sync_binlog=1` 适合资金、订单、库存和强恢复目标；批量导入或可重放数据可以结合业务恢复能力调整。\n- 日志体积：`ROW` + `FULL` 信息最完整，磁盘、网络和副本回放压力也更高；`MINIMAL` 降低体积，要求下游工具具备清晰的主键和表结构语义。\n- 复制延迟：大事务、无主键表、DDL、热点更新和磁盘 fsync 抖动都会放大副本和 CDC 延迟。\n- 保留策略：`binlog_expire_logs_seconds` 和手工 `PURGE BINARY LOGS` 需要覆盖全量备份周期、PITR 目标、延迟副本和 CDC 离线窗口。\n- 安全：Binlog 可能包含敏感字段值，备份、传输、访问权限、脱敏和加密要和数据安全策略一致。\n- 运维成本：开启 Binlog 增加写路径 I/O 和磁盘占用，同时换来复制、恢复和数据集成能力。",
+      "边界与故障模式：Binlog 问题通常表现为无法恢复到目标时间、复制中断、CDC 卡住、磁盘打满、提交变慢或主从数据差异。\n\n- 未开启或保留过短：`log_bin` 关闭、清理过早或备份缺口会让 PITR 和增量同步失去来源。\n- 刷盘策略偏弱：操作系统或主机崩溃可能让已提交事务的 Binlog 没有落盘，复制和恢复窗口扩大。\n- 格式选择失配：语句格式遇到非确定性逻辑可能放大差异，行格式缺少完整镜像会影响 CDC 字段还原。\n- 大事务：副本要等事务完整接收和提交，CDC 消费也可能出现批量堆积。\n- DDL 与表结构漂移：下游解析行事件需要匹配表结构历史，在线变更和多源同步要保留元数据演进信息。\n- 磁盘空间耗尽：Binlog、Redo、Undo、临时文件和备份同时增长时，实例可能停止写入。\n- 清理误操作：手工 `PURGE BINARY LOGS` 前遗漏延迟副本或 CDC 位点，会造成下游断点丢失。\n\n线上处置先冻结清理和变更，再确认主库文件/position、GTID、备份基线、消费者位点和磁盘余量。",
+      "排查实践：Binlog 相关问题建议按“配置 -> 文件 -> 位点 -> 内容 -> 下游 -> 存储 -> 恢复边界”建立证据链。\n\n1. 看配置：确认 `log_bin`、`server_id`、`binlog_format`、`binlog_row_image`、`sync_binlog`、过期时间和最大文件大小。\n2. 看当前位点：用 `SHOW BINARY LOG STATUS` 记录当前文件、position、GTID 集合。\n3. 看文件列表：用 `SHOW BINARY LOGS` 找到起止文件、大小异常和是否覆盖目标恢复时间。\n4. 看下游进度：副本看 `SHOW REPLICA STATUS\\G`，CDC 看消费 offset、GTID、Kafka 积压和连接错误。\n5. 看事件内容：用 `mysqlbinlog -vv --base64-output=DECODE-ROWS` 解析目标 position 附近事件，确认事务边界、表、主键和行镜像。\n6. 看提交耗时：关联 `sync_binlog`、磁盘 fsync、组提交效果、大事务体积和业务 p95/p99。\n7. 看保留风险：清理前对齐全量备份、延迟副本、PITR 目标和 CDC 离线窗口。\n8. 做恢复验证：在临时实例回放目标区间，校验行数、校验和、业务关键字段和下游重放结果。\n\n```bash\nmysqlbinlog --start-position=120 --stop-position=900 \\\n  --base64-output=DECODE-ROWS -vv /backup/binlog.000456 | less\n\ndu -sh /var/lib/mysql/binlog.*\n```\n\n一个可靠结论需要说明：目标事务是否进入 Binlog，是否已经 fsync，是否仍在保留窗口内，下游消费到哪里，恢复回放是否通过临时实例验证。",
+      "常见误区：Binlog 的正确心智模型是“Server 层提交结果的外部事件流”。\n\n- Binlog 面向复制、恢复和 CDC，Redo 面向 InnoDB 崩溃恢复，Undo 面向回滚和 MVCC。\n- Binlog 的可用性由格式、刷盘、保留、位点和下游解析共同决定。\n- PITR 需要全量备份和连续 Binlog 共同完成，恢复结果要在临时实例验证。\n- CDC 依赖行事件、主键、表结构历史和消费位点，发布 DDL 时要考虑下游兼容。\n- 日志清理策略应该服务最慢的可靠消费者，尤其是延迟副本、离线 CDC 和恢复演练。",
+      "面试追问：Binlog 适合按“定义 -> 格式 -> 提交 -> 复制 -> 恢复 -> 排查 -> 取舍”组织答案。\n\n- Binlog 是什么，它解决 MySQL 哪些工程问题？\n- Binlog、Redo Log、Undo Log 在层级、内容和恢复用途上如何区分？\n- `STATEMENT`、`ROW`、`MIXED` 三种格式分别适合哪些场景？\n- Row-based Binlog 中 `binlog_row_image` 对 CDC、审计和日志体积有什么影响？\n- 一次 InnoDB 事务提交时，Binlog 和 Redo 如何保持一致？\n- `sync_binlog` 和组提交如何影响提交延迟、吞吐和故障窗口？\n- 主从复制如何消费 Binlog，复制延迟和大事务有什么关系？\n- 误删数据后如何用全量备份和 Binlog 做时间点恢复？\n- CDC 消费 Binlog 卡住时，应检查哪些位点、事件、表结构和错误日志？\n- 清理 Binlog 前需要确认哪些备份、复制、延迟副本和 CDC 条件？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Binary Log、Binary Logging Options and Variables、mysqlbinlog、Using mysqlbinlog to Back Up Binary Log Files、Point-in-Time Recovery Using Binary Log、SHOW BINARY LOG STATUS、SHOW BINARY LOGS、PURGE BINARY LOGS、Replication Implementation、Binary Logging Formats、Binary Log Transaction Compression、Semisynchronous Replication 和 Binary Log Transaction Dependency Tracking 文档，并结合 HackMySQL 的 Binary Log Group Commit、Debezium MySQL Connector 文档与小林 coding 的 MySQL 日志文章校准提交链路、组提交、CDC 依赖、排查命令和中文面试表达。官方资料用于确定日志语义、命令和配置边界，工程资料用于补充性能、下游消费和生产排障判断。"
+    ],
+    typicalProblems: [
+      "Binlog 是什么，它在复制、恢复和 CDC 中分别承担什么职责？",
+      "Binlog、Redo Log、Undo Log 的层级、内容、写入时机和恢复用途有什么区别？",
+      "`STATEMENT`、`ROW`、`MIXED` 三种日志格式如何选择，哪些语句更适合行格式？",
+      "Row-based Binlog 的 `binlog_row_image` 如何影响 CDC 字段完整性、日志体积和审计回放？",
+      "MySQL 事务提交时，Binlog 与 Redo Log 如何通过提交协调保持一致？",
+      "`sync_binlog`、组提交和磁盘 fsync 如何影响写入延迟、吞吐和故障丢失窗口？",
+      "主从复制、半同步复制和 CDC 工具如何消费 Binlog，消费位点如何表示？",
+      "如何用全量备份和 `mysqlbinlog` 做时间点恢复，误删语句如何跳过？",
+      "复制延迟、CDC 卡住、大事务 Binlog 和磁盘空间告警分别怎么排查？",
+      "清理 Binlog 前需要确认哪些备份、PITR、延迟副本和 CDC 条件？"
+    ],
+    commonCommands: [
+      "SHOW VARIABLES LIKE 'log_bin'",
+      "SHOW VARIABLES LIKE 'binlog_format'",
+      "SHOW VARIABLES LIKE 'binlog_row_image'",
+      "SHOW VARIABLES LIKE 'sync_binlog'",
+      "SHOW BINARY LOG STATUS",
+      "SHOW BINARY LOGS",
+      "SHOW REPLICA STATUS\\G",
+      "mysqlbinlog --base64-output=DECODE-ROWS -vv binlog.000001",
+      "PURGE BINARY LOGS TO 'binlog.000123'"
+    ],
+    useCases: ["主从复制", "时间点恢复", "CDC 同步", "误删恢复", "数据迁移", "审计回放", "高可用切换", "写入性能排查", "数据库面试"],
+    prerequisites: ["transaction", "redo-log", "mysql-overview"],
+    related: ["two-phase-commit", "replication", "replication-lag", "gtid", "point-in-time-recovery", "backup-restore", "crash-recovery"],
   },
   "two-phase-commit": {
     sourceRefs: [

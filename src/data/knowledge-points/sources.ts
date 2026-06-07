@@ -5997,6 +5997,38 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: The Binary Log",
     url: "https://dev.mysql.com/doc/refman/8.4/en/binary-log.html",
   },
+  "mysql-binary-log-options": {
+    title: "MySQL Reference Manual: Binary Logging Options and Variables",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html",
+  },
+  "mysql-mysqlbinlog": {
+    title: "MySQL Reference Manual: mysqlbinlog Utility for Processing Binary Log Files",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/mysqlbinlog.html",
+  },
+  "mysql-mysqlbinlog-backup": {
+    title: "MySQL Reference Manual: Using mysqlbinlog to Back Up Binary Log Files",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/mysqlbinlog-backup.html",
+  },
+  "mysql-point-in-time-recovery-binlog": {
+    title: "MySQL Reference Manual: Point-in-Time Recovery Using Binary Log",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/point-in-time-recovery-binlog.html",
+  },
+  "mysql-show-binary-log-status": {
+    title: "MySQL Reference Manual: SHOW BINARY LOG STATUS Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/show-binary-log-status.html",
+  },
+  "mysql-show-binary-logs": {
+    title: "MySQL Reference Manual: SHOW BINARY LOGS Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/show-binary-logs.html",
+  },
+  "mysql-purge-binary-logs": {
+    title: "MySQL Reference Manual: PURGE BINARY LOGS Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/purge-binary-logs.html",
+  },
+  "mysql-binary-log-transaction-compression": {
+    title: "MySQL Reference Manual: Binary Log Transaction Compression",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/binary-log-transaction-compression.html",
+  },
   "mysql-replication-implementation": {
     title: "MySQL Reference Manual: Replication Implementation Details",
     url: "https://dev.mysql.com/doc/refman/8.4/en/replication-implementation.html",
