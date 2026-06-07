@@ -1469,9 +1469,75 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: Performance Schema | 2026-05-24 | source_count=5 --> */
   /* <!-- KG_EXPLAINED: Performance Schema | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "performance-schema", zh: "Performance Schema", en: "Performance Schema", area: "operations", difficulty: "hard", concept: "Performance Schema 提供 MySQL 内部性能事件、等待、语句和锁的观测数据。", explanation: ["核心概念：Performance Schema聚焦Performance Schema 提供 MySQL 内部性能事件、等待、语句和锁的观测数据。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住备份恢复、在线 DDL、连接池和性能观测，再看输入、状态变化、输出结果和失败分支。","适用场景：Performance Schema常用于性能诊断、等待事件分析和SQL 统计。学习时把它放回MySQL链路中观察，并结合前置知识MySQL 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，Performance Schema通常会和慢查询日志一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点风险和细节较多。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认备份恢复、在线 DDL、连接池和性能观测是否仍然成立。","常见误区与注意点：实践中容易把Performance Schema当成孤立概念处理，结果遗漏元数据锁、备份一致性、连接耗尽和恢复演练。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["Performance Schema执行原理是什么","Performance Schema如何影响性能或一致性","Performance Schema线上问题怎么排查"], useCases: ["性能诊断","等待事件分析","SQL 统计"], prerequisites: ["mysql-overview"], related: ["slow-query-log"], order: 83 },
-  /* <!-- KG_REVIEWED: 连接池 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 连接池 | 2026-06-05 | source_count=15 --> */
   /* <!-- KG_EXPLAINED: 连接池 | 2026-05-23 | source_count=5 --> */
-  { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "connection-pool", zh: "连接池", en: "Connection Pool", area: "operations", difficulty: "medium", concept: "连接池复用数据库连接，控制并发连接数量和等待时间。", explanation: ["核心概念：连接池（Connection Pool）聚焦连接池复用数据库连接，控制并发连接数量和等待时间。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住备份恢复、在线 DDL、连接池和性能观测，再看输入、状态变化、输出结果和失败分支。","适用场景：连接池常用于后端服务接入、连接数保护和性能调优。学习时把它放回MySQL链路中观察，并结合前置知识MySQL 概览判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，连接池通常会和连接列表一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认备份恢复、在线 DDL、连接池和性能观测是否仍然成立。","常见误区与注意点：实践中容易把连接池当成孤立概念处理，结果遗漏元数据锁、备份一致性、连接耗尽和恢复演练。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["连接池执行原理是什么","连接池如何影响性能或一致性","连接池线上问题怎么排查"], useCases: ["后端服务接入","连接数保护","性能调优"], prerequisites: ["mysql-overview"], related: ["show-processlist"], order: 84 },
+  {
+    sourceRefs: [
+      "mysql-reference",
+      "mysql-server-system-variables",
+      "mysql-server-status-variables",
+      "mysql-too-many-connections",
+      "mysql-show-processlist",
+      "mysql-information-schema-processlist",
+      "mysql-performance-schema",
+      "mysql-performance-schema-threads-table",
+      "mysql-slow-query-log",
+      "mysql-connectorj-connection-pooling",
+      "hikaricp-readme",
+      "hikaricp-pool-sizing",
+      "go-database-sql-manage-connections",
+      "aliyun-rds-mysql-connection-pool",
+      "aliyun-rds-mysql-connection-full",
+    ],
+    id: "connection-pool",
+    zh: "连接池",
+    en: "Connection Pool",
+    area: "operations",
+    difficulty: "medium",
+    concept:
+      "连接池是在应用侧复用 MySQL 连接、限制并发借用、控制等待时间和清理会话状态的资源池，核心价值是降低建连成本并保护数据库连接容量。",
+    explanation: [
+      "概念定位：连接池（Connection Pool）解决的是“每次访问 MySQL 都新建 TCP/认证/会话连接成本高、并发洪峰又会把数据库连接打满”的问题。它出现在 Java 后端、Go 服务、网关、批处理、定时任务、读写分离客户端、连接代理和云数据库接入层，是数据库稳定性里最基础的隔离与背压组件。\n\n新手先抓住三件事：连接池提前或按需创建连接，请求借用连接执行 SQL，用完归还连接。经验工程师继续关注池大小、排队等待、超时、连接生命周期、会话状态清理、事务泄漏、主从切换、服务端 `max_connections`、客户端实例数和生产证据链。",
+      "准确定义：MySQL 连接池是客户端或中间层维护的一组可复用物理连接。应用拿到的是一次借用权，底层连接仍然属于池，归还后可以服务下一次请求。\n\n关键对象包括：\n\n- 物理连接：TCP 连接、MySQL 协议握手、认证结果、会话变量和服务端线程资源。\n- 池容量：最大打开连接数、最大空闲连接数、最小空闲连接数和等待队列。\n- 借用超时：请求等待可用连接的最长时间，例如 HikariCP 的 `connectionTimeout`、Go `database/sql` 的上下文 deadline。\n- 生命周期：空闲超时、最大存活时间、保活检测和失效连接剔除。\n- 会话清理：事务、隔离级别、临时表、用户变量、prepared statement、`autocommit` 和字符集等状态需要在归还前保持可预期。\n\n连接池的目标是让应用并发有上界，让 MySQL 连接资源有预算，让故障能以等待超时或快速失败的方式暴露。",
+      "心智模型：把连接池看成数据库门口的“有限工位”。\n\n- 工位数量就是最大连接数，决定同一时刻最多有多少请求真正占用 MySQL 连接。\n- 等候区就是等待队列，决定超过容量时请求排队多久。\n- 借用时长就是 SQL、事务和业务代码占用连接的时间，越长越容易把池占满。\n- 清洁流程就是连接归还时的状态重置，保证下一个请求拿到干净会话。\n- 门店总容量就是 MySQL `max_connections`，所有应用实例、后台任务、运维连接和复制连接都要共享预算。\n\n容量公式可以先用这个约束校准：`应用实例数 * 每实例 maximumPoolSize + 管理连接余量 <= MySQL 可用连接上限`。随后再用压测和线上等待指标调整。",
+      "主流程机制：一次数据库请求经过连接池通常有 8 个阶段。\n\n1. 应用线程进入 DAO/Repository，调用 `DataSource.getConnection()`、`sql.DB.QueryContext()` 或 ORM 的会话入口。\n2. 连接池检查空闲连接；有可用连接时立即借出，并记录借用开始时间。\n3. 空闲连接不足且打开连接数低于上限时，池创建新物理连接，完成 TCP、TLS、MySQL 握手和认证。\n4. 打开连接数已达上限时，请求进入等待队列，直到有连接归还、等待超时或上下文取消。\n5. 请求在连接上执行 SQL、事务、prepared statement、批处理或锁定读，MySQL 服务端对应线程进入 `Sleep`、`Query`、`Locked` 等状态。\n6. 请求提交或回滚事务，读取结果集并关闭 statement/result，连接池收到归还动作。\n7. 池执行健康检查和状态清理，必要时丢弃失效、超龄、网络异常或服务端已关闭的连接。\n8. 监控系统记录活跃连接、空闲连接、等待线程、等待耗时、超时次数、泄漏告警和服务端连接状态。\n\n这个流程把应用线程池、数据库连接池、MySQL 线程和 InnoDB 锁等待连在一起，任何一段变慢都会体现在连接占用时间上。",
+      "配置例子：Java/HikariCP 与 Go `database/sql` 的配置项名字不同，底层控制面一致。\n\n```properties\n# HikariCP 常见配置，数值需要按实例数、MySQL 上限和压测结果校准\njdbcUrl=jdbc:mysql://mysql-primary:3306/app?useUnicode=true&characterEncoding=utf8\nusername=app_user\npassword=${DB_PASSWORD}\nmaximumPoolSize=20\nminimumIdle=5\nconnectionTimeout=1000\nidleTimeout=600000\nmaxLifetime=1800000\nkeepaliveTime=300000\nleakDetectionThreshold=3000\n```\n\n```go\n// Go database/sql：*sql.DB 是并发安全的连接池句柄\nctx, cancel := context.WithTimeout(context.Background(), 800*time.Millisecond)\ndefer cancel()\n\ndb.SetMaxOpenConns(20)\ndb.SetMaxIdleConns(10)\ndb.SetConnMaxIdleTime(10 * time.Minute)\ndb.SetConnMaxLifetime(30 * time.Minute)\n\nrows, err := db.QueryContext(ctx, `SELECT id, status FROM orders WHERE user_id = ? LIMIT 20`, userID)\nif err != nil {\n    return err\n}\ndefer rows.Close()\n```\n\n这两段配置都体现同一原则：限制最大并发连接，用短等待暴露池耗尽，用连接生命周期避开服务端空闲超时和负载均衡连接老化，用泄漏检测或上下文取消定位长时间占用。",
+      "容量设计：连接池大小要从数据库容量、应用实例数和请求持有时间共同推导。\n\n1. 先确认 MySQL 上限：`max_connections`、云数据库规格、代理限制、管理连接预留、复制/备份/监控连接占用。\n2. 再确认应用拓扑：服务实例数、每实例进程数、读写分离池数量、批处理池、后台任务和灰度双跑。\n3. 估算连接需求：用 `并发数据库请求数 = QPS * 单次连接占用时间` 做第一版 Little's Law 粗算。\n4. 设置硬上限：让所有实例池上限总和低于 MySQL 可用连接上限，并给运维连接和故障恢复留余量。\n5. 压测验证：观察池等待、MySQL `Threads_connected`、`Threads_running`、CPU、I/O、锁等待、慢查询和 p99。\n6. 调整策略：SQL 变慢时优先降低连接占用时间；数据库 CPU 打满时扩大池只会增加排队深度和竞争。\n\n连接池是并发闸门。合适的池大小让数据库满负载而排队可控，过大的池会把应用排队迁移成 MySQL 线程竞争、锁等待和缓存抖动。",
+      "深层细节：连接池问题的根因经常在连接以外。\n\n- SQL 慢：慢查询、回表、filesort、锁等待和网络大结果会延长连接占用时间，池等待随之上升。\n- 事务长：事务内 RPC、文件 I/O、人工确认或大批处理会让连接、锁和 Undo 同时被占用。\n- 结果集未关闭：Java `ResultSet`、Go `rows.Close()`、ORM 游标和流式读取释放不及时，会形成连接泄漏。\n- 会话污染：修改 `autocommit`、`transaction_isolation`、`sql_mode`、时区、临时表或用户变量后归还连接，会影响后续请求语义。\n- 服务端空闲超时：MySQL `wait_timeout`/`interactive_timeout`、代理空闲回收和网络设备会关闭长空闲连接，客户端要靠保活和最大生命周期主动更新。\n- 主从切换：旧连接可能仍指向原主库或异常节点，池需要清理失效连接并配合服务发现、DNS/代理和读写路由刷新。\n- 线程池耦合：应用 worker 等数据库连接时继续占住业务线程，线程池、连接池和上游重试会一起放大。\n- 安全与权限：池内连接通常使用应用账号，最小权限、TLS、凭据轮换和连接泄漏日志脱敏都属于生产要求。",
+      "边界与故障模式：生产连接池故障通常表现为等待超时、连接数打满、雪崩和状态污染。\n\n- 池耗尽：客户端报 `Connection is not available, request timed out`、上下文 deadline、`connectionTimeout`，同时活跃连接接近 `maximumPoolSize`。\n- 服务端打满：MySQL 报 `Too many connections`，`Threads_connected` 接近 `max_connections`，新连接和运维登录都受影响。\n- 慢 SQL 牵引：池活跃连接很高，MySQL `Threads_running`、慢查询日志和 Performance Schema 显示少数 SQL 长时间运行。\n- 锁等待牵引：连接池等待上升，`SHOW PROCESSLIST` 或 `performance_schema.threads` 显示大量连接卡在锁、提交或元数据锁相关状态。\n- 泄漏：借出连接没有归还，池活跃数长期不降，泄漏检测日志指向调用栈。\n- 空闲断开：请求刚借到连接就遇到通信异常，常见原因是服务端或代理先关闭空闲连接。\n- 扩容放大：应用副本数增加后，每个实例仍使用同样池大小，总连接数超过数据库预算。\n- 重试风暴：连接等待超时后上游立即重试，排队请求和数据库压力同步增加。\n\n故障判断要把客户端池指标和 MySQL 服务端指标放到同一时间轴上，单看一侧容易漏掉真正瓶颈。",
+      "排查实践：连接池问题按“客户端池 -> MySQL 连接 -> SQL/锁 -> 容量预算 -> 修复验证”推进。\n\n```sql\n-- MySQL 侧容量、连接和线程状态\nSHOW VARIABLES LIKE 'max_connections';\nSHOW VARIABLES LIKE 'wait_timeout';\nSHOW VARIABLES LIKE 'interactive_timeout';\nSHOW GLOBAL STATUS LIKE 'Threads_connected';\nSHOW GLOBAL STATUS LIKE 'Threads_running';\nSHOW GLOBAL STATUS LIKE 'Max_used_connections';\nSHOW PROCESSLIST;\n\n-- 用 Performance Schema 观察线程、账号、主机和当前语句\nSELECT PROCESSLIST_ID, PROCESSLIST_USER, PROCESSLIST_HOST,\n       PROCESSLIST_DB, PROCESSLIST_COMMAND, PROCESSLIST_TIME,\n       PROCESSLIST_STATE, PROCESSLIST_INFO\nFROM performance_schema.threads\nWHERE TYPE = 'FOREGROUND'\nORDER BY PROCESSLIST_TIME DESC\nLIMIT 30;\n\nSELECT DIGEST_TEXT, COUNT_STAR, SUM_TIMER_WAIT, SUM_ROWS_EXAMINED\nFROM performance_schema.events_statements_summary_by_digest\nORDER BY SUM_TIMER_WAIT DESC\nLIMIT 10;\n```\n\n建议步骤：\n\n1. 客户端先看池指标：活跃连接、空闲连接、等待线程、等待耗时、超时次数、创建连接速率、泄漏检测日志。\n2. MySQL 再看连接水位：`Threads_connected`、`Max_used_connections`、`max_connections`、账号/主机分布和 `SHOW PROCESSLIST` 状态。\n3. 定位连接占用原因：慢 SQL、锁等待、长事务、大结果集、结果未关闭、事务未提交或网络异常。\n4. 查容量公式：核对实例数、每实例池上限、读写池拆分、后台任务和运维预留，确认总上限是否合理。\n5. 短期止血：限流、暂停批处理、降低上游重试、kill 明确异常连接、缩短超时、摘除异常实例或临时扩容数据库规格。\n6. 长期修复：优化 SQL、缩短事务、关闭结果集、补泄漏测试、统一会话初始化、拆分批处理池、设置合理生命周期和告警阈值。\n7. 复测验证：池等待下降、`Threads_connected` 稳定、`Threads_running` 与 CPU/I/O 匹配、慢 SQL 与锁等待收敛、业务 p99 恢复。",
+      "常见误区：连接池的正确理解来自“并发闸门、服务端预算和连接占用时间”的组合。\n\n- 池越大代表同时放入数据库的工作越多，收益取决于 MySQL CPU、I/O、锁和缓存是否还有余量。\n- 池等待是背压信号，背后常见原因是 SQL 慢、事务长、锁等待或泄漏。\n- 空闲连接占用 MySQL 连接预算，空闲数量要服务突发，也要受总连接预算约束。\n- 连接归还动作要覆盖结果集关闭、事务结束和会话状态复位。\n- 读写分离通常需要独立池，主库池、从库池和切换策略要分开观测。\n- 连接池参数属于容量配置，应用扩容、数据库降级、流量翻倍和批任务上线都要同步复核。",
+      "工程场景：连接池在不同系统中的重点不同。\n\n- 高并发 API：以短事务、短等待、稳定 p99 和限流保护为主，池耗尽要快速失败并暴露可观测信号。\n- 后台批处理：使用独立小池或限速队列，避免批量任务抢占在线请求连接。\n- 读写分离：主库写池和副本读池分别设置上限，副本延迟、故障切换和路由刷新要纳入监控。\n- 多租户系统：按租户或业务线隔离池可以降低互相拖垮的概率，同时增加容量治理复杂度。\n- 云数据库：实例规格、代理层、账号连接数、网络空闲回收和运维连接预留会共同限制真实容量。\n- 发布与扩容：滚动发布、自动扩容和故障重启会产生集中建连，连接预热和启动限速能降低冲击。",
+      "面试追问：连接池题适合按“定义 -> 流程 -> 参数 -> 容量 -> 故障 -> 取舍”回答。\n\n- 连接池解决什么问题，为什么数据库访问通常要复用连接？\n- 一次请求从借连接到归还连接经历哪些步骤？\n- `maximumPoolSize`、`connectionTimeout`、`idleTimeout`、`maxLifetime`、`keepaliveTime` 分别控制什么？\n- 如何根据 `max_connections`、应用实例数、QPS 和连接占用时间估算池大小？\n- 池设置过大和过小分别会造成哪些线上现象？\n- 连接池耗尽时，如何区分 SQL 慢、锁等待、长事务、连接泄漏和 MySQL 连接数打满？\n- 为什么事务未提交、结果集未关闭和会话变量残留会污染连接池？\n- 读写分离、主从切换、云数据库代理和应用扩容会如何改变连接池设计？\n- 如何用 `SHOW PROCESSLIST`、`Threads_connected`、Performance Schema 和客户端池指标建立排查证据链？\n- 连接池、线程池、限流、熔断和重试之间如何配合保护数据库？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 Server System Variables、Server Status Variables、Too Many Connections、SHOW PROCESSLIST、INFORMATION_SCHEMA PROCESSLIST、Performance Schema 和 threads 表文档；结合 MySQL Connector/J 连接池说明、HikariCP README 与池大小 Wiki、Go `database/sql` 连接管理文档，以及阿里云 RDS MySQL 连接池与连接数打满排查资料。官方资料用于校准服务端连接、变量、状态和诊断入口，客户端与云厂商资料用于补充池参数、容量治理和生产排障实践。"
+    ],
+    typicalProblems: [
+      "连接池解决什么问题，它和 MySQL 物理连接、服务端线程、会话状态之间是什么关系？",
+      "一次请求借用连接、执行 SQL、归还连接的完整流程是什么？",
+      "`maximumPoolSize`、`minimumIdle`、`connectionTimeout`、`idleTimeout`、`maxLifetime` 和 `keepaliveTime` 分别影响什么？",
+      "如何用 MySQL `max_connections`、应用实例数、QPS 和连接占用时间估算连接池大小？",
+      "连接池设置过大、过小或空闲连接过多时，应用侧和 MySQL 侧分别有什么现象？",
+      "线上连接池耗尽时，如何区分慢 SQL、锁等待、长事务、结果集未关闭、连接泄漏和服务端连接数打满？",
+      "为什么会话状态、事务未结束、隔离级别修改和临时表会造成连接池污染？",
+      "读写分离、主从切换、云数据库代理和应用自动扩容对连接池有哪些特殊要求？",
+      "如何用 `SHOW PROCESSLIST`、`Threads_connected`、Performance Schema、慢查询日志和客户端池指标建立证据链？",
+      "连接池如何和线程池、限流、熔断、重试、批处理隔离一起保护 MySQL？"
+    ],
+    commonCommands: [
+      "SHOW VARIABLES LIKE 'max_connections'",
+      "SHOW VARIABLES LIKE 'wait_timeout'",
+      "SHOW GLOBAL STATUS LIKE 'Threads_connected'",
+      "SHOW GLOBAL STATUS LIKE 'Threads_running'",
+      "SHOW GLOBAL STATUS LIKE 'Max_used_connections'",
+      "SHOW PROCESSLIST",
+      "SELECT PROCESSLIST_ID, PROCESSLIST_USER, PROCESSLIST_HOST, PROCESSLIST_COMMAND, PROCESSLIST_TIME, PROCESSLIST_STATE, PROCESSLIST_INFO FROM performance_schema.threads WHERE TYPE = 'FOREGROUND' ORDER BY PROCESSLIST_TIME DESC LIMIT 30",
+      "SELECT DIGEST_TEXT, COUNT_STAR, SUM_TIMER_WAIT, SUM_ROWS_EXAMINED FROM performance_schema.events_statements_summary_by_digest ORDER BY SUM_TIMER_WAIT DESC LIMIT 10",
+    ],
+    useCases: ["后端服务接入 MySQL", "连接数保护", "接口 p99 治理", "慢 SQL 与锁等待排查", "批处理隔离", "读写分离池配置", "云数据库容量规划", "数据库故障止血"],
+    prerequisites: ["mysql-overview"],
+    related: ["show-processlist", "performance-schema", "slow-query-log", "sql-optimization", "lock", "metadata-lock", "read-write-splitting"],
+    order: 84,
+  },
 ] satisfies GraphKnowledgePoint[];
 
 const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>> = {

@@ -5813,6 +5813,38 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: Server System Variables",
     url: "https://dev.mysql.com/doc/refman/8.4/en/server-system-variables.html",
   },
+  "mysql-too-many-connections": {
+    title: "MySQL Reference Manual: Too Many Connections",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/too-many-connections.html",
+  },
+  "mysql-show-processlist": {
+    title: "MySQL Reference Manual: SHOW PROCESSLIST Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/show-processlist.html",
+  },
+  "mysql-information-schema-processlist": {
+    title: "MySQL Reference Manual: The INFORMATION_SCHEMA PROCESSLIST Table",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/information-schema-processlist-table.html",
+  },
+  "mysql-performance-schema-threads-table": {
+    title: "MySQL Reference Manual: The Performance Schema threads Table",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/performance-schema-threads-table.html",
+  },
+  "hikaricp-readme": {
+    title: "HikariCP: README and Configuration",
+    url: "https://github.com/brettwooldridge/HikariCP",
+  },
+  "hikaricp-pool-sizing": {
+    title: "HikariCP Wiki: About Pool Sizing",
+    url: "https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing",
+  },
+  "aliyun-rds-mysql-connection-pool": {
+    title: "阿里云 RDS: 配置 RDS MySQL 连接池",
+    url: "https://www.alibabacloud.com/help/zh/doc-detail/146352.html",
+  },
+  "aliyun-rds-mysql-connection-full": {
+    title: "阿里云 RDS: 处理 RDS MySQL 连接数被打满",
+    url: "https://www.alibabacloud.com/help/zh/doc-detail/41714.html",
+  },
   "mysql-log-file-maintenance": {
     title: "MySQL Reference Manual: Server Log Maintenance",
     url: "https://dev.mysql.com/doc/refman/8.4/en/log-file-maintenance.html",
