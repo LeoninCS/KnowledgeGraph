@@ -5445,6 +5445,14 @@ export const knowledgeSources = {
     title: "Redis Commands: CLUSTER SHARDS",
     url: "https://redis.io/docs/latest/commands/cluster-shards/",
   },
+  "redis-cluster-info-command": {
+    title: "Redis Commands: CLUSTER INFO",
+    url: "https://redis.io/docs/latest/commands/cluster-info/",
+  },
+  "redis-cluster-nodes-command": {
+    title: "Redis Commands: CLUSTER NODES",
+    url: "https://redis.io/docs/latest/commands/cluster-nodes/",
+  },
   "redis-cluster-setslot-command": {
     title: "Redis Commands: CLUSTER SETSLOT",
     url: "https://redis.io/docs/latest/commands/cluster-setslot/",
