@@ -3829,6 +3829,10 @@ export const knowledgeSources = {
     title: "RabbitMQ Docs: Networking",
     url: "https://www.rabbitmq.com/docs/networking",
   },
+  "rabbitmq-troubleshooting-networking": {
+    title: "RabbitMQ Docs: Troubleshooting Network Connectivity",
+    url: "https://www.rabbitmq.com/docs/troubleshooting-networking",
+  },
   "rabbitmq-clustering": {
     title: "RabbitMQ Docs: Clustering Guide",
     url: "https://www.rabbitmq.com/docs/clustering",
@@ -3884,6 +3888,14 @@ export const knowledgeSources = {
   "cloudamqp-exchanges-routing-bindings": {
     title: "CloudAMQP: RabbitMQ Exchanges, Routing Keys and Bindings",
     url: "https://www.cloudamqp.com/blog/part4-rabbitmq-for-beginners-exchanges-routing-keys-bindings.html",
+  },
+  "cloudamqp-rabbitmq-connections-channels": {
+    title: "CloudAMQP: What is the relationship between connections and channels in RabbitMQ?",
+    url: "https://www.cloudamqp.com/blog/the-relationship-between-connections-and-channels-in-rabbitmq.html",
+  },
+  "cloudamqp-rabbitmq-common-mistakes": {
+    title: "CloudAMQP: 13 Common RabbitMQ Mistakes and How to Avoid Them",
+    url: "https://www.cloudamqp.com/blog/part4-rabbitmq-13-common-errors.html",
   },
   "devinterview-docker": {
     title: "Devinterview Docker Interview Questions",
