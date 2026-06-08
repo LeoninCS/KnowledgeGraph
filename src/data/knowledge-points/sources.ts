@@ -4417,6 +4417,10 @@ export const knowledgeSources = {
     title: "Linux man-pages: link(2)",
     url: "https://man7.org/linux/man-pages/man2/link.2.html",
   },
+  "linux-man-pages-symlink": {
+    title: "Linux man-pages: symlink(2)",
+    url: "https://man7.org/linux/man-pages/man2/symlink.2.html",
+  },
   "linux-man-pages-unlink": {
     title: "Linux man-pages: unlink(2)",
     url: "https://man7.org/linux/man-pages/man2/unlink.2.html",
