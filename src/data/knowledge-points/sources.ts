@@ -4169,6 +4169,38 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Page Tables",
     url: "https://docs.kernel.org/mm/page_tables.html",
   },
+  "linux-kernel-kvm-docs": {
+    title: "Linux Kernel Documentation: KVM",
+    url: "https://docs.kernel.org/virt/kvm/",
+  },
+  "linux-kernel-kvm-api": {
+    title: "Linux Kernel Documentation: KVM API",
+    url: "https://docs.kernel.org/virt/kvm/api.html",
+  },
+  "qemu-kvm-docs": {
+    title: "QEMU Documentation: KVM",
+    url: "https://www.qemu.org/docs/master/system/i386/kvm.html",
+  },
+  "libvirt-domain-format": {
+    title: "libvirt: Domain XML format",
+    url: "https://libvirt.org/formatdomain.html",
+  },
+  "oasis-virtio-spec": {
+    title: "OASIS: Virtual I/O Device (VIRTIO) Version 1.2",
+    url: "https://docs.oasis-open.org/virtio/virtio/v1.2/virtio-v1.2.html",
+  },
+  "redhat-rhel-virtualization": {
+    title: "Red Hat Docs: Configuring and managing virtualization",
+    url: "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_virtualization/",
+  },
+  "intel-vt-overview": {
+    title: "Intel: Virtualization Technology",
+    url: "https://www.intel.com/content/www/us/en/virtualization/virtualization-technology/intel-virtualization-technology.html",
+  },
+  "microsoft-hyperv-overview": {
+    title: "Microsoft Learn: Hyper-V Technology Overview",
+    url: "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/hyper-v-technology-overview",
+  },
   "linux-kernel-cachetlb": {
     title: "Linux Kernel Documentation: Cache and TLB Flushing Under Linux",
     url: "https://www.kernel.org/doc/html/latest/core-api/cachetlb.html",
