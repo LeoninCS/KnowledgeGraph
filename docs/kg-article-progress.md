@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 152 | 297 |
+| 449 | 153 | 296 |
 
 ## 分类进度
 
@@ -18,7 +18,7 @@
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 48 | 0 |
-| redis | 44 | 40 | 4 |
+| redis | 44 | 41 | 3 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
 | docker | 41 | 2 | 39 |
@@ -283,7 +283,7 @@
 | 已优化 | `sentinel-failover` | 哨兵故障转移 | Sentinel Failover | 2026-06-05 | 14 |
 | 已优化 | `redis-cluster` | 集群 | Redis Cluster | 2026-06-05 | 16 |
 | 已优化 | `hash-slot` | 哈希槽 | Hash Slot | 2026-06-05 | 14 |
-| 未开始 | `key-tag` | Key Tag | Key Tag | 2026-05-30 | 5 |
+| 已优化 | `key-tag` | Key Tag | Key Tag | 2026-06-05 | 13 |
 | 未开始 | `slowlog` | 慢查询日志 | Slow Log | 2026-05-30 | 7 |
 | 未开始 | `redis-monitor` | Redis 监控 | Redis Monitoring | 2026-05-30 | 8 |
 | 未开始 | `load-balancing` | 负载均衡 | Load Balancing | 2026-05-30 | 8 |

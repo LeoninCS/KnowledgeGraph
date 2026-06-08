@@ -5469,6 +5469,14 @@ export const knowledgeSources = {
     title: "Redis Commands: CLUSTER SETSLOT",
     url: "https://redis.io/docs/latest/commands/cluster-setslot/",
   },
+  "redis-multi-key-operations": {
+    title: "Redis Docs: Multi-key operations",
+    url: "https://redis.io/docs/latest/develop/using-commands/multi-key-operations/",
+  },
+  "redis-clustering-best-practices-keys": {
+    title: "Redis Blog: Redis Clustering Best Practices With Multiple Keys",
+    url: "https://redis.io/blog/redis-clustering-best-practices-with-keys/",
+  },
   "severalnines-redis-cluster": {
     title: "Severalnines Docs: Redis Cluster",
     url: "https://docs.severalnines.com/clustercontrol/latest/getting-started/tutorials/day-1-operations/your-first-cluster/redis/redis-cluster/",
@@ -5480,6 +5488,10 @@ export const knowledgeSources = {
   "oneuptime-redis-hash-slots": {
     title: "OneUptime: How Redis Cluster Hash Slots Work",
     url: "https://oneuptime.com/blog/post/2026-03-31-redis-cluster-hash-slots-16384/view",
+  },
+  "oneuptime-redis-hash-tags": {
+    title: "OneUptime: Redis Cluster Hash Tags Key Co-Location",
+    url: "https://oneuptime.com/blog/post/2026-03-31-redis-cluster-hash-tags-key-colocation/view",
   },
   "redis-readonly-command": {
     title: "Redis Commands: READONLY",
