@@ -4145,6 +4145,14 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Memory Management",
     url: "https://docs.kernel.org/mm/",
   },
+  "linux-kernel-page-cache": {
+    title: "Linux Kernel Documentation: Page Cache",
+    url: "https://www.kernel.org/doc/html/v6.13/mm/page_cache.html",
+  },
+  "linux-kernel-mm-api-readahead": {
+    title: "Linux Kernel Documentation: Memory Management APIs - Readahead",
+    url: "https://www.kernel.org/doc/html/latest/core-api/mm-api.html",
+  },
   "linux-kernel-mm-concepts": {
     title: "Linux Kernel Documentation: Memory Management Concepts",
     url: "https://docs.kernel.org/admin-guide/mm/concepts.html",
@@ -4416,6 +4424,14 @@ export const knowledgeSources = {
   "linux-man-pages-sync": {
     title: "Linux man-pages: sync(2)",
     url: "https://man7.org/linux/man-pages/man2/sync.2.html",
+  },
+  "linux-man-pages-readahead": {
+    title: "Linux man-pages: readahead(2)",
+    url: "https://man7.org/linux/man-pages/man2/readahead.2.html",
+  },
+  "linux-man-pages-posix-fadvise": {
+    title: "Linux man-pages: posix_fadvise(2)",
+    url: "https://man7.org/linux/man-pages/man2/posix_fadvise.2.html",
   },
   "linux-man-pages-aio": {
     title: "Linux man-pages: aio(7)",
