@@ -5537,6 +5537,14 @@ export const knowledgeSources = {
     title: "Redis Design and Implementation: Slow Log",
     url: "https://redisbook.readthedocs.io/en/latest/feature/slowlog.html",
   },
+  "redis-learn-observability": {
+    title: "Redis Learn: Redis Observability - Monitoring, Metrics, and Troubleshooting",
+    url: "https://redis.io/tutorials/operate/redis-at-scale/observability/",
+  },
+  "redis-client-observability-docs": {
+    title: "Redis Docs: Client observability",
+    url: "https://redis.io/docs/latest/develop/clients/observability/",
+  },
   "redis-monitor-command": {
     title: "Redis Commands: MONITOR",
     url: "https://redis.io/docs/latest/commands/monitor/",
