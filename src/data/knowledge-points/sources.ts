@@ -4561,6 +4561,22 @@ export const knowledgeSources = {
     title: "Linux man-pages: sched(7)",
     url: "https://man7.org/linux/man-pages/man7/sched.7.html",
   },
+  "linux-man-pages-chrt": {
+    title: "Linux man-pages: chrt(1)",
+    url: "https://man7.org/linux/man-pages/man1/chrt.1.html",
+  },
+  "linux-man-pages-setpriority": {
+    title: "Linux man-pages: getpriority(2) and setpriority(2)",
+    url: "https://man7.org/linux/man-pages/man2/setpriority.2.html",
+  },
+  "linux-man-pages-sched-setscheduler": {
+    title: "Linux man-pages: sched_setscheduler(2)",
+    url: "https://man7.org/linux/man-pages/man2/sched_setscheduler.2.html",
+  },
+  "linux-man-pages-sched-get-priority": {
+    title: "Linux man-pages: sched_get_priority_max(2) and sched_get_priority_min(2)",
+    url: "https://man7.org/linux/man-pages/man2/sched_get_priority_max.2.html",
+  },
   "linux-man-pages-sched-rr-get-interval": {
     title: "Linux man-pages: sched_rr_get_interval(2)",
     url: "https://man7.org/linux/man-pages/man2/sched_rr_get_interval.2.html",
