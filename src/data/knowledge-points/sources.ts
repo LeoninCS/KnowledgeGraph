@@ -4293,6 +4293,14 @@ export const knowledgeSources = {
     title: "Linux man-pages: inode(7)",
     url: "https://man7.org/linux/man-pages/man7/inode.7.html",
   },
+  "linux-man-pages-stat": {
+    title: "Linux man-pages: stat(2)",
+    url: "https://man7.org/linux/man-pages/man2/stat.2.html",
+  },
+  "linux-man-pages-statx": {
+    title: "Linux man-pages: statx(2)",
+    url: "https://man7.org/linux/man-pages/man2/statx.2.html",
+  },
   "linux-man-pages-open": {
     title: "Linux man-pages: open(2)",
     url: "https://man7.org/linux/man-pages/man2/open.2.html",
@@ -4405,6 +4413,10 @@ export const knowledgeSources = {
     title: "Linux man-pages: statfs(2)",
     url: "https://man7.org/linux/man-pages/man2/statfs.2.html",
   },
+  "linux-man-pages-link": {
+    title: "Linux man-pages: link(2)",
+    url: "https://man7.org/linux/man-pages/man2/link.2.html",
+  },
   "linux-man-pages-unlink": {
     title: "Linux man-pages: unlink(2)",
     url: "https://man7.org/linux/man-pages/man2/unlink.2.html",
@@ -4424,6 +4436,14 @@ export const knowledgeSources = {
   "linux-fasionchan-file-descriptor": {
     title: "学习 Linux: 文件描述符",
     url: "https://linux.fasionchan.com/zh_CN/latest/system-programming/file-io/file-descriptor.html",
+  },
+  "redhat-inodes-linux-filesystem": {
+    title: "Red Hat Blog: Inodes and the Linux filesystem",
+    url: "https://www.redhat.com/en/blog/inodes-linux-filesystem",
+  },
+  "ruanyifeng-inode": {
+    title: "阮一峰的网络日志: 理解 inode",
+    url: "https://www.ruanyifeng.com/blog/2011/12/inode.html",
   },
   "linux-man-pages-mmap": {
     title: "Linux man-pages: mmap(2)",
