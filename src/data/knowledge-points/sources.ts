@@ -4421,6 +4421,18 @@ export const knowledgeSources = {
     title: "Linux man-pages: symlink(2)",
     url: "https://man7.org/linux/man-pages/man2/symlink.2.html",
   },
+  "linux-man-pages-readlink": {
+    title: "Linux man-pages: readlink(2)",
+    url: "https://man7.org/linux/man-pages/man2/readlink.2.html",
+  },
+  "linux-man-pages-realpath": {
+    title: "Linux man-pages: realpath(3)",
+    url: "https://man7.org/linux/man-pages/man3/realpath.3.html",
+  },
+  "linux-man-pages-openat2": {
+    title: "Linux man-pages: openat2(2)",
+    url: "https://man7.org/linux/man-pages/man2/openat2.2.html",
+  },
   "linux-man-pages-unlink": {
     title: "Linux man-pages: unlink(2)",
     url: "https://man7.org/linux/man-pages/man2/unlink.2.html",
