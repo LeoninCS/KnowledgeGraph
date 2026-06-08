@@ -5493,6 +5493,10 @@ export const knowledgeSources = {
     title: "Huawei Cloud Docs: How Do I Detect Big Keys and Hot Keys in Advance?",
     url: "https://support.huaweicloud.com/intl/en-us/dcs_faq/dcs-faq-0606002.html",
   },
+  "aliyun-redis-hot-key-diagnostics": {
+    title: "Alibaba Cloud Docs: Identify and handle hotkeys and large keys",
+    url: "https://www.alibabacloud.com/help/en/redis/user-guide/identify-and-handle-hotkeys-and-large-keys",
+  },
   "oneuptime-redis-large-key": {
     title: "OneUptime: How to Troubleshoot Redis Large Key Problems",
     url: "https://oneuptime.com/blog/post/2026-03-31-redis-troubleshoot-redis-large-key-problems/view",

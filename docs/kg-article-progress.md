@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 132 | 317 |
+| 449 | 133 | 316 |
 
 ## 分类进度
 
@@ -18,7 +18,7 @@
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 48 | 0 |
-| redis | 44 | 20 | 24 |
+| redis | 44 | 21 | 23 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
 | docker | 41 | 2 | 39 |
@@ -263,7 +263,7 @@
 | 已优化 | `eviction-policy` | 淘汰策略 | Eviction Policy | 2026-06-05 | 17 |
 | 已优化 | `redis-memory` | Redis 内存管理 | Redis Memory Management | 2026-06-05 | 19 |
 | 已优化 | `big-key` | 大 Key | Big Key | 2026-06-05 | 21 |
-| 未开始 | `hot-key` | 热 Key | Hot Key | 2026-05-30 | 7 |
+| 已优化 | `hot-key` | 热 Key | Hot Key | 2026-06-05 | 19 |
 | 未开始 | `redis-cache` | 缓存策略 | Cache Strategy | 2026-05-30 | 7 |
 | 未开始 | `cache-aside` | Cache Aside | Cache Aside | 2026-05-30 | 6 |
 | 未开始 | `cache-consistency` | 缓存一致性 | Cache Consistency | 2026-05-30 | 7 |
