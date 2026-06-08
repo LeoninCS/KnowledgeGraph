@@ -7785,6 +7785,22 @@ export const knowledgeSources = {
     title: "Linux man-pages: namespaces(7)",
     url: "https://man7.org/linux/man-pages/man7/namespaces.7.html",
   },
+  "linux-man-pages-pid-namespaces": {
+    title: "Linux man-pages: pid_namespaces(7)",
+    url: "https://man7.org/linux/man-pages/man7/pid_namespaces.7.html",
+  },
+  "linux-man-pages-mount-namespaces": {
+    title: "Linux man-pages: mount_namespaces(7)",
+    url: "https://man7.org/linux/man-pages/man7/mount_namespaces.7.html",
+  },
+  "linux-man-pages-uts-namespaces": {
+    title: "Linux man-pages: uts_namespaces(7)",
+    url: "https://man7.org/linux/man-pages/man7/uts_namespaces.7.html",
+  },
+  "linux-man-pages-ipc-namespaces": {
+    title: "Linux man-pages: ipc_namespaces(7)",
+    url: "https://man7.org/linux/man-pages/man7/ipc_namespaces.7.html",
+  },
   "linux-man-pages-user-namespaces": {
     title: "Linux man-pages: user_namespaces(7)",
     url: "https://man7.org/linux/man-pages/man7/user_namespaces.7.html",
@@ -7792,6 +7808,34 @@ export const knowledgeSources = {
   "linux-man-pages-network-namespaces": {
     title: "Linux man-pages: network_namespaces(7)",
     url: "https://man7.org/linux/man-pages/man7/network_namespaces.7.html",
+  },
+  "linux-man-pages-cgroup-namespaces": {
+    title: "Linux man-pages: cgroup_namespaces(7)",
+    url: "https://man7.org/linux/man-pages/man7/cgroup_namespaces.7.html",
+  },
+  "linux-man-pages-setns": {
+    title: "Linux man-pages: setns(2)",
+    url: "https://man7.org/linux/man-pages/man2/setns.2.html",
+  },
+  "linux-man-pages-unshare": {
+    title: "Linux man-pages: unshare(2)",
+    url: "https://man7.org/linux/man-pages/man2/unshare.2.html",
+  },
+  "linux-man-pages-proc-pid-ns": {
+    title: "Linux man-pages: proc_pid_ns(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_pid_ns.5.html",
+  },
+  "linux-man-pages-lsns": {
+    title: "Linux man-pages: lsns(8)",
+    url: "https://man7.org/linux/man-pages/man8/lsns.8.html",
+  },
+  "linux-man-pages-nsenter": {
+    title: "Linux man-pages: nsenter(1)",
+    url: "https://man7.org/linux/man-pages/man1/nsenter.1.html",
+  },
+  "linux-man-pages-ip-netns": {
+    title: "Linux man-pages: ip-netns(8)",
+    url: "https://man7.org/linux/man-pages/man8/ip-netns.8.html",
   },
   "docker-userns-remap": {
     title: "Docker Docs: Isolate containers with a user namespace",
@@ -7808,6 +7852,26 @@ export const knowledgeSources = {
   "nginx-namespaces-cgroups": {
     title: "NGINX Blog: What Are Namespaces and cgroups, and How Do They Work?",
     url: "https://www.nginx.com/blog/what-are-namespaces-cgroups-how-do-they-work/",
+  },
+  "kubernetes-pods": {
+    title: "Kubernetes Docs: Pods",
+    url: "https://kubernetes.io/docs/concepts/workloads/pods/",
+  },
+  "kubernetes-share-process-namespace": {
+    title: "Kubernetes Docs: Share Process Namespace between Containers in a Pod",
+    url: "https://kubernetes.io/docs/tasks/configure-pod-container/share-process-namespace/",
+  },
+  "kubernetes-user-namespaces": {
+    title: "Kubernetes Docs: User Namespaces",
+    url: "https://kubernetes.io/docs/concepts/workloads/pods/user-namespaces/",
+  },
+  "coolshell-docker-namespace-up": {
+    title: "CoolShell: Docker基础技术：Linux Namespace（上）",
+    url: "https://coolshell.cn/articles/17010.html",
+  },
+  "coolshell-docker-namespace-down": {
+    title: "CoolShell: Docker基础技术：Linux Namespace（下）",
+    url: "https://coolshell.cn/articles/17029.html",
   },
   "docker-runtime-metrics": {
     title: "Docker Docs: Runtime metrics",
