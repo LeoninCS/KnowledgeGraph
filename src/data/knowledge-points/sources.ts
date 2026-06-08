@@ -4181,6 +4181,14 @@ export const knowledgeSources = {
     title: "QEMU Documentation: KVM",
     url: "https://www.qemu.org/docs/master/system/i386/kvm.html",
   },
+  "qemu-disk-images": {
+    title: "QEMU Documentation: Disk Images",
+    url: "https://www.qemu.org/docs/master/system/images",
+  },
+  "qemu-migration-docs": {
+    title: "QEMU Documentation: Migration",
+    url: "https://www.qemu.org/docs/master/devel/migration/index.html",
+  },
   "libvirt-domain-format": {
     title: "libvirt: Domain XML format",
     url: "https://libvirt.org/formatdomain.html",
@@ -4193,6 +4201,10 @@ export const knowledgeSources = {
     title: "Red Hat Docs: Configuring and managing virtualization",
     url: "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_virtualization/",
   },
+  "redhat-rhel-virtualization-tuning": {
+    title: "Red Hat Docs: Virtualization Tuning and Optimization Guide",
+    url: "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/virtualization_tuning_and_optimization_guide/index",
+  },
   "intel-vt-overview": {
     title: "Intel: Virtualization Technology",
     url: "https://www.intel.com/content/www/us/en/virtualization/virtualization-technology/intel-virtualization-technology.html",
@@ -4200,6 +4212,18 @@ export const knowledgeSources = {
   "microsoft-hyperv-overview": {
     title: "Microsoft Learn: Hyper-V Technology Overview",
     url: "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/hyper-v-technology-overview",
+  },
+  "aws-ec2-nitro-instances": {
+    title: "Amazon EC2 Docs: Instances built on the AWS Nitro System",
+    url: "https://docs.aws.amazon.com/ec2/latest/instancetypes/ec2-nitro-instances.html",
+  },
+  "google-compute-live-migration": {
+    title: "Google Cloud Docs: Live migration process during maintenance events",
+    url: "https://docs.cloud.google.com/compute/docs/instances/live-migration-process",
+  },
+  "opensource-cpu-steal-time": {
+    title: "Opensource.com: Detecting CPU steal time in guest virtual machines",
+    url: "https://opensource.com/article/20/1/cpu-steal-time",
   },
   "linux-kernel-cachetlb": {
     title: "Linux Kernel Documentation: Cache and TLB Flushing Under Linux",
