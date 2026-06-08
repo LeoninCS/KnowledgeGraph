@@ -3,7 +3,7 @@ import type { GraphKnowledgePoint } from "./types.ts";
 const networkKnowledgePointBase = [
   /* <!-- KG_EXPLAINED: 网络基础概览 | 2026-05-23 | source_count=9 --> */
   /* ai-redone: 2026-05-22; sources=rfc1122-internet-layers,cloudflare-how-internet-works,mdn-how-internet-works,cisco-network-basics,microsoft-tcpip-networking,oracle-packet-encapsulation; diagram=network:network-overview */
-  /* <!-- KG_REVIEWED: 网络基础概览 | 2026-05-30 | source_count=10 --> */
+  /* <!-- KG_REVIEWED: 网络基础概览 | 2026-06-05 | source_count=11 --> */
   {
     sourceRefs: [
       "rfc1122-internet-layers",
@@ -16,6 +16,7 @@ const networkKnowledgePointBase = [
       "cs-notes",
       "javaguide",
       "xiaolin-coding",
+      "linux-man-pages",
     ],
     internalTags: [
       "ai-visualized:2026-05-23",
@@ -28,23 +29,30 @@ const networkKnowledgePointBase = [
     en: "Network Overview",
     layer: "foundation",
     difficulty: "easy",
-    summary: "用一次网页访问串起主机、链路、交换机、路由器、DNS、TCP/TLS、HTTP 和分层封装。",
+    summary: "用一次网页访问理解主机、链路、交换机、路由器、DNS、TCP/TLS、HTTP、分层封装和分层排查。",
     explanation: [
-      "概念定义：计算机网络是由主机、链路、网络设备和协议共同完成数据交换的系统。主机产生和消费数据，交换机在局域网内转发帧，路由器在不同网络之间转发 IP 包，链路承载比特，协议规定地址、格式、顺序、确认、重传、加密和错误反馈。",
-      "工作机制：输入 URL 后，浏览器解析地址，系统查询 DNS，客户端确定目标 IP 和端口，再建立 TCP/TLS 或 QUIC 通信基础，随后生成 HTTP 请求。操作系统把应用数据封装成 TCP/UDP 段、IP 包和链路层帧；中间设备按各自层级处理下一跳；接收端反向解封装，把数据交给目标应用。",
-      "分层视角：RFC 1122 把互联网主机通信划分为应用层、传输层、Internet 层和链路层；OSI 七层常作为排障定位语言。学习时抓住四个问题：应用层表达业务语义，传输层定位进程并处理端到端传输，Internet 层负责跨网段寻址和路由，链路层负责本地下一跳交付。",
-      "特殊情况：真实访问链路会叠加 DNS 缓存、IPv4/IPv6 双栈选择、NAT、代理、CDN、负载均衡、TLS 终止、MTU/PMTU、丢包重传、拥塞控制、非对称路由、防火墙、安全组和服务端限流。一次访问失败通常来自其中某一层或某个中间设备的行为变化。",
-      "常见误区与排查：ping 通只说明 ICMP 或部分路径可达，HTTP 还要看端口监听、TLS 握手、Host、代理、认证、状态码和应用日志。排查时按证据分层：先确认本机地址、网关和路由，再看 DNS 结果、TCP/UDP 连接、TLS 证书、HTTP Header/Body 和服务端日志。",
-      "实战工具：常用组合是 ip addr/ip route 看本机网络，dig/nslookup 看解析，ping/traceroute/mtr 看基础路径，ss/lsof 看监听和连接，curl -v/openssl s_client 看 HTTP 与 TLS，tcpdump/Wireshark 看封装、重传和返回码。先定位失败阶段，再深入对应层。",
-      "参考来源：分层和主机/路由器模型采用 RFC 1122；互联网组成、packet、protocol、router、switch 和 Web 加载流程参考 Cloudflare、MDN 与 Cisco；IP、子网、网关和路由排查参考 Microsoft Learn；TCP/IP 封装过程参考 Oracle Solaris；中文 URL 访问链路参考小林 coding。",
+      "概念定位：网络基础概览解决的是“数据从一个应用到另一个应用怎样可靠到达”的入门问题，也给线上排障提供统一坐标。\n\n计算机网络由主机、链路、交换机、路由器、协议和应用共同组成。主机产生与消费数据，链路承载比特，交换机负责局域网内的帧转发，路由器连接多个网络并选择下一跳，协议规定地址、格式、顺序、确认、错误反馈、加密和缓存等规则。\n\n在真实系统里，它出现在浏览器打开网页、客户端调用 API、Pod 访问 Service、数据库连接、消息队列投递、CDN 回源和跨机房复制等场景。新手抓住“一次请求经过哪些组件”，老手关注“每一层留下什么证据、什么中间设备会改变链路”。",
+      "准确定义：计算机网络（Computer Network）是让多台主机通过通信链路和协议交换数据的系统；互联网（Internet）是使用 TCP/IP 协议族连接大量独立网络的全球网络；Web 是运行在互联网之上的一种应用体系。\n\nRFC 1122 将互联网主机通信分为链路层、Internet 层、传输层和应用层。这个分层模型的工程价值在于把复杂访问拆成可验证的职责：\n\n- 应用层表达业务语义，例如 DNS、HTTP、gRPC、SMTP。\n- 传输层定位进程并处理端到端传输，例如 TCP 端口、UDP 端口、可靠传输、流控和重传。\n- Internet 层处理跨网段寻址和路由，例如 IP、TTL、ICMP、下一跳。\n- 链路层完成本地网络交付，例如 Ethernet 帧、MAC、ARP、VLAN、MTU。",
+      "心智模型：把一次网络访问想成“应用写信、系统装信封、网络逐站转运、接收端拆信封”。\n\n应用只关心“我要请求哪个域名、哪个路径、用什么协议”；操作系统和协议栈把这段数据逐层加上头部，形成 TCP/UDP 段、IP 包和链路层帧；交换机和路由器按本层能看懂的信息转发；目标主机反向解封装，最终把字节流或报文交给应用。\n\n这个模型帮助排障：看到 HTTP 状态码，问题落在应用或网关附近；看到 TCP SYN 无响应，问题落在端口、路由、防火墙或服务监听；看到 ARP 解析异常，问题落在本地二层或网关邻接关系。",
+      "主流程机制：以访问 `https://example.com/index.html` 为例，一次主路径通常经历以下步骤。\n\n1. 浏览器解析 URL，得到协议 `https`、域名 `example.com`、默认端口 `443` 和路径 `/index.html`。\n2. 客户端查询 DNS，把域名解析为一个或多个 IP 地址，同时受本地缓存、递归解析器、TTL、CDN 调度和 IPv4/IPv6 策略影响。\n3. 操作系统根据目标 IP、子网掩码和路由表判断下一跳；同网段走目标主机 MAC，跨网段走默认网关。\n4. 客户端建立传输通道。HTTPS over TCP 会先完成 TCP 三次握手，再做 TLS 握手；HTTP/3 会基于 QUIC 在 UDP 上完成连接和加密协商。\n5. 浏览器发送 HTTP 请求，携带 `Host`、路径、Header、Cookie、缓存条件和请求体。\n6. 中间链路上的交换机、路由器、NAT、代理、CDN、负载均衡和防火墙按各自规则转发、改写或拦截。\n7. 服务端返回 HTTP 响应，数据被拆成多个 packet 经网络返回，接收端校验顺序、重组数据，浏览器解析 HTML、CSS 和 JavaScript 并渲染页面。\n\n这个流程的输出既是页面内容，也是大量排查证据：DNS 记录、路由下一跳、TCP 状态、TLS 证书、HTTP 状态码、应用日志和链路抓包。",
+      "封装与关键字段：分层封装让每一层只处理本层职责，同时把必要控制信息留在头部。\n\n```text\nHTTP request\n  -> TCP segment: src_port, dst_port, seq, ack, flags, window\n    -> IP packet: src_ip, dst_ip, ttl, protocol, fragmentation\n      -> Ethernet frame: src_mac, dst_mac, ethertype, vlan, fcs\n```\n\n关键字段的排查意义很直接：\n\n- `dst_ip` 和路由表决定包发往哪里，`ttl` 变化能暴露路径跳数和环路风险。\n- `dst_port` 决定目标进程，`SYN`、`ACK`、`RST`、`FIN` 能说明连接阶段。\n- `window`、重传、乱序和 RTT 反映接收端处理能力、链路质量和拥塞状态。\n- `Host`、`SNI`、`ALPN`、HTTP Path 会影响虚拟主机、证书选择、HTTP/2 或 HTTP/3 协商和网关路由。\n- `MTU` 与分片行为影响大包传输，PMTU 失效常表现为小请求成功、大响应卡住。",
+      "工程场景与边界：真实链路常被基础设施能力改写，端到端访问需要把这些中间层纳入判断。\n\n- NAT 会改写源地址或端口，让服务端看到的是出口地址；排查回包路径时要同时看 NAT 映射和连接跟踪。\n- CDN 会让 DNS 返回边缘节点，缓存命中时源站日志可能没有请求记录；回源失败时边缘状态码和源站状态码需要分开读。\n- 负载均衡会做四层或七层转发，健康检查、会话保持、连接复用和 TLS 终止会改变客户端看到的现象。\n- 代理、WAF、安全组和防火墙会基于 IP、端口、SNI、Header、路径、方法和速率做控制。\n- 双栈网络会在 IPv4 与 IPv6 之间选择路径，DNS、Happy Eyeballs、路由质量和防火墙策略都会影响最终连接。\n- Kubernetes、Service Mesh 和云网络会叠加虚拟网卡、iptables/nftables、eBPF、overlay、Sidecar 和云厂商路由表。",
+      "性能、安全与取舍：网络体验由延迟、吞吐、连接建立成本、丢包、拥塞、缓存和加密共同决定。\n\n新手常关注“带宽够不够”，生产系统还要看 RTT、重传率、连接数、队头阻塞、DNS 耗时、TLS 握手耗时、首字节时间和服务端排队时间。HTTP keep-alive、HTTP/2 多路复用、HTTP/3/QUIC、CDN 缓存、连接池和就近接入能降低访问成本；它们也带来连接复用导致的故障扩散、证书和 SNI 配置复杂度、缓存一致性、灰度路由和观测归因成本。\n\n安全层面，TLS 保护传输机密性和完整性，证书链提供身份校验；防火墙、安全组、WAF 和零信任代理控制访问面。工程取舍是把“可达性、性能、可观测性、安全策略和运维复杂度”放在同一张链路图里评估。",
+      "排查实践：分层排查的原则是先确定失败阶段，再收集该阶段最有解释力的证据。\n\n```bash\n# 1. 本机地址、网关、路由\nip addr\nip route\n\n# 2. DNS 解析结果和解析链路\ndig example.com A\ndig example.com AAAA\nnslookup example.com\n\n# 3. 基础路径与传输连接\nping -c 4 example.com\ntraceroute example.com\nss -tnp | grep ':443'\n\n# 4. HTTP 与 TLS 证据\ncurl -v --resolve example.com:443:93.184.216.34 https://example.com/\nopenssl s_client -connect example.com:443 -servername example.com\n\n# 5. 抓包看封装、握手和重传\nsudo tcpdump -i any -nn host 93.184.216.34 and port 443\n```\n\n建议按这个顺序判断：\n\n1. 本机配置：IP、子网掩码、默认网关、DNS 服务器和代理环境变量。\n2. 名称解析：域名是否解析到预期 IP，TTL、CNAME、IPv4/IPv6 和 CDN 调度是否符合预期。\n3. 路径可达：路由、NAT、安全组、防火墙、ACL 和跨网段策略是否允许。\n4. 传输状态：SYN、SYN-ACK、RST、FIN、重传、窗口和连接数是否异常。\n5. 加密与应用：证书链、SNI、ALPN、Host、Header、状态码、网关日志和应用日志是否一致。\n6. 回程路径：服务端响应是否发出，NAT 映射和非对称路由是否让回包丢失。",
+      "常见误区：正确的网络判断来自证据链，而单个命令只代表某一层的观察点。\n\n- `ping` 成功说明 ICMP Echo 或部分路径可达；HTTP 访问还要验证端口监听、TLS、Host、代理、认证、限流和应用状态。\n- DNS 解析成功说明域名能得到地址；服务可用性还要看解析到的地址是否是目标环境、目标端口是否开放、证书是否匹配。\n- 抓包看到请求发出说明本机协议栈已发送；问题仍可能在下一跳、云安全策略、负载均衡、源站、回程路由或客户端接收窗口。\n- 带宽指标代表单位时间容量；用户体验还受 RTT、拥塞窗口、丢包、重传、服务器排队和缓存命中率影响。\n- 一次网页访问包含多个连接和资源请求；首屏慢需要分拆 DNS、连接、TLS、TTFB、下载、解析和渲染阶段。",
+      "面试与复盘抓手：回答网络基础题时，把“组件、分层、主流程、边界、证据”连成闭环。\n\n面试中可以先画出链路：浏览器 -> DNS -> TCP/TLS 或 QUIC -> HTTP -> CDN/负载均衡 -> 服务端 -> 返回路径。然后给出每层职责和关键字段，再补充故障排查。例如“curl 超时”可以拆成 DNS 超时、SYN 无响应、TLS 握手失败、HTTP 504、响应体下载慢等不同证据；“线上只有部分用户失败”可以优先看地域 DNS、CDN 边缘、IPv6 路径、运营商路由和灰度流量。",
+      "参考来源：分层模型、端到端可靠性和网关路由复杂度参考 RFC 1122；packet、DNS、TCP/TLS/HTTP 主流程参考 Cloudflare 与 MDN；交换机、路由器和接入点职责参考 Cisco；IP、子网、默认网关和常见 TCP/IP 配置故障参考 Microsoft Learn；TCP/IP 封装过程参考 Oracle Solaris；中文 URL 访问链路和面试表达参考小林 coding、CS-Notes 与 JavaGuide；命令类排查入口参考 Linux man-pages。",
     ],
     typicalProblems: [
-      "输入 URL 到页面展示的主链路是什么",
-      "DNS、TCP/TLS、HTTP、IP、MAC/ARP 在一次访问中分别负责什么",
-      "ping 通但 curl 失败如何按层排查",
-      "NAT、代理、CDN、负载均衡会怎样改变端到端访问链路",
-      "抓包时如何从 Ethernet/IP/TCP/HTTP 判断问题所在层",
-      "IPv4/IPv6、MTU、TLS 证书、防火墙和安全组会引入哪些特殊情况",
+      "输入 URL 到页面展示的主链路是什么？请按 DNS、路由、TCP/TLS 或 QUIC、HTTP、渲染说明。",
+      "RFC 1122 的 TCP/IP 分层中，链路层、Internet 层、传输层和应用层分别解决什么问题？",
+      "交换机、路由器、DNS、NAT、CDN、负载均衡在一次访问中各自改变了什么信息？",
+      "`ping` 成功但 `curl -v https://example.com` 超时，如何按层收集证据并缩小范围？",
+      "抓包时如何从 Ethernet/IP/TCP/HTTP 字段判断问题发生在二层、三层、四层还是应用层？",
+      "IPv4/IPv6 双栈、MTU/PMTU、TLS 证书、SNI、ALPN、防火墙和安全组分别会制造哪些线上现象？",
+      "CDN 命中缓存、边缘回源失败和源站应用故障在日志与状态码上怎样区分？",
+      "网络性能排查为什么要同时看 RTT、重传、窗口、连接建立耗时、TTFB、吞吐和服务端排队？",
+      "Kubernetes 或云网络中，Service、Sidecar、NAT、overlay 和安全组会怎样叠加到基础网络链路上？",
     ],
     prerequisites: [],
     related: ["osi-model", "tcp-ip-model", "dns", "tcp", "tls", "http"],
