@@ -4133,6 +4133,10 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Scheduler Nice Design",
     url: "https://www.kernel.org/doc/html/latest/scheduler/sched-nice-design.html",
   },
+  "linux-kernel-rt-group-scheduling": {
+    title: "Linux Kernel Documentation: Real-Time group scheduling",
+    url: "https://www.kernel.org/doc/html/latest/scheduler/sched-rt-group.html",
+  },
   "linux-kernel-psi": {
     title: "Linux Kernel Documentation: Pressure Stall Information",
     url: "https://www.kernel.org/doc/html/latest/accounting/psi.html",
