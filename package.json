@@ -20,6 +20,7 @@
     "kg:review:autopass": "node scripts/kg-review-queue.mjs autopass",
     "kg:review:handoff": "node scripts/kg-review-queue.mjs handoff",
     "kg:review:validate": "node scripts/kg-review-queue.mjs validate",
+    "kg:progress:docs": "node scripts/kg-progress-docs.mjs",
     "kg:review:fail": "node scripts/kg-review-queue.mjs fail"
   },
   "dependencies": {

@@ -8,6 +8,8 @@ KnowledgeGraph 是一个面向计算机基础知识学习者的纯前端可视�
 - [项目设计文档](./specs/project-design.md)：定义技术选型、目录结构、数据模型、路由规划、部署方式和工程规范。
 - [UI/UX 规格](./specs/KnowledgeGraph-UIUX.md)：定义页面结构、设计系统、组件规范、关键状态和验收清单。
 - [路线图](./roadmap.md)：定义首版、近期版本和长期扩展方向。
+- [知识点文章优化进度](./kg-article-progress.md)：记录本轮文章级讲解已优化和未开始的知识点。
+- [知识点可视化进度](./kg-visual-progress.md)：记录已可视化和未开始可视化的知识点。
 
 ## 首版目标
 
