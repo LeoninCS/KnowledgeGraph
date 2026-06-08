@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 145 | 304 |
+| 449 | 146 | 303 |
 
 ## 分类进度
 
@@ -18,7 +18,7 @@
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 48 | 0 |
-| redis | 44 | 33 | 11 |
+| redis | 44 | 34 | 10 |
 | rabbitmq | 35 | 0 | 35 |
 | backend | 45 | 0 | 45 |
 | docker | 41 | 2 | 39 |
@@ -276,7 +276,7 @@
 | 已优化 | `set-nx-ex` | SET NX EX | SET NX EX | 2026-06-05 | 15 |
 | 已优化 | `lua-unlock` | Lua 解锁 | Lua Unlock | 2026-06-05 | 15 |
 | 已优化 | `redis-replication` | 主从复制 | Master Replica Replication | 2026-06-05 | 15 |
-| 未开始 | `full-sync` | 全量同步 | Full Synchronization | 2026-05-30 | 6 |
+| 已优化 | `full-sync` | 全量同步 | Full Synchronization | 2026-06-05 | 14 |
 | 未开始 | `partial-sync` | 部分同步 | Partial Synchronization | 2026-05-30 | 6 |
 | 未开始 | `replication-lag` | 复制延迟 | Replication Lag | 2026-05-30 | 7 |
 | 未开始 | `redis-sentinel` | 哨兵 | Redis Sentinel | 2026-05-30 | 7 |
