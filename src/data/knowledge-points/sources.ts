@@ -5481,6 +5481,22 @@ export const knowledgeSources = {
     title: "Redis Commands: CLIENT LIST",
     url: "https://redis.io/docs/latest/commands/client-list/",
   },
+  "redis-kb-del-latency": {
+    title: "Redis Knowledge Base: Reducing Latency from DEL Command Usage",
+    url: "https://support.redislabs.com/hc/en-us/articles/30697090147730-Reducing-Latency-from-DEL-Command-Usage",
+  },
+  "tencent-cloud-redis-big-hot-key": {
+    title: "Tencent Cloud Docs: Hot Key and Big Key",
+    url: "https://intl.cloud.tencent.com/ind/document/product/239/54756",
+  },
+  "huawei-cloud-redis-big-hot-key": {
+    title: "Huawei Cloud Docs: How Do I Detect Big Keys and Hot Keys in Advance?",
+    url: "https://support.huaweicloud.com/intl/en-us/dcs_faq/dcs-faq-0606002.html",
+  },
+  "oneuptime-redis-large-key": {
+    title: "OneUptime: How to Troubleshoot Redis Large Key Problems",
+    url: "https://oneuptime.com/blog/post/2026-03-31-redis-troubleshoot-redis-large-key-problems/view",
+  },
   "aws-redis-caching-strategies": {
     title: "AWS Whitepaper: Database Caching Strategies Using Redis",
     url: "https://d1.awsstatic.com/whitepapers/Database/database-caching-strategies-using-redis.73adbc8708febc9f3e5efc88382ab86f092bda82.pdf",
