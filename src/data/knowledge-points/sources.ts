@@ -5453,6 +5453,18 @@ export const knowledgeSources = {
     title: "Redis Commands: CLUSTER NODES",
     url: "https://redis.io/docs/latest/commands/cluster-nodes/",
   },
+  "redis-cluster-slot-stats-command": {
+    title: "Redis Commands: CLUSTER SLOT-STATS",
+    url: "https://redis.io/docs/latest/commands/cluster-slot-stats/",
+  },
+  "redis-cluster-countkeysinslot-command": {
+    title: "Redis Commands: CLUSTER COUNTKEYSINSLOT",
+    url: "https://redis.io/docs/latest/commands/cluster-countkeysinslot/",
+  },
+  "redis-cluster-getkeysinslot-command": {
+    title: "Redis Commands: CLUSTER GETKEYSINSLOT",
+    url: "https://redis.io/docs/latest/commands/cluster-getkeysinslot/",
+  },
   "redis-cluster-setslot-command": {
     title: "Redis Commands: CLUSTER SETSLOT",
     url: "https://redis.io/docs/latest/commands/cluster-setslot/",
@@ -5464,6 +5476,10 @@ export const knowledgeSources = {
   "oneuptime-redis-cluster": {
     title: "OneUptime: Redis Cluster Architecture",
     url: "https://oneuptime.com/blog/post/2026-04-01-redis-cluster-architecture-explained/view",
+  },
+  "oneuptime-redis-hash-slots": {
+    title: "OneUptime: How Redis Cluster Hash Slots Work",
+    url: "https://oneuptime.com/blog/post/2026-03-31-redis-cluster-hash-slots-16384/view",
   },
   "redis-readonly-command": {
     title: "Redis Commands: READONLY",
