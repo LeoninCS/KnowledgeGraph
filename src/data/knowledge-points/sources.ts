@@ -4865,6 +4865,18 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Lock types and their rules",
     url: "https://www.kernel.org/doc/html/latest/locking/locktypes.html",
   },
+  "linux-kernel-atomic-types": {
+    title: "Linux Kernel Documentation: Atomic types",
+    url: "https://docs.kernel.org/core-api/wrappers/atomic_t.html",
+  },
+  "linux-kernel-memory-barriers": {
+    title: "Linux Kernel Documentation: Linux kernel memory barriers",
+    url: "https://docs.kernel.org/core-api/wrappers/memory-barriers.html",
+  },
+  "linux-kernel-refcount-vs-atomic": {
+    title: "Linux Kernel Documentation: refcount_t API compared to atomic_t",
+    url: "https://docs.kernel.org/core-api/refcount-vs-atomic.html",
+  },
   "linux-kernel-lockdep-design": {
     title: "Linux Kernel Documentation: Runtime locking correctness validator",
     url: "https://docs.kernel.org/locking/lockdep-design.html",
@@ -4920,6 +4932,10 @@ export const knowledgeSources = {
   "linux-man-pages-perf-lock": {
     title: "Linux man-pages: perf-lock(1)",
     url: "https://man7.org/linux/man-pages/man1/perf-lock.1.html",
+  },
+  "gcc-atomic-builtins": {
+    title: "GCC Docs: __atomic Builtins",
+    url: "https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html",
   },
   "ruanyifeng-user-kernel-space": {
     title: "阮一峰的网络日志: User space 与 Kernel space",
