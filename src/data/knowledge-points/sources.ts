@@ -4149,6 +4149,10 @@ export const knowledgeSources = {
     title: "Linux Kernel Documentation: Memory Management Concepts",
     url: "https://docs.kernel.org/admin-guide/mm/concepts.html",
   },
+  "linux-kernel-swap-management": {
+    title: "Linux Kernel Documentation: Swap Management",
+    url: "https://www.kernel.org/doc/html/latest/mm/swap.html",
+  },
   "linux-kernel-process-addresses": {
     title: "Linux Kernel Documentation: Process Addresses",
     url: "https://www.kernel.org/doc/html/latest/mm/process_addrs.html",
@@ -4184,6 +4188,18 @@ export const knowledgeSources = {
   "linux-kernel-oom": {
     title: "Linux Kernel Documentation: Out Of Memory Handling",
     url: "https://docs.kernel.org/mm/oom.html",
+  },
+  "linux-kernel-sysctl-vm": {
+    title: "Linux Kernel Documentation: /proc/sys/vm",
+    url: "https://docs.kernel.org/admin-guide/sysctl/vm.html",
+  },
+  "linux-kernel-zswap": {
+    title: "Linux Kernel Documentation: zswap",
+    url: "https://docs.kernel.org/admin-guide/mm/zswap.html",
+  },
+  "linux-kernel-zram": {
+    title: "Linux Kernel Documentation: zram",
+    url: "https://docs.kernel.org/admin-guide/blockdev/zram.html",
   },
   "linux-kernel-vfs": {
     title: "Linux Kernel Documentation: Virtual File System",
@@ -4248,6 +4264,22 @@ export const knowledgeSources = {
   "linux-man-pages-getrlimit": {
     title: "Linux man-pages: getrlimit(2)",
     url: "https://man7.org/linux/man-pages/man2/getrlimit.2.html",
+  },
+  "linux-man-pages-swapon": {
+    title: "Linux man-pages: swapon(8)",
+    url: "https://man7.org/linux/man-pages/man8/swapon.8.html",
+  },
+  "linux-man-pages-swapoff": {
+    title: "Linux man-pages: swapoff(8)",
+    url: "https://man7.org/linux/man-pages/man8/swapoff.8.html",
+  },
+  "linux-man-pages-mkswap": {
+    title: "Linux man-pages: mkswap(8)",
+    url: "https://man7.org/linux/man-pages/man8/mkswap.8.html",
+  },
+  "linux-man-pages-proc-swaps": {
+    title: "Linux man-pages: proc_swaps(5)",
+    url: "https://man7.org/linux/man-pages/man5/proc_swaps.5.html",
   },
   "linux-kernel-sysctl-fs": {
     title: "Linux Kernel Documentation: /proc/sys/fs",
@@ -4944,6 +4976,18 @@ export const knowledgeSources = {
   "xiaolincoding-os-interview": {
     title: "小林 coding: 操作系统面试题",
     url: "https://xiaolincoding.com/interview/os.html",
+  },
+  "redhat-rhel-managing-swap": {
+    title: "Red Hat Docs: Managing swap space",
+    url: "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/8/html/managing_monitoring_and_updating_the_kernel/managing-swap-space_managing-monitoring-and-updating-the-kernel",
+  },
+  "archwiki-swap": {
+    title: "ArchWiki: Swap",
+    url: "https://wiki.archlinux.org/title/Swap",
+  },
+  "chrisdown-defence-swap": {
+    title: "Chris Down: In defence of swap",
+    url: "https://chrisdown.name/2018/01/02/in-defence-of-swap.html",
   },
   "senlin-pthread-inside": {
     title: "Senlin's Blog: 深入 Linux 多线程编程",
