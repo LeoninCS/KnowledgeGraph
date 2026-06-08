@@ -3737,6 +3737,10 @@ export const knowledgeSources = {
     title: "RabbitMQ Docs: Reliability Guide",
     url: "https://www.rabbitmq.com/docs/reliability",
   },
+  "rabbitmq-production-checklist": {
+    title: "RabbitMQ Docs: Production Deployment Guidelines",
+    url: "https://www.rabbitmq.com/docs/production-checklist",
+  },
   "rabbitmq-ha-dr-101": {
     title: "RabbitMQ Blog: Disaster Recovery and High Availability 101",
     url: "https://www.rabbitmq.com/blog/2020/07/07/disaster-recovery-and-high-availability-101",
