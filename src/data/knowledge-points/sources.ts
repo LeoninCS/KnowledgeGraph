@@ -5389,6 +5389,14 @@ export const knowledgeSources = {
     title: "Redis Docs: Replication",
     url: "https://redis.io/docs/latest/operate/oss_and_stack/management/replication/",
   },
+  "redis-replicaof-command": {
+    title: "Redis Commands: REPLICAOF",
+    url: "https://redis.io/docs/latest/commands/replicaof/",
+  },
+  "redis-basic-replication-learn": {
+    title: "Redis Learn: High Availability - Basic Replication",
+    url: "https://redis.io/learn/operate/redis-at-scale/high-availability/basic-replication",
+  },
   "redis-wait-command": {
     title: "Redis Commands: WAIT",
     url: "https://redis.io/docs/latest/commands/wait/",
@@ -5404,6 +5412,10 @@ export const knowledgeSources = {
   "redis-psync-command": {
     title: "Redis Commands: PSYNC",
     url: "https://redis.io/docs/latest/commands/psync/",
+  },
+  "oneuptime-redis-replication-lag": {
+    title: "OneUptime: How to Monitor Redis Replication Lag",
+    url: "https://oneuptime.com/blog/post/2026-03-31-redis-how-to-monitor-redis-replication-lag/view",
   },
   "redis-sentinel-docs": {
     title: "Redis Docs: High availability with Redis Sentinel",
