@@ -4305,6 +4305,34 @@ export const knowledgeSources = {
     title: "Linux man-pages: open(2)",
     url: "https://man7.org/linux/man-pages/man2/open.2.html",
   },
+  "linux-man-pages-chmod": {
+    title: "Linux man-pages: chmod(1)",
+    url: "https://man7.org/linux/man-pages/man1/chmod.1.html",
+  },
+  "linux-man-pages-chown": {
+    title: "Linux man-pages: chown(2)",
+    url: "https://man7.org/linux/man-pages/man2/chown.2.html",
+  },
+  "linux-man-pages-umask": {
+    title: "Linux man-pages: umask(2)",
+    url: "https://man7.org/linux/man-pages/man2/umask.2.html",
+  },
+  "linux-man-pages-access": {
+    title: "Linux man-pages: access(2)",
+    url: "https://man7.org/linux/man-pages/man2/access.2.html",
+  },
+  "linux-man-pages-acl": {
+    title: "Linux man-pages: acl(5)",
+    url: "https://man7.org/linux/man-pages/man5/acl.5.html",
+  },
+  "linux-man-pages-getfacl": {
+    title: "Linux man-pages: getfacl(1)",
+    url: "https://man7.org/linux/man-pages/man1/getfacl.1.html",
+  },
+  "linux-man-pages-setfacl": {
+    title: "Linux man-pages: setfacl(1)",
+    url: "https://man7.org/linux/man-pages/man1/setfacl.1.html",
+  },
   "linux-man-pages-close": {
     title: "Linux man-pages: close(2)",
     url: "https://man7.org/linux/man-pages/man2/close.2.html",
@@ -4460,6 +4488,10 @@ export const knowledgeSources = {
   "ruanyifeng-inode": {
     title: "阮一峰的网络日志: 理解 inode",
     url: "https://www.ruanyifeng.com/blog/2011/12/inode.html",
+  },
+  "vbird-linux-file-permission": {
+    title: "鸟哥的 Linux 私房菜: Linux 文件权限与目录配置",
+    url: "https://linux.vbird.org/linux_basic/centos7/0210filepermission.php",
   },
   "linux-man-pages-mmap": {
     title: "Linux man-pages: mmap(2)",
