@@ -7573,6 +7573,22 @@ export const knowledgeSources = {
     title: "Docker Docs: docker service create",
     url: "https://docs.docker.com/reference/cli/docker/service/create/",
   },
+  "docker-service-update-cli": {
+    title: "Docker Docs: docker service update",
+    url: "https://docs.docker.com/reference/cli/docker/service/update/",
+  },
+  "docker-service-rollback-cli": {
+    title: "Docker Docs: docker service rollback",
+    url: "https://docs.docker.com/reference/cli/docker/service/rollback/",
+  },
+  "docker-swarm-services-docs": {
+    title: "Docker Docs: Deploy services to a swarm",
+    url: "https://docs.docker.com/engine/swarm/services/",
+  },
+  "docker-practice-swarm-rolling-update": {
+    title: "Docker 从入门到实践: Swarm mode 与滚动升级",
+    url: "https://docker-practice.github.io/zh-cn/swarm_mode/rolling_update.html",
+  },
   "docker-storage-docs": {
     title: "Docker Docs: Storage",
     url: "https://docs.docker.com/engine/storage/",
