@@ -4517,6 +4517,10 @@ export const knowledgeSources = {
     title: "Linux man-pages: pthread_mutexattr_gettype(3p)",
     url: "https://man7.org/linux/man-pages/man3/pthread_mutexattr_gettype.3p.html",
   },
+  "linux-man-pages-pthread-mutexattr-setprotocol": {
+    title: "Linux man-pages: pthread_mutexattr_getprotocol(3p)",
+    url: "https://man7.org/linux/man-pages/man3/pthread_mutexattr_getprotocol.3p.html",
+  },
   "linux-man-pages-pthread-mutexattr-setrobust": {
     title: "Linux man-pages: pthread_mutexattr_setrobust(3p)",
     url: "https://man7.org/linux/man-pages/man3/pthread_mutexattr_setrobust.3p.html",
@@ -4805,6 +4809,10 @@ export const knowledgeSources = {
     title: "Microsoft Learn: Troubleshoot Linux performance bottlenecks",
     url: "https://learn.microsoft.com/zh-cn/troubleshoot/azure/virtual-machines/linux/troubleshoot-performance-bottlenecks-linux",
   },
+  "microsoft-mars-pathfinder-priority-inversion": {
+    title: "Microsoft Research: What really happened on Mars Pathfinder",
+    url: "https://www.microsoft.com/en-us/research/publication/what-really-happened-on-mars-pathfinder/",
+  },
   "intel-sdm": {
     title: "Intel 64 and IA-32 Architectures Software Developer Manuals",
     url: "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html",
@@ -4864,6 +4872,14 @@ export const knowledgeSources = {
   "linux-kernel-ww-mutex-design": {
     title: "Linux Kernel Documentation: Wound/Wait Deadlock-Proof Mutex Design",
     url: "https://docs.kernel.org/locking/ww-mutex-design.html",
+  },
+  "linux-kernel-rt-mutex-design": {
+    title: "Linux Kernel Documentation: RT-mutex subsystem with PI support",
+    url: "https://docs.kernel.org/locking/rt-mutex.html",
+  },
+  "linux-kernel-pi-futex": {
+    title: "Linux Kernel Documentation: Futex Requeue PI",
+    url: "https://docs.kernel.org/locking/futex-requeue-pi.html",
   },
   "linux-kernel-kcsan": {
     title: "Linux Kernel Documentation: Kernel Concurrency Sanitizer",
