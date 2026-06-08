@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 161 | 288 |
+| 449 | 162 | 287 |
 
 ## 分类进度
 
@@ -19,7 +19,7 @@
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 48 | 0 |
 | redis | 44 | 44 | 0 |
-| rabbitmq | 35 | 5 | 30 |
+| rabbitmq | 35 | 6 | 29 |
 | backend | 45 | 0 | 45 |
 | docker | 41 | 2 | 39 |
 | kubernetes | 47 | 0 | 47 |
@@ -297,7 +297,7 @@
 | 已优化 | `broker` | 消息代理 | Message Broker | 2026-06-05 | 17 |
 | 已优化 | `connection` | 连接 | Connection | 2026-06-05 | 14 |
 | 已优化 | `channel` | 通道 | Channel | 2026-06-05 | 15 |
-| 未开始 | `message` | 消息 | Message | 2026-05-30 | 8 |
+| 已优化 | `message` | 消息 | Message | 2026-06-05 | 15 |
 | 未开始 | `producer` | 生产者 | Producer | 2026-05-30 | 9 |
 | 未开始 | `consumer` | 消费者 | Consumer | 2026-05-30 | 8 |
 | 未开始 | `exchange` | 交换机 | Exchange | 2026-05-30 | 8 |
