@@ -5521,6 +5521,22 @@ export const knowledgeSources = {
     title: "Redis Commands: SLOWLOG LEN",
     url: "https://redis.io/docs/latest/commands/slowlog-len/",
   },
+  "redis-slowlog-reset-command": {
+    title: "Redis Commands: SLOWLOG RESET",
+    url: "https://redis.io/docs/latest/commands/slowlog-reset/",
+  },
+  "redis-software-slow-log": {
+    title: "Redis Docs: View and manage Redis slow log",
+    url: "https://redis.io/docs/latest/operate/rs/clusters/logging/redis-slow-log/",
+  },
+  "redis-source-slowlog": {
+    title: "Redis Source: slowlog.c",
+    url: "https://github.com/redis/redis/blob/unstable/src/slowlog.c",
+  },
+  "redisbook-slowlog": {
+    title: "Redis Design and Implementation: Slow Log",
+    url: "https://redisbook.readthedocs.io/en/latest/feature/slowlog.html",
+  },
   "redis-monitor-command": {
     title: "Redis Commands: MONITOR",
     url: "https://redis.io/docs/latest/commands/monitor/",
