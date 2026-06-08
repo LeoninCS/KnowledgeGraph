@@ -3849,6 +3849,10 @@ export const knowledgeSources = {
     title: "RabbitMQ Docs: AMQP 1.0",
     url: "https://www.rabbitmq.com/docs/amqp",
   },
+  "rabbitmq-amqp-091-protocol": {
+    title: "RabbitMQ Docs: AMQP 0-9-1 Protocol Specification",
+    url: "https://www.rabbitmq.com/amqp-0-9-1-protocol",
+  },
   "rabbitmq-protocols": {
     title: "RabbitMQ Docs: Protocols",
     url: "https://www.rabbitmq.com/docs/protocols",

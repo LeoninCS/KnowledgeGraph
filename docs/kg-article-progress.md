@@ -7,7 +7,7 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 157 | 292 |
+| 449 | 158 | 291 |
 
 ## 分类进度
 
@@ -19,7 +19,7 @@
 | algorithm | 34 | 0 | 34 |
 | mysql | 48 | 48 | 0 |
 | redis | 44 | 44 | 0 |
-| rabbitmq | 35 | 1 | 34 |
+| rabbitmq | 35 | 2 | 33 |
 | backend | 45 | 0 | 45 |
 | docker | 41 | 2 | 39 |
 | kubernetes | 47 | 0 | 47 |
@@ -293,7 +293,7 @@
 | 状态 | ID | 中文名 | 英文名 | Reviewed 日期 | 来源数 |
 | --- | --- | --- | --- | --- | --- |
 | 已优化 | `rabbitmq-overview` | RabbitMQ 概览 | RabbitMQ Overview | 2026-06-05 | 14 |
-| 未开始 | `amqp` | AMQP | Advanced Message Queuing Protocol | 2026-05-30 | 9 |
+| 已优化 | `amqp` | AMQP | Advanced Message Queuing Protocol | 2026-06-05 | 13 |
 | 未开始 | `broker` | 消息代理 | Message Broker | 2026-05-30 | 8 |
 | 未开始 | `connection` | 连接 | Connection | 2026-05-30 | 9 |
 | 未开始 | `channel` | 通道 | Channel | 2026-05-30 | 8 |
