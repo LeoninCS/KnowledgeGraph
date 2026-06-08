@@ -5553,6 +5553,10 @@ export const knowledgeSources = {
     title: "Redis Docs: Cache-aside",
     url: "https://redis.io/docs/latest/develop/use-cases/cache-aside/",
   },
+  "redis-client-side-caching-docs": {
+    title: "Redis Docs: Client-side caching",
+    url: "https://redis.io/docs/latest/develop/reference/client-side-caching/",
+  },
   "redis-cache-consistency-blog": {
     title: "Redis Blog: Three Ways to Maintain Cache Consistency",
     url: "https://redis.io/blog/three-ways-to-maintain-cache-consistency/",
