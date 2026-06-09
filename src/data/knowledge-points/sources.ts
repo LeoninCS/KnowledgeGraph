@@ -6753,6 +6753,10 @@ export const knowledgeSources = {
     title: "MySQL Reference Manual: CREATE TABLE Foreign Keys",
     url: "https://dev.mysql.com/doc/refman/8.4/en/create-table-foreign-keys.html",
   },
+  "mysql-create-table-generated-columns": {
+    title: "MySQL Reference Manual: CREATE TABLE and Generated Columns",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/create-table-generated-columns.html",
+  },
   "mysql-show-create-table": {
     title: "MySQL Reference Manual: SHOW CREATE TABLE Statement",
     url: "https://dev.mysql.com/doc/refman/8.4/en/show-create-table.html",
@@ -6872,6 +6876,14 @@ export const knowledgeSources = {
   "mysql-show-processlist": {
     title: "MySQL Reference Manual: SHOW PROCESSLIST Statement",
     url: "https://dev.mysql.com/doc/refman/8.4/en/show-processlist.html",
+  },
+  "mysql-create-trigger": {
+    title: "MySQL Reference Manual: CREATE TRIGGER Statement",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/create-trigger.html",
+  },
+  "mysql-trigger-syntax": {
+    title: "MySQL Reference Manual: Trigger Syntax and Examples",
+    url: "https://dev.mysql.com/doc/refman/8.4/en/trigger-syntax.html",
   },
   "mysql-information-schema-processlist": {
     title: "MySQL Reference Manual: The INFORMATION_SCHEMA PROCESSLIST Table",
@@ -7016,6 +7028,14 @@ export const knowledgeSources = {
   "redgate-database-normalization": {
     title: "Redgate: Database Normalization: A Step-By-Step-Guide With Examples",
     url: "https://www.red-gate.com/blog/database-normalization",
+  },
+  "microsoft-database-denormalization": {
+    title: "Microsoft Learn: Improve Power BI performance with denormalized data",
+    url: "https://learn.microsoft.com/en-us/power-bi/guidance/star-schema#denormalization",
+  },
+  "geeksforgeeks-denormalization": {
+    title: "GeeksforGeeks: Denormalization in Databases",
+    url: "https://www.geeksforgeeks.org/dbms/denormalization-in-databases/",
   },
   "mysql-planetscale-primary-key-data-types": {
     title: "PlanetScale: Primary key data types",
