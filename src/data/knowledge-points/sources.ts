@@ -65,6 +65,14 @@ export const knowledgeSources = {
     title: "Go 语言圣经: 包和工具",
     url: "https://gopl-zh.github.io/ch10/ch10-07.html",
   },
+  "gopl-zh-import-declarations": {
+    title: "Go 语言圣经: 导入声明",
+    url: "https://gopl-zh.github.io/ch10/ch10-04.html",
+  },
+  "gopl-zh-blank-imports": {
+    title: "Go 语言圣经: 包的匿名导入",
+    url: "https://gopl-zh.github.io/ch10/ch10-05.html",
+  },
   "go-spec": {
     title: "The Go Programming Language Specification",
     url: "https://go.dev/ref/spec",
