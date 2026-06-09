@@ -37,6 +37,14 @@ export const knowledgeSources = {
     title: "Go Toolchains",
     url: "https://go.dev/doc/toolchain",
   },
+  "go-blog-toolchain": {
+    title: "Go Blog: Forward Compatibility and Toolchain Management in Go 1.21",
+    url: "https://go.dev/blog/toolchain",
+  },
+  "go101-toolchain": {
+    title: "Go 101: The Go Toolchain",
+    url: "https://go101.org/article/go-toolchain.html",
+  },
   "go-gofmt-command": {
     title: "cmd/gofmt: gofmt command",
     url: "https://pkg.go.dev/cmd/gofmt",
