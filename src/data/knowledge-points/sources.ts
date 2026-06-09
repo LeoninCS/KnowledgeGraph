@@ -45,6 +45,10 @@ export const knowledgeSources = {
     title: "Go 101: The Go Toolchain",
     url: "https://go101.org/article/go-toolchain.html",
   },
+  "go101-packages-imports": {
+    title: "Go 101: Code Packages and Package Imports",
+    url: "https://go101.org/article/packages-and-imports.html",
+  },
   "go-gofmt-command": {
     title: "cmd/gofmt: gofmt command",
     url: "https://pkg.go.dev/cmd/gofmt",
