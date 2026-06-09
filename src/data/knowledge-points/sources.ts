@@ -393,6 +393,34 @@ export const knowledgeSources = {
     title: "Go 语言圣经: Deferred函数",
     url: "https://gopl-zh.github.io/ch5/ch5-08.html",
   },
+  "go-tour-functions": {
+    title: "A Tour of Go: Functions",
+    url: "https://go.dev/tour/basics/4",
+  },
+  "go-tour-function-values": {
+    title: "A Tour of Go: Function values",
+    url: "https://go.dev/tour/moretypes/24",
+  },
+  "go-by-example-functions": {
+    title: "Go by Example: Functions",
+    url: "https://gobyexample.com/functions",
+  },
+  "go-by-example-variadic-functions": {
+    title: "Go by Example: Variadic Functions",
+    url: "https://gobyexample.com/variadic-functions",
+  },
+  "go101-function-declarations": {
+    title: "Go 101: Function Declarations and Function Calls",
+    url: "https://go101.org/article/function-declarations-and-calls.html",
+  },
+  "go101-functions": {
+    title: "Go 101: Functions in Go",
+    url: "https://go101.org/article/function.html",
+  },
+  "gopl-zh-functions": {
+    title: "Go 语言圣经: 函数",
+    url: "https://gopl-zh.github.io/ch5/ch5.html",
+  },
   "go-generics-tutorial": {
     title: "Tutorial: Getting started with generics",
     url: "https://go.dev/doc/tutorial/generics",
