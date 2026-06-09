@@ -7,13 +7,13 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 173 | 276 |
+| 449 | 174 | 275 |
 
 ## 分类进度
 
 | 分类 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- | --- |
-| go | 45 | 11 | 34 |
+| go | 45 | 12 | 33 |
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
@@ -40,7 +40,7 @@
 | 已优化 | `main-function` | main 函数 | main Function | 2026-06-05 | 10 |
 | 已优化 | `init-function` | init 函数 | init Function | 2026-06-05 | 10 |
 | 已优化 | `variable` | 变量 | Variable | 2026-06-05 | 10 |
-| 未开始 | `constant` | 常量 | Constant | 2026-05-29 | 4 |
+| 已优化 | `constant` | 常量 | Constant | 2026-06-05 | 11 |
 | 未开始 | `basic-types` | 基本类型 | Basic Types | 2026-05-29 | 4 |
 | 未开始 | `control-flow` | 控制流 | Control Flow | 2026-05-29 | 4 |
 | 未开始 | `error-handling` | 错误处理 | Error Handling | 2026-05-29 | 5 |

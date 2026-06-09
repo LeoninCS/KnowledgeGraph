@@ -45,6 +45,10 @@ export const knowledgeSources = {
     title: "Go 101: The Go Toolchain",
     url: "https://go101.org/article/go-toolchain.html",
   },
+  "go101-constants-variables": {
+    title: "Go 101: Constants and Variables",
+    url: "https://go101.org/article/constants-and-variables.html",
+  },
   "go101-packages-imports": {
     title: "Go 101: Code Packages and Package Imports",
     url: "https://go101.org/article/packages-and-imports.html",
@@ -72,6 +76,10 @@ export const knowledgeSources = {
   "gopl-zh-program-structure": {
     title: "Go 语言圣经: 程序结构",
     url: "https://gopl-zh.github.io/ch2/ch2.html",
+  },
+  "gopl-zh-constants": {
+    title: "Go 语言圣经: 常量",
+    url: "https://gopl-zh.github.io/ch3/ch3-06.html",
   },
   "gopl-zh-blank-imports": {
     title: "Go 语言圣经: 包的匿名导入",
@@ -244,6 +252,10 @@ export const knowledgeSources = {
   "go-blog-constants": {
     title: "Go Blog: Constants",
     url: "https://go.dev/blog/constants",
+  },
+  "go-wiki-iota": {
+    title: "Go Wiki: Iota",
+    url: "https://go.dev/wiki/Iota",
   },
   "go-blog-strings": {
     title: "Go Blog: Strings, bytes, runes and characters in Go",
