@@ -6997,6 +6997,26 @@ export const knowledgeSources = {
     title: "PlanetScale: Primary keys",
     url: "https://planetscale.com/learn/courses/mysql-for-developers/indexes/primary-keys",
   },
+  "microsoft-database-normalization": {
+    title: "Microsoft Support: Description of the Database Normalization Basics",
+    url: "https://learn.microsoft.com/en-us/office/troubleshoot/access/database-normalization-description",
+  },
+  "digitalocean-database-normalization": {
+    title: "DigitalOcean: How To Apply Database Normalization to a Database",
+    url: "https://www.digitalocean.com/community/tutorials/database-normalization",
+  },
+  "ibm-database-normalization": {
+    title: "IBM Think: What is database normalization?",
+    url: "https://www.ibm.com/think/topics/database-normalization",
+  },
+  "database-system-concepts-relational-design": {
+    title: "Database System Concepts: Relational Database Design",
+    url: "https://www.db-book.com/db7/slide-dir/PDF-dir/ch7.pdf",
+  },
+  "redgate-database-normalization": {
+    title: "Redgate: Database Normalization: A Step-By-Step-Guide With Examples",
+    url: "https://www.red-gate.com/blog/database-normalization",
+  },
   "mysql-planetscale-primary-key-data-types": {
     title: "PlanetScale: Primary key data types",
     url: "https://planetscale.com/learn/courses/mysql-for-developers/indexes/primary-key-data-types",

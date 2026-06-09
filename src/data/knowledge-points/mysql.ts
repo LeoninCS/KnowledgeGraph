@@ -10,7 +10,7 @@ const mysqlKnowledgePointBase = [
   /* <!-- KG_REVIEWED: 表结构设计 | 2026-06-05 | source_count=14 --> */
   /* <!-- KG_EXPLAINED: 表结构设计 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "schema-design", zh: "表结构设计", en: "Schema Design", area: "foundation", difficulty: "medium", concept: "表结构设计定义实体、字段、主键、约束和关系，直接影响数据质量和查询效率。", explanation: ["核心概念：表结构设计（Schema Design）聚焦表结构设计定义实体、字段、主键、约束和关系，直接影响数据质量和查询效率。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：表结构设计常用于业务建模、数据库初始化和重构老表。学习时把它放回MySQL链路中观察，并结合前置知识SQL判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，表结构设计通常会和范式、主键和外键一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把表结构设计当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["表结构设计执行原理是什么","表结构设计如何影响性能或一致性","表结构设计线上问题怎么排查"], useCases: ["业务建模","数据库初始化","重构老表"], prerequisites: ["sql"], related: ["normalization","primary-key","foreign-key"], order: 3 },
-  /* <!-- KG_REVIEWED: 范式 | 2026-05-24 | source_count=5 --> */
+  /* <!-- KG_REVIEWED: 范式 | 2026-06-05 | source_count=18 --> */
   /* <!-- KG_EXPLAINED: 范式 | 2026-05-23 | source_count=5 --> */
   { sourceRefs: ["mysql-reference","mysql-innodb","xiaolin-mysql","javaguide","cs-notes"], id: "normalization", zh: "范式", en: "Normalization", area: "foundation", difficulty: "medium", concept: "范式通过拆分实体和关系减少冗余，提升数据一致性。", explanation: ["核心概念：范式（Normalization）聚焦范式通过拆分实体和关系减少冗余，提升数据一致性。。MySQL 通过 SQL、InnoDB、索引、事务、日志和复制支撑关系型数据读写；理解它时先抓住关系模型、表结构、约束和数据类型，再看输入、状态变化、输出结果和失败分支。","适用场景：范式常用于订单模型设计、用户权限模型和主数据治理。学习时把它放回MySQL链路中观察，并结合前置知识表结构设计判断它解决的具体问题。","特殊场景：在高并发、故障恢复、扩缩容、跨组件协作或线上排障中，范式通常会和反范式一起出现。此时重点看边界条件、顺序约束、资源消耗和异常恢复路径。","边界情况：这个知识点需要结合流程和指标判断。常见边界包括空输入、重复请求、超时、容量上限、权限限制、版本差异和依赖不可用；遇到异常时先确认关系模型、表结构、约束和数据类型是否仍然成立。","常见误区与注意点：实践中容易把范式当成孤立概念处理，结果遗漏冗余、主键选择、字段范围、字符集和约束成本。落地时要同时记录配置、指标、日志、链路和回滚手段，用小规模验证确认行为符合预期。","参考来源：本讲解参考MySQL 8.4 Reference Manual、InnoDB 官方文档、小林 coding、JavaGuide 和 CS-Notes，优先采用官方定义、命令语义、工程约束和主流面试资料中的稳定结论。"], typicalProblems: ["范式执行原理是什么","范式如何影响性能或一致性","范式线上问题怎么排查"], useCases: ["订单模型设计","用户权限模型","主数据治理"], prerequisites: ["schema-design"], related: ["denormalization"], order: 4 },
   /* <!-- KG_REVIEWED: 反范式 | 2026-05-24 | source_count=5 --> */
@@ -1708,6 +1708,82 @@ const mysqlKnowledgePointOverrides: Record<string, Partial<GraphKnowledgePoint>>
     useCases: ["业务建模", "数据库初始化", "表结构重构", "索引设计", "数据质量治理", "大表在线变更", "慢 SQL 排查"],
     prerequisites: ["sql"],
     related: ["data-type", "primary-key", "normalization", "denormalization", "foreign-key", "online-ddl"],
+  },
+  "normalization": {
+    sourceRefs: [
+      "mysql-reference",
+      "mysql-create-table",
+      "mysql-constraint-primary-key",
+      "mysql-create-table-foreign-keys",
+      "mysql-show-create-table",
+      "mysql-data-size-optimization",
+      "mysql-optimization",
+      "mysql-how-mysql-uses-indexes",
+      "mysql-explain-statement",
+      "mysql-planetscale-schema-recap",
+      "microsoft-database-normalization",
+      "digitalocean-database-normalization",
+      "ibm-database-normalization",
+      "database-system-concepts-relational-design",
+      "redgate-database-normalization",
+      "mysql-alibaba-java-development-manual",
+      "javaguide",
+      "cs-notes",
+    ],
+    concept:
+      "范式是关系型表结构设计的分解规则，用函数依赖和候选键约束数据只在一个事实归属处维护，从源头减少更新异常和口径漂移。",
+    explanation: [
+      "概念定位：范式（Normalization）解决的是“同一份业务事实应该放在哪张表、由哪个键唯一决定、怎样维护一致性”的问题。它常出现在订单模型、用户资料、权限模型、商品目录、主数据治理、报表口径和历史表重构中，是表结构设计从经验判断走向可验证规则的基础。\n\n在 MySQL 中，范式会落到 `CREATE TABLE`、主键、唯一约束、外键、字段拆分和索引设计上。新手先把它理解为“把混在一张宽表里的多类事实拆成各自归属清楚的表”；老手还要继续评估拆表后的 JOIN 成本、事务边界、锁范围、数据迁移、线上校验和适度冗余。",
+      "准确定义：范式是一组基于关系模型和函数依赖（functional dependency）的设计规则。核心问题是：在一张关系表里，哪些属性由哪个键决定，哪些属性应该独立成表。\n\n常见层级可以这样记：\n\n- `1NF`（First Normal Form）：字段保持原子值，每行同一列只表达一个稳定取值。\n- `2NF`（Second Normal Form）：在复合主键表中，非主属性依赖整个候选键。\n- `3NF`（Third Normal Form）：非主属性直接依赖候选键，业务事实沿着主键归属维护。\n- `BCNF`（Boyce-Codd Normal Form）：每个决定因素都具备候选键能力，适合处理更严格的依赖冲突。\n\n这里的“依赖”来自业务语义。例如 `user_id -> user_name` 表示用户编号决定用户名；`order_id -> order_status` 表示订单编号决定订单状态。范式检查的重点是让依赖关系和表边界一致。",
+      "心智模型：把范式看成业务事实的归档规则。\n\n- 一个事实归属一个位置：用户姓名归用户表，订单状态归订单表，商品快照归订单明细快照。\n- 一个键决定一组事实：主键或候选键像档案编号，字段应围绕这个编号表达同一类事实。\n- 一次修改触达一个源头：手机号、角色名称、商品类目等主数据变更有明确维护点。\n- 查询结果可以通过关联还原：拆表后的 `JOIN` 把独立事实重新组合成接口需要的视图。\n- 冗余字段有维护契约：为了性能保留的快照或计数字段，需要同步、校验和修复机制。\n\n这个模型能解释范式的价值：它让“数据正确性”先由模型保证，再由约束、事务和校验任务加强。",
+      "主流程机制：一次范式化设计可以按依赖分析推进。\n\n1. 列出业务事实：识别实体、属性、关系和生命周期，例如用户、订单、订单明细、商品、地址、支付流水。\n2. 找候选键：确定能唯一标识事实的字段组合，例如 `user_id`、`order_id`、`(order_id, sku_id)`、`role_code`。\n3. 标注函数依赖：写出 `order_id -> user_id,status,created_at`、`sku_id -> sku_name,category_id` 这类规则。\n4. 检查原子性：把逗号拼接、多值数组、重复列组拆成独立行或独立表。\n5. 消除局部依赖：复合键表中，只依赖部分键的字段拆到对应主表。\n6. 消除传递依赖：由非键字段继续决定的字段拆到新表，例如 `user_id -> city_id -> city_name`。\n7. 落地约束与索引：用 `PRIMARY KEY`、`UNIQUE`、`FOREIGN KEY`、`NOT NULL` 和合适索引表达依赖并支撑查询。\n8. 验证读写路径：用真实 SQL、`EXPLAIN`、慢查询样本和一致性校验确认拆分收益与成本。\n\n范式化的输出是一组边界清楚的表、键、约束和关联路径。",
+      "实践例子：下面的订单宽表把订单、用户、商品和城市事实混在一起，更新和统计都会承受额外风险。\n\n```sql\nCREATE TABLE order_wide_bad (\n  order_id BIGINT NOT NULL,\n  user_id BIGINT NOT NULL,\n  user_name VARCHAR(64) NOT NULL,\n  city_id BIGINT NOT NULL,\n  city_name VARCHAR(64) NOT NULL,\n  sku_id BIGINT NOT NULL,\n  sku_name VARCHAR(128) NOT NULL,\n  category_name VARCHAR(64) NOT NULL,\n  quantity INT NOT NULL,\n  order_status VARCHAR(32) NOT NULL,\n  PRIMARY KEY (order_id, sku_id)\n) ENGINE=InnoDB;\n```\n\n按范式拆分后，订单事实、用户事实、商品事实和明细关系各自有清楚归属：\n\n```sql\nCREATE TABLE users (\n  id BIGINT PRIMARY KEY,\n  name VARCHAR(64) NOT NULL,\n  city_id BIGINT NOT NULL,\n  UNIQUE KEY uk_user_name (name)\n) ENGINE=InnoDB;\n\nCREATE TABLE cities (\n  id BIGINT PRIMARY KEY,\n  name VARCHAR(64) NOT NULL,\n  UNIQUE KEY uk_city_name (name)\n) ENGINE=InnoDB;\n\nCREATE TABLE products (\n  id BIGINT PRIMARY KEY,\n  name VARCHAR(128) NOT NULL,\n  category_id BIGINT NOT NULL,\n  KEY idx_category (category_id)\n) ENGINE=InnoDB;\n\nCREATE TABLE orders (\n  id BIGINT PRIMARY KEY,\n  user_id BIGINT NOT NULL,\n  status VARCHAR(32) NOT NULL,\n  created_at DATETIME NOT NULL,\n  KEY idx_user_created (user_id, created_at),\n  CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id)\n) ENGINE=InnoDB;\n\nCREATE TABLE order_items (\n  order_id BIGINT NOT NULL,\n  sku_id BIGINT NOT NULL,\n  quantity INT NOT NULL,\n  PRIMARY KEY (order_id, sku_id),\n  KEY idx_sku (sku_id),\n  CONSTRAINT fk_items_order FOREIGN KEY (order_id) REFERENCES orders(id),\n  CONSTRAINT fk_items_product FOREIGN KEY (sku_id) REFERENCES products(id)\n) ENGINE=InnoDB;\n```\n\n这组表让用户改名、城市改名、商品改类目、订单状态流转各自走稳定写路径；查询订单详情时再通过关联组合。",
+      "深层细节：范式处理的是数据异常，异常通常来自依赖关系与表边界错位。\n\n- 更新异常：同一 `city_name` 存在很多订单行，城市改名需要更新多处，部分成功会造成口径漂移。\n- 插入异常：新商品准备上架时，如果商品信息只存在订单宽表里，就需要等待第一笔订单才能进入系统视图。\n- 删除异常：最后一条订单明细删除后，商品或城市信息也跟着从宽表里消失，历史主数据失去来源。\n- 查询异常：宽表字段含义混杂，报表统计会在“当前商品名称”和“下单时商品快照”之间产生口径争议。\n\nMySQL 的主键、唯一约束和外键能把部分依赖关系固化到数据库层；应用层状态机、事务和数据校验任务负责表达更复杂的业务依赖。",
+      "工程取舍：范式带来一致性与可维护性，也会改变查询和写入成本。\n\n- 一致性收益：事实归属清楚，重复数据减少，唯一约束和外键更容易表达，脏数据修复范围更小。\n- 查询成本：多表关联会增加优化器选择空间、索引设计压力和线上慢查询风险；高频接口要配套联合索引和覆盖索引。\n- 写入成本：拆表会让一次业务动作跨多张表，事务边界、锁顺序、失败重试和幂等键需要设计清楚。\n- 演进成本：拆分后的表更适合独立扩展、归档和权限控制；跨表迁移要规划双写、回填、校验和切换窗口。\n- 冗余策略：订单商品名称、收货地址、价格快照等历史事实适合固化在业务快照表；排行榜、计数器、报表宽表适合用异步任务维护。\n\n成熟设计通常以范式作为数据源头规则，以受控冗余服务性能目标。",
+      "边界与故障模式：范式问题在业务增长后表现得更明显。\n\n- 字段复用：一个 `status` 同时表达支付、履约和售后状态，状态流转和报表口径都会混乱。\n- 多值字段：`role_ids = '1,2,3'` 让权限查询、索引、约束和删除校验都变重。\n- 部分依赖：订单明细表以 `(order_id, sku_id)` 为主键，却把 `sku_name`、`category_name` 放在同表，商品信息维护路径分散。\n- 传递依赖：用户表保存 `city_name`，城市名称由 `city_id` 决定，城市改名需要批量更新用户行。\n- 过度拆分：低频且强绑定的一组属性拆成很多表，会增加 JOIN、事务和代码复杂度。\n- 冗余失控：读性能字段缺少同步日志、校验任务和修复脚本，会变成长期数据债务。\n\n边界判断的关键是区分“主数据源头”“历史快照”和“性能冗余”三类字段。",
+      "排查实践：范式相关线上问题建议用结构证据和数据证据一起定位。\n\n1. 固化结构：用 `SHOW CREATE TABLE` 查看主键、唯一键、外键、字段含义和索引。\n2. 查重复事实：统计同一业务键下多个描述字段是否存在多个版本。\n3. 查孤儿数据：用 `LEFT JOIN` 找没有主表记录的明细或关系行。\n4. 查多值字段：扫描逗号拼接、JSON 数组和重复列组，评估查询和约束成本。\n5. 查查询成本：对核心关联 SQL 跑 `EXPLAIN`，确认驱动表、访问类型、扫描行数和索引。\n6. 制定修复：先建新表和约束，再回填、双写、校验、切读、下线旧字段。\n\n```sql\nSHOW CREATE TABLE order_items\\G\n\nSELECT city_id, COUNT(DISTINCT city_name) AS name_versions\nFROM order_wide_bad\nGROUP BY city_id\nHAVING name_versions > 1;\n\nSELECT oi.order_id, oi.sku_id\nFROM order_items oi\nLEFT JOIN orders o ON o.id = oi.order_id\nWHERE o.id IS NULL\nLIMIT 20;\n\nEXPLAIN\nSELECT o.id, u.name, p.name, oi.quantity\nFROM orders o\nJOIN users u ON u.id = o.user_id\nJOIN order_items oi ON oi.order_id = o.id\nJOIN products p ON p.id = oi.sku_id\nWHERE o.user_id = 1001\nORDER BY o.created_at DESC\nLIMIT 20;\n```\n\n这些 SQL 可以把“设计口径问题”转成重复版本、孤儿行、缺失约束和低效关联四类可处理证据。",
+      "常见误区：范式是数据源头规则，反范式是性能与查询体验规则。两者需要共同服务业务正确性。\n\n- 订单快照字段表达历史事实，适合在下单时固化价格、商品名和地址。\n- 用户、商品、城市、角色等主数据表达当前事实，适合拥有独立主表和唯一维护入口。\n- 外键适合强一致、小规模、同库边界清楚的关系；大型分片系统可以用应用校验、消息校验和离线巡检组成完整性治理。\n- 第三范式足以覆盖大多数 OLTP 建模评审；BCNF 适合处理多个候选键和复杂依赖冲突。\n- 读性能优化要配套冗余字段来源、更新顺序、失败补偿、校验任务和回滚方案。",
+      "面试追问：范式类问题适合按“依赖、键、异常、取舍、证据”组织回答。\n\n- 什么是函数依赖，候选键、主属性和非主属性分别是什么意思？\n- 1NF、2NF、3NF、BCNF 分别解决哪类表结构问题？\n- 如何从订单宽表推导出用户、订单、明细、商品等表？\n- 更新异常、插入异常、删除异常分别如何产生？\n- 范式和反范式如何结合，哪些字段适合作为历史快照？\n- MySQL 中主键、唯一约束、外键和索引如何支撑范式设计？\n- 高并发 OLTP 中拆表后 JOIN、事务、锁和复制延迟如何评估？\n- 线上发现冗余字段不一致时，如何用 SQL 找证据并制定迁移方案？",
+      "参考来源：本讲解主要参考 MySQL 8.4 Reference Manual 的 `CREATE TABLE`、主键/唯一约束、外键、数据大小优化、优化器与索引文档，用 Microsoft、DigitalOcean、IBM、Redgate 的范式文章和 Database System Concepts 的关系数据库设计章节校准 1NF、2NF、3NF、BCNF、函数依赖和异常类型，再结合 PlanetScale、阿里巴巴 Java 开发手册、JavaGuide 与 CS-Notes 补充 MySQL 表设计、索引、约束和中文面试表达。"
+    ],
+    typicalProblems: [
+      "范式解决什么问题，函数依赖和候选键在表结构设计中如何使用？",
+      "1NF、2NF、3NF、BCNF 分别约束哪些依赖关系？",
+      "如何从订单宽表拆出用户、订单、订单明细、商品和城市表？",
+      "更新异常、插入异常、删除异常在真实业务里如何表现？",
+      "MySQL 的主键、唯一约束、外键和索引如何支撑范式设计？",
+      "范式化之后 JOIN、事务边界、锁顺序和慢查询成本如何评估？",
+      "哪些冗余字段属于历史快照，哪些冗余字段需要同步和校验机制？",
+      "线上发现重复数据、孤儿明细或口径漂移时如何用 SQL 建立证据？",
+      "面试中如何比较范式、反范式、外键约束和应用层校验的工程取舍？"
+    ],
+    commonCommands: [
+      "SHOW CREATE TABLE <table>\\G",
+      "EXPLAIN <join sql>",
+      "SELECT <business_key>, COUNT(DISTINCT <description>) FROM <table> GROUP BY <business_key> HAVING COUNT(DISTINCT <description>) > 1",
+      "SELECT child.* FROM <child> child LEFT JOIN <parent> parent ON parent.id = child.parent_id WHERE parent.id IS NULL LIMIT 20",
+      "SELECT <candidate_key>, COUNT(*) FROM <table> GROUP BY <candidate_key> HAVING COUNT(*) > 1"
+    ],
+    applicationScenarios: [
+      "订单模型拆分",
+      "用户权限模型",
+      "商品主数据治理",
+      "报表口径治理",
+      "历史快照设计",
+      "宽表重构",
+      "外键约束评审",
+      "MySQL 面试准备",
+    ],
+    commonIssues: [
+      "同一业务事实散落在多张表或多列中，更新路径变多。",
+      "多值字段让索引、约束、权限查询和删除校验变重。",
+      "复合键表保存只依赖部分键的字段，商品、角色或城市信息出现多个版本。",
+      "冗余字段缺少同步日志、校验任务和修复脚本，报表口径逐渐漂移。",
+      "过度拆分让核心接口 JOIN 过多，事务范围和慢查询风险升高。",
+    ],
+    useCases: ["订单模型设计", "用户权限模型", "主数据治理", "宽表拆分", "数据质量治理", "表结构重构", "面试准备"],
+    prerequisites: ["schema-design"],
+    related: ["denormalization", "foreign-key", "primary-key", "sql-optimization", "join", "schema-design"],
   },
   "data-type": {
     sourceRefs: [
