@@ -4921,6 +4921,18 @@ export const knowledgeSources = {
     title: "Linux man-pages: pgrep(1)",
     url: "https://man7.org/linux/man-pages/man1/pgrep.1.html",
   },
+  "linux-man-pages-kill-command": {
+    title: "Linux man-pages: kill(1)",
+    url: "https://man7.org/linux/man-pages/man1/kill.1.html",
+  },
+  "linux-man-pages-kill-syscall": {
+    title: "Linux man-pages: kill(2)",
+    url: "https://man7.org/linux/man-pages/man2/kill.2.html",
+  },
+  "linux-man-pages-pstree": {
+    title: "Linux man-pages: pstree(1)",
+    url: "https://man7.org/linux/man-pages/man1/pstree.1.html",
+  },
   "linux-man-pages-pthreads": {
     title: "Linux man-pages: pthreads(7)",
     url: "https://man7.org/linux/man-pages/man7/pthreads.7.html",
@@ -5261,6 +5273,10 @@ export const knowledgeSources = {
     title: "Microsoft Learn: Troubleshoot Linux performance bottlenecks",
     url: "https://learn.microsoft.com/zh-cn/troubleshoot/azure/virtual-machines/linux/troubleshoot-performance-bottlenecks-linux",
   },
+  "redhat-rhel-system-monitoring-tools": {
+    title: "Red Hat Enterprise Linux 7: System Monitoring Tools",
+    url: "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-system_monitoring_tools",
+  },
   "microsoft-mars-pathfinder-priority-inversion": {
     title: "Microsoft Research: What really happened on Mars Pathfinder",
     url: "https://www.microsoft.com/en-us/research/publication/what-really-happened-on-mars-pathfinder/",
@@ -5396,6 +5412,10 @@ export const knowledgeSources = {
   "xiaolincoding-os-interview": {
     title: "小林 coding: 操作系统面试题",
     url: "https://xiaolincoding.com/interview/os.html",
+  },
+  "vbird-process-control": {
+    title: "鸟哥的 Linux 私房菜: 程序管理",
+    url: "https://linux.vbird.org/linux_basic/centos7/0440processcontrol.php",
   },
   "redhat-rhel-managing-swap": {
     title: "Red Hat Docs: Managing swap space",
@@ -8192,6 +8212,18 @@ export const knowledgeSources = {
   "systemd-resource-control": {
     title: "systemd: Resource Control",
     url: "https://www.freedesktop.org/software/systemd/man/latest/systemd.resource-control.html",
+  },
+  "systemd-systemctl": {
+    title: "systemd: systemctl",
+    url: "https://www.freedesktop.org/software/systemd/man/latest/systemctl.html",
+  },
+  "systemd-service": {
+    title: "systemd: systemd.service",
+    url: "https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html",
+  },
+  "systemd-kill": {
+    title: "systemd: systemd.kill",
+    url: "https://www.freedesktop.org/software/systemd/man/latest/systemd.kill.html",
   },
   "kubernetes-cgroup-v2": {
     title: "Kubernetes Docs: About cgroup v2",
