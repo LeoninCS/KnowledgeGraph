@@ -173,6 +173,14 @@ export const knowledgeSources = {
     title: "Go FAQ: stack or heap",
     url: "https://go.dev/doc/faq#stack_or_heap",
   },
+  "go-faq-unused-variables": {
+    title: "Go FAQ: unused variables and imports",
+    url: "https://go.dev/doc/faq#unused_variables_and_imports",
+  },
+  "go-compiler-command": {
+    title: "cmd/compile: Go compiler",
+    url: "https://pkg.go.dev/cmd/compile",
+  },
   "go-unsafe-package": {
     title: "unsafe package",
     url: "https://pkg.go.dev/unsafe",
@@ -296,6 +304,10 @@ export const knowledgeSources = {
   "go-code-review-comments": {
     title: "Go Wiki: CodeReviewComments",
     url: "https://go.dev/wiki/CodeReviewComments",
+  },
+  "go-wiki-common-mistakes": {
+    title: "Go Wiki: Common Mistakes",
+    url: "https://go.dev/wiki/CommonMistakes",
   },
   "go-concurrency-pipelines": {
     title: "Go Blog: Pipelines and cancellation",
