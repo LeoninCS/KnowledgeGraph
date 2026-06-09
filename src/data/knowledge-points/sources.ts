@@ -205,9 +205,33 @@ export const knowledgeSources = {
     title: "Go Diagnostics",
     url: "https://go.dev/doc/diagnostics",
   },
+  "go-gc-guide": {
+    title: "A Guide to the Go Garbage Collector",
+    url: "https://go.dev/doc/gc-guide",
+  },
+  "go-blog-pprof": {
+    title: "Go Blog: Profiling Go Programs",
+    url: "https://go.dev/blog/pprof",
+  },
+  "go-code-review-comments": {
+    title: "Go Wiki: CodeReviewComments",
+    url: "https://go.dev/wiki/CodeReviewComments",
+  },
   "go-concurrency-pipelines": {
     title: "Go Blog: Pipelines and cancellation",
     url: "https://go.dev/blog/pipelines",
+  },
+  "draveness-go": {
+    title: "Go 语言设计与实现",
+    url: "https://draven.co/golang/",
+  },
+  "draveness-go-scheduler": {
+    title: "Go 语言设计与实现: 调度器与 Goroutine 实现原理",
+    url: "https://draven.co/golang/docs/part3-runtime/ch06-concurrency/golang-goroutine/",
+  },
+  "uber-go-guide": {
+    title: "Uber Go Style Guide",
+    url: "https://github.com/uber-go/guide",
   },
   "cs-notes": {
     title: "CS-Notes 技术面试必备基础知识",
