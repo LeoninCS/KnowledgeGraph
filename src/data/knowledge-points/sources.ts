@@ -4589,6 +4589,34 @@ export const knowledgeSources = {
     title: "Linux man-pages: signal(7)",
     url: "https://man7.org/linux/man-pages/man7/signal.7.html",
   },
+  "linux-man-pages-sigaction": {
+    title: "Linux man-pages: sigaction(2)",
+    url: "https://man7.org/linux/man-pages/man2/sigaction.2.html",
+  },
+  "linux-man-pages-sigprocmask": {
+    title: "Linux man-pages: sigprocmask(2)",
+    url: "https://man7.org/linux/man-pages/man2/sigprocmask.2.html",
+  },
+  "linux-man-pages-pthread-sigmask": {
+    title: "Linux man-pages: pthread_sigmask(3)",
+    url: "https://man7.org/linux/man-pages/man3/pthread_sigmask.3.html",
+  },
+  "linux-man-pages-sigpending": {
+    title: "Linux man-pages: sigpending(2)",
+    url: "https://man7.org/linux/man-pages/man2/sigpending.2.html",
+  },
+  "linux-man-pages-sigwaitinfo": {
+    title: "Linux man-pages: sigwaitinfo(2)",
+    url: "https://man7.org/linux/man-pages/man2/sigwaitinfo.2.html",
+  },
+  "linux-man-pages-sigreturn": {
+    title: "Linux man-pages: sigreturn(2)",
+    url: "https://man7.org/linux/man-pages/man2/sigreturn.2.html",
+  },
+  "linux-man-pages-signal-safety": {
+    title: "Linux man-pages: signal-safety(7)",
+    url: "https://man7.org/linux/man-pages/man7/signal-safety.7.html",
+  },
   "linux-man-pages-malloc": {
     title: "Linux man-pages: malloc(3)",
     url: "https://man7.org/linux/man-pages/man3/malloc.3.html",
