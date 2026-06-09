@@ -421,6 +421,22 @@ export const knowledgeSources = {
     title: "Go 语言圣经: 函数",
     url: "https://gopl-zh.github.io/ch5/ch5.html",
   },
+  "go-tour-pointers": {
+    title: "A Tour of Go: Pointers",
+    url: "https://go.dev/tour/moretypes/1",
+  },
+  "go-by-example-pointers": {
+    title: "Go by Example: Pointers",
+    url: "https://gobyexample.com/pointers",
+  },
+  "go101-pointers": {
+    title: "Go 101: Pointers in Go",
+    url: "https://go101.org/article/pointer.html",
+  },
+  "gopl-zh-pointers": {
+    title: "Go 语言圣经: 指针",
+    url: "https://gopl-zh.github.io/ch2/ch2-03.html",
+  },
   "go-generics-tutorial": {
     title: "Tutorial: Getting started with generics",
     url: "https://go.dev/doc/tutorial/generics",
