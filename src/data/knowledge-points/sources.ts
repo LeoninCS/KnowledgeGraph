@@ -53,6 +53,14 @@ export const knowledgeSources = {
     title: "Go Blog: go fmt your code",
     url: "https://go.dev/blog/gofmt",
   },
+  "goimports-command": {
+    title: "x/tools/cmd/goimports",
+    url: "https://pkg.go.dev/golang.org/x/tools/cmd/goimports",
+  },
+  "gopl-zh-go-tools": {
+    title: "Go 语言圣经: 包和工具",
+    url: "https://gopl-zh.github.io/ch10/ch10-07.html",
+  },
   "go-spec": {
     title: "The Go Programming Language Specification",
     url: "https://go.dev/ref/spec",
