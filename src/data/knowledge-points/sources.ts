@@ -4585,6 +4585,102 @@ export const knowledgeSources = {
     title: "Linux man-pages: credentials(7)",
     url: "https://man7.org/linux/man-pages/man7/credentials.7.html",
   },
+  "linux-man-pages-getgroups": {
+    title: "Linux man-pages: getgroups(2)",
+    url: "https://man7.org/linux/man-pages/man2/getgroups.2.html",
+  },
+  "linux-man-pages-initgroups": {
+    title: "Linux man-pages: initgroups(3)",
+    url: "https://man7.org/linux/man-pages/man3/initgroups.3.html",
+  },
+  "linux-man-pages-setuid": {
+    title: "Linux man-pages: setuid(2)",
+    url: "https://man7.org/linux/man-pages/man2/setuid.2.html",
+  },
+  "linux-man-pages-setgid": {
+    title: "Linux man-pages: setgid(2)",
+    url: "https://man7.org/linux/man-pages/man2/setgid.2.html",
+  },
+  "linux-man-pages-setresuid": {
+    title: "Linux man-pages: setresuid(2)",
+    url: "https://man7.org/linux/man-pages/man2/setresuid.2.html",
+  },
+  "linux-man-pages-setresgid": {
+    title: "Linux man-pages: setresgid(2)",
+    url: "https://man7.org/linux/man-pages/man2/setresgid.2.html",
+  },
+  "linux-man-pages-passwd": {
+    title: "Linux man-pages: passwd(5)",
+    url: "https://man7.org/linux/man-pages/man5/passwd.5.html",
+  },
+  "linux-man-pages-shadow": {
+    title: "Linux man-pages: shadow(5)",
+    url: "https://man7.org/linux/man-pages/man5/shadow.5.html",
+  },
+  "linux-man-pages-group": {
+    title: "Linux man-pages: group(5)",
+    url: "https://man7.org/linux/man-pages/man5/group.5.html",
+  },
+  "linux-man-pages-gshadow": {
+    title: "Linux man-pages: gshadow(5)",
+    url: "https://man7.org/linux/man-pages/man5/gshadow.5.html",
+  },
+  "linux-man-pages-nsswitch": {
+    title: "Linux man-pages: nsswitch.conf(5)",
+    url: "https://man7.org/linux/man-pages/man5/nsswitch.conf.5.html",
+  },
+  "linux-man-pages-getpwnam": {
+    title: "Linux man-pages: getpwnam(3)",
+    url: "https://man7.org/linux/man-pages/man3/getpwnam.3.html",
+  },
+  "linux-man-pages-useradd": {
+    title: "Linux man-pages: useradd(8)",
+    url: "https://man7.org/linux/man-pages/man8/useradd.8.html",
+  },
+  "linux-man-pages-usermod": {
+    title: "Linux man-pages: usermod(8)",
+    url: "https://man7.org/linux/man-pages/man8/usermod.8.html",
+  },
+  "linux-man-pages-userdel": {
+    title: "Linux man-pages: userdel(8)",
+    url: "https://man7.org/linux/man-pages/man8/userdel.8.html",
+  },
+  "linux-man-pages-groupadd": {
+    title: "Linux man-pages: groupadd(8)",
+    url: "https://man7.org/linux/man-pages/man8/groupadd.8.html",
+  },
+  "linux-man-pages-groupmod": {
+    title: "Linux man-pages: groupmod(8)",
+    url: "https://man7.org/linux/man-pages/man8/groupmod.8.html",
+  },
+  "linux-man-pages-groupdel": {
+    title: "Linux man-pages: groupdel(8)",
+    url: "https://man7.org/linux/man-pages/man8/groupdel.8.html",
+  },
+  "linux-man-pages-id": {
+    title: "Linux man-pages: id(1)",
+    url: "https://man7.org/linux/man-pages/man1/id.1.html",
+  },
+  "linux-man-pages-groups": {
+    title: "Linux man-pages: groups(1)",
+    url: "https://man7.org/linux/man-pages/man1/groups.1.html",
+  },
+  "linux-man-pages-getent": {
+    title: "Linux man-pages: getent(1)",
+    url: "https://man7.org/linux/man-pages/man1/getent.1.html",
+  },
+  "linux-man-pages-su": {
+    title: "Linux man-pages: su(1)",
+    url: "https://man7.org/linux/man-pages/man1/su.1.html",
+  },
+  "linux-man-pages-passwd-cmd": {
+    title: "Linux man-pages: passwd(1)",
+    url: "https://man7.org/linux/man-pages/man1/passwd.1.html",
+  },
+  "linux-man-pages-chage": {
+    title: "Linux man-pages: chage(1)",
+    url: "https://man7.org/linux/man-pages/man1/chage.1.html",
+  },
   "linux-man-pages-signal": {
     title: "Linux man-pages: signal(7)",
     url: "https://man7.org/linux/man-pages/man7/signal.7.html",
@@ -5448,6 +5544,42 @@ export const knowledgeSources = {
   "linux-man-pages-capabilities": {
     title: "Linux man-pages: capabilities(7)",
     url: "https://man7.org/linux/man-pages/man7/capabilities.7.html",
+  },
+  "sudo-manual": {
+    title: "Sudo Manual",
+    url: "https://www.sudo.ws/docs/man/",
+  },
+  "sudoers-manual": {
+    title: "Sudo Manual: sudoers(5)",
+    url: "https://www.sudo.ws/docs/man/sudoers.man/",
+  },
+  "linux-pam-guide": {
+    title: "Linux-PAM System Administrators' Guide",
+    url: "https://www.linux-pam.org/Linux-PAM-html/",
+  },
+  "linux-pam-unix": {
+    title: "Linux-PAM: pam_unix",
+    url: "https://www.linux-pam.org/Linux-PAM-html/sag-pam_unix.html",
+  },
+  "systemd-exec": {
+    title: "systemd.exec Manual",
+    url: "https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html",
+  },
+  "redhat-users-groups": {
+    title: "Red Hat Enterprise Linux: Managing users and groups",
+    url: "https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_basic_system_settings/managing-users-and-groups_configuring-basic-system-settings",
+  },
+  "ubuntu-users-groups": {
+    title: "Ubuntu Server: User management",
+    url: "https://documentation.ubuntu.com/server/how-to/security/user-management/",
+  },
+  "archwiki-users-groups": {
+    title: "ArchWiki: Users and groups",
+    url: "https://wiki.archlinux.org/title/Users_and_groups",
+  },
+  "vbird-linux-account-manager": {
+    title: "鸟哥的 Linux 私房菜: Linux 的账号与群组",
+    url: "https://linux.vbird.org/linux_basic/centos7/0410accountmanager.php",
   },
   "linux-man-pages-seccomp": {
     title: "Linux man-pages: seccomp(2)",
