@@ -297,6 +297,34 @@ export const knowledgeSources = {
     title: "Go Blog: Fixing For Loops in Go 1.22",
     url: "https://go.dev/blog/loopvar-preview",
   },
+  "go-tour-flow-control": {
+    title: "A Tour of Go: Flow control statements",
+    url: "https://go.dev/tour/flowcontrol/1",
+  },
+  "go-wiki-switch": {
+    title: "Go Wiki: Switch",
+    url: "https://go.dev/wiki/Switch",
+  },
+  "go-go1-23-release-notes": {
+    title: "Go 1.23 Release Notes",
+    url: "https://go.dev/doc/go1.23",
+  },
+  "go-blog-range-functions": {
+    title: "Go Blog: Range Over Function Types",
+    url: "https://go.dev/blog/range-functions",
+  },
+  "go101-control-flows": {
+    title: "Go 101: Basic Control Flows",
+    url: "https://go101.org/article/control-flows.html",
+  },
+  "go-by-example-if-else": {
+    title: "Go by Example: If/Else",
+    url: "https://gobyexample.com/if-else",
+  },
+  "go-by-example-switch": {
+    title: "Go by Example: Switch",
+    url: "https://gobyexample.com/switch",
+  },
   "go-builtin-error": {
     title: "builtin: error",
     url: "https://pkg.go.dev/builtin#error",
