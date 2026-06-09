@@ -69,6 +69,10 @@ export const knowledgeSources = {
     title: "Go 语言圣经: 导入声明",
     url: "https://gopl-zh.github.io/ch10/ch10-04.html",
   },
+  "gopl-zh-program-structure": {
+    title: "Go 语言圣经: 程序结构",
+    url: "https://gopl-zh.github.io/ch2/ch2.html",
+  },
   "gopl-zh-blank-imports": {
     title: "Go 语言圣经: 包的匿名导入",
     url: "https://gopl-zh.github.io/ch10/ch10-05.html",
@@ -125,6 +129,10 @@ export const knowledgeSources = {
     title: "How to Write Go Code",
     url: "https://go.dev/doc/code",
   },
+  "go-flag-package": {
+    title: "flag package",
+    url: "https://pkg.go.dev/flag",
+  },
   "go-module-layout": {
     title: "Organizing a Go module",
     url: "https://go.dev/doc/modules/layout",
@@ -148,6 +156,10 @@ export const knowledgeSources = {
   "go-os-signal": {
     title: "os/signal",
     url: "https://pkg.go.dev/os/signal",
+  },
+  "go-net-http": {
+    title: "net/http package",
+    url: "https://pkg.go.dev/net/http",
   },
   "go-faq-stack-heap": {
     title: "Go FAQ: stack or heap",
@@ -204,6 +216,10 @@ export const knowledgeSources = {
   "go-context-package": {
     title: "context package",
     url: "https://pkg.go.dev/context",
+  },
+  "go-blog-context": {
+    title: "Go Blog: Go Concurrency Patterns: Context",
+    url: "https://go.dev/blog/context",
   },
   "go-encoding-json": {
     title: "encoding/json",
