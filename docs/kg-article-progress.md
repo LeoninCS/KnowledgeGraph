@@ -7,13 +7,13 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 166 | 283 |
+| 449 | 167 | 282 |
 
 ## 分类进度
 
 | 分类 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- | --- |
-| go | 45 | 4 | 41 |
+| go | 45 | 5 | 40 |
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
@@ -33,7 +33,7 @@
 | 已优化 | `go-toolchain` | Go 工具链 | Go Toolchain | 2026-06-05 | 10 |
 | 已优化 | `gofmt` | gofmt | gofmt | 2026-06-05 | 6 |
 | 已优化 | `go-module` | Go Module | Go Module | 2026-06-05 | 11 |
-| 未开始 | `go-mod-tidy` | go mod tidy | go mod tidy | 2026-05-29 | 4 |
+| 已优化 | `go-mod-tidy` | go mod tidy | go mod tidy | 2026-06-05 | 8 |
 | 未开始 | `package` | Package | Package | 2026-05-29 | 5 |
 | 未开始 | `import` | import | Import | 2026-05-29 | 5 |
 | 未开始 | `visibility` | 可见性 | Visibility | 2026-05-29 | 4 |
