@@ -7,13 +7,13 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 169 | 280 |
+| 449 | 170 | 279 |
 
 ## 分类进度
 
 | 分类 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- | --- |
-| go | 45 | 7 | 38 |
+| go | 45 | 8 | 37 |
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
@@ -36,7 +36,7 @@
 | 已优化 | `go-mod-tidy` | go mod tidy | go mod tidy | 2026-06-05 | 8 |
 | 已优化 | `package` | Package | Package | 2026-06-05 | 8 |
 | 已优化 | `import` | import | Import | 2026-06-05 | 9 |
-| 未开始 | `visibility` | 可见性 | Visibility | 2026-05-29 | 4 |
+| 已优化 | `visibility` | 可见性 | Visibility | 2026-06-05 | 8 |
 | 未开始 | `main-function` | main 函数 | main Function | 2026-05-29 | 5 |
 | 未开始 | `init-function` | init 函数 | init Function | 2026-05-29 | 4 |
 | 未开始 | `variable` | 变量 | Variable | 2026-05-29 | 4 |

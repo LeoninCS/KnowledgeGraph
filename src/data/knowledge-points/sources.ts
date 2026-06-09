@@ -129,6 +129,10 @@ export const knowledgeSources = {
     title: "Organizing a Go module",
     url: "https://go.dev/doc/modules/layout",
   },
+  "go-go1compat": {
+    title: "Go 1 and the Future of Go Programs",
+    url: "https://go.dev/doc/go1compat",
+  },
   "go-blog-package-names": {
     title: "Go Blog: Package names",
     url: "https://go.dev/blog/package-names",
