@@ -8093,6 +8093,10 @@ export const knowledgeSources = {
     title: "Linux man-pages: cgroup_namespaces(7)",
     url: "https://man7.org/linux/man-pages/man7/cgroup_namespaces.7.html",
   },
+  "linux-man-pages-cgroups": {
+    title: "Linux man-pages: cgroups(7)",
+    url: "https://man7.org/linux/man-pages/man7/cgroups.7.html",
+  },
   "linux-man-pages-setns": {
     title: "Linux man-pages: setns(2)",
     url: "https://man7.org/linux/man-pages/man2/setns.2.html",
@@ -8145,6 +8149,10 @@ export const knowledgeSources = {
     title: "Kubernetes Docs: User Namespaces",
     url: "https://kubernetes.io/docs/concepts/workloads/pods/user-namespaces/",
   },
+  "kubernetes-pod-qos": {
+    title: "Kubernetes Docs: Quality of Service for Pods",
+    url: "https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/",
+  },
   "coolshell-docker-namespace-up": {
     title: "CoolShell: Docker基础技术：Linux Namespace（上）",
     url: "https://coolshell.cn/articles/17010.html",
@@ -8152,6 +8160,10 @@ export const knowledgeSources = {
   "coolshell-docker-namespace-down": {
     title: "CoolShell: Docker基础技术：Linux Namespace（下）",
     url: "https://coolshell.cn/articles/17029.html",
+  },
+  "coolshell-docker-cgroup": {
+    title: "CoolShell: Docker基础技术：Linux CGroup",
+    url: "https://coolshell.cn/articles/17049.html",
   },
   "docker-runtime-metrics": {
     title: "Docker Docs: Runtime metrics",
@@ -8176,6 +8188,10 @@ export const knowledgeSources = {
   "linux-cgroup-v2": {
     title: "Linux Kernel Docs: Control Group v2",
     url: "https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html",
+  },
+  "systemd-resource-control": {
+    title: "systemd: Resource Control",
+    url: "https://www.freedesktop.org/software/systemd/man/latest/systemd.resource-control.html",
   },
   "kubernetes-cgroup-v2": {
     title: "Kubernetes Docs: About cgroup v2",
