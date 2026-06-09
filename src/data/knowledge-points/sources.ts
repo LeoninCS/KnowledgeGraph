@@ -73,6 +73,10 @@ export const knowledgeSources = {
     title: "Go Modules Reference",
     url: "https://go.dev/ref/mod",
   },
+  "go-gomod-reference": {
+    title: "go.mod file reference",
+    url: "https://go.dev/doc/modules/gomod-ref",
+  },
   "go-managing-dependencies": {
     title: "Managing dependencies",
     url: "https://go.dev/doc/modules/managing-dependencies",
@@ -84,6 +88,26 @@ export const knowledgeSources = {
   "go-create-module": {
     title: "Tutorial: Create a Go module",
     url: "https://go.dev/doc/tutorial/create-module",
+  },
+  "go-blog-using-modules": {
+    title: "Go Blog: Using Go Modules",
+    url: "https://go.dev/blog/using-go-modules",
+  },
+  "go-blog-publishing-modules": {
+    title: "Go Blog: Publishing Go Modules",
+    url: "https://go.dev/blog/publishing-go-modules",
+  },
+  "go-blog-v2-modules": {
+    title: "Go Blog: Go Modules: v2 and Beyond",
+    url: "https://go.dev/blog/v2-go-modules",
+  },
+  "go-wiki-modules": {
+    title: "Go Wiki: Go Modules",
+    url: "https://go.dev/wiki/Modules",
+  },
+  "eddycjy-go-modules": {
+    title: "煎鱼: Go Modules 终极入门",
+    url: "https://eddycjy.com/posts/go/go-moduels/2020-02-28-go-modules/",
   },
   "go-how-to-write-code": {
     title: "How to Write Go Code",
