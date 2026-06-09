@@ -249,6 +249,22 @@ export const knowledgeSources = {
     title: "encoding/json",
     url: "https://pkg.go.dev/encoding/json",
   },
+  "go-builtin": {
+    title: "builtin package",
+    url: "https://pkg.go.dev/builtin",
+  },
+  "go-unicode-utf8": {
+    title: "unicode/utf8 package",
+    url: "https://pkg.go.dev/unicode/utf8",
+  },
+  "go-strconv-package": {
+    title: "strconv package",
+    url: "https://pkg.go.dev/strconv",
+  },
+  "go-cmp-package": {
+    title: "cmp package",
+    url: "https://pkg.go.dev/cmp",
+  },
   "go-blog-constants": {
     title: "Go Blog: Constants",
     url: "https://go.dev/blog/constants",
@@ -260,6 +276,18 @@ export const knowledgeSources = {
   "go-blog-strings": {
     title: "Go Blog: Strings, bytes, runes and characters in Go",
     url: "https://go.dev/blog/strings",
+  },
+  "go101-basic-types": {
+    title: "Go 101: Basic Types and Basic Value Literals",
+    url: "https://go101.org/article/basic-types-and-value-literals.html",
+  },
+  "gopl-zh-basic-types": {
+    title: "Go 语言圣经: 基础数据类型",
+    url: "https://gopl-zh.github.io/ch3/ch3.html",
+  },
+  "gopl-zh-strings": {
+    title: "Go 语言圣经: 字符串",
+    url: "https://gopl-zh.github.io/ch3/ch3-05.html",
   },
   "go-blog-slices": {
     title: "Go Blog: Go Slices: usage and internals",
