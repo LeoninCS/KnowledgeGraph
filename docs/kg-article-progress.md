@@ -7,13 +7,13 @@
 
 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- |
-| 449 | 176 | 273 |
+| 449 | 177 | 272 |
 
 ## 分类进度
 
 | 分类 | 总数 | 已优化 | 未开始 |
 | --- | --- | --- | --- |
-| go | 45 | 14 | 31 |
+| go | 45 | 15 | 30 |
 | network | 28 | 28 | 0 |
 | os | 34 | 34 | 0 |
 | algorithm | 34 | 0 | 34 |
@@ -43,7 +43,7 @@
 | 已优化 | `constant` | 常量 | Constant | 2026-06-05 | 11 |
 | 已优化 | `basic-types` | 基本类型 | Basic Types | 2026-06-05 | 11 |
 | 已优化 | `control-flow` | 控制流 | Control Flow | 2026-06-05 | 12 |
-| 未开始 | `error-handling` | 错误处理 | Error Handling | 2026-05-29 | 5 |
+| 已优化 | `error-handling` | 错误处理 | Error Handling | 2026-06-05 | 15 |
 | 未开始 | `defer` | defer | defer | 2026-05-29 | 4 |
 | 未开始 | `function` | 函数 | Function | 2026-05-29 | 4 |
 | 未开始 | `pointer` | 指针 | Pointer | 2026-05-29 | 5 |

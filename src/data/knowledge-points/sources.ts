@@ -333,9 +333,45 @@ export const knowledgeSources = {
     title: "errors package",
     url: "https://pkg.go.dev/errors",
   },
+  "go-fmt-package": {
+    title: "fmt package",
+    url: "https://pkg.go.dev/fmt",
+  },
   "go-blog-errors-1-13": {
     title: "Go Blog: Working with Errors in Go 1.13",
     url: "https://go.dev/blog/go1.13-errors",
+  },
+  "go-go1-20-release-notes": {
+    title: "Go 1.20 Release Notes",
+    url: "https://go.dev/doc/go1.20",
+  },
+  "go-blog-errors-are-values": {
+    title: "Go Blog: Errors are values",
+    url: "https://go.dev/blog/errors-are-values",
+  },
+  "go-blog-error-handling-and-go": {
+    title: "Go Blog: Error handling and Go",
+    url: "https://go.dev/blog/error-handling-and-go",
+  },
+  "go-wiki-errors": {
+    title: "Go Wiki: Errors",
+    url: "https://go.dev/wiki/Errors",
+  },
+  "go-tutorial-handle-errors": {
+    title: "Tutorial: Return and handle an error",
+    url: "https://go.dev/doc/tutorial/handle-errors",
+  },
+  "go-by-example-errors": {
+    title: "Go by Example: Errors",
+    url: "https://gobyexample.com/errors",
+  },
+  "go-by-example-custom-errors": {
+    title: "Go by Example: Custom Errors",
+    url: "https://gobyexample.com/custom-errors",
+  },
+  "gopl-zh-errors": {
+    title: "Go 语言圣经: 错误",
+    url: "https://gopl-zh.github.io/ch5/ch5-04.html",
   },
   "go-blog-defer-panic-recover": {
     title: "Go Blog: Defer, Panic, and Recover",
