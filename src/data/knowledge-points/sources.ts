@@ -4725,6 +4725,30 @@ export const knowledgeSources = {
     title: "Linux man-pages: pipe(2)",
     url: "https://man7.org/linux/man-pages/man2/pipe.2.html",
   },
+  "linux-man-pages-pipe7": {
+    title: "Linux man-pages: pipe(7)",
+    url: "https://man7.org/linux/man-pages/man7/pipe.7.html",
+  },
+  "linux-man-pages-fifo": {
+    title: "Linux man-pages: fifo(7)",
+    url: "https://man7.org/linux/man-pages/man7/fifo.7.html",
+  },
+  "linux-man-pages-mkfifo": {
+    title: "Linux man-pages: mkfifo(3)",
+    url: "https://man7.org/linux/man-pages/man3/mkfifo.3.html",
+  },
+  "linux-man-pages-fcntl-pipe-size": {
+    title: "Linux man-pages: F_GETPIPE_SZ(2const)",
+    url: "https://man7.org/linux/man-pages/man2/F_GETPIPE_SZ.2const.html",
+  },
+  "nvd-cve-2022-0847": {
+    title: "NVD: CVE-2022-0847",
+    url: "https://nvd.nist.gov/vuln/detail/CVE-2022-0847",
+  },
+  "ubuntu-cve-2022-0847": {
+    title: "Ubuntu Security: CVE-2022-0847",
+    url: "https://ubuntu.com/security/CVE-2022-0847",
+  },
   "linux-man-pages-socket": {
     title: "Linux man-pages: socket(2)",
     url: "https://man7.org/linux/man-pages/man2/socket.2.html",
@@ -4768,6 +4792,18 @@ export const knowledgeSources = {
   "linux-man-pages-poll": {
     title: "Linux man-pages: poll(2)",
     url: "https://man7.org/linux/man-pages/man2/poll.2.html",
+  },
+  "linux-man-pages-splice": {
+    title: "Linux man-pages: splice(2)",
+    url: "https://man7.org/linux/man-pages/man2/splice.2.html",
+  },
+  "linux-man-pages-tee": {
+    title: "Linux man-pages: tee(2)",
+    url: "https://man7.org/linux/man-pages/man2/tee.2.html",
+  },
+  "linux-man-pages-vmsplice": {
+    title: "Linux man-pages: vmsplice(2)",
+    url: "https://man7.org/linux/man-pages/man2/vmsplice.2.html",
   },
   "linux-man-pages-fsync": {
     title: "Linux man-pages: fsync(2)",
