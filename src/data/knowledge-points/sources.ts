@@ -161,6 +161,14 @@ export const knowledgeSources = {
     title: "net/http package",
     url: "https://pkg.go.dev/net/http",
   },
+  "go-net-http-pprof": {
+    title: "net/http/pprof package",
+    url: "https://pkg.go.dev/net/http/pprof",
+  },
+  "go-image-package": {
+    title: "image package",
+    url: "https://pkg.go.dev/image",
+  },
   "go-faq-stack-heap": {
     title: "Go FAQ: stack or heap",
     url: "https://go.dev/doc/faq#stack_or_heap",
