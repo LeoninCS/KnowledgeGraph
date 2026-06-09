@@ -377,6 +377,22 @@ export const knowledgeSources = {
     title: "Go Blog: Defer, Panic, and Recover",
     url: "https://go.dev/blog/defer-panic-and-recover",
   },
+  "go-go1-14-release-notes": {
+    title: "Go 1.14 Release Notes",
+    url: "https://go.dev/doc/go1.14",
+  },
+  "go101-defer-more": {
+    title: "Go 101: More about Deferred Function Calls",
+    url: "https://go101.org/article/defer-more.html",
+  },
+  "go-by-example-defer": {
+    title: "Go by Example: Defer",
+    url: "https://gobyexample.com/defer",
+  },
+  "gopl-zh-deferred-functions": {
+    title: "Go 语言圣经: Deferred函数",
+    url: "https://gopl-zh.github.io/ch5/ch5-08.html",
+  },
   "go-generics-tutorial": {
     title: "Tutorial: Getting started with generics",
     url: "https://go.dev/doc/tutorial/generics",
